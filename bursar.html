@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>💰 Bursar — EduTrack Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;padding:20px}
+.navbar{background:rgba(255,255,255,.95);border-radius:16px 16px 0 0;padding:10px 25px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);position:sticky;top:0;z-index:1000;border-bottom:3px solid #302b63}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;color:#302b63;text-decoration:none;font-family:Georgia,serif}
+.brand .brand-text{background:linear-gradient(135deg,#0f0c29,#302b63);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-menu{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nav-link{padding:8px 14px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px}
+.nav-link:hover{background:rgba(48,43,99,.08);color:#302b63}
+.nav-link.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff}
+.nav-user{display:flex;align-items:center;gap:10px;padding:5px 12px;border-radius:20px;background:#f0f4ff;border:1px solid #302b63}
+.nav-user .avatar{width:32px;height:32px;border-radius:50%;background:#302b63;color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:0 0 24px 24px;padding:25px 30px 30px;box-shadow:0 25px 80px rgba(0,0,0,.5);min-height:80vh;position:relative}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,#fcdc04 33%,#fcdc04 66%,#d90000 66%,#d90000 100%)}
+.form-section{display:none}
+.form-section.active{display:block;padding-top:10px;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:22px;color:#1a1a2e;margin-bottom:5px}
+.section-desc{color:#888;font-size:14px;margin-bottom:20px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-weight:600;color:#555;font-size:14px;margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fafafa}
+.form-group input:focus,.form-group select:focus{border-color:#302b63;outline:none;background:white}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
+.btn{padding:12px 28px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,#0f0c29,#302b63);color:white}
+.btn-success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f);color:white}
+.btn-danger{background:linear-gradient(135deg,#c1121f,#780000);color:white}
+.btn-info{background:linear-gradient(135deg,#004085,#0069d9);color:white}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:6px 16px;font-size:13px}
+.btn-group-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.ledger-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.ledger-table th{background:linear-gradient(135deg,#0f0c29,#302b63);color:white;padding:12px 10px;text-align:left}
+.ledger-table td{padding:10px;border-bottom:1px solid #e0e0e0}
+.ledger-table .credit{color:#2d6a4f;font-weight:600}
+.ledger-table .debit{color:#c1121f;font-weight:600}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:15px 0}
+.stat-card{background:white;border-radius:14px;padding:15px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0;text-align:center}
+.stat-card .num{font-size:24px;font-weight:700;color:#1a1a2e}
+.stat-card .lbl{font-size:12px;color:#888}
+.status-message{padding:12px;border-radius:10px;margin:15px 0;display:none}
+.status-message.success{display:block;background:#d4edda;color:#155724}
+.status-message.error{display:block;background:#f8d7da;color:#721c24}
+.status-message.info{display:block;background:#d1ecf1;color:#0c5460}
+.toast-notification{position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:12px;color:white;font-weight:600;z-index:9999;opacity:0;transform:translateX(100%);transition:all .5s;max-width:400px}
+.toast-notification.show{opacity:1;transform:translateX(0)}
+.toast-notification.success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,#c1121f,#780000)}
+.toast-notification.info{background:linear-gradient(135deg,#0f0c29,#302b63)}
+.footer{text-align:center;padding:20px 0 10px;border-top:2px solid #e0e0e0;margin-top:30px}
+@media(max-width:992px){.form-row,.form-row-3,.btn-group-3{grid-template-columns:1fr;gap:0}}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<nav class="navbar">
+    <a href="bursar.html" class="brand"><span style="font-size:28px">📚</span><span class="brand-text">EduTrack Pro</span></a>
+    <div class="nav-menu">
+        <button class="nav-link active" onclick="switchTab('fees')"><i class="fas fa-money-bill-wave"></i> Fees</button>
+        <button class="nav-link" onclick="switchTab('expenses')"><i class="fas fa-receipt"></i> Expenses</button>
+        <button class="nav-link" onclick="switchTab('salaries')"><i class="fas fa-hand-holding-usd"></i> Salaries</button>
+        <button class="nav-link" onclick="switchTab('arrears')"><i class="fas fa-exclamation-triangle"></i> Arrears</button>
+        <div class="nav-user"><div class="avatar" id="navAvatar">B</div><div style="font-size:12px"><div style="font-weight:600" id="navName">Bursar</div><div style="font-size:10px;color:#888">💰 Bursar</div></div></div>
+        <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- FEES -->
+    <div id="tabFees" class="form-section active">
+        <h2 class="section-title">💰 Record Fee Payment</h2>
+        <div class="form-row-3">
+            <div class="form-group"><label>Student *</label><select id="feeStudent"><option value="">Select</option></select></div>
+            <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="feeAmount" min="0" step="1000" /></div>
+            <div class="form-group"><label>Method</label>
+                <select id="feeMethod"><option value="cash">Cash</option><option value="mobile">Mobile Money</option><option value="bank">Bank Transfer</option><option value="cheque">Cheque</option></select>
+            </div>
+        </div>
+        <div class="form-row-3">
+            <div class="form-group"><label>Term</label><select id="feeTerm"><option value="I">I</option><option value="II">II</option><option value="III" selected>III</option></select></div>
+            <div class="form-group"><label>Year</label><select id="feeYear"><option>2025</option><option selected>2026</option><option>2027</option></select></div>
+            <div class="form-group"><label>Narration</label><input type="text" id="feeNarration" /></div>
+        </div>
+        <div class="btn-group-3">
+            <button class="btn btn-success" onclick="recordFee()">💰 Record Payment</button>
+            <button class="btn btn-secondary" onclick="resetFeeForm()">🔄 Reset</button>
+            <button class="btn btn-info" onclick="loadFees()">📋 Load Records</button>
+        </div>
+        <div style="margin-top:20px">
+            <h4>📊 Summary</h4>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="num" id="feeTotal">0</div><div class="lbl">Total Collected</div></div>
+                <div class="stat-card"><div class="num" id="feeCount">0</div><div class="lbl">Transactions</div></div>
+            </div>
+        </div>
+        <div style="margin-top:20px">
+            <h4>📋 Records</h4>
+            <input type="text" id="feeSearch" placeholder="🔍 Search..." onkeyup="renderFees()" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;margin-bottom:10px" />
+            <div id="feesList"><p style="text-align:center;color:#999;padding:20px">No records.</p></div>
+        </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div id="tabExpenses" class="form-section">
+        <h2 class="section-title">💳 Record Expense</h2>
+        <div class="form-row-3">
+            <div class="form-group"><label>Description *</label><input type="text" id="expDesc" /></div>
+            <div class="form-group"><label>Amount *</label><input type="number" id="expAmount" min="0" step="100" /></div>
+            <div class="form-group"><label>Category</label>
+                <select id="expCategory"><option value="stationery">Stationery</option><option value="maintenance">Maintenance</option><option value="salaries">Salaries</option><option value="utilities">Utilities</option><option value="transport">Transport</option><option value="other">Other</option></select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Date</label><input type="date" id="expDate" /></div>
+            <div class="form-group"><label>Narration</label><input type="text" id="expNarration" /></div>
+        </div>
+        <button class="btn btn-danger" onclick="recordExpense()">💳 Record</button>
+        <div style="margin-top:20px"><h4>📊 Summary</h4>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="num" id="expTotal">0</div><div class="lbl">Total</div></div>
+                <div class="stat-card"><div class="num" id="expToday">0</div><div class="lbl">Today</div></div>
+            </div>
+        </div>
+        <div id="expList" style="margin-top:20px"><p style="text-align:center;color:#999;padding:20px">No records.</p></div>
+    </div>
+
+    <!-- SALARIES -->
+    <div id="tabSalaries" class="form-section">
+        <h2 class="section-title">💵 Record Salary</h2>
+        <div class="form-row-3">
+            <div class="form-group"><label>Worker *</label><select id="salWorker" onchange="fillSalary()"><option value="">Select</option></select></div>
+            <div class="form-group"><label>Expected</label><input type="text" id="salExpected" disabled /></div>
+            <div class="form-group"><label>Amount Paid *</label><input type="number" id="salAmount" min="0" step="1000" /></div>
+        </div>
+        <div class="form-row-3">
+            <div class="form-group"><label>Month</label>
+                <select id="salMonth"><option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select>
+            </div>
+            <div class="form-group"><label>Year</label><select id="salYear"><option>2025</option><option selected>2026</option><option>2027</option></select></div>
+            <div class="form-group"><label>Method</label><select id="salMethod"><option value="cash">Cash</option><option value="mobile">Mobile Money</option><option value="bank">Bank</option></select></div>
+        </div>
+        <button class="btn btn-success" onclick="recordSalary()">💵 Record</button>
+        <div id="salList" style="margin-top:20px"><p style="text-align:center;color:#999;padding:20px">No records.</p></div>
+    </div>
+
+    <!-- ARREARS -->
+    <div id="tabArrears" class="form-section">
+        <h2 class="section-title">⚠️ Arrears Report</h2>
+        <div class="form-row-3">
+            <div class="form-group"><label>Class</label><select id="arrClass"><option value="all">All Classes</option></select></div>
+            <div class="form-group"><label>Term</label><select id="arrTerm"><option value="I">I</option><option value="II">II</option><option value="III" selected>III</option></select></div>
+            <div class="form-group"><label>Year</label><select id="arrYear"><option>2025</option><option selected>2026</option><option>2027</option></select></div>
+        </div>
+        <button class="btn btn-primary" onclick="loadArrears()">📊 Generate</button>
+        <div style="margin-top:15px">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="num" id="arrTotal">0</div><div class="lbl">Total Owed</div></div>
+                <div class="stat-card"><div class="num" id="arrCount">0</div><div class="lbl">Defaulters</div></div>
+            </div>
+        </div>
+        <div id="arrList" style="margin-top:15px"><p style="text-align:center;color:#999;padding:20px">Click Generate.</p></div>
+    </div>
+
+    <div class="footer"><div style="font-weight:700;color:#302b63">📚 EduTrack Pro — Bursar</div></div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+var session = null;
+var feesRecords = [];
+var expRecords = [];
+var salRecords = [];
+
+document.addEventListener('DOMContentLoaded', function () {
+    session = JSON.parse(sessionStorage.getItem('edutrack_session') || localStorage.getItem('edutrack_session') || 'null');
+    if (!session || session.role !== 'bursar') { window.location.href = 'index.html'; return; }
+    document.getElementById('navAvatar').textContent = (session.name || 'B').charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = session.name || session.username;
+    document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('salMonth').value = String(new Date().getMonth() + 1);
+    populateSelectors();
+    loadFees(); loadExpenses(); loadSalaries();
+});
+
+function showToast(msg, type) { type = type || 'info'; var t = document.createElement('div'); t.className = 'toast-notification ' + type; t.textContent = msg; document.getElementById('toastContainer').appendChild(t); setTimeout(function () { t.classList.add('show'); }, 100); setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 500); }, 4000); }
+function logout() { sessionStorage.removeItem('edutrack_session'); localStorage.removeItem('edutrack_session'); window.location.href = 'index.html'; }
+async function api(p) { var parts = []; for (var k in p) if (p.hasOwnProperty(k) && p[k] != null) parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(p[k])); var r = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: parts.join('&') }); return await r.json(); }
+function extractSheetId(u) { if (!u) return ''; var m = u.match(/\/d\/([a-zA-Z0-9-_]+)/); return m ? m[1] : (/^[a-zA-Z0-9-_]{30,}$/.test(u) ? u : ''); }
+function getSheetId(cls) { return extractSheetId(localStorage.getItem('classLink_' + cls + '_' + session.school) || ''); }
+function getClassFee(cls, term) { var s = JSON.parse(localStorage.getItem('feeStructure_' + session.school) || '{}'); return (s[cls] && s[cls][term]) ? parseFloat(s[cls][term]) : 0; }
+
+function switchTab(tab) {
+    document.querySelectorAll('.nav-link').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.form-section').forEach(function (el) { el.classList.remove('active'); });
+    var map = { fees:'tabFees', expenses:'tabExpenses', salaries:'tabSalaries', arrears:'tabArrears' };
+    document.getElementById(map[tab] || 'tabFees').classList.add('active');
+}
+
+async function populateSelectors() {
+    var all = [];
+    for (var i = 0; i < CLASSES.length; i++) {
+        var sid = getSheetId(CLASSES[i]);
+        if (!sid) continue;
+        try {
+            var r = await api({ action: 'getStudents', sheetId: sid, school: session.school, className: CLASSES[i] });
+            (r.success && r.data ? r.data.students || [] : []).forEach(function (s) { all.push(s); });
+        } catch (e) {}
+    }
+    var sel = document.getElementById('feeStudent');
+    sel.innerHTML = '<option value="">Select</option>';
+    all.forEach(function (s) { var o = document.createElement('option'); o.value = s.studentId; o.textContent = s.studentName + ' (' + s.studentId + ')'; sel.appendChild(o); });
+
+    var ac = document.getElementById('arrClass');
+    ac.innerHTML = '<option value="all">All Classes</option>';
+    CLASSES.forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = c; ac.appendChild(o); });
+
+    // Load workers for salary
+    try {
+        var wr = await api({ action: 'getAllAccounts', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        var workers = (wr.success && wr.data ? wr.data.accounts || [] : []).filter(function (w) { return w.role !== 'parent' && w.role !== 'admin'; });
+        var ws = document.getElementById('salWorker');
+        ws.innerHTML = '<option value="">Select</option>';
+        workers.forEach(function (w) {
+            var o = document.createElement('option');
+            o.value = w.username;
+            o.textContent = w.name + ' (' + w.role + ')';
+            o.dataset.salary = w.salary || 0;
+            ws.appendChild(o);
+        });
+    } catch (e) {}
+}
+
+// ============================================================
+// FEES
+// ============================================================
+async function loadFees() {
+    try {
+        var r = await api({ action: 'getFeeRecords', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        feesRecords = (r.success && r.data ? r.data.records || [] : []);
+        renderFees();
+        document.getElementById('feeTotal').textContent = feesRecords.reduce(function (s, x) { return s + (x.amount || 0); }, 0).toLocaleString();
+        document.getElementById('feeCount').textContent = feesRecords.length;
+    } catch (e) {}
+}
+function renderFees() {
+    var q = (document.getElementById('feeSearch').value || '').toLowerCase();
+    var f = q ? feesRecords.filter(function (r) { return (r.id || '').toLowerCase().includes(q) || (r.studentId || '').toLowerCase().includes(q); }) : feesRecords;
+    if (f.length === 0) { document.getElementById('feesList').innerHTML = '<p style="text-align:center;color:#999;padding:20px">No records.</p>'; return; }
+    document.getElementById('feesList').innerHTML = '<table class="ledger-table"><thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>' + f.slice().reverse().map(function (r) {
+        return '<tr><td>' + r.id + '</td><td>' + r.studentId + '</td><td class="credit">UGX ' + (r.amount || 0).toLocaleString() + '</td><td>' + r.method + '</td><td>' + r.date + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+async function recordFee() {
+    var sid = document.getElementById('feeStudent').value;
+    var amt = parseFloat(document.getElementById('feeAmount').value);
+    if (!sid || !amt || amt <= 0) { showToast('Fill required fields.', 'warning'); return; }
+    var receipt = 'RCP-' + Date.now().toString().slice(-8);
+    var record = {
+        id: receipt, studentId: sid, amount: amt,
+        method: document.getElementById('feeMethod').value,
+        term: document.getElementById('feeTerm').value,
+        year: document.getElementById('feeYear').value,
+        narration: document.getElementById('feeNarration').value,
+        date: new Date().toISOString().slice(0, 10),
+        time: new Date().toLocaleTimeString()
+    };
+    try {
+        var r = await api({ action: 'saveFeeRecord', sheetId: ACCOUNTS_SHEET_ID, school: session.school, record: JSON.stringify(record) });
+        if (r.success) {
+            showToast('✅ Payment recorded! Receipt: ' + receipt, 'success');
+            resetFeeForm();
+            loadFees();
+        } else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function resetFeeForm() {
+    ['feeStudent','feeAmount','feeNarration'].forEach(function (id) { document.getElementById(id).value = ''; });
+    document.getElementById('feeMethod').value = 'cash';
+}
+
+// ============================================================
+// EXPENSES
+// ============================================================
+async function loadExpenses() {
+    try {
+        var r = await api({ action: 'getExpenses', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        expRecords = (r.success && r.data ? r.data.expenses || [] : []);
+        var today = new Date().toISOString().slice(0, 10);
+        document.getElementById('expTotal').textContent = expRecords.reduce(function (s, x) { return s + (x.amount || 0); }, 0).toLocaleString();
+        document.getElementById('expToday').textContent = expRecords.filter(function (x) { return x.date === today; }).reduce(function (s, x) { return s + (x.amount || 0); }, 0).toLocaleString();
+        document.getElementById('expList').innerHTML = expRecords.length === 0 ? '<p style="text-align:center;color:#999;padding:20px">No records.</p>' : '<table class="ledger-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>' + expRecords.slice().reverse().map(function (e) { return '<tr><td>' + e.date + '</td><td>' + e.description + '</td><td class="debit">UGX ' + (e.amount || 0).toLocaleString() + '</td><td>' + e.category + '</td></tr>'; }).join('') + '</tbody></table>';
+    } catch (e) {}
+}
+async function recordExpense() {
+    var d = document.getElementById('expDesc').value.trim();
+    var amt = parseFloat(document.getElementById('expAmount').value);
+    if (!d || !amt || amt <= 0) { showToast('Fill required fields.', 'warning'); return; }
+    var exp = { id: 'EXP-' + Date.now().toString().slice(-8), description: d, amount: amt, category: document.getElementById('expCategory').value, date: document.getElementById('expDate').value, narration: document.getElementById('expNarration').value, time: new Date().toLocaleTimeString() };
+    try {
+        var r = await api({ action: 'saveExpense', sheetId: ACCOUNTS_SHEET_ID, school: session.school, expense: JSON.stringify(exp) });
+        if (r.success) { showToast('✅ Recorded!', 'success'); document.getElementById('expDesc').value = ''; document.getElementById('expAmount').value = ''; loadExpenses(); }
+        else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// SALARIES
+// ============================================================
+function fillSalary() {
+    var sel = document.getElementById('salWorker');
+    var opt = sel.options[sel.selectedIndex];
+    var s = opt.dataset.salary || '0';
+    document.getElementById('salExpected').value = s !== '0' ? 'UGX ' + parseInt(s).toLocaleString() : 'Not set';
+    document.getElementById('salAmount').value = s !== '0' ? s : '';
+}
+async function loadSalaries() {
+    try {
+        var r = await api({ action: 'getSalaryPayments', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        salRecords = (r.success && r.data ? r.data.records || [] : []);
+        document.getElementById('salList').innerHTML = salRecords.length === 0 ? '<p style="text-align:center;color:#999;padding:20px">No records.</p>' : '<table class="ledger-table"><thead><tr><th>Date</th><th>Worker</th><th>Amount</th><th>Method</th></tr></thead><tbody>' + salRecords.slice().reverse().map(function (s) { return '<tr><td>' + s.date + '</td><td>' + (s.workerName || s.worker) + '</td><td class="debit">UGX ' + (s.amount || 0).toLocaleString() + '</td><td>' + s.method + '</td></tr>'; }).join('') + '</tbody></table>';
+    } catch (e) {}
+}
+async function recordSalary() {
+    var w = document.getElementById('salWorker').value;
+    var amt = parseFloat(document.getElementById('salAmount').value);
+    if (!w || !amt || amt <= 0) { showToast('Fill required fields.', 'warning'); return; }
+    var opt = document.getElementById('salWorker').options[document.getElementById('salWorker').selectedIndex];
+    var record = {
+        id: 'SAL-' + Date.now().toString().slice(-8),
+        worker: w, workerName: opt.textContent.split(' (')[0],
+        amount: amt, month: document.getElementById('salMonth').value,
+        year: document.getElementById('salYear').value,
+        method: document.getElementById('salMethod').value,
+        date: new Date().toISOString().slice(0, 10),
+        time: new Date().toLocaleTimeString()
+    };
+    try {
+        var r = await api({ action: 'saveSalaryPayment', sheetId: ACCOUNTS_SHEET_ID, school: session.school, record: JSON.stringify(record) });
+        if (r.success) { showToast('✅ Salary recorded!', 'success'); document.getElementById('salAmount').value = ''; loadSalaries(); }
+        else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// ARREARS
+// ============================================================
+async function loadArrears() {
+    var cls = document.getElementById('arrClass').value;
+    var term = document.getElementById('arrTerm').value;
+    var year = document.getElementById('arrYear').value;
+    var classes = cls === 'all' ? CLASSES : [cls];
+    var all = [];
+    for (var i = 0; i < classes.length; i++) {
+        var sheetId = getSheetId(classes[i]);
+        if (!sheetId) continue;
+        try {
+            var r = await api({ action: 'getStudents', sheetId: sheetId, school: session.school, className: classes[i] });
+            var students = (r.success && r.data ? r.data.students || [] : []);
+            var classFee = getClassFee(classes[i], term);
+            students.forEach(function (s) {
+                var paid = feesRecords.filter(function (x) { return x.studentId === s.studentId && String(x.term) === String(term) && String(x.year) === String(year); }).reduce(function (a, x) { return a + (x.amount || 0); }, 0);
+                var bal = Math.max(0, classFee - paid);
+                all.push({ cls: classes[i], studentId: s.studentId, name: s.studentName, fee: classFee, paid: paid, balance: bal });
+            });
+        } catch (e) {}
+    }
+    all.sort(function (a, b) { return b.balance - a.balance; });
+    var owe = all.filter(function (x) { return x.balance > 0; });
+    document.getElementById('arrTotal').textContent = owe.reduce(function (s, x) { return s + x.balance; }, 0).toLocaleString();
+    document.getElementById('arrCount').textContent = owe.length;
+    if (owe.length === 0) { document.getElementById('arrList').innerHTML = '<p style="text-align:center;color:#2d6a4f;padding:20px;font-weight:600">🎉 No arrears!</p>'; return; }
+    document.getElementById('arrList').innerHTML = '<table class="ledger-table"><thead><tr><th>#</th><th>Student</th><th>Class</th><th>Fee</th><th>Paid</th><th>Balance</th></tr></thead><tbody>' + owe.map(function (x, i) { return '<tr><td>' + (i + 1) + '</td><td>' + x.name + ' <span style="font-size:11px;color:#888">' + x.studentId + '</span></td><td>' + x.cls + '</td><td>' + x.fee.toLocaleString() + '</td><td class="credit">' + x.paid.toLocaleString() + '</td><td class="debit">' + x.balance.toLocaleString() + '</td></tr>'; }).join('') + '</tbody></table>';
+}
+</script>
+</body>
+</html>
