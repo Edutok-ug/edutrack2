@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>👨‍💼 Admin — EduTrack Pro</title>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* Compact shared CSS */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;padding:20px}
+.navbar{background:rgba(255,255,255,.95);border-radius:16px 16px 0 0;padding:10px 25px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);position:sticky;top:0;z-index:1000;border-bottom:3px solid #302b63}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;color:#302b63;text-decoration:none;font-family:Georgia,serif}
+.brand .brand-icon{font-size:28px}
+.brand .brand-text{background:linear-gradient(135deg,#0f0c29,#302b63);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-toggle{display:none;background:none;border:none;font-size:24px;color:#302b63;cursor:pointer}
+.nav-menu{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nav-link{padding:8px 14px;border-radius:10px;color:#666;text-decoration:none;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.nav-link:hover{background:rgba(48,43,99,.08);color:#302b63}
+.nav-link.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff}
+.nav-user{display:flex;align-items:center;gap:10px;padding:5px 12px;border-radius:20px;background:#f0f4ff;border:1px solid #302b63}
+.nav-user .avatar{width:32px;height:32px;border-radius:50%;background:#302b63;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.nav-user .info{font-size:12px;color:#333}
+.nav-user .info .name{font-weight:600}
+.nav-user .info .role{font-size:10px;color:#888}
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:0 0 24px 24px;padding:25px 30px 30px;box-shadow:0 25px 80px rgba(0,0,0,.5);min-height:80vh;position:relative}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,#fcdc04 33%,#fcdc04 66%,#d90000 66%,#d90000 100%)}
+.form-section{display:none;animation:fadeIn .4s}
+.form-section.active{display:block;padding-top:10px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:22px;color:#1a1a2e;margin-bottom:5px}
+.section-desc{color:#888;font-size:14px;margin-bottom:20px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-weight:600;color:#555;font-size:14px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fafafa;transition:.3s}
+.form-group input:focus,.form-group select:focus{border-color:#302b63;outline:none;box-shadow:0 0 0 3px rgba(48,43,99,.15);background:white}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
+.btn{padding:12px 28px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.btn-primary{background:linear-gradient(135deg,#0f0c29,#302b63);color:white}
+.btn-success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f);color:white}
+.btn-danger{background:linear-gradient(135deg,#c1121f,#780000);color:white}
+.btn-info{background:linear-gradient(135deg,#004085,#0069d9);color:white}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:6px 16px;font-size:13px}
+.btn-full{width:100%}
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:15px 0}
+.stat-card{background:white;border-radius:14px;padding:15px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0;text-align:center}
+.stat-card .icon{font-size:28px}
+.stat-card .num{font-size:24px;font-weight:700;color:#1a1a2e;margin:3px 0}
+.stat-card .lbl{font-size:12px;color:#888;font-weight:500}
+.class-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:15px;margin:15px 0}
+.class-card{background:white;border-radius:12px;padding:15px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.08);border:1px solid #e0e0e0}
+.class-card .name{font-size:15px;font-weight:700;color:#302b63}
+.class-card .count{font-size:26px;font-weight:700;color:#1a1a2e;margin:5px 0}
+.class-card .label{font-size:11px;color:#888}
+.chart-container{background:white;border-radius:14px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0;margin:15px 0}
+.chart-container canvas{max-height:300px;max-width:100%}
+.score-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;border-radius:10px;overflow:hidden}
+.score-table th{background:linear-gradient(135deg,#0f0c29,#302b63);color:white;padding:12px 10px;text-align:left;font-size:12px}
+.score-table td{padding:8px 10px;border-bottom:1px solid #e0e0e0}
+.score-table input{width:100%;padding:8px 10px;border:2px solid #ddd;border-radius:6px;font-size:14px}
+.score-table input:focus{border-color:#302b63;outline:none}
+.ledger-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.ledger-table th{background:linear-gradient(135deg,#0f0c29,#302b63);color:white;padding:12px 10px;text-align:left;font-size:12px}
+.ledger-table td{padding:10px;border-bottom:1px solid #e0e0e0}
+.info-box{background:#e8f0fe;border-left:4px solid #302b63;padding:15px 20px;border-radius:8px;margin:15px 0}
+.info-box .title{font-weight:700;color:#302b63;font-size:15px}
+.info-box .text{color:#555;font-size:14px;margin-top:4px}
+.status-message{padding:12px 15px;border-radius:10px;margin:15px 0;font-size:14px;display:none}
+.status-message.success{display:block;background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.status-message.error{display:block;background:#f8d7da;color:#721c24}
+.status-message.info{display:block;background:#d1ecf1;color:#0c5460}
+.status-message.warning{display:block;background:#fff3cd;color:#856404}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal-box{background:white;border-radius:20px;padding:30px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto}
+.modal-box .icon{font-size:48px;text-align:center;display:block;margin-bottom:10px}
+.modal-box h3{text-align:center;color:#1a1a2e;margin-bottom:10px}
+.modal-box p{text-align:center;color:#555;margin-bottom:20px;line-height:1.6;white-space:pre-line}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.toast-notification{position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:12px;color:white;font-weight:600;z-index:9999;opacity:0;transform:translateX(100%);transition:all .5s;max-width:400px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.toast-notification.show{opacity:1;transform:translateX(0)}
+.toast-notification.success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,#c1121f,#780000)}
+.toast-notification.info{background:linear-gradient(135deg,#0f0c29,#302b63)}
+.toast-notification.warning{background:linear-gradient(135deg,#e85d04,#dc2f02)}
+.camera-container{position:relative;overflow:hidden;background:#1a1a2e;border-radius:16px;margin:15px 0}
+.camera-container video{width:100%;display:block;border-radius:12px;background:#000;min-height:280px;transform:scaleX(-1);object-fit:cover}
+.camera-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;padding:10px;background:#f8f9fa;border-radius:12px}
+.face-registered-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:15px 0}
+.face-registered-item{background:white;border-radius:12px;padding:12px;text-align:center;border:1px solid #e0e0e0}
+.face-registered-item .name{font-size:13px;font-weight:600;color:#333}
+.face-registered-item .role{font-size:11px;color:#888}
+.footer{text-align:center;padding:20px 0 10px 0;border-top:2px solid #e0e0e0;margin-top:30px}
+.spinner{border:4px solid #f3f3f3;border-top:4px solid #302b63;border-radius:50%;width:45px;height:45px;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.loading-spinner{display:none;text-align:center;padding:20px}
+.loading-spinner.active{display:block}
+@media(max-width:992px){.nav-toggle{display:block}.nav-menu{display:none;width:100%;flex-direction:column;align-items:stretch;padding:10px 0;border-top:1px solid #e0e0e0;margin-top:10px}.nav-menu.open{display:flex}.form-row,.form-row-3{grid-template-columns:1fr;gap:0}.stats-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.stats-grid{grid-template-columns:1fr}.class-cards{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+        <span class="icon" id="modalIcon">✅</span>
+        <h3 id="modalTitle">Success</h3>
+        <p id="modalMessage">Operation completed.</p>
+        <div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">OK</button></div>
+    </div>
+</div>
+
+<nav class="navbar">
+    <a href="admin.html" class="brand"><span class="brand-icon">📚</span><span class="brand-text">EduTrack Pro</span></a>
+    <button class="nav-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+    <div class="nav-menu" id="navbarMenu">
+        <button class="nav-link active" onclick="switchTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-link" onclick="switchTab('register')"><i class="fas fa-user-plus"></i> Register</button>
+        <button class="nav-link" onclick="switchTab('scores')"><i class="fas fa-edit"></i> Post Scores</button>
+        <button class="nav-link" onclick="switchTab('facereg')"><i class="fas fa-user-tag"></i> Face Register</button>
+        <button class="nav-link" onclick="switchTab('reports')"><i class="fas fa-file-alt"></i> Reports</button>
+        <button class="nav-link" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</button>
+        <button class="nav-link" onclick="switchTab('chat')"><i class="fas fa-comments"></i> Chat</button>
+        <div class="nav-user">
+            <div class="avatar" id="navAvatar">A</div>
+            <div class="info"><div class="name" id="navName">Admin</div><div class="role">👨‍💼 Administrator</div></div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="logout()" style="padding:6px 14px;font-size:12px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="statusMessage" class="status-message"></div>
+    <div class="loading-spinner" id="loadingSpinner"><div class="spinner"></div></div>
+
+    <!-- DASHBOARD -->
+    <div id="tabDashboard" class="form-section active">
+        <h2 class="section-title">📊 Admin Dashboard</h2>
+        <p class="section-desc">Real-time overview of your school.</p>
+        <div class="stats-grid" id="dashboardStats">
+            <div class="stat-card"><div class="icon">👨‍🎓</div><div class="num" id="statStudents">0</div><div class="lbl">Total Students</div></div>
+            <div class="stat-card" style="border-color:#2d6a4f"><div class="icon">✅</div><div class="num" id="statPresent">0</div><div class="lbl">Present Today</div></div>
+            <div class="stat-card" style="border-color:#c1121f"><div class="icon">❌</div><div class="num" id="statAbsent">0</div><div class="lbl">Absent</div></div>
+            <div class="stat-card" style="border-color:#004085"><div class="icon">🚪</div><div class="num" id="statGate">0</div><div class="lbl">Gate Entries</div></div>
+        </div>
+        <div class="form-row">
+            <div class="chart-container"><h4>📊 Fees Collected per Class</h4><canvas id="feesChart"></canvas></div>
+            <div class="chart-container"><h4>📊 Attendance Overview</h4><canvas id="attendanceChart"></canvas></div>
+        </div>
+        <h4 style="margin-bottom:10px;color:#302b63">📚 Classes & Student Counts</h4>
+        <div class="class-cards" id="classCards"><p style="color:#999">Loading...</p></div>
+        <div style="background:#f8f9fa;padding:20px;border-radius:12px;border:1px solid #e0e0e0;margin-top:20px">
+            <h4>🚀 Quick Actions</h4>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+                <button class="btn btn-primary btn-sm" onclick="switchTab('register')">📝 Register Student</button>
+                <button class="btn btn-primary btn-sm" onclick="switchTab('scores')">📈 Post Scores</button>
+                <button class="btn btn-primary btn-sm" onclick="switchTab('facereg')">👤 Face Register</button>
+                <button class="btn btn-primary btn-sm" onclick="switchTab('reports')">📋 Reports</button>
+                <button class="btn btn-primary btn-sm" onclick="switchTab('settings')">⚙️ Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="tabRegister" class="form-section">
+        <h2 class="section-title">📝 Register Student</h2>
+        <p class="section-desc">Add a new student to a class.</p>
+        <form id="registerForm" onsubmit="registerStudent(event)">
+            <div class="form-group"><label>Class *</label>
+                <select id="regClass" onchange="fetchNextId()"><option value="">Select a Class</option></select>
+            </div>
+            <div class="form-group"><label>Student ID *</label><input type="text" id="regId" placeholder="Auto-generated" disabled></div>
+            <div class="form-group"><label>Student Full Name *</label><input type="text" id="regName" /></div>
+            <div class="form-group"><label>Parent/Guardian Name *</label><input type="text" id="regParent" /></div>
+            <div class="form-group"><label>Parent Phone *</label><input type="tel" id="regPhone" /></div>
+            <div class="form-group"><label>Parent Email</label><input type="email" id="regEmail" /></div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('registerForm').reset()">Reset</button>
+                <button type="submit" class="btn btn-primary">📤 Register</button>
+            </div>
+        </form>
+        <div id="regSuccess" class="status-message success" style="display:none"></div>
+    </div>
+
+    <!-- SCORES -->
+    <div id="tabScores" class="form-section">
+        <h2 class="section-title">📈 Post Subject Scores</h2>
+        <div class="info-box"><div class="title">📌 Info</div><div class="text">O-Level uses <b>AOI (20)</b> and <b>EOT (80)</b>. A-Level uses Paper 1 / Paper 2.</div></div>
+        <div class="form-group"><label>Class *</label>
+            <select id="scoreClass" onchange="loadScores()"><option value="">Select a Class</option></select>
+        </div>
+        <div class="form-row-3">
+            <div class="form-group"><label>Subject *</label>
+                <select id="scoreSubject">
+                    <option value="">Select Subject</option>
+                    <option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Geography</option><option>History</option><option>CRE</option><option>Computer Studies</option><option>Luganda</option><option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Teacher Initials</label><input type="text" id="scoreInitials" maxlength="5" /></div>
+            <div class="form-group"><label>Type</label>
+                <select id="scoreType"><option value="BOTH">AOI + EOT</option><option value="AOI">AOI only</option><option value="EOT">EOT only</option></select>
+            </div>
+        </div>
+        <table class="score-table">
+            <thead><tr id="scoreHeaders"><th>ID</th><th>Name</th><th>AOI (20)</th><th>EOT (80)</th><th>Total</th></tr></thead>
+            <tbody id="scoreBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr></tbody>
+        </table>
+        <button class="btn btn-primary" onclick="postScores()">📤 Post Scores</button>
+    </div>
+
+    <!-- FACE REGISTER -->
+    <div id="tabFacereg" class="form-section">
+        <h2 class="section-title">👤 Face Registration</h2>
+        <div class="form-row">
+            <div class="form-group"><label>Person ID *</label><input type="text" id="faceId" /></div>
+            <div class="form-group"><label>Full Name *</label><input type="text" id="faceName" /></div>
+        </div>
+        <div class="form-group"><label>Role</label>
+            <select id="faceRole"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select>
+        </div>
+        <div class="camera-container" style="max-width:400px;margin:15px auto">
+            <video id="faceVideo" autoplay playsinline></video>
+        </div>
+        <div class="camera-controls">
+            <button class="btn btn-success btn-sm" onclick="startFaceCam()">📷 Start</button>
+            <button class="btn btn-primary btn-sm" onclick="registerFace()">📸 Register</button>
+            <button class="btn btn-danger btn-sm" onclick="stopFaceCam()">⏹ Stop</button>
+        </div>
+        <h4 style="margin-top:20px">📋 Registered Faces</h4>
+        <div class="face-registered-grid" id="faceGrid"><p style="grid-column:1/-1;text-align:center;color:#999">No faces.</p></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="tabReports" class="form-section">
+        <h2 class="section-title">📋 Full Reports</h2>
+        <div class="form-group"><label>Class *</label>
+            <select id="reportClass"><option value="">Select</option></select>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0">
+            <button class="btn btn-primary" onclick="loadReports()">📋 Load All</button>
+            <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+        </div>
+        <div id="reportResults"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tabSettings" class="form-section">
+        <h2 class="section-title">⚙️ Settings</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:10px 0">
+            <div><label>School Name:</label><input type="text" id="setName" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px" /></div>
+            <div><label>Motto:</label><input type="text" id="setMotto" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px" /></div>
+            <div><label>Address:</label><input type="text" id="setAddress" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px" /></div>
+            <div><label>Phone:</label><input type="text" id="setPhone" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px" /></div>
+            <div><label>Email:</label><input type="email" id="setEmail" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px" /></div>
+            <div><label>Website:</label><input type="text" id="setWebsite" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px" /></div>
+        </div>
+        <h4 style="margin-top:15px">📚 Class Google Sheets (URL)</h4>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0">
+            <div><label>S.1:</label><input type="text" id="sheetS1" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px" /></div>
+            <div><label>S.2:</label><input type="text" id="sheetS2" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px" /></div>
+            <div><label>S.3:</label><input type="text" id="sheetS3" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px" /></div>
+            <div><label>S.4:</label><input type="text" id="sheetS4" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px" /></div>
+            <div><label>S.5:</label><input type="text" id="sheetS5" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px" /></div>
+            <div><label>S.6:</label><input type="text" id="sheetS6" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px" /></div>
+        </div>
+        <button class="btn btn-success" onclick="saveSettings()">💾 Save Settings</button>
+    </div>
+
+    <!-- CHAT -->
+    <div id="tabChat" class="form-section">
+        <h2 class="section-title">💬 Chat</h2>
+        <div style="display:grid;grid-template-columns:280px 1fr;gap:0;height:500px;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;background:white">
+            <div style="background:#f8f9fa;border-right:1px solid #e0e0e0;overflow-y:auto;padding:10px" id="chatUsers"><p style="padding:10px;color:#999">Loading...</p></div>
+            <div style="display:flex;flex-direction:column">
+                <div style="padding:12px 15px;border-bottom:1px solid #e0e0e0;font-weight:600;color:#302b63;background:#fafafa" id="chatHeader">Select a user</div>
+                <div style="flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:8px" id="chatMessages"><p style="text-align:center;color:#999;padding:20px">Select a user</p></div>
+                <div style="display:flex;gap:10px;padding:10px 15px;border-top:1px solid #e0e0e0;background:#fafafa">
+                    <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()" style="flex:1;padding:10px 15px;border:2px solid #e0e0e0;border-radius:20px;font-size:14px;outline:none" />
+                    <button class="btn btn-primary btn-sm" onclick="sendMessage()">📤 Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div style="font-size:18px;font-weight:700;color:#302b63">📚 EduTrack Pro — Admin</div>
+        <div style="font-size:13px;color:#888">Powered by <strong>His Grace Technologies</strong></div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+var CLASS_SHEET_IDS = { 'S.1':'sheetS1','S.2':'sheetS2','S.3':'sheetS3','S.4':'sheetS4','S.5':'sheetS5','S.6':'sheetS6' };
+var OLEVEL = ['S.1','S.2','S.3','S.4'];
+
+var session = null;
+var scoreRows = [];
+var currentLevel = 'olevel';
+var feesChart = null, attendanceChart = null;
+var currentChatUser = null;
+var faceCamStream = null;
+var faceModelsLoaded = false;
+var FACE_OPTS = null;
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function () {
+    session = JSON.parse(sessionStorage.getItem('edutrack_session') || localStorage.getItem('edutrack_session') || 'null');
+    if (!session || session.role !== 'admin') { window.location.href = 'index.html'; return; }
+
+    document.getElementById('navAvatar').textContent = (session.name || session.username || 'A').charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = session.name || session.username || 'Admin';
+
+    populateClassSelectors();
+    loadSettings();
+    loadDashboard();
+});
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showToast(msg, type) {
+    type = type || 'info';
+    var c = document.getElementById('toastContainer');
+    var t = document.createElement('div');
+    t.className = 'toast-notification ' + type;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 100);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 500); }, 4000);
+}
+function showStatus(msg, type) {
+    var el = document.getElementById('statusMessage');
+    if (!msg) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    el.className = 'status-message ' + (type || 'info');
+    el.textContent = msg;
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+function toggleMobileMenu() { document.getElementById('navbarMenu').classList.toggle('open'); }
+function logout() {
+    sessionStorage.removeItem('edutrack_session');
+    localStorage.removeItem('edutrack_session');
+    window.location.href = 'index.html';
+}
+async function api(params) {
+    var parts = [];
+    for (var k in params) {
+        if (params.hasOwnProperty(k) && params[k] !== undefined && params[k] !== null) {
+            parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+        }
+    }
+    var res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+        body: parts.join('&'),
+        signal: AbortSignal.timeout(30000)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+}
+function extractSheetId(url) {
+    if (!url) return '';
+    var m = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (m) return m[1];
+    if (/^[a-zA-Z0-9-_]{30,}$/.test(url)) return url;
+    return '';
+}
+function getClassSheetId(cls) {
+    var url = localStorage.getItem('classLink_' + cls + '_' + session.school) || '';
+    return extractSheetId(url);
+}
+function isOLevel(cls) { return OLEVEL.indexOf(cls) !== -1; }
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+    document.querySelectorAll('.nav-link').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.form-section').forEach(function (el) { el.classList.remove('active'); });
+    var map = { dashboard:'tabDashboard', register:'tabRegister', scores:'tabScores', facereg:'tabFacereg', reports:'tabReports', settings:'tabSettings', chat:'tabChat' };
+    var target = document.getElementById(map[tab] || 'tabDashboard');
+    if (target) target.classList.add('active');
+
+    if (tab === 'dashboard') loadDashboard();
+    if (tab === 'register') populateClassSelectors();
+    if (tab === 'scores') populateClassSelectors();
+    if (tab === 'reports') populateClassSelectors();
+    if (tab === 'settings') loadSettings();
+    if (tab === 'chat') loadChatUsers();
+    if (tab === 'facereg') refreshFaceGrid();
+}
+
+function populateClassSelectors() {
+    ['regClass','scoreClass','reportClass'].forEach(function (id) {
+        var s = document.getElementById(id);
+        if (!s) return;
+        s.innerHTML = '<option value="">Select a Class</option>';
+        CLASSES.forEach(function (cls) {
+            var o = document.createElement('option');
+            o.value = cls; o.textContent = cls + (isOLevel(cls) ? ' (O-Level)' : ' (A-Level)');
+            s.appendChild(o);
+        });
+    });
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+    try {
+        var r = await api({ action: 'getStudentCount', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        if (r.success && r.data) document.getElementById('statStudents').textContent = r.data.count || 0;
+    } catch (e) {}
+
+    var html = '';
+    for (var i = 0; i < CLASSES.length; i++) {
+        var cls = CLASSES[i];
+        var sheetId = getClassSheetId(cls);
+        var count = 0;
+        if (sheetId) {
+            try {
+                var sr = await api({ action: 'getStudents', sheetId: sheetId, school: session.school, className: cls });
+                count = (sr.success && sr.data ? sr.data.students || [] : []).length;
+            } catch (e) {}
+        }
+        html += '<div class="class-card"><div class="name">' + (isOLevel(cls) ? '📘' : '📗') + ' ' + cls + '</div><div class="count">' + count + '</div><div class="label">Students</div></div>';
+    }
+    document.getElementById('classCards').innerHTML = html || '<p style="color:#999">No classes configured.</p>';
+
+    // Charts
+    if (typeof Chart !== 'undefined') {
+        var fc = document.getElementById('feesChart').getContext('2d');
+        var ac = document.getElementById('attendanceChart').getContext('2d');
+        if (feesChart) feesChart.destroy();
+        if (attendanceChart) attendanceChart.destroy();
+        feesChart = new Chart(fc, { type: 'bar', data: { labels: CLASSES, datasets: [{ label: 'Fees', data: [0,0,0,0,0,0], backgroundColor: 'rgba(48,43,99,0.7)' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+        attendanceChart = new Chart(ac, { type: 'doughnut', data: { labels: ['Present','Absent','Late','Leave'], datasets: [{ data: [0,0,0,0], backgroundColor: ['#2d6a4f','#c1121f','#e85d04','#004085'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+    }
+}
+
+// ============================================================
+// REGISTER STUDENT
+// ============================================================
+async function fetchNextId() {
+    var cls = document.getElementById('regClass').value;
+    var sheetId = getClassSheetId(cls);
+    if (!sheetId) return;
+    try {
+        var r = await api({ action: 'getNextStudentId', sheetId: sheetId, school: session.school });
+        if (r.success && r.data) document.getElementById('regId').value = r.data.nextId;
+    } catch (e) {}
+}
+async function registerStudent(e) {
+    e.preventDefault();
+    var cls = document.getElementById('regClass').value;
+    var sheetId = getClassSheetId(cls);
+    if (!sheetId) { showToast('Sheet not configured for ' + cls, 'error'); return; }
+    try {
+        var r = await api({
+            action: 'registerStudent', sheetId: sheetId, school: session.school, className: cls,
+            studentId: document.getElementById('regId').value,
+            studentName: document.getElementById('regName').value,
+            parentName: document.getElementById('regParent').value,
+            parentPhone: document.getElementById('regPhone').value,
+            parentEmail: document.getElementById('regEmail').value
+        });
+        if (r.success) {
+            showToast('✅ Student registered!', 'success');
+            document.getElementById('registerForm').reset();
+            document.getElementById('regSuccess').style.display = 'block';
+            document.getElementById('regSuccess').textContent = '✅ Registered: ' + document.getElementById('regId').value;
+            loadDashboard();
+        } else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// SCORES
+// ============================================================
+async function loadScores() {
+    var cls = document.getElementById('scoreClass').value;
+    var sheetId = getClassSheetId(cls);
+    var tbody = document.getElementById('scoreBody');
+    if (!sheetId) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c1121f;padding:20px">Sheet not configured.</td></tr>'; return; }
+    currentLevel = isOLevel(cls) ? 'olevel' : 'alevel';
+    try {
+        var r = await api({ action: 'getStudents', sheetId: sheetId, school: session.school, className: cls });
+        var students = (r.success && r.data ? r.data.students || [] : []);
+        scoreRows = students.map(function (s) { return { studentId: s.studentId, studentName: s.studentName, s1: 0, s2: 0 }; });
+        tbody.innerHTML = scoreRows.map(function (s, i) {
+            return '<tr><td>' + s.studentId + '</td><td>' + s.studentName + '</td>' +
+                '<td><input type="number" id="s1_' + i + '" onchange="recalc(' + i + ')" /></td>' +
+                '<td><input type="number" id="s2_' + i + '" onchange="recalc(' + i + ')" /></td>' +
+                '<td id="tot_' + i + '">—</td></tr>';
+        }).join('');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function recalc(i) {
+    var s1 = parseFloat(document.getElementById('s1_' + i).value) || 0;
+    var s2 = parseFloat(document.getElementById('s2_' + i).value) || 0;
+    scoreRows[i].s1 = s1; scoreRows[i].s2 = s2;
+    var total = currentLevel === 'olevel' ? s1 + s2 : (s1 + s2) / 2;
+    document.getElementById('tot_' + i).textContent = total.toFixed(1);
+}
+async function postScores() {
+    var cls = document.getElementById('scoreClass').value;
+    var subject = document.getElementById('scoreSubject').value;
+    var initials = document.getElementById('scoreInitials').value;
+    var sheetId = getClassSheetId(cls);
+    if (!sheetId || !subject) { showToast('Select class and subject.', 'warning'); return; }
+    var scores = scoreRows.filter(function (s) { return s.s1 > 0 || s.s2 > 0; }).map(function (s) {
+        return {
+            studentId: s.studentId, studentName: s.studentName,
+            aoi: currentLevel === 'olevel' ? s.s1 : 0,
+            eot: currentLevel === 'olevel' ? s.s2 : 0,
+            paper1: currentLevel === 'alevel' ? s.s1 : 0,
+            paper2: currentLevel === 'alevel' ? s.s2 : 0,
+            teacherInitials: initials
+        };
+    });
+    if (scores.length === 0) { showToast('Enter at least one score.', 'warning'); return; }
+    try {
+        var r = await api({ action: 'postScoresOnly', sheetId: sheetId, subject: subject, scores: JSON.stringify(scores), level: currentLevel });
+        if (r.success) showToast('✅ Scores posted!', 'success');
+        else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// FACE REGISTRATION
+// ============================================================
+async function startFaceCam() {
+    try {
+        if (typeof faceapi !== 'undefined' && !faceModelsLoaded) {
+            var path = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+            await faceapi.nets.tinyFaceDetector.loadFromUri(path);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(path);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(path);
+            FACE_OPTS = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 });
+            faceModelsLoaded = true;
+        }
+        faceCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
+        var v = document.getElementById('faceVideo');
+        v.srcObject = faceCamStream;
+        await v.play();
+        showToast('📷 Camera ready', 'success');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function stopFaceCam() {
+    if (faceCamStream) { faceCamStream.getTracks().forEach(function (t) { t.stop(); }); faceCamStream = null; }
+    var v = document.getElementById('faceVideo');
+    if (v) v.srcObject = null;
+}
+async function registerFace() {
+    var id = document.getElementById('faceId').value.trim();
+    var name = document.getElementById('faceName').value.trim();
+    var role = document.getElementById('faceRole').value;
+    if (!id || !name) { showToast('Enter ID and Name.', 'warning'); return; }
+    if (!faceCamStream) { showToast('Start camera first.', 'warning'); return; }
+    try {
+        var v = document.getElementById('faceVideo');
+        var det = null;
+        for (var i = 0; i < 3; i++) {
+            det = await faceapi.detectSingleFace(v, FACE_OPTS).withFaceLandmarks().withFaceDescriptor();
+            if (det) break;
+            await new Promise(function (r) { setTimeout(r, 300); });
+        }
+        if (!det) { showToast('❌ No face detected.', 'error'); return; }
+        var records = JSON.parse(localStorage.getItem('registeredFaces') || '[]');
+        var idx = records.findIndex(function (r) { return r.id === id; });
+        var newDesc = Array.from(det.descriptor);
+        if (idx >= 0) {
+            var rec = records[idx];
+            if (!rec.descriptors) rec.descriptors = [rec.descriptor];
+            rec.descriptors.push(newDesc);
+            if (rec.descriptors.length > 3) rec.descriptors.shift();
+            rec.descriptor = rec.descriptors[0];
+            rec.name = name; rec.role = role;
+        } else records.push({ id: id, name: name, role: role, descriptor: newDesc, descriptors: [newDesc] });
+        localStorage.setItem('registeredFaces', JSON.stringify(records));
+        showToast('✅ Registered: ' + name, 'success');
+        document.getElementById('faceId').value = '';
+        document.getElementById('faceName').value = '';
+        refreshFaceGrid();
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function refreshFaceGrid() {
+    var grid = document.getElementById('faceGrid');
+    var records = JSON.parse(localStorage.getItem('registeredFaces') || '[]');
+    if (records.length === 0) { grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999">No faces.</p>'; return; }
+    grid.innerHTML = records.map(function (r) {
+        return '<div class="face-registered-item"><div style="font-size:30px">👤</div><div class="name">' + r.name + '</div><div class="role">' + r.role + ' | ' + r.id + '</div><button class="btn btn-danger btn-sm" style="margin-top:5px;padding:2px 8px;font-size:10px" onclick="deleteFace(\'' + r.id + '\')">🗑️</button></div>';
+    }).join('');
+}
+function deleteFace(id) {
+    var records = JSON.parse(localStorage.getItem('registeredFaces') || '[]').filter(function (r) { return r.id !== id; });
+    localStorage.setItem('registeredFaces', JSON.stringify(records));
+    refreshFaceGrid();
+    showToast('🗑️ Deleted', 'info');
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+async function loadReports() {
+    var cls = document.getElementById('reportClass').value;
+    var sheetId = getClassSheetId(cls);
+    if (!sheetId) { showToast('Sheet not configured.', 'error'); return; }
+    try {
+        var r = await api({ action: 'getAllData', sheetId: sheetId, className: cls });
+        var students = (r.success && r.data ? r.data.sheetData?.students || [] : []);
+        renderReports(students);
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function renderReports(students) {
+    var c = document.getElementById('reportResults');
+    if (students.length === 0) { c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No students.</p>'; return; }
+    var s = JSON.parse(localStorage.getItem('schoolSettings_' + session.school) || '{}');
+    var html = '';
+    students.forEach(function (stu) {
+        var cls = stu.class || '';
+        if (!isOLevel(cls)) {
+            // A-Level (simplified)
+            html += '<div style="padding:20px;border:2px solid #c1121f;border-radius:12px;margin:20px auto;max-width:900px;background:white">' +
+                '<div style="text-align:center;font-size:20px;font-weight:700;color:#c1121f">' + (s.schoolName || session.school).toUpperCase() + '</div>' +
+                '<div style="text-align:center;background:#c1121f;color:white;padding:6px;margin:10px 0;font-weight:700">A-LEVEL REPORT — ' + cls + '</div>' +
+                '<div><b>Name:</b> ' + stu.studentName + ' | <b>ID:</b> ' + stu.studentId + '</div>' +
+                '</div>';
+        } else {
+            // O-Level (simplified)
+            var scores = stu.scores || {};
+            var rows = '';
+            var totalAvg = 0, count = 0;
+            Object.keys(scores).sort().forEach(function (subj) {
+                var sv = scores[subj];
+                var aoi = typeof sv === 'object' ? (parseFloat(sv.aoi) || 0) : 0;
+                var eot = typeof sv === 'object' ? (parseFloat(sv.eot) || 0) : 0;
+                var total = aoi + eot;
+                if (total === 0 && typeof sv === 'number') total = sv;
+                var aoiPct = aoi > 0 ? (aoi / 20) * 100 : 0;
+                var eotPct = eot > 0 ? (eot / 80) * 100 : 0;
+                var pct = (aoi > 0 && eot > 0) ? (aoiPct + eotPct) / 2 : (aoi > 0 ? aoiPct : eotPct);
+                totalAvg += pct; count++;
+                var grade = pct >= 80 ? 'A' : pct >= 70 ? 'B' : pct >= 50 ? 'C' : pct >= 40 ? 'D' : 'E';
+                rows += '<tr><td style="border:1px solid #ccc;padding:5px">' + subj + '</td><td style="border:1px solid #ccc;padding:5px;text-align:center">' + (aoi || '—') + '</td><td style="border:1px solid #ccc;padding:5px;text-align:center">' + (aoiPct.toFixed(1) || '—') + '</td><td style="border:1px solid #ccc;padding:5px;text-align:center">' + (eot || '—') + '</td><td style="border:1px solid #ccc;padding:5px;text-align:center;font-weight:700">' + pct.toFixed(1) + '</td><td style="border:1px solid #ccc;padding:5px;text-align:center;font-weight:700;color:#c1121f">' + grade + '</td></tr>';
+            });
+            var overall = count > 0 ? totalAvg / count : 0;
+            var overallGrade = overall >= 80 ? 'A' : overall >= 70 ? 'B' : overall >= 50 ? 'C' : overall >= 40 ? 'D' : 'E';
+            html += '<div style="padding:20px;border:3px double #c1121f;border-radius:8px;margin:20px auto;max-width:900px;background:white">' +
+                '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:10px;margin-bottom:10px">' +
+                '<div style="font-size:20px;font-weight:700;color:#c1121f">' + (s.schoolName || session.school).toUpperCase() + '</div>' +
+                '<div style="font-size:11px;color:#555">' + (s.schoolAddress || '') + ' | ' + (s.schoolPhone || '') + '</div>' +
+                '</div>' +
+                '<div style="background:#c1121f;color:white;padding:6px;text-align:center;font-weight:700">TERMINAL REPORT — ' + cls + '</div>' +
+                '<div style="margin:10px 0;font-size:13px"><b>NAME:</b> ' + stu.studentName + ' | <b>ID:</b> ' + stu.studentId + '</div>' +
+                '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#c1121f;color:white"><th style="padding:6px;border:1px solid #c1121f;text-align:left">SUBJECT</th><th style="padding:6px;border:1px solid #c1121f">AOI (20)</th><th style="padding:6px;border:1px solid #c1121f">AOI %</th><th style="padding:6px;border:1px solid #c1121f">EOT (80)</th><th style="padding:6px;border:1px solid #c1121f">TOTAL %</th><th style="padding:6px;border:1px solid #c1121f">GRADE</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center">' +
+                '<div style="padding:8px;border-right:1px solid #666">Average: <b>' + overall.toFixed(1) + '%</b></div>' +
+                '<div style="padding:8px;border-right:1px solid #666">Grade: <b style="color:#c1121f">' + overallGrade + '</b></div>' +
+                '<div style="padding:8px">' + (overall >= 80 ? '🏆 EXCEPTIONAL' : overall >= 70 ? '⭐ OUTSTANDING' : overall >= 50 ? '✔ SATISFACTORY' : '📌 BASIC') + '</div>' +
+                '</div>' +
+                '</div>';
+        }
+    });
+    c.innerHTML = html;
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function loadSettings() {
+    var s = JSON.parse(localStorage.getItem('schoolSettings_' + session.school) || '{}');
+    document.getElementById('setName').value = s.schoolName || session.school;
+    document.getElementById('setMotto').value = s.schoolMotto || '';
+    document.getElementById('setAddress').value = s.schoolAddress || '';
+    document.getElementById('setPhone').value = s.schoolPhone || '';
+    document.getElementById('setEmail').value = s.schoolEmail || '';
+    document.getElementById('setWebsite').value = s.schoolWebsite || '';
+    CLASSES.forEach(function (cls) {
+        var el = document.getElementById(CLASS_SHEET_IDS[cls]);
+        if (el) el.value = localStorage.getItem('classLink_' + cls + '_' + session.school) || '';
+    });
+}
+function saveSettings() {
+    var s = {
+        schoolName: document.getElementById('setName').value,
+        schoolMotto: document.getElementById('setMotto').value,
+        schoolAddress: document.getElementById('setAddress').value,
+        schoolPhone: document.getElementById('setPhone').value,
+        schoolEmail: document.getElementById('setEmail').value,
+        schoolWebsite: document.getElementById('setWebsite').value
+    };
+    localStorage.setItem('schoolSettings_' + session.school, JSON.stringify(s));
+    CLASSES.forEach(function (cls) {
+        var el = document.getElementById(CLASS_SHEET_IDS[cls]);
+        if (el) localStorage.setItem('classLink_' + cls + '_' + session.school, el.value.trim());
+    });
+    showToast('✅ Settings saved!', 'success');
+}
+
+// ============================================================
+// CHAT
+// ============================================================
+async function loadChatUsers() {
+    try {
+        var r = await api({ action: 'getChatUsers', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        var users = (r.success && r.data ? r.data.users || [] : []);
+        document.getElementById('chatUsers').innerHTML = users.filter(function (u) { return u.username !== session.username; }).map(function (u) {
+            return '<div style="padding:10px;border-radius:8px;cursor:pointer;margin-bottom:4px" onclick="selectChatUser(\'' + u.username + '\')"><b>' + u.name + '</b><div style="font-size:11px;color:#888">' + (u.role || '') + '</div></div>';
+        }).join('') || '<p style="padding:10px;color:#999">No other users.</p>';
+    } catch (e) {}
+}
+async function selectChatUser(u) {
+    currentChatUser = u;
+    document.getElementById('chatHeader').textContent = 'Chat with ' + u;
+    try {
+        var r = await api({ action: 'getChatMessages', sheetId: ACCOUNTS_SHEET_ID, school: session.school, user1: session.username, user2: u });
+        var msgs = (r.success && r.data ? r.data.messages || [] : []);
+        document.getElementById('chatMessages').innerHTML = msgs.map(function (m) {
+            var isSent = m.from === session.username;
+            return '<div style="max-width:70%;padding:10px 14px;border-radius:12px;font-size:14px;' + (isSent ? 'align-self:flex-end;background:#302b63;color:white' : 'align-self:flex-start;background:#f0f2f5;color:#333') + '">' + m.message + '<span style="font-size:10px;opacity:.7;display:block;margin-top:4px">' + m.time + '</span></div>';
+        }).join('') || '<p style="text-align:center;color:#999;padding:20px">No messages.</p>';
+    } catch (e) {}
+}
+async function sendMessage() {
+    var msg = document.getElementById('chatInput').value.trim();
+    if (!msg || !currentChatUser) return;
+    try {
+        await api({ action: 'saveChatMessage', sheetId: ACCOUNTS_SHEET_ID, school: session.school, from: session.username, to: currentChatUser, message: msg, time: new Date().toLocaleTimeString() });
+        document.getElementById('chatInput').value = '';
+        selectChatUser(currentChatUser);
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+</script>
+</body>
+</html>
