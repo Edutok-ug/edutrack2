@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>📦 Store — EduTrack Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;padding:20px}
+.navbar{background:rgba(255,255,255,.95);border-radius:16px 16px 0 0;padding:10px 25px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);position:sticky;top:0;z-index:1000;border-bottom:3px solid #302b63}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;color:#302b63;text-decoration:none;font-family:Georgia,serif}
+.brand .brand-text{background:linear-gradient(135deg,#0f0c29,#302b63);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-menu{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nav-link{padding:8px 14px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px}
+.nav-link:hover{background:rgba(48,43,99,.08);color:#302b63}
+.nav-link.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff}
+.nav-user{display:flex;align-items:center;gap:10px;padding:5px 12px;border-radius:20px;background:#f0f4ff;border:1px solid #302b63}
+.nav-user .avatar{width:32px;height:32px;border-radius:50%;background:#302b63;color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:0 0 24px 24px;padding:25px 30px 30px;box-shadow:0 25px 80px rgba(0,0,0,.5);min-height:80vh;position:relative}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,#fcdc04 33%,#fcdc04 66%,#d90000 66%,#d90000 100%)}
+.form-section{display:none}
+.form-section.active{display:block;padding-top:10px;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:22px;color:#1a1a2e;margin-bottom:5px}
+.section-desc{color:#888;font-size:14px;margin-bottom:20px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-weight:600;color:#555;font-size:14px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fafafa}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#302b63;outline:none;background:white}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
+.btn{padding:12px 28px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,#0f0c29,#302b63);color:white}
+.btn-success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f);color:white}
+.btn-danger{background:linear-gradient(135deg,#c1121f,#780000);color:white}
+.btn-info{background:linear-gradient(135deg,#004085,#0069d9);color:white}
+.btn-warning{background:linear-gradient(135deg,#e85d04,#dc2f02);color:white}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:6px 16px;font-size:13px}
+.ledger-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.ledger-table th{background:linear-gradient(135deg,#0f0c29,#302b63);color:white;padding:12px 10px;text-align:left}
+.ledger-table td{padding:10px;border-bottom:1px solid #e0e0e0}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:15px 0}
+.stat-card{background:white;border-radius:14px;padding:15px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0;text-align:center}
+.stat-card .num{font-size:24px;font-weight:700;color:#1a1a2e}
+.stat-card .lbl{font-size:12px;color:#888}
+.status-message{padding:12px;border-radius:10px;margin:15px 0;display:none}
+.status-message.success{display:block;background:#d4edda;color:#155724}
+.status-message.error{display:block;background:#f8d7da;color:#721c24}
+.status-message.info{display:block;background:#d1ecf1;color:#0c5460}
+.info-box{background:#e8f0fe;border-left:4px solid #302b63;padding:15px 20px;border-radius:8px;margin:15px 0}
+.info-box .title{font-weight:700;color:#302b63;font-size:15px}
+.info-box .text{color:#555;font-size:14px;margin-top:4px}
+.toast-notification{position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:12px;color:white;font-weight:600;z-index:9999;opacity:0;transform:translateX(100%);transition:all .5s;max-width:400px}
+.toast-notification.show{opacity:1;transform:translateX(0)}
+.toast-notification.success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,#c1121f,#780000)}
+.toast-notification.info{background:linear-gradient(135deg,#0f0c29,#302b63)}
+.toast-notification.warning{background:linear-gradient(135deg,#e85d04,#dc2f02)}
+.footer{text-align:center;padding:20px 0 10px;border-top:2px solid #e0e0e0;margin-top:30px}
+.item-card{background:white;border-radius:12px;padding:15px;border:1px solid #e0e0e0;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center}
+.item-card .name{font-weight:700;color:#302b63;font-size:15px}
+.item-card .meta{font-size:12px;color:#888;margin-top:3px}
+.item-card .qty{font-size:20px;font-weight:700;text-align:right}
+.stock-ok{color:#2d6a4f}
+.stock-low{color:#e85d04}
+.stock-out{color:#c1121f}
+.qty-badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block;margin-left:6px}
+.qty-ok{background:#d4edda;color:#155724}
+.qty-low{background:#fff3cd;color:#856404}
+.qty-out{background:#f8d7da;color:#721c24}
+@media(max-width:992px){.form-row,.form-row-3{grid-template-columns:1fr;gap:0}}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<nav class="navbar">
+    <a href="store.html" class="brand"><span style="font-size:28px">📚</span><span class="brand-text">EduTrack Pro</span></a>
+    <div class="nav-menu">
+        <button class="nav-link active" onclick="switchTab('dashboard')"><i class="fas fa-boxes"></i> Dashboard</button>
+        <button class="nav-link" onclick="switchTab('inventory')"><i class="fas fa-warehouse"></i> Inventory</button>
+        <button class="nav-link" onclick="switchTab('issue')"><i class="fas fa-share-square"></i> Issue Item</button>
+        <button class="nav-link" onclick="switchTab('requests')"><i class="fas fa-clipboard-list"></i> Requests</button>
+        <div class="nav-user"><div class="avatar" id="navAvatar">S</div><div style="font-size:12px"><div style="font-weight:600" id="navName">Store Keeper</div><div style="font-size:10px;color:#888">📦 Store</div></div></div>
+        <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- DASHBOARD -->
+    <div id="tabDashboard" class="form-section active">
+        <h2 class="section-title">📦 Store Dashboard</h2>
+        <p class="section-desc">Overview of school inventory and requests.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card" style="border-color:#004085"><div class="num" id="statTotalItems">0</div><div class="lbl">Total Items</div></div>
+            <div class="stat-card" style="border-color:#2d6a4f"><div class="num" id="statInStock">0</div><div class="lbl">In Stock</div></div>
+            <div class="stat-card" style="border-color:#e85d04"><div class="num" id="statLowStock">0</div><div class="lbl">Low Stock</div></div>
+            <div class="stat-card" style="border-color:#c1121f"><div class="num" id="statOutOfStock">0</div><div class="lbl">Out of Stock</div></div>
+        </div>
+
+        <div class="form-row">
+            <div style="background:white;border-radius:14px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0">
+                <h4>⚠️ Low / Out of Stock Items</h4>
+                <div id="lowStockList" style="margin-top:12px"><p style="color:#999;text-align:center;padding:20px">All good!</p></div>
+            </div>
+            <div style="background:white;border-radius:14px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0">
+                <h4>📋 Recent Requests</h4>
+                <div id="recentRequests" style="margin-top:12px"><p style="color:#999;text-align:center;padding:20px">No recent requests.</p></div>
+            </div>
+        </div>
+
+        <div class="info-box" style="margin-top:20px">
+            <div class="title">📌 Store Guidelines</div>
+            <div class="text">
+                • Record every issue (who took what and when)<br>
+                • Update stock after every receipt of goods<br>
+                • Alert the admin when items drop below minimum level<br>
+                • Signatures required for high-value items
+            </div>
+        </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div id="tabInventory" class="form-section">
+        <h2 class="section-title">📦 Inventory Management</h2>
+        <p class="section-desc">Add new items or update existing stock.</p>
+
+        <div style="background:#f8f9fa;padding:20px;border-radius:12px;border:1px solid #e0e0e0;margin-bottom:20px">
+            <h4 style="margin-bottom:12px;color:#302b63">➕ Add / Update Item</h4>
+            <div class="form-row-3">
+                <div class="form-group"><label>Item Name *</label><input type="text" id="itemName" placeholder="e.g., Exercise Books" /></div>
+                <div class="form-group"><label>Category *</label>
+                    <select id="itemCategory">
+                        <option value="stationery">Stationery</option>
+                        <option value="cleaning">Cleaning Supplies</option>
+                        <option value="food">Food & Kitchen</option>
+                        <option value="uniform">Uniforms</option>
+                        <option value="textbook">Textbooks</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="equipment">Lab/Sports Equipment</option>
+                        <option value="medical">Medical Supplies</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Unit</label>
+                    <select id="itemUnit">
+                        <option value="pieces">Pieces</option>
+                        <option value="boxes">Boxes</option>
+                        <option value="reams">Reams</option>
+                        <option value="kg">Kg</option>
+                        <option value="liters">Liters</option>
+                        <option value="pairs">Pairs</option>
+                        <option value="sets">Sets</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row-3">
+                <div class="form-group"><label>Current Quantity *</label><input type="number" id="itemQty" min="0" placeholder="0" /></div>
+                <div class="form-group"><label>Minimum Level</label><input type="number" id="itemMin" min="0" placeholder="10" /></div>
+                <div class="form-group"><label>Unit Cost (UGX)</label><input type="number" id="itemCost" min="0" step="100" placeholder="0" /></div>
+            </div>
+            <div class="form-group"><label>Location in Store</label><input type="text" id="itemLocation" placeholder="e.g., Shelf A-3" /></div>
+            <div class="form-group"><label>Notes</label><input type="text" id="itemNotes" placeholder="Any additional details" /></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn btn-success" onclick="saveItem()">💾 Save Item</button>
+                <button class="btn btn-secondary" onclick="resetItemForm()">🔄 Reset</button>
+            </div>
+            <div id="itemStatus" class="status-message"></div>
+        </div>
+
+        <h4>📋 Current Inventory</h4>
+        <div class="form-row-3" style="margin-bottom:10px">
+            <div class="form-group"><label>Search</label><input type="text" id="invSearch" placeholder="🔍 Search items..." onkeyup="filterInventory()" /></div>
+            <div class="form-group"><label>Category Filter</label>
+                <select id="invCategory" onchange="filterInventory()">
+                    <option value="all">All Categories</option>
+                    <option value="stationery">Stationery</option>
+                    <option value="cleaning">Cleaning Supplies</option>
+                    <option value="food">Food & Kitchen</option>
+                    <option value="uniform">Uniforms</option>
+                    <option value="textbook">Textbooks</option>
+                    <option value="furniture">Furniture</option>
+                    <option value="equipment">Lab/Sports Equipment</option>
+                    <option value="medical">Medical Supplies</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Show</label>
+                <select id="invStatus" onchange="filterInventory()">
+                    <option value="all">All Items</option>
+                    <option value="low">Low Stock Only</option>
+                    <option value="out">Out of Stock Only</option>
+                </select>
+            </div>
+        </div>
+        <div id="inventoryList"><p style="text-align:center;color:#999;padding:20px">Loading...</p></div>
+    </div>
+
+    <!-- ISSUE ITEM -->
+    <div id="tabIssue" class="form-section">
+        <h2 class="section-title">📤 Issue Item to Staff</h2>
+        <p class="section-desc">Record items taken from the store.</p>
+
+        <div class="form-row">
+            <div class="form-group"><label>Item *</label>
+                <select id="issueItem" onchange="showItemStock()"><option value="">Select an item</option></select>
+            </div>
+            <div class="form-group"><label>Available Stock</label>
+                <input type="text" id="issueStock" disabled />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group"><label>Issued To (Staff/Dept) *</label>
+                <input type="text" id="issueTo" placeholder="e.g., Mr. Okello (S.2 Teacher) or Kitchen" />
+            </div>
+            <div class="form-group"><label>Quantity *</label>
+                <input type="number" id="issueQty" min="1" placeholder="0" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group"><label>Purpose / Notes</label>
+                <input type="text" id="issueNotes" placeholder="e.g., For exams, for kitchen use" />
+            </div>
+            <div class="form-group"><label>Date</label>
+                <input type="date" id="issueDate" />
+            </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="issueItem()">📤 Issue Item</button>
+            <button class="btn btn-secondary" onclick="resetIssueForm()">🔄 Reset</button>
+        </div>
+
+        <div id="issueStatus" class="status-message"></div>
+
+        <h4 style="margin-top:20px">📋 Recent Issues</h4>
+        <div id="issuesList"><p style="text-align:center;color:#999;padding:20px">Loading...</p></div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div id="tabRequests" class="form-section">
+        <h2 class="section-title">📋 Item Requests</h2>
+        <p class="section-desc">Staff requests for items from the store.</p>
+
+        <div class="form-row">
+            <div class="form-group"><label>Requested By *</label>
+                <input type="text" id="reqBy" placeholder="Staff name" />
+            </div>
+            <div class="form-group"><label>Department</label>
+                <input type="text" id="reqDept" placeholder="e.g., Science Dept, Kitchen" />
+            </div>
+        </div>
+
+        <div class="form-group"><label>Items Requested *</label>
+            <textarea id="reqItems" rows="3" placeholder="e.g., 5 reams of paper, 20 exercise books, 2 boxes of chalk"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group"><label>Priority</label>
+                <select id="reqPriority">
+                    <option value="normal">Normal</option>
+                    <option value="urgent">Urgent</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Needed By</label>
+                <input type="date" id="reqNeededBy" />
+            </div>
+        </div>
+
+        <div class="form-group"><label>Notes</label>
+            <input type="text" id="reqNotes" />
+
+        <button class="btn btn-primary" onclick="submitRequest()">📋 Submit Request</button>
+        <div id="reqStatus" class="status-message"></div>
+
+        <h4 style="margin-top:20px">📋 All Requests</h4>
+        <div id="requestsList"><p style="text-align:center;color:#999;padding:20px">Loading...</p></div>
+    </div>
+
+    <div class="footer"><div style="font-weight:700;color:#302b63">📚 EduTrack Pro — Store Keeper</div></div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+
+var session = null;
+var inventory = [];
+var issues = [];
+var requests = [];
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function () {
+    session = JSON.parse(sessionStorage.getItem('edutrack_session') || localStorage.getItem('edutrack_session') || 'null');
+    if (!session || session.role !== 'store') { window.location.href = 'index.html'; return; }
+
+    document.getElementById('navAvatar').textContent = (session.name || 'S').charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = session.name || session.username;
+
+    document.getElementById('issueDate').value = new Date().toISOString().slice(0, 10);
+    var tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    document.getElementById('reqNeededBy').value = tomorrow;
+
+    loadInventory();
+    loadIssues();
+    loadRequests();
+});
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showToast(msg, type) {
+    type = type || 'info';
+    var t = document.createElement('div');
+    t.className = 'toast-notification ' + type;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 100);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 500); }, 4000);
+}
+function logout() {
+    sessionStorage.removeItem('edutrack_session');
+    localStorage.removeItem('edutrack_session');
+    window.location.href = 'index.html';
+}
+async function api(p) {
+    var parts = [];
+    for (var k in p) if (p.hasOwnProperty(k) && p[k] != null) parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(p[k]));
+    var r = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: parts.join('&') });
+    return await r.json();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+    document.querySelectorAll('.nav-link').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.form-section').forEach(function (el) { el.classList.remove('active'); });
+    var map = { dashboard:'tabDashboard', inventory:'tabInventory', issue:'tabIssue', requests:'tabRequests' };
+    document.getElementById(map[tab] || 'tabDashboard').classList.add('active');
+    if (tab === 'dashboard') loadDashboard();
+    if (tab === 'inventory') renderInventory();
+    if (tab === 'issue') populateIssueItems();
+    if (tab === 'requests') renderRequests();
+}
+
+// ============================================================
+// INVENTORY
+// ============================================================
+async function loadInventory() {
+    try {
+        var r = await api({ action: 'getInventory', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        inventory = (r.success && r.data ? r.data.items || [] : []);
+    } catch (e) {
+        inventory = [];
+    }
+    renderInventory();
+    loadDashboard();
+}
+
+function renderInventory() {
+    var q = (document.getElementById('invSearch').value || '').toLowerCase();
+    var catFilter = document.getElementById('invCategory').value;
+    var statusFilter = document.getElementById('invStatus').value;
+
+    var filtered = inventory;
+    if (q) filtered = filtered.filter(function (i) { return (i.name || '').toLowerCase().includes(q) || (i.category || '').toLowerCase().includes(q); });
+    if (catFilter !== 'all') filtered = filtered.filter(function (i) { return i.category === catFilter; });
+    if (statusFilter === 'low') filtered = filtered.filter(function (i) { return i.qty > 0 && i.qty <= (i.min || 10); });
+    if (statusFilter === 'out') filtered = filtered.filter(function (i) { return i.qty === 0; });
+
+    if (filtered.length === 0) {
+        document.getElementById('inventoryList').innerHTML = '<p style="text-align:center;color:#999;padding:20px">No items match.</p>';
+        return;
+    }
+
+    document.getElementById('inventoryList').innerHTML = filtered.map(function (i) {
+        var stockClass = i.qty === 0 ? 'stock-out' : i.qty <= (i.min || 10) ? 'stock-low' : 'stock-ok';
+        var badgeClass = i.qty === 0 ? 'qty-out' : i.qty <= (i.min || 10) ? 'qty-low' : 'qty-ok';
+        var badgeText = i.qty === 0 ? 'OUT OF STOCK' : i.qty <= (i.min || 10) ? 'LOW STOCK' : 'IN STOCK';
+        return '<div class="item-card">' +
+            '<div>' +
+                '<div class="name">' + (i.name || '') + ' <span class="qty-badge ' + badgeClass + '">' + badgeText + '</span></div>' +
+                '<div class="meta">' + (i.category || '') + ' · ' + (i.location || 'No location') + (i.cost ? ' · UGX ' + parseInt(i.cost).toLocaleString() + '/unit' : '') + '</div>' +
+                (i.notes ? '<div style="font-size:11px;color:#888;margin-top:4px;font-style:italic">' + i.notes + '</div>' : '') +
+            '</div>' +
+            '<div style="text-align:right">' +
+                '<div class="qty ' + stockClass + '">' + (i.qty || 0) + '</div>' +
+                '<div style="font-size:11px;color:#888">' + (i.unit || 'pieces') + '</div>' +
+                '<button class="btn btn-info btn-sm" style="margin-top:6px" onclick="editItem(\'' + i.id + '\')">✏️</button>' +
+                '<button class="btn btn-danger btn-sm" style="margin-top:6px" onclick="deleteItem(\'' + i.id + '\')">🗑️</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function filterInventory() { renderInventory(); }
+
+async function saveItem() {
+    var name = document.getElementById('itemName').value.trim();
+    var qty = parseInt(document.getElementById('itemQty').value) || 0;
+    if (!name) { showToast('Enter item name.', 'warning'); return; }
+
+    var item = {
+        id: 'ITM-' + Date.now(),
+        name: name,
+        category: document.getElementById('itemCategory').value,
+        unit: document.getElementById('itemUnit').value,
+        qty: qty,
+        min: parseInt(document.getElementById('itemMin').value) || 10,
+        cost: parseFloat(document.getElementById('itemCost').value) || 0,
+        location: document.getElementById('itemLocation').value,
+        notes: document.getElementById('itemNotes').value,
+        addedBy: session.name || session.username,
+        addedAt: new Date().toISOString()
+    };
+
+    var status = document.getElementById('itemStatus');
+    status.className = 'status-message info';
+    status.style.display = 'block';
+    status.textContent = '⏳ Saving...';
+
+    try {
+        var r = await api({ action: 'saveInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: session.school, item: JSON.stringify(item) });
+        if (r.success) {
+            status.className = 'status-message success';
+            status.textContent = '✅ Item saved!';
+            showToast('✅ Item saved!', 'success');
+            resetItemForm();
+            loadInventory();
+        } else {
+            status.className = 'status-message error';
+            status.textContent = '❌ ' + (r.message || 'Failed');
+        }
+    } catch (e) {
+        status.className = 'status-message error';
+        status.textContent = '❌ ' + e.message;
+    }
+}
+
+function resetItemForm() {
+    ['itemName','itemQty','itemMin','itemCost','itemLocation','itemNotes'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('itemCategory').value = 'stationery';
+    document.getElementById('itemUnit').value = 'pieces';
+}
+
+function editItem(id) {
+    var item = inventory.find(function (i) { return i.id === id; });
+    if (!item) return;
+    document.getElementById('itemName').value = item.name || '';
+    document.getElementById('itemCategory').value = item.category || 'stationery';
+    document.getElementById('itemUnit').value = item.unit || 'pieces';
+    document.getElementById('itemQty').value = item.qty || 0;
+    document.getElementById('itemMin').value = item.min || 10;
+    document.getElementById('itemCost').value = item.cost || 0;
+    document.getElementById('itemLocation').value = item.location || '';
+    document.getElementById('itemNotes').value = item.notes || '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('Editing ' + item.name + ' — change values and click Save', 'info');
+}
+
+async function deleteItem(id) {
+    if (!confirm('Delete this item?')) return;
+    try {
+        var r = await api({ action: 'deleteInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: session.school, itemId: id });
+        if (r.success) { showToast('🗑️ Deleted.', 'info'); loadInventory(); }
+        else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// ISSUE ITEM
+// ============================================================
+function populateIssueItems() {
+    var sel = document.getElementById('issueItem');
+    sel.innerHTML = '<option value="">Select an item</option>';
+    inventory.forEach(function (i) {
+        var o = document.createElement('option');
+        o.value = i.id;
+        o.textContent = i.name + ' (' + i.qty + ' ' + (i.unit || 'pieces') + ' available)';
+        o.dataset.qty = i.qty;
+        o.dataset.unit = i.unit || 'pieces';
+        o.dataset.name = i.name;
+        sel.appendChild(o);
+    });
+}
+
+function showItemStock() {
+    var sel = document.getElementById('issueItem');
+    var opt = sel.options[sel.selectedIndex];
+    document.getElementById('issueStock').value = opt.dataset.qty ? opt.dataset.qty + ' ' + (opt.dataset.unit || '') : '';
+}
+
+async function issueItem() {
+    var itemId = document.getElementById('issueItem').value;
+    var issuedTo = document.getElementById('issueTo').value.trim();
+    var qty = parseInt(document.getElementById('issueQty').value) || 0;
+
+    if (!itemId || !issuedTo || qty <= 0) { showToast('Fill all required fields.', 'warning'); return; }
+
+    var item = inventory.find(function (i) { return i.id === itemId; });
+    if (!item) { showToast('Item not found.', 'error'); return; }
+    if (qty > item.qty) { showToast('Only ' + item.qty + ' in stock.', 'error'); return; }
+
+    var issue = {
+        id: 'ISS-' + Date.now(),
+        itemId: itemId,
+        itemName: item.name,
+        qty: qty,
+        unit: item.unit || 'pieces',
+        issuedTo: issuedTo,
+        notes: document.getElementById('issueNotes').value,
+        date: document.getElementById('issueDate').value,
+        time: new Date().toLocaleTimeString(),
+        issuedBy: session.name || session.username
+    };
+
+    var status = document.getElementById('issueStatus');
+    status.className = 'status-message info';
+    status.style.display = 'block';
+    status.textContent = '⏳ Recording...';
+
+    try {
+        var r = await api({ action: 'issueInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: session.school, issue: JSON.stringify(issue), newQty: item.qty - qty, itemId: itemId });
+        if (r.success) {
+            status.className = 'status-message success';
+            status.textContent = '✅ Issued ' + qty + ' ' + (item.unit || '') + ' of ' + item.name + ' to ' + issuedTo;
+            showToast('✅ Item issued!', 'success');
+            resetIssueForm();
+            loadInventory();
+            loadIssues();
+        } else {
+            status.className = 'status-message error';
+            status.textContent = '❌ ' + (r.message || 'Failed');
+        }
+    } catch (e) {
+        status.className = 'status-message error';
+        status.textContent = '❌ ' + e.message;
+    }
+}
+
+function resetIssueForm() {
+    ['issueItem','issueTo','issueQty','issueNotes'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('issueStock').value = '';
+}
+
+async function loadIssues() {
+    try {
+        var r = await api({ action: 'getInventoryIssues', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        issues = (r.success && r.data ? r.data.issues || [] : []);
+    } catch (e) { issues = []; }
+
+    var list = document.getElementById('issuesList');
+    if (!list) return;
+    if (issues.length === 0) { list.innerHTML = '<p style="text-align:center;color:#999;padding:20px">No issues yet.</p>'; return; }
+    list.innerHTML = '<table class="ledger-table"><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Issued To</th><th>By</th></tr></thead><tbody>' +
+        issues.slice().reverse().slice(0, 20).map(function (i) {
+            return '<tr><td>' + i.date + '</td><td>' + i.itemName + '</td><td>' + i.qty + ' ' + (i.unit || '') + '</td><td>' + i.issuedTo + '</td><td>' + (i.issuedBy || '') + '</td></tr>';
+        }).join('') + '</tbody></table>';
+}
+
+// ============================================================
+// REQUESTS
+// ============================================================
+async function submitRequest() {
+    var reqBy = document.getElementById('reqBy').value.trim();
+    var items = document.getElementById('reqItems').value.trim();
+
+    if (!reqBy || !items) { showToast('Fill required fields.', 'warning'); return; }
+
+    var request = {
+        id: 'REQ-' + Date.now(),
+        requestedBy: reqBy,
+        department: document.getElementById('reqDept').value,
+        items: items,
+        priority: document.getElementById('reqPriority').value,
+        neededBy: document.getElementById('reqNeededBy').value,
+        notes: document.getElementById('reqNotes').value,
+        status: 'pending',
+        date: new Date().toISOString().slice(0, 10),
+        time: new Date().toLocaleTimeString()
+    };
+
+    var status = document.getElementById('reqStatus');
+    status.className = 'status-message info';
+    status.style.display = 'block';
+    status.textContent = '⏳ Submitting...';
+
+    try {
+        var r = await api({ action: 'saveStoreRequest', sheetId: ACCOUNTS_SHEET_ID, school: session.school, request: JSON.stringify(request) });
+        if (r.success) {
+            status.className = 'status-message success';
+            status.textContent = '✅ Request submitted!';
+            showToast('✅ Request submitted!', 'success');
+            resetReqForm();
+            loadRequests();
+        } else {
+            status.className = 'status-message error';
+            status.textContent = '❌ ' + (r.message || 'Failed');
+        }
+    } catch (e) {
+        status.className = 'status-message error';
+        status.textContent = '❌ ' + e.message;
+    }
+}
+
+function resetReqForm() {
+    ['reqBy','reqDept','reqItems','reqNotes'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('reqPriority').value = 'normal';
+}
+
+async function loadRequests() {
+    try {
+        var r = await api({ action: 'getStoreRequests', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        requests = (r.success && r.data ? r.data.requests || [] : []);
+    } catch (e) { requests = []; }
+    renderRequests();
+}
+
+async function renderRequests() {
+    var list = document.getElementById('requestsList');
+    if (!list) return;
+    if (requests.length === 0) { list.innerHTML = '<p style="text-align:center;color:#999;padding:20px">No requests.</p>'; return; }
+    list.innerHTML = requests.slice().reverse().map(function (r) {
+        var pColor = r.priority === 'critical' ? '#c1121f' : r.priority === 'urgent' ? '#e85d04' : '#004085';
+        var pBg = r.priority === 'critical' ? '#f8d7da' : r.priority === 'urgent' ? '#fff3cd' : '#d1ecf1';
+        return '<div class="item-card">' +
+            '<div>' +
+                '<div class="name">' + r.requestedBy + ' <span style="background:' + pBg + ';color:' + pColor + ';padding:2px 10px;border-radius:12px;font-size:11px;margin-left:6px">' + (r.priority || 'normal').toUpperCase() + '</span></div>' +
+                '<div class="meta">' + (r.department || '') + ' · Needed by ' + (r.neededBy || '—') + ' · ' + r.date + '</div>' +
+                '<div style="margin-top:6px;font-size:13px">' + (r.items || '') + '</div>' +
+                (r.notes ? '<div style="font-size:11px;color:#666;margin-top:4px;font-style:italic">' + r.notes + '</div>' : '') +
+            '</div>' +
+            '<div style="text-align:right">' +
+                '<div style="font-size:11px;font-weight:700;color:' + (r.status === 'fulfilled' ? '#2d6a4f' : r.status === 'cancelled' ? '#c1121f' : '#e85d04') + '">' + (r.status || 'pending').toUpperCase() + '</div>' +
+                (r.status === 'pending' ? '<button class="btn btn-success btn-sm" style="margin-top:6px" onclick="fulfillRequest(\'' + r.id + '\')">✅ Fulfill</button>' : '') +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+async function fulfillRequest(id) {
+    try {
+        var r = await api({ action: 'updateStoreRequest', sheetId: ACCOUNTS_SHEET_ID, school: session.school, requestId: id, status: 'fulfilled' });
+        if (r.success) { showToast('✅ Marked fulfilled', 'success'); loadRequests(); }
+        else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function loadDashboard() {
+    var total = inventory.length;
+    var inStock = inventory.filter(function (i) { return i.qty > (i.min || 10); }).length;
+    var lowStock = inventory.filter(function (i) { return i.qty > 0 && i.qty <= (i.min || 10); }).length;
+    var outOfStock = inventory.filter(function (i) { return i.qty === 0; }).length;
+
+    document.getElementById('statTotalItems').textContent = total;
+    document.getElementById('statInStock').textContent = inStock;
+    document.getElementById('statLowStock').textContent = lowStock;
+    document.getElementById('statOutOfStock').textContent = outOfStock;
+
+    // Low stock list
+    var low = inventory.filter(function (i) { return i.qty <= (i.min || 10); }).sort(function (a, b) { return a.qty - b.qty; }).slice(0, 8);
+    var lowHtml = document.getElementById('lowStockList');
+    if (lowHtml) {
+        lowHtml.innerHTML = low.length === 0 ? '<p style="text-align:center;color:#2d6a4f;padding:20px;font-weight:600">🎉 All items are well stocked!</p>' :
+            low.map(function (i) {
+                var color = i.qty === 0 ? '#c1121f' : '#e85d04';
+                return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0"><div><b style="color:#302b63">' + i.name + '</b><div style="font-size:11px;color:#888">' + (i.category || '') + '</div></div><div style="text-align:right"><div style="font-size:16px;font-weight:700;color:' + color + '">' + i.qty + '</div><div style="font-size:10px;color:#888">min: ' + (i.min || 10) + '</div></div></div>';
+            }).join('');
+    }
+
+    // Recent requests
+    var recent = requests.slice(-5).reverse();
+    var reqHtml = document.getElementById('recentRequests');
+    if (reqHtml) {
+        reqHtml.innerHTML = recent.length === 0 ? '<p style="text-align:center;color:#999;padding:20px">No requests.</p>' :
+            recent.map(function (r) {
+                return '<div style="padding:8px 0;border-bottom:1px solid #f0f0f0"><div style="display:flex;justify-content:space-between"><b style="color:#302b63;font-size:13px">' + r.requestedBy + '</b><span style="font-size:10px;color:' + (r.status === 'fulfilled' ? '#2d6a4f' : '#e85d04') + '">' + (r.status || 'pending').toUpperCase() + '</span></div><div style="font-size:11px;color:#888">' + (r.items || '').substring(0, 60) + (r.items && r.items.length > 60 ? '...' : '') + '</div></div>';
+            }).join('');
+    }
+}
+</script>
+</body>
+</html>
