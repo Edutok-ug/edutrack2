@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>📚 EduTrack Pro - Login</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;padding:20px;display:flex;align-items:center;justify-content:center}
+.auth-card{width:100%;max-width:480px;background:#fff;border-radius:20px;padding:35px 30px;box-shadow:0 25px 70px rgba(0,0,0,.45);position:relative;overflow:hidden}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#000 0%,#000 33%,#fcdc04 33%,#fcdc04 66%,#d90000 66%,#d90000 100%)}
+.auth-role-toggle{display:flex;gap:8px;background:#f4f6fb;padding:6px;border-radius:12px;margin-bottom:20px;flex-wrap:wrap}
+.auth-role-btn{flex:1;padding:10px;border:none;border-radius:8px;background:none;font-weight:600;font-size:13px;color:#888;cursor:pointer;transition:.2s;min-width:70px}
+.auth-role-btn.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff;box-shadow:0 4px 12px rgba(48,43,99,.35)}
+.auth-role-btn:hover:not(.active){background:#e4e9f7}
+.auth-mode-toggle{text-align:center;margin-bottom:18px;font-size:13px}
+.auth-mode-link{background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#888;padding:4px 8px}
+.auth-mode-link.active{color:#302b63;text-decoration:underline}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-weight:600;color:#555;font-size:13px;margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fafafa;transition:.3s}
+.form-group input:focus,.form-group select:focus{border-color:#302b63;outline:none;box-shadow:0 0 0 3px rgba(48,43,99,.15);background:#fff}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.btn{padding:12px 28px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.btn-primary{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff;width:100%}
+.btn-success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f);color:#fff;width:100%}
+.status-message{padding:12px 15px;border-radius:10px;margin-top:12px;font-size:14px;display:none}
+.status-message.success{display:block;background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.status-message.error{display:block;background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.status-message.info{display:block;background:#d1ecf1;color:#0c5460}
+.status-message.warning{display:block;background:#fff3cd;color:#856404}
+.connection-status{padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.connection-status.connected{background:#d4edda;color:#155724}
+.connection-status.disconnected{background:#f8d7da;color:#721c24}
+.connection-status.checking{background:#fff3cd;color:#856404}
+.connection-status .dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#666}
+.connection-status.connected .dot{background:#2d6a4f}
+.connection-status.disconnected .dot{background:#c1121f}
+.connection-status.checking .dot{background:#e85d04;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.toast-notification{position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:12px;color:#fff;font-weight:600;z-index:9999;opacity:0;transform:translateX(100%);transition:all .5s;max-width:400px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.toast-notification.show{opacity:1;transform:translateX(0)}
+.toast-notification.success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,#c1121f,#780000)}
+.toast-notification.info{background:linear-gradient(135deg,#0f0c29,#302b63)}
+.toast-notification.warning{background:linear-gradient(135deg,#e85d04,#dc2f02)}
+hr{border:1px dashed #ddd;margin:15px 0}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<div class="auth-card">
+    <div style="text-align:center;margin-bottom:10px;">
+        <span style="font-size:44px;">📚</span>
+        <h1 style="font-family:'Georgia',serif;color:#302b63;margin:5px 0;">EduTrack Pro</h1>
+        <p style="color:#888;font-size:13px;" id="authSubtitle">Please sign in to continue</p>
+        <div style="margin-top:8px;">
+            <span id="connectionStatus" class="connection-status checking"><span class="dot"></span> Checking connection...</span>
+        </div>
+    </div>
+
+    <div class="auth-role-toggle">
+        <button type="button" class="auth-role-btn active" id="roleBtnAdmin" onclick="setAuthRole('admin')">👨‍💼 Admin</button>
+        <button type="button" class="auth-role-btn" id="roleBtnBursar" onclick="setAuthRole('bursar')">💰 Bursar</button>
+        <button type="button" class="auth-role-btn" id="roleBtnGateman" onclick="setAuthRole('gateman')">🚪 Gate</button>
+        <button type="button" class="auth-role-btn" id="roleBtnTeacher" onclick="setAuthRole('teacher')">👩‍🏫 Teacher</button>
+        <button type="button" class="auth-role-btn" id="roleBtnParent" onclick="setAuthRole('parent')">👨‍👩‍👦 Parent</button>
+    </div>
+
+    <div class="auth-mode-toggle" id="authModeToggle">
+        <button type="button" class="auth-mode-link active" id="modeBtnLogin" onclick="setAuthMode('login')">Login</button>
+        <span style="color:#ccc;">|</span>
+        <button type="button" class="auth-mode-link" id="modeBtnSignup" onclick="setAuthMode('signup')">Create School Account</button>
+    </div>
+
+    <div id="loginFields">
+        <div class="form-group"><label>Username</label><input type="text" id="authUsername" placeholder="Enter your username" onchange="if(pendingAuthRole==='parent') loadParentChildren()" onblur="if(pendingAuthRole==='parent') loadParentChildren()" /></div>
+        <div class="form-group"><label>Password</label><input type="password" id="authPassword" placeholder="Enter your password" /></div>
+        <div class="form-group" id="authSchoolGroup"><label>School</label>
+            <select id="authSchoolSelect" onchange="if(pendingAuthRole==='parent') loadParentChildren()"><option value="">Select your school</option></select>
+        </div>
+        <div class="form-group" id="authChildGroup" style="display:none;"><label>Select Child</label>
+            <select id="authChildSelect"><option value="">Select your child</option></select>
+        </div>
+        <button class="btn btn-primary" id="authLoginBtn" onclick="attemptLogin()">🔓 Login</button>
+        <p style="text-align:center;font-size:12px;color:#888;margin-top:12px;">Contact admin for your login credentials.</p>
+    </div>
+
+    <div id="signupFields" style="display:none;">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="signupName" /></div>
+        <div class="form-group"><label>Username *</label><input type="text" id="signupUsername" /></div>
+        <div class="form-group"><label>Password *</label><input type="password" id="signupPassword" /></div>
+        <div class="form-group"><label>Confirm Password *</label><input type="password" id="signupPasswordConfirm" /></div>
+        <hr>
+        <p style="color:#302b63;font-weight:600;font-size:14px;margin-bottom:10px;">🏫 School Details</p>
+        <div class="form-group"><label>School Name *</label><input type="text" id="signupSchoolName" /></div>
+        <div class="form-row">
+            <div class="form-group"><label>Phone *</label><input type="text" id="signupSchoolPhone" /></div>
+            <div class="form-group"><label>Email *</label><input type="email" id="signupSchoolEmail" /></div>
+        </div>
+        <div class="form-group"><label>Address</label><input type="text" id="signupSchoolAddress" /></div>
+        <div class="form-group"><label>Motto</label><input type="text" id="signupSchoolMotto" /></div>
+        <button class="btn btn-success" id="authSignupBtn" onclick="attemptAdminSignup()">✅ Create School Account</button>
+    </div>
+
+    <div id="authStatus" class="status-message"></div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+
+var ROLE_HOME = {
+    admin:   'admin.html',
+    bursar:  'bursar.html',
+    gateman: 'gate.html',
+    teacher: 'teacher.html',
+    parent:  'parent.html'
+};
+
+var pendingAuthRole = 'admin';
+var pendingAuthMode = 'login';
+var isConnected = false;
+
+function showToast(msg, type) {
+    type = type || 'info';
+    var c = document.getElementById('toastContainer');
+    var t = document.createElement('div');
+    t.className = 'toast-notification ' + type;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 100);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 500); }, 4000);
+}
+
+function showAuthStatus(msg, type) {
+    var el = document.getElementById('authStatus');
+    el.style.display = 'block';
+    el.className = 'status-message ' + (type || 'info');
+    el.textContent = msg;
+}
+
+async function callAppsScript(params) {
+    var parts = [];
+    for (var k in params) {
+        if (params.hasOwnProperty(k) && params[k] !== undefined && params[k] !== null) {
+            parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+        }
+    }
+    var res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+        body: parts.join('&'),
+        signal: AbortSignal.timeout(30000)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+}
+
+function setAuthRole(role) {
+    pendingAuthRole = role;
+    document.querySelectorAll('.auth-role-btn').forEach(function (el) { el.classList.remove('active'); });
+    var btn = document.getElementById('roleBtn' + role.charAt(0).toUpperCase() + role.slice(1));
+    if (btn) btn.classList.add('active');
+    var mode = document.getElementById('authModeToggle');
+    var cg = document.getElementById('authChildGroup');
+    if (mode) mode.style.display = (role === 'admin') ? 'block' : 'none';
+    if (cg) {
+        cg.style.display = (role === 'parent') ? 'block' : 'none';
+        if (role === 'parent') loadParentChildren();
+    }
+    setAuthMode(role !== 'admin' ? 'login' : pendingAuthMode);
+    if (role === 'admin') loadSchoolsForLogin();
+}
+
+function setAuthMode(mode) {
+    pendingAuthMode = mode;
+    document.getElementById('modeBtnLogin').classList.toggle('active', mode === 'login');
+    document.getElementById('modeBtnSignup').classList.toggle('active', mode === 'signup');
+    document.getElementById('loginFields').style.display = (mode === 'login') ? 'block' : 'none';
+    document.getElementById('signupFields').style.display = (mode === 'signup') ? 'block' : 'none';
+    document.getElementById('authStatus').style.display = 'none';
+    if (mode === 'login') loadSchoolsForLogin();
+}
+
+async function testConnection() {
+    var s = document.getElementById('connectionStatus');
+    s.className = 'connection-status checking';
+    s.innerHTML = '<span class="dot"></span> Testing...';
+    try {
+        var r = await callAppsScript({ action: 'getSchools', sheetId: ACCOUNTS_SHEET_ID });
+        if (r && r.success) {
+            isConnected = true;
+            s.className = 'connection-status connected';
+            s.innerHTML = '<span class="dot"></span> Connected ✅';
+            var select = document.getElementById('authSchoolSelect');
+            if (select && r.data && r.data.schools) {
+                select.innerHTML = '<option value="">Select your school</option>';
+                r.data.schools.forEach(function (sc) {
+                    var o = document.createElement('option');
+                    o.value = sc; o.textContent = sc;
+                    select.appendChild(o);
+                });
+            }
+            return true;
+        } else {
+            s.className = 'connection-status disconnected';
+            s.innerHTML = '<span class="dot"></span> Error';
+            return false;
+        }
+    } catch (e) {
+        isConnected = false;
+        s.className = 'connection-status disconnected';
+        s.innerHTML = '<span class="dot"></span> Offline';
+        return false;
+    }
+}
+
+async function loadSchoolsForLogin() { if (!isConnected) await testConnection(); }
+
+async function loadParentChildren() {
+    try {
+        if (!isConnected) { await testConnection(); if (!isConnected) return; }
+        var username = document.getElementById('authUsername')?.value?.trim() || '';
+        var school = document.getElementById('authSchoolSelect')?.value || '';
+        if (!username || !school) return;
+        var r = await callAppsScript({
+            action: 'getParentChildren', sheetId: ACCOUNTS_SHEET_ID,
+            school: school, username: username
+        });
+        var select = document.getElementById('authChildSelect');
+        if (select && r.success && r.data) {
+            select.innerHTML = '<option value="">Select your child</option>';
+            (r.data.children || []).forEach(function (c) {
+                var o = document.createElement('option');
+                o.value = c.studentId;
+                o.textContent = c.studentName + ' (' + c.class + ')';
+                select.appendChild(o);
+            });
+        }
+    } catch (e) {}
+}
+
+async function attemptLogin() {
+    if (!isConnected) await testConnection();
+    var username = document.getElementById('authUsername').value.trim();
+    var password = document.getElementById('authPassword').value;
+    var school = document.getElementById('authSchoolSelect').value;
+    var childId = document.getElementById('authChildSelect').value;
+
+    if (!username || !password) { showAuthStatus('Enter username and password.', 'error'); return; }
+    if (!school && pendingAuthRole !== 'parent') { showAuthStatus('Select a school.', 'error'); return; }
+    if (pendingAuthRole === 'parent' && !childId) { showAuthStatus('Select your child.', 'error'); return; }
+
+    var btn = document.getElementById('authLoginBtn');
+    btn.disabled = true; btn.textContent = '⏳ Signing in...';
+
+    try {
+        var r = await callAppsScript({
+            action: 'verifyLogin', sheetId: ACCOUNTS_SHEET_ID,
+            role: pendingAuthRole, username: username, password: password,
+            school: school, childId: childId
+        });
+        btn.disabled = false; btn.textContent = '🔓 Login';
+
+        if (r.success) {
+            var session = r.data;
+            session.school = school || session.school;
+            session.childId = childId;
+            if (pendingAuthRole === 'parent') {
+                if (Array.isArray(r.data.children)) session.children = r.data.children;
+                else if (r.data.childId && r.data.childClass) {
+                    session.children = [{ studentId: r.data.childId, studentName: r.data.childName || 'Your Child', class: r.data.childClass }];
+                } else session.children = [];
+            }
+            sessionStorage.setItem('authSession', JSON.stringify(session));
+            showToast('✅ Welcome back!', 'success');
+            var home = ROLE_HOME[session.role] || 'admin.html';
+            setTimeout(function () { window.location.href = home; }, 400);
+        } else {
+            showAuthStatus('❌ ' + (r.message || 'Invalid credentials.'), 'error');
+        }
+    } catch (e) {
+        btn.disabled = false; btn.textContent = '🔓 Login';
+        showAuthStatus('⚠️ Server error: ' + e.message, 'warning');
+    }
+}
+
+async function attemptAdminSignup() {
+    if (!isConnected) await testConnection();
+    var name = document.getElementById('signupName').value.trim();
+    var username = document.getElementById('signupUsername').value.trim();
+    var password = document.getElementById('signupPassword').value;
+    var confirm = document.getElementById('signupPasswordConfirm').value;
+    var schoolName = document.getElementById('signupSchoolName').value.trim();
+    var phone = document.getElementById('signupSchoolPhone').value.trim();
+    var email = document.getElementById('signupSchoolEmail').value.trim();
+    var address = document.getElementById('signupSchoolAddress').value.trim();
+    var motto = document.getElementById('signupSchoolMotto').value.trim();
+
+    if (!name || !username || password.length < 6 || password !== confirm || !schoolName || !phone || !email) {
+        showAuthStatus('Fill all required fields correctly.', 'error'); return;
+    }
+    var btn = document.getElementById('authSignupBtn');
+    btn.disabled = true; btn.textContent = '⏳ Creating...';
+
+    try {
+        var r = await callAppsScript({
+            action: 'signupAdmin', sheetId: ACCOUNTS_SHEET_ID,
+            name: name, username: username, password: password,
+            schoolName: schoolName, schoolPhone: phone, schoolEmail: email,
+            schoolAddress: address, schoolMotto: motto
+        });
+        btn.disabled = false; btn.textContent = '✅ Create School Account';
+
+        if (r.success) {
+            var session = r.data;
+            session.school = schoolName;
+            sessionStorage.setItem('authSession', JSON.stringify(session));
+            showToast('✅ Account created!', 'success');
+            setTimeout(function () { window.location.href = 'admin.html'; }, 500);
+        } else showAuthStatus('❌ ' + (r.message || 'Failed'), 'error');
+    } catch (e) {
+        btn.disabled = false; btn.textContent = '✅ Create School Account';
+        showAuthStatus('⚠️ ' + e.message, 'warning');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var existing = sessionStorage.getItem('authSession');
+    if (existing) {
+        try {
+            var s = JSON.parse(existing);
+            if (s && s.role) {
+                window.location.href = ROLE_HOME[s.role] || 'admin.html';
+                return;
+            }
+        } catch (e) {}
+    }
+    setAuthRole('admin');
+    setAuthMode('login');
+    setTimeout(testConnection, 500);
+});
+</script>
+</body>
+</html>
