@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🚪 Gate — EduTrack Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;padding:20px}
+.navbar{background:rgba(255,255,255,.95);border-radius:16px 16px 0 0;padding:10px 25px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);position:sticky;top:0;z-index:1000;border-bottom:3px solid #302b63}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;color:#302b63;text-decoration:none;font-family:Georgia,serif}
+.brand .brand-text{background:linear-gradient(135deg,#0f0c29,#302b63);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-menu{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nav-link{padding:8px 14px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px}
+.nav-link:hover{background:rgba(48,43,99,.08);color:#302b63}
+.nav-link.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff}
+.nav-user{display:flex;align-items:center;gap:10px;padding:5px 12px;border-radius:20px;background:#f0f4ff;border:1px solid #302b63}
+.nav-user .avatar{width:32px;height:32px;border-radius:50%;background:#302b63;color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:0 0 24px 24px;padding:25px 30px 30px;box-shadow:0 25px 80px rgba(0,0,0,.5);min-height:80vh;position:relative}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,#fcdc04 33%,#fcdc04 66%,#d90000 66%,#d90000 100%)}
+.form-section{display:none}
+.form-section.active{display:block;padding-top:10px;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:22px;color:#1a1a2e;margin-bottom:5px}
+.section-desc{color:#888;font-size:14px;margin-bottom:20px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-weight:600;color:#555;font-size:14px;margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fafafa}
+.form-group input:focus,.form-group select:focus{border-color:#302b63;outline:none;background:white}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
+.btn{padding:12px 28px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,#0f0c29,#302b63);color:white}
+.btn-success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f);color:white}
+.btn-danger{background:linear-gradient(135deg,#c1121f,#780000);color:white}
+.btn-info{background:linear-gradient(135deg,#004085,#0069d9);color:white}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:6px 16px;font-size:13px}
+.ledger-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.ledger-table th{background:linear-gradient(135deg,#0f0c29,#302b63);color:white;padding:12px 10px;text-align:left}
+.ledger-table td{padding:10px;border-bottom:1px solid #e0e0e0}
+.ledger-table .credit{color:#2d6a4f;font-weight:600}
+.ledger-table .debit{color:#c1121f;font-weight:600}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:15px 0}
+.stat-card{background:white;border-radius:14px;padding:15px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0;text-align:center}
+.stat-card .num{font-size:24px;font-weight:700;color:#1a1a2e}
+.stat-card .lbl{font-size:12px;color:#888}
+.attendance-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:15px 0;max-height:500px;overflow-y:auto}
+.attendance-check-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;border:1px solid #e0e0e0;flex-wrap:wrap}
+.attendance-check-item input[type=checkbox]{width:20px;height:20px;accent-color:#2d6a4f}
+.attendance-check-item label{font-size:13px;font-weight:500;flex:1}
+.status-message{padding:12px;border-radius:10px;margin:15px 0;display:none}
+.status-message.success{display:block;background:#d4edda;color:#155724}
+.status-message.error{display:block;background:#f8d7da;color:#721c24}
+.status-message.info{display:block;background:#d1ecf1;color:#0c5460}
+.info-box{background:#e8f0fe;border-left:4px solid #302b63;padding:15px 20px;border-radius:8px;margin:15px 0}
+.info-box .title{font-weight:700;color:#302b63;font-size:15px}
+.info-box .text{color:#555;font-size:14px;margin-top:4px}
+.toast-notification{position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:12px;color:white;font-weight:600;z-index:9999;opacity:0;transform:translateX(100%);transition:all .5s;max-width:400px}
+.toast-notification.show{opacity:1;transform:translateX(0)}
+.toast-notification.success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,#c1121f,#780000)}
+.toast-notification.info{background:linear-gradient(135deg,#0f0c29,#302b63)}
+.toast-notification.warning{background:linear-gradient(135deg,#e85d04,#dc2f02)}
+.footer{text-align:center;padding:20px 0 10px;border-top:2px solid #e0e0e0;margin-top:30px}
+@media(max-width:992px){.form-row,.form-row-3{grid-template-columns:1fr;gap:0}}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<nav class="navbar">
+    <a href="gate.html" class="brand"><span style="font-size:28px">📚</span><span class="brand-text">EduTrack Pro</span></a>
+    <div class="nav-menu">
+        <button class="nav-link active" onclick="switchTab('gate')"><i class="fas fa-door-open"></i> Gate Entry</button>
+        <button class="nav-link" onclick="switchTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
+        <button class="nav-link" onclick="switchTab('log')"><i class="fas fa-history"></i> Gate Log</button>
+        <div class="nav-user"><div class="avatar" id="navAvatar">G</div><div style="font-size:12px"><div style="font-weight:600" id="navName">Gate Man</div><div style="font-size:10px;color:#888">🚪 Gate Man</div></div></div>
+        <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- GATE ENTRY -->
+    <div id="tabGate" class="form-section active">
+        <h2 class="section-title">🚪 Record Gate Entry/Exit</h2>
+        <p class="section-desc">Log every person entering or leaving the school.</p>
+
+        <div class="info-box">
+            <div class="title">📌 Location & Time</div>
+            <div class="text" id="locationBox">📍 Location: -- | ⏰ <span id="clockDisplay">--:--:--</span></div>
+            <button class="btn btn-info btn-sm" onclick="getLocation()" style="margin-top:8px">📍 Get My Location</button>
+        </div>
+
+        <div class="form-row-3">
+            <div class="form-group"><label>Person Type *</label>
+                <select id="gateType" onchange="loadGatePersons()">
+                    <option value="student">👨‍🎓 Student</option>
+                    <option value="teacher">👩‍🏫 Teacher</option>
+                    <option value="staff">🧑‍💼 Staff</option>
+                    <option value="parent">👨‍👩‍👦 Parent</option>
+                    <option value="visitor">🧑‍💼 Visitor</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Select Person *</label>
+                <select id="gatePerson"><option value="">Select a person</option></select>
+            </div>
+            <div class="form-group"><label>Action *</label>
+                <select id="gateAction">
+                    <option value="entry">🚪 Entry</option>
+                    <option value="exit">🚪 Exit</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group"><label>Notes (optional)</label>
+            <input type="text" id="gateNotes" placeholder="e.g., Picked up child early, delivered package..." />
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-success" onclick="recordGate('entry')">✅ Record Entry</button>
+            <button class="btn btn-danger" onclick="recordGate('exit')">❌ Record Exit</button>
+            <button class="btn btn-secondary" onclick="loadGateLog()">🔄 Refresh Log</button>
+        </div>
+
+        <div style="margin-top:20px">
+            <h4>📊 Today's Summary</h4>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="num" id="statEntries">0</div><div class="lbl">Entries</div></div>
+                <div class="stat-card"><div class="num" id="statExits">0</div><div class="lbl">Exits</div></div>
+                <div class="stat-card"><div class="num" id="statTotalLog">0</div><div class="lbl">Total Today</div></div>
+            </div>
+        </div>
+
+        <div style="margin-top:20px">
+            <h4>📋 Recent Gate Activity</h4>
+            <div id="gateLogRecent"><p style="text-align:center;color:#999;padding:20px">No records.</p></div>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="tabAttendance" class="form-section">
+        <h2 class="section-title">☑️ Manual Attendance</h2>
+        <p class="section-desc">All students are marked present by default. Uncheck the absentees.</p>
+
+        <div class="form-row-3">
+            <div class="form-group"><label>Class *</label>
+                <select id="attClass" onchange="loadAttendance()"><option value="">Select</option></select>
+            </div>
+            <div class="form-group"><label>Date</label><input type="date" id="attDate" /></div>
+            <div class="form-group"><label>Term / Year</label>
+                <div style="display:flex;gap:8px">
+                    <select id="attTerm" style="flex:1"><option value="I">I</option><option value="II">II</option><option value="III" selected>III</option></select>
+                    <select id="attYear" style="flex:1"><option>2025</option><option selected>2026</option><option>2027</option></select>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin:15px 0;padding:12px;background:#f8f9fa;border-radius:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-success btn-sm" onclick="markAll('present')">✅ All Present</button>
+            <button class="btn btn-danger btn-sm" onclick="markAll('absent')">❌ All Absent</button>
+            <button class="btn btn-secondary btn-sm" onclick="markAll('present')">🔄 Reset</button>
+            <input type="text" id="attSearch" placeholder="🔍 Search..." onkeyup="filterAtt()" style="flex:1;min-width:180px;padding:8px;border:2px solid #ddd;border-radius:8px" />
+        </div>
+
+        <div id="attSummary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:15px 0;padding:15px;background:#f0f4ff;border-radius:12px;border:1px solid #302b63">
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#302b63" id="cntTotal">0</div><div style="font-size:11px;color:#888">Total</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#2d6a4f" id="cntPresent">0</div><div style="font-size:11px;color:#888">✅ Present</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#c1121f" id="cntAbsent">0</div><div style="font-size:11px;color:#888">❌ Absent</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#e85d04" id="cntLate">0</div><div style="font-size:11px;color:#888">⏰ Late</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#004085" id="cntLeave">0</div><div style="font-size:11px;color:#888">🏠 Leave</div></div>
+        </div>
+
+        <div id="attGrid" class="attendance-check-grid"><p style="grid-column:1/-1;text-align:center;color:#999;padding:20px">Select a class.</p></div>
+        <button class="btn btn-primary" onclick="saveAttendance()" style="margin-top:15px">💾 Save Attendance</button>
+        <div id="attStatus" class="status-message"></div>
+    </div>
+
+    <!-- GATE LOG -->
+    <div id="tabLog" class="form-section">
+        <h2 class="section-title">📜 Full Gate Log</h2>
+        <div class="form-row">
+            <div class="form-group"><label>Filter Date</label><input type="date" id="logDate" /></div>
+            <div class="form-group"><label>Filter Person Type</label>
+                <select id="logType">
+                    <option value="all">All Types</option>
+                    <option value="student">Students</option>
+                    <option value="teacher">Teachers</option>
+                    <option value="staff">Staff</option>
+                    <option value="parent">Parents</option>
+                    <option value="visitor">Visitors</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="loadGateLog()">🔍 Filter</button>
+            <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+        </div>
+        <div id="gateLogFull" style="margin-top:15px"><p style="text-align:center;color:#999;padding:20px">Loading...</p></div>
+    </div>
+
+    <div class="footer"><div style="font-weight:700;color:#302b63">📚 EduTrack Pro — Gate Man</div></div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+
+var session = null;
+var gateLogs = [];
+var currentLocation = null;
+var attStudents = [];
+var attStatuses = {};
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function () {
+    session = JSON.parse(sessionStorage.getItem('edutrack_session') || localStorage.getItem('edutrack_session') || 'null');
+    if (!session || session.role !== 'gateman') { window.location.href = 'index.html'; return; }
+
+    document.getElementById('navAvatar').textContent = (session.name || 'G').charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = session.name || session.username;
+
+    var today = new Date().toISOString().slice(0, 10);
+    document.getElementById('attDate').value = today;
+    document.getElementById('logDate').value = today;
+
+    populateClasses();
+    loadGatePersons();
+    loadGateLog();
+    getLocation();
+    setInterval(updateClock, 1000);
+    updateClock();
+});
+
+function updateClock() {
+    var el = document.getElementById('clockDisplay');
+    if (el) el.textContent = new Date().toLocaleTimeString();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showToast(msg, type) {
+    type = type || 'info';
+    var t = document.createElement('div');
+    t.className = 'toast-notification ' + type;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 100);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 500); }, 4000);
+}
+function logout() {
+    sessionStorage.removeItem('edutrack_session');
+    localStorage.removeItem('edutrack_session');
+    window.location.href = 'index.html';
+}
+async function api(p) {
+    var parts = [];
+    for (var k in p) if (p.hasOwnProperty(k) && p[k] != null) parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(p[k]));
+    var r = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: parts.join('&') });
+    return await r.json();
+}
+function extractSheetId(u) { if (!u) return ''; var m = u.match(/\/d\/([a-zA-Z0-9-_]+)/); return m ? m[1] : (/^[a-zA-Z0-9-_]{30,}$/.test(u) ? u : ''); }
+function getSheetId(cls) { return extractSheetId(localStorage.getItem('classLink_' + cls + '_' + session.school) || ''); }
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+    document.querySelectorAll('.nav-link').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.form-section').forEach(function (el) { el.classList.remove('active'); });
+    var map = { gate:'tabGate', attendance:'tabAttendance', log:'tabLog' };
+    document.getElementById(map[tab] || 'tabGate').classList.add('active');
+    if (tab === 'log') loadGateLog();
+    if (tab === 'attendance') populateClasses();
+}
+
+// ============================================================
+// LOCATION
+// ============================================================
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            currentLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            document.getElementById('locationBox').innerHTML = '📍 Location: ' + currentLocation.lat.toFixed(6) + ', ' + currentLocation.lng.toFixed(6) + ' | ⏰ <span id="clockDisplay">' + new Date().toLocaleTimeString() + '</span>';
+        }, function () {
+            document.getElementById('locationBox').innerHTML = '📍 Location: Not available | ⏰ <span id="clockDisplay">' + new Date().toLocaleTimeString() + '</span>';
+        }, { enableHighAccuracy: true, timeout: 10000 });
+    }
+}
+
+// ============================================================
+// GATE PERSONS
+// ============================================================
+async function loadGatePersons() {
+    var type = document.getElementById('gateType').value;
+    var select = document.getElementById('gatePerson');
+    select.innerHTML = '<option value="">Select a person</option>';
+
+    if (type === 'student') {
+        var all = [];
+        for (var i = 0; i < CLASSES.length; i++) {
+            var sid = getSheetId(CLASSES[i]);
+            if (!sid) continue;
+            try {
+                var r = await api({ action: 'getStudents', sheetId: sid, school: session.school, className: CLASSES[i] });
+                (r.success && r.data ? r.data.students || [] : []).forEach(function (s) { all.push({ id: s.studentId, name: s.studentName, meta: CLASSES[i] }); });
+            } catch (e) {}
+        }
+        all.forEach(function (s) {
+            var o = document.createElement('option');
+            o.value = s.id;
+            o.textContent = s.name + ' (' + s.id + ') · ' + s.meta;
+            select.appendChild(o);
+        });
+    } else {
+        try {
+            var r = await api({ action: 'getAllAccounts', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+            var users = (r.success && r.data ? r.data.accounts || [] : []);
+            if (type === 'parent') users = users.filter(function (u) { return u.role === 'parent'; });
+            else if (type === 'visitor') users = [];
+            else users = users.filter(function (u) { return u.role === type; });
+            users.forEach(function (u) {
+                var o = document.createElement('option');
+                o.value = u.username;
+                o.textContent = u.name + ' (' + u.username + ')';
+                select.appendChild(o);
+            });
+        } catch (e) {}
+    }
+
+    if (type === 'visitor' || select.options.length <= 1) {
+        // Allow manual entry for visitors
+        var o = document.createElement('option');
+        o.value = '__manual__';
+        o.textContent = '✍️ Enter visitor name below';
+        select.appendChild(o);
+    }
+}
+
+// ============================================================
+// RECORD GATE
+// ============================================================
+async function recordGate(action) {
+    var type = document.getElementById('gateType').value;
+    var person = document.getElementById('gatePerson').value;
+    var notes = document.getElementById('gateNotes').value.trim();
+
+    if (!person) { showToast('Select a person.', 'warning'); return; }
+
+    // If manual visitor, prompt
+    var personName = person;
+    if (person === '__manual__') {
+        personName = prompt('Enter visitor name:');
+        if (!personName) return;
+        person = 'VISITOR-' + Date.now();
+    } else {
+        var opt = document.getElementById('gatePerson').options[document.getElementById('gatePerson').selectedIndex];
+        personName = opt.textContent;
+    }
+
+    var location = currentLocation ? currentLocation.lat.toFixed(6) + ', ' + currentLocation.lng.toFixed(6) : 'N/A';
+    var log = [{
+        id: 'GATE-' + Date.now(),
+        person: person,
+        personName: personName,
+        type: type,
+        action: action,
+        date: new Date().toISOString().slice(0, 10),
+        time: new Date().toLocaleTimeString(),
+        location: location,
+        notes: notes
+    }];
+
+    try {
+        var r = await api({ action: 'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: session.school, logs: JSON.stringify(log) });
+        if (r.success) {
+            showToast('✅ ' + action.toUpperCase() + ' recorded for ' + personName, 'success');
+            document.getElementById('gateNotes').value = '';
+            loadGateLog();
+        } else showToast('❌ ' + (r.message || 'Failed'), 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// LOAD GATE LOG
+// ============================================================
+async function loadGateLog() {
+    var date = document.getElementById('logDate').value || new Date().toISOString().slice(0, 10);
+    var typeFilter = document.getElementById('logType').value || 'all';
+
+    try {
+        var r = await api({ action: 'getGateLogs', sheetId: ACCOUNTS_SHEET_ID, school: session.school, date: date });
+        gateLogs = (r.success && r.data ? r.data.logs || [] : []);
+
+        // Stats
+        var entries = gateLogs.filter(function (l) { return l.action === 'entry'; }).length;
+        var exits = gateLogs.filter(function (l) { return l.action === 'exit'; }).length;
+        document.getElementById('statEntries').textContent = entries;
+        document.getElementById('statExits').textContent = exits;
+        document.getElementById('statTotalLog').textContent = gateLogs.length;
+
+        // Filter by type
+        var filtered = typeFilter === 'all' ? gateLogs : gateLogs.filter(function (l) { return l.type === typeFilter; });
+
+        var html = filtered.length === 0 ? '<p style="text-align:center;color:#999;padding:20px">No records for ' + date + '.</p>' :
+            '<table class="ledger-table"><thead><tr><th>Time</th><th>Person</th><th>Type</th><th>Action</th><th>Notes</th><th>Location</th></tr></thead><tbody>' +
+            filtered.slice().reverse().map(function (l) {
+                return '<tr>' +
+                    '<td>' + (l.time || '') + '</td>' +
+                    '<td>' + (l.personName || l.person || '') + '</td>' +
+                    '<td>' + (l.type || '') + '</td>' +
+                    '<td class="' + (l.action === 'entry' ? 'credit' : 'debit') + '">' + (l.action || '').toUpperCase() + '</td>' +
+                    '<td style="font-size:11px;color:#666">' + (l.notes || '—') + '</td>' +
+                    '<td style="font-size:11px;color:#888">' + (l.location || '') + '</td>' +
+                '</tr>';
+            }).join('') + '</tbody></table>';
+
+        document.getElementById('gateLogFull').innerHTML = html;
+        document.getElementById('gateLogRecent').innerHTML = filtered.length === 0 ? '<p style="text-align:center;color:#999;padding:20px">No records.</p>' :
+            '<table class="ledger-table"><thead><tr><th>Time</th><th>Person</th><th>Action</th></tr></thead><tbody>' +
+            filtered.slice(-10).reverse().map(function (l) {
+                return '<tr><td>' + (l.time || '') + '</td><td>' + (l.personName || l.person || '') + '</td><td class="' + (l.action === 'entry' ? 'credit' : 'debit') + '">' + (l.action || '').toUpperCase() + '</td></tr>';
+            }).join('') + '</tbody></table>';
+    } catch (e) {
+        document.getElementById('gateLogFull').innerHTML = '<p style="text-align:center;color:#c1121f;padding:20px">❌ ' + e.message + '</p>';
+    }
+}
+
+// ============================================================
+// MANUAL ATTENDANCE
+// ============================================================
+function populateClasses() {
+    var s = document.getElementById('attClass');
+    if (!s || s.options.length > 1) return;
+    s.innerHTML = '<option value="">Select</option>';
+    CLASSES.forEach(function (c) {
+        var o = document.createElement('option');
+        o.value = c; o.textContent = c;
+        s.appendChild(o);
+    });
+}
+
+async function loadAttendance() {
+    var cls = document.getElementById('attClass').value;
+    var sid = getSheetId(cls);
+    if (!sid) {
+        document.getElementById('attGrid').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#c1121f;padding:20px">❌ Sheet not configured for ' + cls + '.</p>';
+        return;
+    }
+    document.getElementById('attGrid').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px">⏳ Loading...</p>';
+
+    try {
+        var r = await api({ action: 'getStudents', sheetId: sid, school: session.school, className: cls });
+        var students = (r.success && r.data ? r.data.students || [] : []);
+        attStudents = students.map(function (s) { return { studentId: s.studentId, studentName: s.studentName, status: 'present' }; });
+        attStatuses = {};
+        attStudents.forEach(function (s) { attStatuses[s.studentId] = 'present'; });
+        renderAtt();
+    } catch (e) {
+        document.getElementById('attGrid').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#c1121f;padding:20px">❌ ' + e.message + '</p>';
+    }
+}
+
+function renderAtt() {
+    var q = (document.getElementById('attSearch').value || '').toLowerCase();
+    var filtered = q ? attStudents.filter(function (s) {
+        return s.studentName.toLowerCase().includes(q) || s.studentId.toLowerCase().includes(q);
+    }) : attStudents;
+
+    if (filtered.length === 0) {
+        document.getElementById('attGrid').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px">No students.</p>';
+        updateAttStats();
+        return;
+    }
+
+    var L = { present: '✅', absent: '❌', late: '⏰', leave: '🏠' };
+    document.getElementById('attGrid').innerHTML = filtered.map(function (s) {
+        var isP = s.status === 'present';
+        return '<div class="attendance-check-item">' +
+            '<input type="checkbox" ' + (isP ? 'checked' : '') + ' onchange="toggleAtt(\'' + s.studentId + '\', this.checked)" />' +
+            '<label>' + s.studentId + ' ' + s.studentName + '</label>' +
+            '<select onchange="setAttStatus(\'' + s.studentId + '\', this.value)" style="padding:3px 6px;border:2px solid #ddd;border-radius:4px;font-size:11px">' +
+                '<option value="present"' + (s.status === 'present' ? ' selected' : '') + '>✅ Present</option>' +
+                '<option value="absent"' + (s.status === 'absent' ? ' selected' : '') + '>❌ Absent</option>' +
+                '<option value="late"' + (s.status === 'late' ? ' selected' : '') + '>⏰ Late</option>' +
+                '<option value="leave"' + (s.status === 'leave' ? ' selected' : '') + '>🏠 Leave</option>' +
+            '</select>' +
+            '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:' + (s.status === 'present' ? '#d4edda' : s.status === 'absent' ? '#f8d7da' : s.status === 'late' ? '#fff3cd' : '#cce5ff') + ';color:' + (s.status === 'present' ? '#155724' : s.status === 'absent' ? '#721c24' : s.status === 'late' ? '#856404' : '#004085') + ';font-weight:600">' + L[s.status] + '</span>' +
+        '</div>';
+    }).join('');
+    updateAttStats();
+}
+
+function toggleAtt(id, checked) {
+    var s = attStudents.find(function (x) { return x.studentId === id; });
+    if (s) { s.status = checked ? 'present' : 'absent'; renderAtt(); }
+}
+function setAttStatus(id, st) {
+    var s = attStudents.find(function (x) { return x.studentId === id; });
+    if (s) { s.status = st; renderAtt(); }
+}
+function markAll(st) {
+    attStudents.forEach(function (s) { s.status = st; });
+    renderAtt();
+}
+function filterAtt() { renderAtt(); }
+
+function updateAttStats() {
+    var total = attStudents.length, present = 0, absent = 0, late = 0, leave = 0;
+    attStudents.forEach(function (s) {
+        if (s.status === 'present') present++;
+        else if (s.status === 'absent') absent++;
+        else if (s.status === 'late') late++;
+        else if (s.status === 'leave') leave++;
+    });
+    document.getElementById('cntTotal').textContent = total;
+    document.getElementById('cntPresent').textContent = present;
+    document.getElementById('cntAbsent').textContent = absent;
+    document.getElementById('cntLate').textContent = late;
+    document.getElementById('cntLeave').textContent = leave;
+}
+
+async function saveAttendance() {
+    var cls = document.getElementById('attClass').value;
+    var sid = getSheetId(cls);
+    if (!sid) { showToast('Sheet not configured.', 'error'); return; }
+    if (attStudents.length === 0) { showToast('No students loaded.', 'warning'); return; }
+
+    var records = attStudents.map(function (s) { return { studentId: s.studentId, studentName: s.studentName, status: s.status, class: cls }; });
+    var status = document.getElementById('attStatus');
+    status.className = 'status-message info';
+    status.style.display = 'block';
+    status.textContent = '⏳ Saving...';
+
+    try {
+        var r = await api({
+            action: 'saveManualAttendance',
+            sheetId: sid, school: session.school, className: cls,
+            date: document.getElementById('attDate').value,
+            term: document.getElementById('attTerm').value,
+            year: document.getElementById('attYear').value,
+            records: JSON.stringify(records),
+            markedBy: session.name || session.username,
+            markedByRole: 'gateman'
+        });
+        if (r.success) {
+            status.className = 'status-message success';
+            status.textContent = '✅ Saved! ' + records.filter(function (r) { return r.status === 'present'; }).length + ' present, ' + records.filter(function (r) { return r.status === 'absent'; }).length + ' absent.';
+            showToast('✅ Attendance saved!', 'success');
+        } else {
+            status.className = 'status-message error';
+            status.textContent = '❌ ' + (r.message || 'Failed');
+        }
+    } catch (e) {
+        status.className = 'status-message error';
+        status.textContent = '❌ ' + e.message;
+    }
+}
+</script>
+</body>
+</html>
