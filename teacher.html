@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>👩‍🏫 Teacher — EduTrack Pro</title>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* Reuse admin CSS — copy it from admin.html */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;padding:20px}
+.navbar{background:rgba(255,255,255,.95);border-radius:16px 16px 0 0;padding:10px 25px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);position:sticky;top:0;z-index:1000;border-bottom:3px solid #302b63}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;color:#302b63;text-decoration:none;font-family:Georgia,serif}
+.brand .brand-text{background:linear-gradient(135deg,#0f0c29,#302b63);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-menu{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nav-link{padding:8px 14px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px}
+.nav-link:hover{background:rgba(48,43,99,.08);color:#302b63}
+.nav-link.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff}
+.nav-user{display:flex;align-items:center;gap:10px;padding:5px 12px;border-radius:20px;background:#f0f4ff;border:1px solid #302b63}
+.nav-user .avatar{width:32px;height:32px;border-radius:50%;background:#302b63;color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:0 0 24px 24px;padding:25px 30px 30px;box-shadow:0 25px 80px rgba(0,0,0,.5);min-height:80vh;position:relative}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,#fcdc04 33%,#fcdc04 66%,#d90000 66%,#d90000 100%)}
+.form-section{display:none}
+.form-section.active{display:block;padding-top:10px;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:22px;color:#1a1a2e;margin-bottom:5px}
+.section-desc{color:#888;font-size:14px;margin-bottom:20px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-weight:600;color:#555;font-size:14px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fafafa}
+.form-group input:focus,.form-group select:focus{border-color:#302b63;outline:none;background:white}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px}
+.btn{padding:12px 28px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,#0f0c29,#302b63);color:white}
+.btn-success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f);color:white}
+.btn-danger{background:linear-gradient(135deg,#c1121f,#780000);color:white}
+.btn-info{background:linear-gradient(135deg,#004085,#0069d9);color:white}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:6px 16px;font-size:13px}
+.score-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.score-table th{background:linear-gradient(135deg,#0f0c29,#302b63);color:white;padding:12px 10px;text-align:left}
+.score-table td{padding:8px 10px;border-bottom:1px solid #e0e0e0}
+.score-table input{width:100%;padding:8px;border:2px solid #ddd;border-radius:6px}
+.camera-container{position:relative;overflow:hidden;background:#1a1a2e;border-radius:16px;margin:15px 0}
+.camera-container video{width:100%;display:block;border-radius:12px;min-height:280px;transform:scaleX(-1);object-fit:cover}
+.camera-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;padding:10px;background:#f8f9fa;border-radius:12px}
+.face-registered-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:15px 0}
+.face-registered-item{background:white;border-radius:12px;padding:12px;text-align:center;border:1px solid #e0e0e0}
+.attendance-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:15px 0;max-height:500px;overflow-y:auto}
+.attendance-check-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;border:1px solid #e0e0e0;flex-wrap:wrap}
+.attendance-check-item input[type=checkbox]{width:20px;height:20px;accent-color:#2d6a4f}
+.attendance-check-item label{font-size:13px;font-weight:500;flex:1}
+.status-message{padding:12px;border-radius:10px;margin:15px 0;display:none}
+.status-message.success{display:block;background:#d4edda;color:#155724}
+.status-message.error{display:block;background:#f8d7da;color:#721c24}
+.status-message.info{display:block;background:#d1ecf1;color:#0c5460}
+.toast-notification{position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:12px;color:white;font-weight:600;z-index:9999;opacity:0;transform:translateX(100%);transition:all .5s;max-width:400px}
+.toast-notification.show{opacity:1;transform:translateX(0)}
+.toast-notification.success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,#c1121f,#780000)}
+.toast-notification.info{background:linear-gradient(135deg,#0f0c29,#302b63)}
+.footer{text-align:center;padding:20px 0 10px;border-top:2px solid #e0e0e0;margin-top:30px}
+@media(max-width:992px){.form-row,.form-row-3{grid-template-columns:1fr;gap:0}}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<nav class="navbar">
+    <a href="teacher.html" class="brand"><span style="font-size:28px">📚</span><span class="brand-text">EduTrack Pro</span></a>
+    <div class="nav-menu">
+        <button class="nav-link active" onclick="switchTab('scores')"><i class="fas fa-edit"></i> Post Scores</button>
+        <button class="nav-link" onclick="switchTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
+        <button class="nav-link" onclick="switchTab('facereg')"><i class="fas fa-user-tag"></i> Face Reg</button>
+        <button class="nav-link" onclick="switchTab('documents')"><i class="fas fa-file-alt"></i> Documents</button>
+        <div class="nav-user"><div class="avatar" id="navAvatar">T</div><div style="font-size:12px"><div style="font-weight:600" id="navName">Teacher</div><div style="font-size:10px;color:#888">👩‍🏫 Teacher</div></div></div>
+        <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- SCORES -->
+    <div id="tabScores" class="form-section active">
+        <h2 class="section-title">📈 Post Scores</h2>
+        <div class="form-group"><label>Class *</label><select id="scoreClass" onchange="loadScores()"><option value="">Select a Class</option></select></div>
+        <div class="form-row-3">
+            <div class="form-group"><label>Subject *</label>
+                <select id="scoreSubject">
+                    <option value="">Select</option>
+                    <option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Geography</option><option>History</option><option>CRE</option><option>Computer Studies</option><option>Luganda</option><option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Initials</label><input type="text" id="scoreInitials" maxlength="5" /></div>
+            <div class="form-group"><label>Type</label><select id="scoreType"><option value="BOTH">AOI + EOT</option><option value="AOI">AOI only</option><option value="EOT">EOT only</option></select></div>
+        </div>
+        <table class="score-table"><thead><tr><th>ID</th><th>Name</th><th>AOI (20)</th><th>EOT (80)</th><th>Total</th></tr></thead><tbody id="scoreBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Select a class.</td></tr></tbody></table>
+        <button class="btn btn-primary" onclick="postScores()">📤 Post Scores</button>
+    </div>
+
+    <!-- MANUAL ATTENDANCE -->
+    <div id="tabAttendance" class="form-section">
+        <h2 class="section-title">☑️ Manual Attendance</h2>
+        <div class="form-row-3">
+            <div class="form-group"><label>Class *</label><select id="attClass" onchange="loadAttendance()"><option value="">Select</option></select></div>
+            <div class="form-group"><label>Date</label><input type="date" id="attDate" /></div>
+            <div class="form-group"><label>Term/Year</label>
+                <div style="display:flex;gap:8px">
+                    <select id="attTerm" style="flex:1"><option value="I">I</option><option value="II">II</option><option value="III" selected>III</option></select>
+                    <select id="attYear" style="flex:1"><option>2025</option><option selected>2026</option><option>2027</option></select>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;margin:15px 0;padding:12px;background:#f8f9fa;border-radius:10px;flex-wrap:wrap">
+            <button class="btn btn-success btn-sm" onclick="markAll('present')">✅ All Present</button>
+            <button class="btn btn-danger btn-sm" onclick="markAll('absent')">❌ All Absent</button>
+            <input type="text" id="attSearch" placeholder="🔍 Search..." onkeyup="filterAtt()" style="flex:1;min-width:200px;padding:8px;border:2px solid #ddd;border-radius:8px" />
+        </div>
+        <div id="attGrid" class="attendance-check-grid"><p style="grid-column:1/-1;text-align:center;color:#999;padding:20px">Select a class.</p></div>
+        <button class="btn btn-primary" onclick="saveAttendance()">💾 Save Attendance</button>
+        <div id="attStatus" class="status-message"></div>
+    </div>
+
+    <!-- FACE REGISTER -->
+    <div id="tabFacereg" class="form-section">
+        <h2 class="section-title">👤 Face Registration</h2>
+        <div class="form-row">
+            <div class="form-group"><label>ID *</label><input type="text" id="faceId" /></div>
+            <div class="form-group"><label>Name *</label><input type="text" id="faceName" /></div>
+        </div>
+        <div class="form-group"><label>Role</label><select id="faceRole"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select></div>
+        <div class="camera-container" style="max-width:400px;margin:15px auto"><video id="faceVideo" autoplay playsinline></video></div>
+        <div class="camera-controls">
+            <button class="btn btn-success btn-sm" onclick="startFaceCam()">📷 Start</button>
+            <button class="btn btn-primary btn-sm" onclick="registerFace()">📸 Register</button>
+            <button class="btn btn-danger btn-sm" onclick="stopFaceCam()">⏹ Stop</button>
+        </div>
+        <div class="face-registered-grid" id="faceGrid"><p style="grid-column:1/-1;text-align:center;color:#999">No faces.</p></div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div id="tabDocuments" class="form-section">
+        <h2 class="section-title">📄 Documents</h2>
+        <div class="form-row-3">
+            <div class="form-group"><label>Class</label><select id="docClass"><option value="">Select</option></select></div>
+            <div class="form-group"><label>Subject</label>
+                <select id="docSubject"><option value="">Select</option><option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option><option>Biology</option></select>
+            </div>
+            <div class="form-group"><label>Type</label><select id="docType"><option value="scoresheet">Score Sheet</option><option value="classlist">Class List</option></select></div>
+        </div>
+        <button class="btn btn-primary" onclick="generateDoc()">📄 Generate</button>
+        <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+        <div id="docPreview" style="margin-top:20px"></div>
+    </div>
+
+    <div class="footer"><div style="font-weight:700;color:#302b63">📚 EduTrack Pro — Teacher</div></div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+var OLEVEL = ['S.1','S.2','S.3','S.4'];
+var session = null;
+var scoreRows = [];
+var currentLevel = 'olevel';
+var attStudents = [];
+var attStatuses = {};
+var faceCamStream = null;
+var faceModelsLoaded = false;
+var FACE_OPTS = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+    session = JSON.parse(sessionStorage.getItem('edutrack_session') || localStorage.getItem('edutrack_session') || 'null');
+    if (!session || session.role !== 'teacher') { window.location.href = 'index.html'; return; }
+    document.getElementById('navAvatar').textContent = (session.name || 'T').charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = session.name || session.username;
+    var today = new Date().toISOString().slice(0, 10);
+    document.getElementById('attDate').value = today;
+    populateClasses();
+});
+
+function showToast(msg, type) {
+    var t = document.createElement('div');
+    t.className = 'toast-notification ' + (type || 'info');
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 100);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 500); }, 4000);
+}
+function logout() { sessionStorage.removeItem('edutrack_session'); localStorage.removeItem('edutrack_session'); window.location.href = 'index.html'; }
+async function api(p) {
+    var parts = [];
+    for (var k in p) if (p.hasOwnProperty(k) && p[k] != null) parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(p[k]));
+    var r = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: parts.join('&') });
+    return await r.json();
+}
+function extractSheetId(u) { if (!u) return ''; var m = u.match(/\/d\/([a-zA-Z0-9-_]+)/); return m ? m[1] : (/^[a-zA-Z0-9-_]{30,}$/.test(u) ? u : ''); }
+function getSheetId(cls) { return extractSheetId(localStorage.getItem('classLink_' + cls + '_' + session.school) || ''); }
+function isOLevel(cls) { return OLEVEL.indexOf(cls) !== -1; }
+
+function switchTab(tab) {
+    document.querySelectorAll('.nav-link').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.form-section').forEach(function (el) { el.classList.remove('active'); });
+    var map = { scores:'tabScores', attendance:'tabAttendance', facereg:'tabFacereg', documents:'tabDocuments' };
+    document.getElementById(map[tab] || 'tabScores').classList.add('active');
+    if (tab === 'facereg') refreshFaceGrid();
+}
+
+function populateClasses() {
+    ['scoreClass','attClass','docClass'].forEach(function (id) {
+        var s = document.getElementById(id);
+        if (!s) return;
+        s.innerHTML = '<option value="">Select a Class</option>';
+        CLASSES.forEach(function (c) {
+            var o = document.createElement('option');
+            o.value = c; o.textContent = c + (isOLevel(c) ? ' (O-Level)' : ' (A-Level)');
+            s.appendChild(o);
+        });
+    });
+}
+
+// ============================================================
+// SCORES
+// ============================================================
+async function loadScores() {
+    var cls = document.getElementById('scoreClass').value;
+    var sheetId = getSheetId(cls);
+    var tbody = document.getElementById('scoreBody');
+    if (!sheetId) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c1121f;padding:20px">Sheet not configured.</td></tr>'; return; }
+    currentLevel = isOLevel(cls) ? 'olevel' : 'alevel';
+    try {
+        var r = await api({ action: 'getStudents', sheetId: sheetId, school: session.school, className: cls });
+        var students = (r.success && r.data ? r.data.students || [] : []);
+        scoreRows = students.map(function (s) { return { studentId: s.studentId, studentName: s.studentName, s1: 0, s2: 0 }; });
+        tbody.innerHTML = scoreRows.map(function (s, i) {
+            return '<tr><td>' + s.studentId + '</td><td>' + s.studentName + '</td><td><input type="number" id="s1_' + i + '" onchange="recalc(' + i + ')" /></td><td><input type="number" id="s2_' + i + '" onchange="recalc(' + i + ')" /></td><td id="tot_' + i + '">—</td></tr>';
+        }).join('');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function recalc(i) {
+    var s1 = parseFloat(document.getElementById('s1_' + i).value) || 0;
+    var s2 = parseFloat(document.getElementById('s2_' + i).value) || 0;
+    scoreRows[i].s1 = s1; scoreRows[i].s2 = s2;
+    var total = currentLevel === 'olevel' ? s1 + s2 : (s1 + s2) / 2;
+    document.getElementById('tot_' + i).textContent = total.toFixed(1);
+}
+async function postScores() {
+    var cls = document.getElementById('scoreClass').value;
+    var subj = document.getElementById('scoreSubject').value;
+    var init = document.getElementById('scoreInitials').value;
+    var sheetId = getSheetId(cls);
+    if (!sheetId || !subj) { showToast('Select class + subject.', 'warning'); return; }
+    var scores = scoreRows.filter(function (s) { return s.s1 > 0 || s.s2 > 0; }).map(function (s) {
+        return { studentId: s.studentId, studentName: s.studentName, aoi: currentLevel === 'olevel' ? s.s1 : 0, eot: currentLevel === 'olevel' ? s.s2 : 0, paper1: currentLevel === 'alevel' ? s.s1 : 0, paper2: currentLevel === 'alevel' ? s.s2 : 0, teacherInitials: init };
+    });
+    if (scores.length === 0) { showToast('Enter at least one score.', 'warning'); return; }
+    try {
+        var r = await api({ action: 'postScoresOnly', sheetId: sheetId, subject: subj, scores: JSON.stringify(scores), level: currentLevel });
+        showToast(r.success ? '✅ Scores posted!' : '❌ ' + r.message, r.success ? 'success' : 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// ATTENDANCE
+// ============================================================
+async function loadAttendance() {
+    var cls = document.getElementById('attClass').value;
+    var sheetId = getSheetId(cls);
+    if (!sheetId) { document.getElementById('attGrid').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#c1121f;padding:20px">Sheet not configured.</p>'; return; }
+    var r = await api({ action: 'getStudents', sheetId: sheetId, school: session.school, className: cls });
+    var students = (r.success && r.data ? r.data.students || [] : []);
+    attStudents = students.map(function (s) { return { studentId: s.studentId, studentName: s.studentName, status: 'present' }; });
+    attStatuses = {};
+    attStudents.forEach(function (s) { attStatuses[s.studentId] = 'present'; });
+    renderAtt();
+}
+function renderAtt() {
+    var q = (document.getElementById('attSearch').value || '').toLowerCase();
+    var filtered = q ? attStudents.filter(function (s) { return s.studentName.toLowerCase().includes(q) || s.studentId.toLowerCase().includes(q); }) : attStudents;
+    if (filtered.length === 0) { document.getElementById('attGrid').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px">No students.</p>'; return; }
+    var L = { present: '✅', absent: '❌', late: '⏰', leave: '🏠' };
+    document.getElementById('attGrid').innerHTML = filtered.map(function (s) {
+        var st = s.status;
+        return '<div class="attendance-check-item"><input type="checkbox" ' + (st === 'present' ? 'checked' : '') + ' onchange="toggle(\'' + s.studentId + '\', this.checked)" /><label>' + s.studentId + ' ' + s.studentName + '</label><select onchange="setStatus(\'' + s.studentId + '\', this.value)" style="padding:3px;border:2px solid #ddd;border-radius:4px;font-size:11px"><option value="present"' + (st === 'present' ? ' selected' : '') + '>✅ Present</option><option value="absent"' + (st === 'absent' ? ' selected' : '') + '>❌ Absent</option><option value="late"' + (st === 'late' ? ' selected' : '') + '>⏰ Late</option><option value="leave"' + (st === 'leave' ? ' selected' : '') + '>🏠 Leave</option></select></div>';
+    }).join('');
+}
+function toggle(id, checked) { var s = attStudents.find(function (x) { return x.studentId === id; }); if (s) { s.status = checked ? 'present' : 'absent'; renderAtt(); } }
+function setStatus(id, st) { var s = attStudents.find(function (x) { return x.studentId === id; }); if (s) { s.status = st; renderAtt(); } }
+function markAll(st) { attStudents.forEach(function (s) { s.status = st; }); renderAtt(); }
+function filterAtt() { renderAtt(); }
+async function saveAttendance() {
+    var cls = document.getElementById('attClass').value;
+    var sheetId = getSheetId(cls);
+    if (!sheetId) { showToast('Sheet not configured.', 'error'); return; }
+    var records = attStudents.map(function (s) { return { studentId: s.studentId, studentName: s.studentName, status: s.status, class: cls }; });
+    try {
+        var r = await api({
+            action: 'saveManualAttendance', sheetId: sheetId, school: session.school, className: cls,
+            date: document.getElementById('attDate').value,
+            term: document.getElementById('attTerm').value,
+            year: document.getElementById('attYear').value,
+            records: JSON.stringify(records),
+            markedBy: session.name || session.username,
+            markedByRole: 'teacher'
+        });
+        if (r.success) {
+            showToast('✅ Attendance saved!', 'success');
+            document.getElementById('attStatus').className = 'status-message success';
+            document.getElementById('attStatus').textContent = '✅ Saved ' + records.length + ' records.';
+            document.getElementById('attStatus').style.display = 'block';
+        } else showToast('❌ ' + r.message, 'error');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================================
+// FACE REG
+// ============================================================
+async function startFaceCam() {
+    try {
+        if (typeof faceapi !== 'undefined' && !faceModelsLoaded) {
+            var path = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+            await faceapi.nets.tinyFaceDetector.loadFromUri(path);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(path);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(path);
+            FACE_OPTS = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 });
+            faceModelsLoaded = true;
+        }
+        faceCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
+        document.getElementById('faceVideo').srcObject = faceCamStream;
+        await document.getElementById('faceVideo').play();
+        showToast('📷 Camera ready', 'success');
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function stopFaceCam() { if (faceCamStream) { faceCamStream.getTracks().forEach(function (t) { t.stop(); }); faceCamStream = null; } document.getElementById('faceVideo').srcObject = null; }
+async function registerFace() {
+    var id = document.getElementById('faceId').value.trim();
+    var name = document.getElementById('faceName').value.trim();
+    var role = document.getElementById('faceRole').value;
+    if (!id || !name || !faceCamStream) { showToast('Fill fields and start camera.', 'warning'); return; }
+    try {
+        var v = document.getElementById('faceVideo');
+        var det = null;
+        for (var i = 0; i < 3; i++) { det = await faceapi.detectSingleFace(v, FACE_OPTS).withFaceLandmarks().withFaceDescriptor(); if (det) break; await new Promise(function (r) { setTimeout(r, 300); }); }
+        if (!det) { showToast('❌ No face detected.', 'error'); return; }
+        var records = JSON.parse(localStorage.getItem('registeredFaces') || '[]');
+        var idx = records.findIndex(function (r) { return r.id === id; });
+        var nd = Array.from(det.descriptor);
+        if (idx >= 0) { var rec = records[idx]; if (!rec.descriptors) rec.descriptors = [rec.descriptor]; rec.descriptors.push(nd); if (rec.descriptors.length > 3) rec.descriptors.shift(); rec.descriptor = rec.descriptors[0]; rec.name = name; rec.role = role; }
+        else records.push({ id: id, name: name, role: role, descriptor: nd, descriptors: [nd] });
+        localStorage.setItem('registeredFaces', JSON.stringify(records));
+        showToast('✅ Registered: ' + name, 'success');
+        document.getElementById('faceId').value = '';
+        document.getElementById('faceName').value = '';
+        refreshFaceGrid();
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function refreshFaceGrid() {
+    var records = JSON.parse(localStorage.getItem('registeredFaces') || '[]');
+    var g = document.getElementById('faceGrid');
+    if (records.length === 0) { g.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999">No faces.</p>'; return; }
+    g.innerHTML = records.map(function (r) { return '<div class="face-registered-item"><div style="font-size:30px">👤</div><div style="font-weight:600;font-size:13px">' + r.name + '</div><div style="font-size:11px;color:#888">' + r.role + ' | ' + r.id + '</div><button class="btn btn-danger btn-sm" style="margin-top:5px;padding:2px 8px;font-size:10px" onclick="deleteFace(\'' + r.id + '\')">🗑️</button></div>'; }).join('');
+}
+function deleteFace(id) { var r = JSON.parse(localStorage.getItem('registeredFaces') || '[]').filter(function (x) { return x.id !== id; }); localStorage.setItem('registeredFaces', JSON.stringify(r)); refreshFaceGrid(); }
+
+// ============================================================
+// DOCUMENTS
+// ============================================================
+async function generateDoc() {
+    var cls = document.getElementById('docClass').value;
+    var subj = document.getElementById('docSubject').value;
+    var type = document.getElementById('docType').value;
+    var sheetId = getSheetId(cls);
+    if (!sheetId) { showToast('Sheet not configured.', 'error'); return; }
+    try {
+        var r = await api({ action: 'getAllData', sheetId: sheetId, className: cls });
+        var students = (r.success && r.data ? r.data.sheetData?.students || [] : []);
+        var s = JSON.parse(localStorage.getItem('schoolSettings_' + session.school) || '{}');
+        var html = '<div style="padding:20px;border:2px solid #302b63;border-radius:12px;background:white"><h3 style="text-align:center;color:#302b63">' + (s.schoolName || session.school) + '</h3><h4 style="text-align:center;color:#c1121f">' + (type === 'classlist' ? 'CLASS LIST' : 'SCORE SHEET') + ' - ' + cls + (subj ? ' - ' + subj : '') + '</h4>';
+        html += '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:15px"><thead><tr style="background:#302b63;color:white"><th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">ID</th><th style="padding:8px;text-align:left">Name</th>' + (type === 'scoresheet' ? '<th style="padding:8px">Score</th><th style="padding:8px">Grade</th>' : '<th style="padding:8px">Parent</th><th style="padding:8px">Phone</th>') + '</tr></thead><tbody>';
+        students.forEach(function (st, i) {
+            if (type === 'classlist') html += '<tr><td style="padding:6px;border-bottom:1px solid #eee">' + (i + 1) + '</td><td style="padding:6px;border-bottom:1px solid #eee">' + st.studentId + '</td><td style="padding:6px;border-bottom:1px solid #eee">' + st.studentName + '</td><td style="padding:6px;border-bottom:1px solid #eee">' + (st.parentName || '') + '</td><td style="padding:6px;border-bottom:1px solid #eee">' + (st.parentPhone || '') + '</td></tr>';
+            else {
+                var sc = st.scores && st.scores[subj] ? (typeof st.scores[subj] === 'object' ? (st.scores[subj].total || st.scores[subj].scoreValue || 0) : st.scores[subj]) : '—';
+                var gr = sc !== '—' ? (sc >= 80 ? 'A' : sc >= 70 ? 'B' : sc >= 50 ? 'C' : sc >= 40 ? 'D' : 'E') : '—';
+                html += '<tr><td style="padding:6px;border-bottom:1px solid #eee">' + (i + 1) + '</td><td style="padding:6px;border-bottom:1px solid #eee">' + st.studentId + '</td><td style="padding:6px;border-bottom:1px solid #eee">' + st.studentName + '</td><td style="padding:6px;border-bottom:1px solid #eee;text-align:center">' + sc + '</td><td style="padding:6px;border-bottom:1px solid #eee;text-align:center;font-weight:700">' + gr + '</td></tr>';
+            }
+        });
+        html += '</tbody></table></div>';
+        document.getElementById('docPreview').innerHTML = html;
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+</script>
+</body>
+</html>
