@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>👨‍👩‍👦 Parent — EduTrack Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-height:100vh;padding:20px}
+.navbar{background:rgba(255,255,255,.95);border-radius:16px 16px 0 0;padding:10px 25px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);position:sticky;top:0;z-index:1000;border-bottom:3px solid #302b63}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;color:#302b63;text-decoration:none;font-family:Georgia,serif}
+.brand .brand-text{background:linear-gradient(135deg,#0f0c29,#302b63);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-menu{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nav-link{padding:8px 14px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px}
+.nav-link:hover{background:rgba(48,43,99,.08);color:#302b63}
+.nav-link.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff}
+.nav-user{display:flex;align-items:center;gap:10px;padding:5px 12px;border-radius:20px;background:#f0f4ff;border:1px solid #302b63}
+.nav-user .avatar{width:32px;height:32px;border-radius:50%;background:#302b63;color:white;display:flex;align-items:center;justify-content:center;font-weight:700}
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:0 0 24px 24px;padding:25px 30px 30px;box-shadow:0 25px 80px rgba(0,0,0,.5);min-height:80vh;position:relative}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,#fcdc04 33%,#fcdc04 66%,#d90000 66%,#d90000 100%)}
+.form-section{display:none}
+.form-section.active{display:block;padding-top:10px;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:22px;color:#1a1a2e;margin-bottom:5px}
+.section-desc{color:#888;font-size:14px;margin-bottom:20px}
+.child-switcher{display:flex;gap:10px;margin:15px 0 20px;flex-wrap:wrap}
+.child-btn{display:flex;align-items:center;gap:10px;padding:10px 18px;border-radius:14px;background:white;border:2px solid #e0e0e0;cursor:pointer;transition:.25s;font-weight:600;font-size:13px;color:#555}
+.child-btn:hover{border-color:#302b63;transform:translateY(-2px)}
+.child-btn.active{background:linear-gradient(135deg,#0f0c29,#302b63);color:white;border-color:#302b63}
+.child-btn .child-avatar{width:32px;height:32px;border-radius:50%;background:#e8f0fe;color:#302b63;display:flex;align-items:center;justify-content:center;font-weight:700}
+.child-btn.active .child-avatar{background:rgba(255,255,255,.2);color:white}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin-bottom:20px}
+.kpi-card{background:white;border-radius:16px;padding:18px;box-shadow:0 4px 15px rgba(0,0,0,.06);border:1px solid #e0e0e0;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.kpi-card.fees::before{background:linear-gradient(90deg,#c1121f,#780000)}
+.kpi-card.attendance::before{background:linear-gradient(90deg,#2d6a4f,#1a8a4a)}
+.kpi-card.performance::before{background:linear-gradient(90deg,#302b63,#0f0c29)}
+.kpi-card.notices::before{background:linear-gradient(90deg,#e85d04,#dc2f02)}
+.kpi-title{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:26px;font-weight:700;color:#1a1a2e;margin:8px 0}
+.kpi-sub{font-size:12px;color:#888}
+.kpi-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-top:6px}
+.kpi-badge.green{background:#d4edda;color:#155724}
+.kpi-badge.orange{background:#fff3cd;color:#856404}
+.kpi-badge.red{background:#f8d7da;color:#721c24}
+.kpi-badge.gray{background:#e2e8f0;color:#555}
+.kpi-progress{height:8px;background:#f0f0f0;border-radius:6px;margin-top:10px;overflow:hidden}
+.kpi-progress > div{height:100%;transition:width .6s}
+.feed-list{background:white;border-radius:16px;padding:6px 0;box-shadow:0 4px 15px rgba(0,0,0,.06);border:1px solid #e0e0e0}
+.feed-item{display:flex;gap:12px;padding:12px 18px;border-bottom:1px solid #f0f0f0;align-items:flex-start}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.feed-icon.fees{background:#d4edda;color:#155724}
+.feed-icon.score{background:#d1ecf1;color:#0c5460}
+.feed-icon.absence{background:#f8d7da;color:#721c24}
+.feed-icon.event{background:#fff3cd;color:#856404}
+.quick-actions-parent{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.quick-actions-parent button{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:14px 10px;font-weight:600;font-size:12px;color:#302b63;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.2s}
+.quick-actions-parent button:hover{border-color:#302b63;transform:translateY(-2px)}
+.quick-actions-parent .qa-icon{font-size:22px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.btn{padding:10px 22px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.3s}
+.btn-primary{background:linear-gradient(135deg,#0f0c29,#302b63);color:white}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:6px 16px;font-size:13px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:15px 0}
+.stat-card{background:white;border-radius:14px;padding:15px;box-shadow:0 4px 15px rgba(0,0,0,.08);border:1px solid #e0e0e0;text-align:center}
+.stat-card .num{font-size:24px;font-weight:700;color:#1a1a2e}
+.stat-card .lbl{font-size:12px;color:#888}
+.generated-document{background:white;padding:20px;border-radius:12px;border:1px solid #e0e0e0;position:relative;margin:20px 0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.toast-notification{position:fixed;top:20px;right:20px;padding:16px 24px;border-radius:12px;color:white;font-weight:600;z-index:9999;opacity:0;transform:translateX(100%);transition:all .5s;max-width:400px}
+.toast-notification.show{opacity:1;transform:translateX(0)}
+.toast-notification.success{background:linear-gradient(135deg,#1a8a4a,#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,#c1121f,#780000)}
+.toast-notification.info{background:linear-gradient(135deg,#0f0c29,#302b63)}
+.toast-notification.warning{background:linear-gradient(135deg,#e85d04,#dc2f02)}
+.footer{text-align:center;padding:20px 0 10px 0;border-top:2px solid #e0e0e0;margin-top:30px}
+@media(max-width:992px){.form-row{grid-template-columns:1fr;gap:0}}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<nav class="navbar">
+    <a href="parent.html" class="brand"><span style="font-size:28px">📚</span><span class="brand-text">EduTrack Pro</span></a>
+    <div class="nav-menu">
+        <button class="nav-link active" onclick="switchTab('family')"><i class="fas fa-home"></i> Family</button>
+        <button class="nav-link" onclick="switchTab('reports')"><i class="fas fa-file-alt"></i> Reports</button>
+        <button class="nav-link" onclick="switchTab('fees')"><i class="fas fa-money-bill-wave"></i> Fees</button>
+        <button class="nav-link" onclick="switchTab('chat')"><i class="fas fa-comments"></i> Chat</button>
+        <div class="nav-user"><div class="avatar" id="navAvatar">P</div><div style="font-size:12px"><div style="font-weight:600" id="navName">Parent</div><div style="font-size:10px;color:#888">👨‍👩‍👦 Parent</div></div></div>
+        <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- FAMILY -->
+    <div id="tabFamily" class="form-section active">
+        <h2 class="section-title">👨‍👩‍👦 Family Dashboard</h2>
+        <p class="section-desc">Everything about your child, at a glance.</p>
+        <div id="childSwitcher" class="child-switcher"></div>
+        <div class="kpi-grid">
+            <div class="kpi-card fees"><div class="kpi-title">💰 Fee Balance</div><div class="kpi-value" id="feesVal">—</div><div class="kpi-sub" id="feesSub">Loading...</div><div class="kpi-progress"><div id="feesBar" style="width:0%"></div></div><div id="feesBadge"></div></div>
+            <div class="kpi-card attendance"><div class="kpi-title">📊 Attendance</div><div class="kpi-value" id="attVal">—</div><div class="kpi-sub" id="attSub">Loading...</div><div id="attBadge"></div></div>
+            <div class="kpi-card performance"><div class="kpi-title">🎯 Average</div><div class="kpi-value" id="perfVal">—</div><div class="kpi-sub" id="perfSub">Loading...</div><div id="perfBadge"></div></div>
+            <div class="kpi-card notices"><div class="kpi-title">🔔 Notices</div><div class="kpi-value" id="noticesVal">0</div><div class="kpi-sub">Recent activity</div></div>
+        </div>
+        <div class="form-row" style="grid-template-columns:1.3fr 1fr">
+            <div>
+                <h4 style="color:#302b63;margin-bottom:10px">🔔 Recent Activity</h4>
+                <div class="feed-list" id="feed"><p style="padding:20px;text-align:center;color:#999">Loading...</p></div>
+            </div>
+            <div>
+                <h4 style="color:#302b63;margin-bottom:10px">⚡ Quick Actions</h4>
+                <div class="quick-actions-parent">
+                    <button onclick="switchTab('reports')"><span class="qa-icon">📋</span><span>Full Report</span></button>
+                    <button onclick="openReceipts()"><span class="qa-icon">🧾</span><span>Payments</span></button>
+                    <button onclick="downloadSummary()"><span class="qa-icon">📥</span><span>Term Summary</span></button>
+                    <button onclick="switchTab('chat')"><span class="qa-icon">💬</span><span>Chat</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="tabReports" class="form-section">
+        <h2 class="section-title">📋 Report Cards</h2>
+        <div id="reportResults"><p style="color:#999;text-align:center;padding:20px">Loading...</p></div>
+    </div>
+
+    <!-- FEES -->
+    <div id="tabFees" class="form-section">
+        <h2 class="section-title">💰 Fees & Payments</h2>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="num" id="feTermFee">—</div><div class="lbl">Term Fee</div></div>
+            <div class="stat-card"><div class="num" id="fePaid">—</div><div class="lbl">Paid This Term</div></div>
+            <div class="stat-card"><div class="num" id="feBal">—</div><div class="lbl">Balance</div></div>
+        </div>
+        <h4 style="margin-top:20px">📋 Payment History</h4>
+        <div id="feesHistory"><p style="color:#999;text-align:center;padding:20px">No payments yet.</p></div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="tabChat" class="form-section">
+        <h2 class="section-title">💬 Chat with Teachers</h2>
+        <div style="display:grid;grid-template-columns:280px 1fr;gap:0;height:500px;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;background:white">
+            <div style="background:#f8f9fa;border-right:1px solid #e0e0e0;overflow-y:auto;padding:10px" id="chatUsers"><p style="padding:10px;color:#999">Loading...</p></div>
+            <div style="display:flex;flex-direction:column">
+                <div style="padding:12px 15px;border-bottom:1px solid #e0e0e0;font-weight:600;color:#302b63;background:#fafafa" id="chatHeader">Select a user</div>
+                <div style="flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:8px" id="chatMessages"><p style="text-align:center;color:#999;padding:20px">Select a user</p></div>
+                <div style="display:flex;gap:10px;padding:10px 15px;border-top:1px solid #e0e0e0;background:#fafafa">
+                    <input type="text" id="chatInput" placeholder="Type..." onkeypress="if(event.key==='Enter') sendMessage()" style="flex:1;padding:10px 15px;border:2px solid #e0e0e0;border-radius:20px;font-size:14px" />
+                    <button class="btn btn-primary btn-sm" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer"><div style="font-weight:700;color:#302b63">📚 EduTrack Pro — Parent</div></div>
+</div>
+
+<script>
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+
+var session = null;
+var activeChild = null;
+var childData = {};
+var currentChatUser = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+    session = JSON.parse(sessionStorage.getItem('edutrack_session') || localStorage.getItem('edutrack_session') || 'null');
+    if (!session || session.role !== 'parent') { window.location.href = 'index.html'; return; }
+    document.getElementById('navAvatar').textContent = (session.name || 'P').charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = session.name || session.username;
+    renderFamily();
+});
+
+function showToast(msg, type) {
+    type = type || 'info';
+    var c = document.getElementById('toastContainer');
+    var t = document.createElement('div');
+    t.className = 'toast-notification ' + type;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 100);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 500); }, 4000);
+}
+function logout() { sessionStorage.removeItem('edutrack_session'); localStorage.removeItem('edutrack_session'); window.location.href = 'index.html'; }
+async function api(params) {
+    var parts = [];
+    for (var k in params) if (params.hasOwnProperty(k) && params[k] !== undefined && params[k] !== null) parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+    var res = await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: parts.join('&') });
+    return await res.json();
+}
+function extractSheetId(u) { if (!u) return ''; var m = u.match(/\/d\/([a-zA-Z0-9-_]+)/); return m ? m[1] : (/^[a-zA-Z0-9-_]{30,}$/.test(u) ? u : ''); }
+function getSheetId(cls) { return extractSheetId(localStorage.getItem('classLink_' + cls + '_' + session.school) || ''); }
+function getClassFee(cls, term) { var s = JSON.parse(localStorage.getItem('feeStructure_' + session.school) || '{}'); return (s[cls] && s[cls][term]) ? parseFloat(s[cls][term]) : 0; }
+function isOLevel(cls) { return ['S.1','S.2','S.3','S.4'].indexOf(cls) !== -1; }
+
+function switchTab(tab) {
+    document.querySelectorAll('.nav-link').forEach(function (el) { el.classList.remove('active'); });
+    document.querySelectorAll('.form-section').forEach(function (el) { el.classList.remove('active'); });
+    var map = { family:'tabFamily', reports:'tabReports', fees:'tabFees', chat:'tabChat' };
+    var t = document.getElementById(map[tab] || 'tabFamily');
+    if (t) t.classList.add('active');
+    if (tab === 'reports') loadReports();
+    if (tab === 'fees') renderFeesTab();
+    if (tab === 'chat') loadChatUsers();
+}
+
+function getChildren() { return session.children || []; }
+function getActiveChild() {
+    var c = getChildren();
+    if (c.length === 0) return null;
+    if (!activeChild) activeChild = c[0].studentId;
+    return c.find(function (x) { return x.studentId === activeChild; }) || c[0];
+}
+
+async function renderFamily() {
+    var children = getChildren();
+    if (children.length === 0) {
+        document.getElementById('childSwitcher').innerHTML = '';
+        document.getElementById('feed').innerHTML = '<p style="color:#999;text-align:center;padding:20px">No child linked.</p>';
+        return;
+    }
+    var active = getActiveChild();
+    document.getElementById('childSwitcher').innerHTML = children.map(function (c) {
+        return '<button class="child-btn ' + (c.studentId === active.studentId ? 'active' : '') + '" onclick="switchChild(\'' + c.studentId + '\')"><div class="child-avatar">' + c.studentName.charAt(0) + '</div><div>' + c.studentName + '<div style="font-size:11px;font-weight:400;opacity:.8">' + c.class + '</div></div></button>';
+    }).join('');
+    await loadChildData(active);
+}
+
+async function switchChild(id) { activeChild = id; renderFamily(); }
+
+async function loadChildData(child) {
+    var data = { fees: [], attendance: [], student: null };
+    try {
+        var sheetId = getSheetId(child.class);
+        if (sheetId) {
+            var sr = await api({ action: 'getAllData', sheetId: sheetId, className: child.class });
+            var students = (sr.success && sr.data ? sr.data.sheetData?.students || [] : []);
+            data.student = students.find(function (s) { return s.studentId === child.studentId; }) || null;
+        }
+        var fr = await api({ action: 'getFeeRecords', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        data.fees = ((fr.success && fr.data ? fr.data.records || [] : [])).filter(function (r) { return r.studentId === child.studentId; });
+        data.attendance = JSON.parse(localStorage.getItem('attendanceRecords') || '[]').filter(function (r) { return r.id === child.studentId; });
+    } catch (e) {}
+    childData[child.studentId] = data;
+    renderFeesCard(); renderAttCard(); renderPerfCard(); renderFeed();
+}
+
+function renderFeesCard() {
+    var child = getActiveChild(); if (!child) return;
+    var data = childData[child.studentId] || { fees: [] };
+    var s = JSON.parse(localStorage.getItem('schoolSettings_' + session.school) || '{}');
+    var term = s.term || 'III';
+    var year = s.year || String(new Date().getFullYear());
+    var classFee = getClassFee(child.class, term);
+    var paid = data.fees.filter(function (r) { return String(r.term) === String(term) && String(r.year) === String(year); }).reduce(function (a, r) { return a + (r.amount || 0); }, 0);
+    var bal = Math.max(0, classFee - paid);
+    var pct = classFee > 0 ? Math.min(100, (paid / classFee) * 100) : 0;
+    document.getElementById('feesVal').textContent = bal > 0 ? 'UGX ' + bal.toLocaleString() : (classFee > 0 ? '✓ Paid' : 'Not set');
+    document.getElementById('feesVal').style.color = bal > 0 ? '#c1121f' : (classFee > 0 ? '#2d6a4f' : '#888');
+    document.getElementById('feesSub').textContent = classFee > 0 ? 'Paid ' + paid.toLocaleString() + ' of ' + classFee.toLocaleString() : 'No fee set';
+    document.getElementById('feesBar').style.width = pct + '%';
+    document.getElementById('feesBar').style.background = pct >= 100 ? '#2d6a4f' : pct >= 50 ? '#e85d04' : '#c1121f';
+    document.getElementById('feesBadge').innerHTML = classFee === 0 ? '<span class="kpi-badge gray">NO FEE</span>' : bal === 0 ? '<span class="kpi-badge green">✅ PAID</span>' : '<span class="kpi-badge red">' + pct.toFixed(0) + '%</span>';
+}
+function renderAttCard() {
+    var child = getActiveChild(); if (!child) return;
+    var data = childData[child.studentId] || { attendance: [] };
+    var present = data.attendance.length;
+    var total = 60;
+    var pct = Math.min(100, (present / total) * 100);
+    document.getElementById('attVal').textContent = pct.toFixed(1) + '%';
+    document.getElementById('attVal').style.color = pct >= 95 ? '#2d6a4f' : pct >= 85 ? '#e85d04' : '#c1121f';
+    document.getElementById('attSub').textContent = present + ' / ' + total + ' days';
+    document.getElementById('attBadge').innerHTML = pct >= 95 ? '<span class="kpi-badge green">✅ EXCELLENT</span>' : pct >= 85 ? '<span class="kpi-badge orange">⚠️ WATCH</span>' : '<span class="kpi-badge red">LOW</span>';
+}
+function renderPerfCard() {
+    var child = getActiveChild(); if (!child) return;
+    var data = childData[child.studentId] || { student: null };
+    if (!data.student || !data.student.scores) {
+        document.getElementById('perfVal').textContent = '—';
+        document.getElementById('perfSub').textContent = 'No scores yet';
+        document.getElementById('perfBadge').innerHTML = '<span class="kpi-badge gray">AWAITING</span>';
+        return;
+    }
+    var total = 0, count = 0;
+    Object.keys(data.student.scores).forEach(function (sub) {
+        var sv = data.student.scores[sub];
+        var v = typeof sv === 'object' ? (sv.total || sv.scoreValue || 0) : (parseFloat(sv) || 0);
+        if (v > 0) { total += v; count++; }
+    });
+    var avg = count > 0 ? total / count : 0;
+    var grade = avg >= 80 ? 'A' : avg >= 70 ? 'B' : avg >= 50 ? 'C' : avg >= 40 ? 'D' : 'E';
+    document.getElementById('perfVal').textContent = avg.toFixed(1) + '%';
+    document.getElementById('perfVal').style.color = avg >= 80 ? '#2d6a4f' : avg >= 60 ? '#302b63' : '#e85d04';
+    document.getElementById('perfSub').textContent = count + ' subjects · Grade ' + grade;
+    document.getElementById('perfBadge').innerHTML = '<span class="kpi-badge ' + (grade === 'A' || grade === 'B' ? 'green' : grade === 'C' ? 'orange' : 'red') + '">' + grade + '</span>';
+}
+function renderFeed() {
+    var child = getActiveChild(); if (!child) return;
+    var data = childData[child.studentId] || {};
+    var events = [];
+    (data.fees || []).slice(-4).forEach(function (f) { events.push({ icon: '💰', cls: 'fees', title: 'Payment: UGX ' + (f.amount || 0).toLocaleString(), time: f.date + ' ' + f.time }); });
+    (data.attendance || []).slice(-4).forEach(function (a) { events.push({ icon: '✅', cls: 'score', title: 'Present at school', time: a.date + ' ' + a.time }); });
+    document.getElementById('noticesVal').textContent = events.length;
+    document.getElementById('feed').innerHTML = events.length === 0 ? '<p style="text-align:center;color:#999;padding:20px">No recent activity.</p>' : events.slice(0, 6).map(function (ev) {
+        return '<div class="feed-item"><div class="feed-icon ' + ev.cls + '">' + ev.icon + '</div><div><div style="font-weight:600;color:#302b63;font-size:13px">' + ev.title + '</div><div style="font-size:11px;color:#999;margin-top:3px">' + ev.time + '</div></div></div>';
+    }).join('');
+}
+
+async function loadReports() {
+    var child = getActiveChild(); if (!child) return;
+    var sheetId = getSheetId(child.class);
+    if (!sheetId) { document.getElementById('reportResults').innerHTML = '<p style="color:#999;text-align:center;padding:20px">Sheet not configured.</p>'; return; }
+    try {
+        var r = await api({ action: 'getAllData', sheetId: sheetId, className: child.class });
+        var students = (r.success && r.data ? r.data.sheetData?.students || [] : []);
+        var me = students.find(function (s) { return s.studentId === child.studentId; });
+        renderChildReport(me, child);
+    } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+function renderChildReport(me, child) {
+    var c = document.getElementById('reportResults');
+    if (!me) { c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Not found.</p>'; return; }
+    var s = JSON.parse(localStorage.getItem('schoolSettings_' + session.school) || '{}');
+    var scores = me.scores || {};
+    var rows = '';
+    var totalAvg = 0, count = 0;
+    Object.keys(scores).sort().forEach(function (subj) {
+        var sv = scores[subj];
+        var aoi = typeof sv === 'object' ? (parseFloat(sv.aoi) || 0) : 0;
+        var eot = typeof sv === 'object' ? (parseFloat(sv.eot) || 0) : 0;
+        var aoiPct = aoi > 0 ? (aoi / 20) * 100 : 0;
+        var eotPct = eot > 0 ? (eot / 80) * 100 : 0;
+        var pct = (aoi > 0 && eot > 0) ? (aoiPct + eotPct) / 2 : (aoi > 0 ? aoiPct : eotPct);
+        if (pct === 0 && typeof sv === 'number') pct = sv;
+        totalAvg += pct; count++;
+        var grade = pct >= 80 ? 'A' : pct >= 70 ? 'B' : pct >= 50 ? 'C' : pct >= 40 ? 'D' : 'E';
+        rows += '<tr><td style="border:1px solid #ccc;padding:6px">' + subj + '</td><td style="border:1px solid #ccc;padding:6px;text-align:center">' + (aoi || '—') + '</td><td style="border:1px solid #ccc;padding:6px;text-align:center">' + (aoiPct.toFixed(1) || '—') + '</td><td style="border:1px solid #ccc;padding:6px;text-align:center">' + (eot || '—') + '</td><td style="border:1px solid #ccc;padding:6px;text-align:center;font-weight:700;color:#c1121f">' + pct.toFixed(1) + '</td><td style="border:1px solid #ccc;padding:6px;text-align:center;font-weight:700">' + grade + '</td></tr>';
+    });
+    var overall = count > 0 ? totalAvg / count : 0;
+    var overallGrade = overall >= 80 ? 'A' : overall >= 70 ? 'B' : overall >= 50 ? 'C' : overall >= 40 ? 'D' : 'E';
+    c.innerHTML = '<div style="padding:20px;border:3px double #c1121f;border-radius:8px;margin:20px auto;max-width:900px;background:white">' +
+        '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:10px;margin-bottom:10px">' +
+        '<div style="font-size:20px;font-weight:700;color:#c1121f">' + (s.schoolName || session.school).toUpperCase() + '</div>' +
+        '<div style="font-size:11px;color:#555">' + (s.schoolAddress || '') + ' | ' + (s.schoolPhone || '') + '</div>' +
+        '</div>' +
+        '<div style="background:#c1121f;color:white;padding:6px;text-align:center;font-weight:700">REPORT CARD — ' + child.class + '</div>' +
+        '<div style="margin:10px 0;font-size:13px"><b>NAME:</b> ' + me.studentName + ' | <b>ID:</b> ' + me.studentId + '</div>' +
+        '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#c1121f;color:white"><th style="padding:6px;border:1px solid #c1121f;text-align:left">SUBJECT</th><th style="padding:6px;border:1px solid #c1121f">AOI (20)</th><th style="padding:6px;border:1px solid #c1121f">AOI %</th><th style="padding:6px;border:1px solid #c1121f">EOT (80)</th><th style="padding:6px;border:1px solid #c1121f">TOTAL %</th><th style="padding:6px;border:1px solid #c1121f">GRADE</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center">' +
+        '<div style="padding:8px;border-right:1px solid #666">Average: <b>' + overall.toFixed(1) + '%</b></div>' +
+        '<div style="padding:8px;border-right:1px solid #666">Grade: <b style="color:#c1121f">' + overallGrade + '</b></div>' +
+        '<div style="padding:8px">' + (overall >= 80 ? '🏆 EXCEPTIONAL' : overall >= 70 ? '⭐ OUTSTANDING' : overall >= 50 ? '✔ SATISFACTORY' : '📌 BASIC') + '</div>' +
+        '</div>' +
+        '<div style="margin-top:10px;font-size:10px;color:#888;text-align:center;font-style:italic">This report is invalid without a valid school stamp</div>' +
+        '</div>';
+}
+
+function renderFeesTab() {
+    var child = getActiveChild(); if (!child) return;
+    var data = childData[child.studentId] || { fees: [] };
+    var s = JSON.parse(localStorage.getItem('schoolSettings_' + session.school) || '{}');
+    var term = s.term || 'III';
+    var year = s.year || String(new Date().getFullYear());
+    var classFee = getClassFee(child.class, term);
+    var paid = data.fees.filter(function (r) { return String(r.term) === String(term) && String(r.year) === String(year); }).reduce(function (a, r) { return a + (r.amount || 0); }, 0);
+    document.getElementById('feTermFee').textContent = 'UGX ' + classFee.toLocaleString();
+    document.getElementById('fePaid').textContent = 'UGX ' + paid.toLocaleString();
+    document.getElementById('feBal').textContent = 'UGX ' + Math.max(0, classFee - paid).toLocaleString();
+    document.getElementById('feesHistory').innerHTML = data.fees.slice().reverse().map(function (f) {
+        return '<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #f0f0f0;font-size:13px"><div><b style="color:#302b63">' + f.id + '</b><div style="font-size:11px;color:#888">' + f.date + ' · ' + (f.method || '').toUpperCase() + '</div></div><div style="font-weight:700;color:#2d6a4f">UGX ' + (f.amount || 0).toLocaleString() + '</div></div>';
+    }).join('') || '<p style="text-align:center;color:#999;padding:20px">No payments.</p>';
+}
+
+function openReceipts() {
+    var child = getActiveChild(); if (!child) return;
+    var data = childData[child.studentId] || { fees: [] };
+    if (data.fees.length === 0) { showToast('No payments yet.', 'info'); return; }
+    var html = data.fees.slice().reverse().map(function (f) {
+        return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0"><div><b style="color:#302b63">' + f.id + '</b><div style="font-size:11px;color:#888">' + f.date + ' · ' + (f.method || '') + '</div></div><b style="color:#2d6a4f">UGX ' + (f.amount || 0).toLocaleString() + '</b></div>';
+    }).join('');
+    alert('Payment History:\n\n' + data.fees.slice().reverse().map(function (f) { return f.date + ' · ' + f.id + ' · UGX ' + (f.amount || 0).toLocaleString(); }).join('\n'));
+}
+
+function downloadSummary() {
+    var child = getActiveChild(); if (!child) return;
+    var data = childData[child.studentId] || {};
+    var s = JSON.parse(localStorage.getItem('schoolSettings_' + session.school) || '{}');
+    var term = s.term || 'III';
+    var year = s.year || String(new Date().getFullYear());
+    var classFee = getClassFee(child.class, term);
+    var paid = (data.fees || []).filter(function (r) { return String(r.term) === String(term); }).reduce(function (a, r) { return a + (r.amount || 0); }, 0);
+    var bal = Math.max(0, classFee - paid);
+    var total = 0, count = 0;
+    if (data.student?.scores) Object.keys(data.student.scores).forEach(function (subj) {
+        var sv = data.student.scores[subj];
+        var v = typeof sv === 'object' ? (sv.total || sv.scoreValue || 0) : (parseFloat(sv) || 0);
+        if (v > 0) { total += v; count++; }
+    });
+    var avg = count > 0 ? total / count : 0;
+    var grade = avg >= 80 ? 'A' : avg >= 70 ? 'B' : avg >= 50 ? 'C' : avg >= 40 ? 'D' : 'E';
+    var win = window.open('', '_blank');
+    win.document.write('<html><head><title>Term Summary</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#c1121f;color:white;padding:8px;text-align:left}td{padding:8px;border-bottom:1px solid #eee}</style></head><body>' +
+        '<h2 style="color:#c1121f">' + (s.schoolName || session.school) + '</h2>' +
+        '<h3 style="color:#302b63">TERM ' + term + ' ' + year + ' SUMMARY</h3>' +
+        '<table><tr><th>Student</th><td>' + child.studentName + '</td></tr>' +
+        '<tr><th>Class</th><td>' + child.class + '</td></tr>' +
+        '<tr><th>Average</th><td>' + avg.toFixed(1) + '% (Grade ' + grade + ')</td></tr>' +
+        '<tr><th>Term Fee</th><td>UGX ' + classFee.toLocaleString() + '</td></tr>' +
+        '<tr><th>Paid</th><td>UGX ' + paid.toLocaleString() + '</td></tr>' +
+        '<tr><th>Balance</th><td style="color:' + (bal > 0 ? '#c1121f' : '#2d6a4f') + ';font-weight:700">UGX ' + bal.toLocaleString() + '</td></tr></table>' +
+        '<p style="text-align:center;font-size:10px;color:#888;margin-top:20px">Generated by EduTrack Pro</p>' +
+        '</body></html>');
+    win.document.close();
+    setTimeout(function () { win.focus(); win.print(); }, 400);
+}
+
+async function loadChatUsers() {
+    try {
+        var r = await api({ action: 'getChatUsers', sheetId: ACCOUNTS_SHEET_ID, school: session.school });
+        var users = (r.success && r.data ? r.data.users || [] : []);
+        document.getElementById('chatUsers').innerHTML = users.filter(function (u) { return u.role !== 'parent' && u.username !== session.username; }).map(function (u) {
+            return '<div style="padding:10px;border-radius:8px;cursor:pointer;margin-bottom:4px" onclick="selectChatUser(\'' + u.username + '\')"><b>' + u.name + '</b><div style="font-size:11px;color:#888">' + (u.role || '') + '</div></div>';
+        }).join('') || '<p style="padding:10px;color:#999">No teachers.</p>';
+    } catch (e) {}
+}
+async function selectChatUser(u) {
+    currentChatUser = u;
+    document.getElementById('chatHeader').textContent = 'Chat with ' + u;
+    try {
+        var r = await api({ action: 'getChatMessages', sheetId: ACCOUNTS_SHEET_ID, school: session.school, user1: session.username, user2: u });
+        var msgs = (r.success && r.data ? r.data.messages || [] : []);
+        document.getElementById('chatMessages').innerHTML = msgs.map(function (m) {
+            var isSent = m.from === session.username;
+            return '<div style="max-width:70%;padding:10px 14px;border-radius:12px;font-size:14px;' + (isSent ? 'align-self:flex-end;background:#302b63;color:white' : 'align-self:flex-start;background:#f0f2f5') + '">' + m.message + '<span style="font-size:10px;opacity:.7;display:block;margin-top:4px">' + m.time + '</span></div>';
+        }).join('') || '<p style="text-align:center;color:#999;padding:20px">No messages.</p>';
+    } catch (e) {}
+}
+async function sendMessage() {
+    var msg = document.getElementById('chatInput').value.trim();
+    if (!msg || !currentChatUser) return;
+    try {
+        await api({ action: 'saveChatMessage', sheetId: ACCOUNTS_SHEET_ID, school: session.school, from: session.username, to: currentChatUser, message: msg, time: new Date().toLocaleTimeString() });
+        document.getElementById('chatInput').value = '';
+        selectChatUser(currentChatUser);
+    } catch (e) {}
+}
+</script>
+</body>
+</html>
