@@ -1,0 +1,3182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0f0c29" />
+<title>💰 Bursar — EduTrack Pro</title>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg1:#0f0c29;--bg2:#302b63;--bg3:#24243e;
+  --primary:#302b63;--primary-light:#4a4585;--accent:#fcdc04;
+  --success:#1a8a4a;--success-dark:#2d6a4f;--danger:#c1121f;--danger-dark:#780000;
+  --warning:#e85d04;--warning-dark:#dc2f02;--info:#004085;--info-light:#0069d9;
+  --surface:#ffffff;--surface-2:#f8f9fa;--surface-3:#f0f4ff;
+  --text:#1a1a2e;--text-2:#555;--text-3:#888;--border:#e0e0e0;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.06);
+  --shadow-md:0 4px 15px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.15);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg3) 100%);min-height:100vh;padding:10px;color:var(--text)}
+@media(min-width:768px){body{padding:20px}}
+
+/* ============ NAVBAR ============ */
+.navbar{background:rgba(255,255,255,.98);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:1000;border-bottom:3px solid var(--primary)}
+.navbar-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--primary);text-decoration:none;font-family:Georgia,serif}
+.navbar-brand .brand-text{background:linear-gradient(135deg,var(--bg1),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.navbar-toggle{display:none;background:none;border:none;font-size:22px;color:var(--primary);cursor:pointer;padding:6px}
+@media(max-width:900px){.navbar-toggle{display:block}}
+.navbar-menu{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+@media(max-width:900px){
+  .navbar-menu{display:none;width:100%;flex-direction:column;align-items:stretch;padding:10px 0;border-top:1px solid var(--border);margin-top:10px;max-height:70vh;overflow-y:auto}
+  .navbar-menu.open{display:flex}
+}
+.nav-link{padding:9px 13px;border-radius:10px;color:#666;text-decoration:none;font-weight:600;font-size:13px;transition:all .2s;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px;white-space:nowrap;text-align:left}
+.nav-link:hover{background:rgba(48,43,99,.08);color:var(--primary)}
+.nav-link.active{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff}
+.nav-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:20px;background:var(--surface-3);border:1px solid var(--primary)}
+.nav-user .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.nav-user .user-info{font-size:11px;line-height:1.2}
+.nav-user .user-info .user-name{font-weight:600}
+.nav-user .user-info .user-role{font-size:9px;color:var(--text-3)}
+
+/* ============ MOBILE BOTTOM NAV ============ */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0;z-index:900;box-shadow:0 -4px 15px rgba(0,0,0,.08)}
+.bottom-nav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:none;background:none;font-size:10px;color:var(--text-3);cursor:pointer;font-weight:600}
+.bottom-nav .bn-item.active{color:var(--primary)}
+.bottom-nav .bn-item i{font-size:18px}
+@media(max-width:900px){
+  .bottom-nav{display:flex}
+  body{padding-bottom:70px}
+}
+
+/* ============ CONTAINER ============ */
+.container{max-width:1500px;margin:0 auto;background:rgba(255,255,255,.97);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:18px 15px 24px;box-shadow:0 20px 60px rgba(0,0,0,.4);min-height:80vh;position:relative}
+@media(min-width:768px){.container{padding:22px 28px 32px}}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,var(--accent) 33%,var(--accent) 66%,#d90000 66%,#d90000 100%)}
+
+/* ============ SECTIONS ============ */
+.form-section{display:none;animation:fadeIn .25s ease;padding-top:8px}
+.form-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:20px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.section-desc{color:var(--text-3);font-size:13px;margin-bottom:16px}
+
+/* ============ FORMS ============ */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-weight:600;color:var(--text-2);font-size:13px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;transition:.2s;background:#fafafa;font-family:inherit;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(48,43,99,.15);background:#fff}
+.form-group input:disabled{background:#f0f0f0;color:#333;font-weight:600}
+.form-row{display:grid;grid-template-columns:1fr;gap:12px}
+.form-row-2{display:grid;grid-template-columns:1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){
+  .form-row{grid-template-columns:1fr 1fr}
+  .form-row-2{grid-template-columns:1fr 1fr}
+  .form-row-3{grid-template-columns:1fr 1fr 1fr}
+}
+
+/* ============ BUTTONS ============ */
+.btn{padding:12px 22px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff}
+.btn-success{background:linear-gradient(135deg,var(--success),var(--success-dark));color:#fff}
+.btn-danger{background:linear-gradient(135deg,var(--danger),var(--danger-dark));color:#fff}
+.btn-warning{background:linear-gradient(135deg,var(--warning),var(--warning-dark));color:#fff}
+.btn-info{background:linear-gradient(135deg,var(--info),var(--info-light));color:#fff}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:8px 14px;font-size:12px;min-height:36px}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-group-3{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:640px){.btn-group-3{grid-template-columns:1fr 1fr 1fr}}
+
+/* ============ CARDS / STATS ============ */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr);gap:12px}}
+@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:#fff;border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:.2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--primary)}
+.stat-card.success::before{background:var(--success)}
+.stat-card.danger::before{background:var(--danger)}
+.stat-card.warning::before{background:var(--warning)}
+.stat-card.info::before{background:var(--info)}
+.stat-card .stat-icon{font-size:22px;opacity:.8}
+.stat-card .stat-number{font-size:19px;font-weight:700;color:var(--text);margin:4px 0;word-break:break-word;line-height:1.2}
+.stat-card .stat-label{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.3px;font-weight:600}
+.stat-card .stat-trend{font-size:11px;margin-top:4px;color:var(--text-3)}
+
+/* ============ CHART ============ */
+.chart-container{background:#fff;border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:14px 0}
+.chart-container h4{font-size:14px;color:var(--primary);margin-bottom:10px}
+.chart-container canvas{max-height:260px;max-width:100%}
+
+/* ============ TABLE ============ */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-md);background:#fff;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:10px 0}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+table.data-table th{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff;padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;position:sticky;top:0;z-index:2}
+table.data-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+table.data-table tr:last-child td{border-bottom:none}
+table.data-table tr:hover td{background:var(--surface-2)}
+table.data-table .amount{font-weight:700;text-align:right;white-space:nowrap}
+table.data-table .amount.credit{color:var(--success-dark)}
+table.data-table .amount.debit{color:var(--danger)}
+table.data-table .badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-pending{background:#fff3cd;color:#856404}
+.badge-approved{background:#cce5ff;color:#004085}
+.badge-paid{background:#d4edda;color:#155724}
+.badge-cancelled{background:#f8d7da;color:#721c24}
+.badge-void{background:#e2e3e5;color:#383d41}
+.badge-active{background:#d4edda;color:#155724}
+.badge-inactive{background:#f8d7da;color:#721c24}
+
+/* ============ MODALS ============ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:center;justify-content:center;padding:15px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-box .modal-icon{font-size:44px;text-align:center;display:block;margin-bottom:8px}
+.modal-box h3{text-align:center;color:var(--text);margin-bottom:10px;font-size:18px}
+.modal-box p{text-align:center;color:var(--text-2);margin-bottom:18px;line-height:1.5;font-size:14px}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ============ TOAST ============ */
+.toast-notification{position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;color:#fff;font-weight:600;z-index:99999;opacity:0;transform:translateY(-20px);transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center}
+@media(min-width:640px){.toast-notification{left:auto;max-width:400px;text-align:left;transform:translateX(120%)}}
+.toast-notification.show{opacity:1;transform:translateY(0)}
+@media(min-width:640px){.toast-notification.show{transform:translateX(0)}}
+.toast-notification.success{background:linear-gradient(135deg,var(--success),var(--success-dark))}
+.toast-notification.error{background:linear-gradient(135deg,var(--danger),var(--danger-dark))}
+.toast-notification.info{background:linear-gradient(135deg,var(--bg1),var(--primary))}
+.toast-notification.warning{background:linear-gradient(135deg,var(--warning),var(--warning-dark))}
+
+/* ============ RECEIPT / PAYSLIP ============ */
+.receipt-doc,.payslip-doc{background:#fff;padding:18px;border-radius:var(--radius-md);border:2px solid var(--primary);position:relative;margin:14px 0;box-shadow:var(--shadow-md);max-width:800px;margin-left:auto;margin-right:auto;font-size:12px}
+.receipt-header,.payslip-header{text-align:center;border-bottom:2px solid var(--primary);padding-bottom:10px;margin-bottom:12px}
+.receipt-header .school-name,.payslip-header .school-name{font-size:20px;font-weight:700;color:var(--primary);font-family:Georgia,serif}
+.receipt-header .school-meta,.payslip-header .school-meta{font-size:11px;color:var(--text-2);margin-top:3px}
+.receipt-title{background:var(--primary);color:#fff;text-align:center;padding:6px;font-weight:700;letter-spacing:2px;font-size:13px;margin-bottom:10px;border-radius:4px}
+.receipt-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd;font-size:12px}
+.receipt-row:last-child{border-bottom:none}
+.receipt-row .label{font-weight:600;color:var(--text-2)}
+.receipt-row .value{font-weight:700;color:var(--text);text-align:right}
+.receipt-totals{background:var(--surface-3);padding:10px;border-radius:8px;margin:10px 0}
+.receipt-totals .receipt-row{padding:4px 0;border-bottom:none}
+.receipt-totals .receipt-row.highlight{background:var(--primary);color:#fff;padding:8px;border-radius:6px;margin-top:6px}
+.receipt-totals .receipt-row.highlight .label,.receipt-totals .receipt-row.highlight .value{color:#fff}
+.receipt-footer{margin-top:14px;padding-top:10px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px}
+.receipt-footer .signature{text-align:center}
+.receipt-footer .signature .line{border-bottom:1px solid #333;height:26px;margin-bottom:3px}
+.receipt-footer .signature .role{color:var(--text-2);font-style:italic}
+.receipt-qr{text-align:center;margin:8px 0}
+.receipt-qr canvas,.receipt-qr img{display:inline-block;width:64px!important;height:64px!important}
+
+/* ============ SEARCH BAR ============ */
+.search-bar{position:relative;margin:10px 0}
+.search-bar input{width:100%;padding:12px 14px 12px 40px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:#fafafa}
+.search-bar input:focus{border-color:var(--primary);outline:none;background:#fff}
+.search-bar::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.6}
+
+/* ============ INFO BOX ============ */
+.info-box{background:var(--surface-3);border-left:4px solid var(--primary);padding:12px 15px;border-radius:8px;margin:12px 0}
+.info-box.warning{background:#fff3cd;border-left-color:var(--warning)}
+.info-box.success{background:#d4edda;border-left-color:var(--success)}
+.info-box.danger{background:#f8d7da;border-left-color:var(--danger)}
+.info-box .info-title{font-weight:700;color:var(--primary);font-size:13px;margin-bottom:3px}
+.info-box .info-text{color:var(--text-2);font-size:12px;line-height:1.4}
+
+/* ============ TABS ============ */
+.tab-strip{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:12px;margin:12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-strip button{flex:1;padding:9px 12px;border:none;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:none;color:#666;white-space:nowrap;min-width:90px}
+.tab-strip button.active{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff}
+
+/* ============ DATE FILTERS ============ */
+.date-filters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;overflow-x:auto;padding-bottom:4px}
+.date-filters button{padding:7px 13px;border:2px solid var(--border);background:#fff;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-2);white-space:nowrap}
+.date-filters button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ============ LOADING ============ */
+.spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;z-index:9998}
+.loading-overlay.active{display:flex}
+
+/* ============ WORKER CARDS ============ */
+.worker-grid{display:grid;grid-template-columns:1fr;gap:10px;margin:10px 0}
+@media(min-width:640px){.worker-grid{grid-template-columns:1fr 1fr}}
+.worker-card{background:#fff;border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;gap:12px}
+.worker-card .avatar{width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.worker-card .info{flex:1;min-width:0}
+.worker-card .name{font-weight:700;color:var(--text);font-size:14px;word-break:break-word}
+.worker-card .role{font-size:11px;color:var(--text-3);margin-bottom:3px}
+.worker-card .salary{font-size:13px;font-weight:700;color:var(--success-dark)}
+
+/* ============ PRINT ============ */
+@media print{
+  .navbar,.bottom-nav,.btn,.report-print-btn,.no-print,footer,.footer{display:none!important}
+  body{background:#fff!important;padding:0}
+  .container{box-shadow:none!important;padding:0!important;border-radius:0!important}
+  .receipt-doc,.payslip-doc{box-shadow:none!important;page-break-inside:avoid;border:1px solid #999}
+  .table-wrap{box-shadow:none!important;border:1px solid #999}
+  .stat-card{box-shadow:none!important;border:1px solid #999}
+  @page{size:A4;margin:10mm}
+}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <span class="modal-icon" id="confirmIcon">⚠️</span>
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancel</button>
+      <button class="btn btn-primary" id="confirmYesBtn">Yes, Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREDENTIALS MODAL -->
+<div class="modal-overlay" id="receiptModal">
+  <div class="modal-box" style="max-width:800px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0" id="receiptModalTitle">Receipt</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeReceiptModal()">✖</button>
+    </div>
+    <div id="receiptModalBody"></div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn-info btn-sm" onclick="printCurrentReceipt()">🖨️ Print</button>
+      <button class="btn btn-primary btn-sm" onclick="downloadCurrentReceipt()">📥 Download</button>
+    </div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a href="bursar.html" class="navbar-brand"><span style="font-size:26px">💰</span><span class="brand-text">EduTrack Bursar</span></a>
+  <button class="navbar-toggle" onclick="toggleMobileMenu()" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <div class="navbar-menu" id="navbarMenu">
+    <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+    <button class="nav-link" data-tab="students" onclick="switchTab('students')"><i class="fas fa-user-graduate"></i> Students</button>
+    <button class="nav-link" data-tab="fees" onclick="switchTab('fees')"><i class="fas fa-money-bill-wave"></i> Fees</button>
+    <button class="nav-link" data-tab="payments" onclick="switchTab('payments')"><i class="fas fa-cash-register"></i> Payments</button>
+    <button class="nav-link" data-tab="receipts" onclick="switchTab('receipts')"><i class="fas fa-receipt"></i> Receipts</button>
+    <button class="nav-link" data-tab="workers" onclick="switchTab('workers')"><i class="fas fa-users"></i> Workers</button>
+    <button class="nav-link" data-tab="payroll" onclick="switchTab('payroll')"><i class="fas fa-file-invoice-dollar"></i> Payroll</button>
+    <button class="nav-link" data-tab="advances" onclick="switchTab('advances')"><i class="fas fa-hand-holding-usd"></i> Advances</button>
+    <button class="nav-link" data-tab="expenses" onclick="switchTab('expenses')"><i class="fas fa-receipt"></i> Expenses</button>
+    <button class="nav-link" data-tab="suppliers" onclick="switchTab('suppliers')"><i class="fas fa-truck"></i> Suppliers</button>
+    <button class="nav-link" data-tab="income" onclick="switchTab('income')"><i class="fas fa-plus-circle"></i> Income</button>
+    <button class="nav-link" data-tab="cashbook" onclick="switchTab('cashbook')"><i class="fas fa-book"></i> Cashbook</button>
+    <button class="nav-link" data-tab="pettycash" onclick="switchTab('pettycash')"><i class="fas fa-coins"></i> Petty Cash</button>
+    <button class="nav-link" data-tab="reconciliation" onclick="switchTab('reconciliation')"><i class="fas fa-balance-scale"></i> Reconcile</button>
+    <button class="nav-link" data-tab="budget" onclick="switchTab('budget')"><i class="fas fa-chart-line"></i> Budget</button>
+    <button class="nav-link" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-alt"></i> Reports</button>
+    <button class="nav-link" data-tab="approvals" onclick="switchTab('approvals')"><i class="fas fa-check-double"></i> Approvals <span id="approvalBadge" style="display:none;background:#c1121f;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    <button class="nav-link" data-tab="audit" onclick="switchTab('audit')"><i class="fas fa-history"></i> Audit</button>
+    <button class="nav-link" data-tab="settings" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</button>
+    <div class="nav-user">
+      <div class="user-avatar" id="navUserAvatar">B</div>
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Loading…</div>
+        <div class="user-role" id="navUserRole">Bursar</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="appLogout()" style="padding:8px 14px;font-size:12px"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</nav>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-chart-pie"></i><span>Home</span></button>
+  <button class="bn-item" data-tab="payments" onclick="switchTab('payments')"><i class="fas fa-cash-register"></i><span>Pay</span></button>
+  <button class="bn-item" data-tab="students" onclick="switchTab('students')"><i class="fas fa-user-graduate"></i><span>Students</span></button>
+  <button class="bn-item" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-alt"></i><span>Reports</span></button>
+  <button class="bn-item" data-tab="settings" onclick="switchTab('settings')"><i class="fas fa-cog"></i><span>More</span></button>
+</div>
+
+<div class="container">
+  <div id="statusMessage" class="status-message" style="display:none"></div>
+
+  <!-- ==================== DASHBOARD ==================== -->
+  <div id="tabDashboard" class="form-section active">
+    <h2 class="section-title"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Bursar Dashboard</h2>
+    <p class="section-desc" id="dashSubtitle">Real-time financial overview.</p>
+
+    <div class="date-filters" id="dateFilters">
+      <button data-range="today" class="active" onclick="setDateRange('today')">Today</button>
+      <button data-range="week" onclick="setDateRange('week')">This Week</button>
+      <button data-range="month" onclick="setDateRange('month')">This Month</button>
+      <button data-range="term" onclick="setDateRange('term')">Current Term</button>
+      <button data-range="prevterm" onclick="setDateRange('prevterm')">Previous Term</button>
+      <button data-range="year" onclick="setDateRange('year')">This Year</button>
+      <button data-range="custom" onclick="setDateRange('custom')">Custom</button>
+    </div>
+    <div id="customRangeBox" style="display:none" class="form-row-2">
+      <div class="form-group"><label>From</label><input type="date" id="dashFrom" onchange="refreshDashboard()" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="dashTo" onchange="refreshDashboard()" /></div>
+    </div>
+
+    <div class="stats-grid" id="dashStats">
+      <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-number" id="dsExpectedFees">0</div><div class="stat-label">Expected Fees</div></div>
+      <div class="stat-card success"><div class="stat-icon">💰</div><div class="stat-number" id="dsCollected">0</div><div class="stat-label">Fees Collected</div></div>
+      <div class="stat-card danger"><div class="stat-icon">⚠️</div><div class="stat-number" id="dsOutstanding">0</div><div class="stat-label">Outstanding Fees</div></div>
+      <div class="stat-card info"><div class="stat-icon">📅</div><div class="stat-number" id="dsToday">0</div><div class="stat-label">Today's Collection</div></div>
+      <div class="stat-card success"><div class="stat-icon">📈</div><div class="stat-number" id="dsIncome">0</div><div class="stat-label">Other Income</div></div>
+      <div class="stat-card danger"><div class="stat-icon">💸</div><div class="stat-number" id="dsExpenditure">0</div><div class="stat-label">Expenditure</div></div>
+      <div class="stat-card warning"><div class="stat-icon">👷</div><div class="stat-number" id="dsPayroll">0</div><div class="stat-label">Workers Payroll</div></div>
+      <div class="stat-card warning"><div class="stat-icon">⏳</div><div class="stat-number" id="dsPendingPay">0</div><div class="stat-label">Pending Payments</div></div>
+      <div class="stat-card success"><div class="stat-icon">🏦</div><div class="stat-number" id="dsCashBalance">0</div><div class="stat-label">Cash Balance</div></div>
+      <div class="stat-card info"><div class="stat-icon">🏛️</div><div class="stat-number" id="dsBankBalance">0</div><div class="stat-label">Bank Balance</div></div>
+      <div class="stat-card info"><div class="stat-icon">📱</div><div class="stat-number" id="dsMomoBalance">0</div><div class="stat-label">Mobile Money</div></div>
+      <div class="stat-card danger"><div class="stat-icon">🧾</div><div class="stat-number" id="dsSupplierOut">0</div><div class="stat-label">Supplier Dues</div></div>
+    </div>
+
+    <div class="chart-container"><h4>📊 Income vs Expenditure Trend</h4><canvas id="dashTrendChart"></canvas></div>
+    <div class="form-row">
+      <div class="chart-container"><h4>💵 Fees Collected per Class</h4><canvas id="dashFeesChart"></canvas></div>
+      <div class="chart-container"><h4>💸 Expenditure by Category</h4><canvas id="dashExpenseChart"></canvas></div>
+    </div>
+    <div class="chart-container"><h4>📈 Budget vs Actual (Top Categories)</h4><canvas id="dashBudgetChart"></canvas></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">🔔 Recent Activity</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Action</th><th>By</th><th>Amount</th></tr></thead>
+      <tbody id="dashActivityBody"><tr><td colspan="4" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== STUDENTS ==================== -->
+  <div id="tabStudents" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user-graduate" style="color:var(--primary)"></i> Students & Fee Balances</h2>
+    <p class="section-desc">Search students, view balances and financial history.</p>
+
+    <div class="search-bar"><input type="text" id="studentSearch" placeholder="Search by name, admission number or class…" onkeyup="filterStudents()" /></div>
+    <div class="form-row-3">
+      <div class="form-group"><label>Filter by Class</label><select id="studentClassFilter" onchange="filterStudents()"><option value="">All Classes</option></select></div>
+      <div class="form-group"><label>Filter by Status</label><select id="studentStatusFilter" onchange="filterStudents()"><option value="">All</option><option value="cleared">Cleared</option><option value="owing">Owing</option></select></div>
+      <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-info btn-block" onclick="loadStudents()">🔄 Refresh</button></div>
+    </div>
+
+    <div class="stats-grid" id="studentStats">
+      <div class="stat-card"><div class="stat-number" id="stTotal">0</div><div class="stat-label">Total Students</div></div>
+      <div class="stat-card success"><div class="stat-number" id="stCleared">0</div><div class="stat-label">Cleared</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="stOwing">0</div><div class="stat-label">Owing</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="stOwningAmount">UGX 0</div><div class="stat-label">Total Owed</div></div>
+    </div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Adm No</th><th>Name</th><th>Class</th><th>Expected</th><th>Paid</th><th>Balance</th><th>Actions</th></tr></thead>
+      <tbody id="studentsBody"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== FEES ==================== -->
+  <div id="tabFees" class="form-section">
+    <h2 class="section-title"><i class="fas fa-money-bill-wave" style="color:var(--primary)"></i> Fee Structures</h2>
+    <p class="section-desc">Set term fees per class and boarding status.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <h4 style="color:var(--primary);margin-bottom:10px">➕ Add / Update Fee Structure</h4>
+      <div class="form-row-3">
+        <div class="form-group"><label>Class *</label><select id="fsClass"><option value="">Select Class</option></select></div>
+        <div class="form-group"><label>Boarding Status *</label><select id="fsBoarding"><option value="day">Day Scholar</option><option value="boarder">Boarder</option></select></div>
+        <div class="form-group"><label>Term *</label><select id="fsTerm"><option value="I">Term I</option><option value="II">Term II</option><option value="III" selected>Term III</option></select></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Year *</label><select id="fsYear"><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select></div>
+        <div class="form-group"><label>Tuition Fees (UGX) *</label><input type="number" id="fsTuition" min="0" step="1000" /></div>
+        <div class="form-group"><label>Boarding Fees (UGX)</label><input type="number" id="fsBoardingFee" min="0" step="1000" value="0" /></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Development Fee</label><input type="number" id="fsDev" min="0" step="1000" value="0" /></div>
+        <div class="form-group"><label>Activity Fee</label><input type="number" id="fsActivity" min="0" step="1000" value="0" /></div>
+        <div class="form-group"><label>Other Charges</label><input type="number" id="fsOther" min="0" step="1000" value="0" /></div>
+      </div>
+      <div class="form-group"><label>Notes</label><input type="text" id="fsNotes" placeholder="Optional" /></div>
+      <button class="btn btn-success btn-block" onclick="saveFeeStructure()">💾 Save Fee Structure</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📋 Existing Fee Structures</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Class</th><th>Boarding</th><th>Term</th><th>Year</th><th>Total Fee</th><th>Actions</th></tr></thead>
+      <tbody id="feeStructuresBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== PAYMENTS ==================== -->
+  <div id="tabPayments" class="form-section">
+    <h2 class="section-title"><i class="fas fa-cash-register" style="color:var(--primary)"></i> Record Payment</h2>
+    <p class="section-desc">Record student payments, discounts and waivers.</p>
+
+    <div class="tab-strip">
+      <button class="active" data-paytype="student" onclick="setPayType('student')">🎓 Student Fees</button>
+      <button data-paytype="discount" onclick="setPayType('discount')">🎁 Discount / Waiver</button>
+    </div>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-group"><label>Search Student *</label><input type="text" id="payStudentSearch" placeholder="Type name or admission number…" onkeyup="searchPayStudent()" autocomplete="off" /></div>
+      <div id="payStudentResults" style="max-height:220px;overflow-y:auto;margin-bottom:10px"></div>
+      <div id="payStudentInfo" style="display:none" class="info-box success"></div>
+
+      <div class="form-row-3">
+        <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="payAmount" min="0" step="500" onkeyup="updatePayPreview()" onchange="updatePayPreview()" /></div>
+        <div class="form-group"><label>Payment Method *</label><select id="payMethod"><option value="cash">Cash</option><option value="bank">Bank Transfer</option><option value="mobile">Mobile Money</option><option value="cheque">Cheque</option><option value="other">Other</option></select></div>
+        <div class="form-group"><label>Payment Date *</label><input type="date" id="payDate" /></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Transaction / Reference</label><input type="text" id="payRef" placeholder="e.g., MoMo code" /></div>
+        <div class="form-group"><label>Receipt Number</label><input type="text" id="payReceipt" placeholder="Auto" disabled /></div>
+        <div class="form-group"><label>Term</label><select id="payTerm"><option value="I">Term I</option><option value="II">Term II</option><option value="III" selected>Term III</option></select></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Year</label><select id="payYear"><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select></div>
+        <div class="form-group"><label>Received By</label><input type="text" id="payReceivedBy" readonly /></div>
+      </div>
+      <div class="form-group"><label>Description / Purpose</label><input type="text" id="payDesc" placeholder="e.g., Term III tuition" /></div>
+
+      <div id="payPreview" class="receipt-totals" style="display:none"></div>
+
+      <div class="btn-group-3">
+        <button class="btn btn-secondary" onclick="resetPaymentForm()">🔄 Reset</button>
+        <button class="btn btn-primary" onclick="previewReceipt()">👁️ Preview Receipt</button>
+        <button class="btn btn-success" id="paySubmitBtn" onclick="submitPayment()">💾 Record Payment</button>
+      </div>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📋 Recent Payments</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th><th>By</th><th></th></tr></thead>
+      <tbody id="recentPaymentsBody"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== RECEIPTS ==================== -->
+  <div id="tabReceipts" class="form-section">
+    <h2 class="section-title"><i class="fas fa-receipt" style="color:var(--primary)"></i> Receipts</h2>
+    <p class="section-desc">Search and reprint any receipt.</p>
+
+    <div class="search-bar"><input type="text" id="receiptSearch" placeholder="Search by receipt no, student name or admission no…" onkeyup="filterReceipts()" /></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>From Date</label><input type="date" id="receiptFrom" onchange="loadReceipts()" /></div>
+      <div class="form-group"><label>To Date</label><input type="date" id="receiptTo" onchange="loadReceipts()" /></div>
+    </div>
+    <button class="btn btn-info btn-block" onclick="loadReceipts()">🔄 Load Receipts</button>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Receipt No</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="receiptsBody"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== WORKERS ==================== -->
+  <div id="tabWorkers" class="form-section">
+    <h2 class="section-title"><i class="fas fa-users" style="color:var(--primary)"></i> Workers & Staff</h2>
+    <p class="section-desc">All employees — teachers, cooks, cleaners, guards, drivers, gardeners, casual workers.</p>
+
+    <div class="tab-strip">
+      <button class="active" onclick="showWorkerSub('list')">📋 List</button>
+      <button onclick="showWorkerSub('add')">➕ Add Worker</button>
+    </div>
+
+    <div id="workerSubList">
+      <div class="search-bar"><input type="text" id="workerSearch" placeholder="Search by name, staff ID or job title…" onkeyup="filterWorkers()" /></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-number" id="wkTotal">0</div><div class="stat-label">Total Workers</div></div>
+        <div class="stat-card success"><div class="stat-number" id="wkActive">0</div><div class="stat-label">Active</div></div>
+        <div class="stat-card danger"><div class="stat-number" id="wkInactive">0</div><div class="stat-label">Inactive</div></div>
+        <div class="stat-card warning"><div class="stat-number" id="wkPayrollTotal">UGX 0</div><div class="stat-label">Monthly Payroll</div></div>
+      </div>
+      <div class="worker-grid" id="workersGrid"><p style="text-align:center;color:#999;padding:20px;grid-column:1/-1">Loading…</p></div>
+    </div>
+
+    <div id="workerSubAdd" style="display:none">
+      <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+        <div class="form-row-2">
+          <div class="form-group"><label>Staff ID *</label><input type="text" id="wkStaffId" placeholder="Auto-generate if blank" /></div>
+          <div class="form-group"><label>Full Name *</label><input type="text" id="wkName" /></div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group"><label>Job Title *</label>
+            <select id="wkJobTitle">
+              <option value="">Select…</option>
+              <option>Teacher</option><option>Headteacher</option><option>Deputy Headteacher</option>
+              <option>Bursar</option><option>Accountant</option><option>Cashier</option>
+              <option>Cook</option><option>Cleaner</option><option>Guard</option><option>Driver</option>
+              <option>Gardener</option><option>Casual Worker</option><option>Boarding Staff</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Department</label>
+            <select id="wkDept">
+              <option>Administration</option><option>Teaching</option><option>Finance</option>
+              <option>Kitchen</option><option>Sanitation</option><option>Security</option>
+              <option>Transport</option><option>Grounds</option><option>Boarding</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Employment Type</label>
+            <select id="wkEmpType"><option value="full-time">Full Time</option><option value="part-time">Part Time</option><option value="contract">Contract</option><option value="casual">Casual</option></select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group"><label>Phone *</label><input type="tel" id="wkPhone" /></div>
+          <div class="form-group"><label>Date Employed *</label><input type="date" id="wkDateEmployed" /></div>
+          <div class="form-group"><label>Payment Frequency *</label>
+            <select id="wkFreq"><option value="monthly">Monthly</option><option value="termly">Termly</option><option value="weekly">Weekly</option><option value="daily">Daily</option><option value="casual">Per Task</option></select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group"><label>Basic Salary (UGX) *</label><input type="number" id="wkBasic" min="0" step="1000" /></div>
+          <div class="form-group"><label>Total Allowances (UGX)</label><input type="number" id="wkAllowances" min="0" step="1000" value="0" /></div>
+          <div class="form-group"><label>Bank / Mobile Money Details</label><input type="text" id="wkBank" placeholder="e.g., Centenary 1234567 / MTN 077xxxx" /></div>
+        </div>
+        <div class="form-group"><label>Status</label><select id="wkStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="resetWorkerForm()">🔄 Reset</button>
+          <button class="btn btn-success" onclick="saveWorker()">💾 Save Worker</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAYROLL ==================== -->
+  <div id="tabPayroll" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i> Payroll</h2>
+    <p class="section-desc">Generate and process worker payroll.</p>
+
+    <div class="tab-strip">
+      <button class="active" onclick="showPayrollSub('generate')">📊 Generate</button>
+      <button onclick="showPayrollSub('history')">📋 History</button>
+    </div>
+
+    <div id="payrollSubGenerate">
+      <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+        <div class="form-row-3">
+          <div class="form-group"><label>Pay Period *</label>
+            <select id="prPeriod">
+              <option value="monthly">Monthly</option>
+              <option value="termly">Termly</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Month</label><input type="month" id="prMonth" /></div>
+          <div class="form-group"><label>Year</label><select id="prYear"><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select></div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group"><label>Filter Workers By</label>
+            <select id="prFilterType" onchange="loadPayrollWorkers()">
+              <option value="all">All Active Workers</option>
+              <option value="teaching">Teaching Staff</option>
+              <option value="non-teaching">Non-Teaching Staff</option>
+              <option value="casual">Casual Workers</option>
+            </select>
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end">
+            <button class="btn btn-info btn-block" onclick="loadPayrollWorkers()">🔄 Load Workers</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:10px"><table class="data-table">
+        <thead><tr><th style="width:30px"><input type="checkbox" id="prSelectAll" onchange="toggleAllPayroll()" /></th><th>Staff ID</th><th>Name</th><th>Job Title</th><th>Basic</th><th>Allowances</th><th>Deductions</th><th>Net Pay</th></tr></thead>
+        <tbody id="payrollWorkersBody"><tr><td colspan="8" style="text-align:center;color:#999;padding:20px">Click "Load Workers" to start.</td></tr></tbody>
+      </table></div>
+
+      <div class="receipt-totals" id="payrollSummary"></div>
+
+      <div class="btn-group-3">
+        <button class="btn btn-secondary" onclick="resetPayroll()">🔄 Reset</button>
+        <button class="btn btn-warning" onclick="savePayrollAsDraft()">💾 Save Draft</button>
+        <button class="btn btn-success" onclick="submitPayrollForApproval()">✅ Submit for Approval</button>
+      </div>
+    </div>
+
+    <div id="payrollSubHistory" style="display:none">
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Payroll ID</th><th>Period</th><th>Workers</th><th>Gross</th><th>Net</th><th>Status</th><th>Prepared By</th><th>Actions</th></tr></thead>
+        <tbody id="payrollHistoryBody"><tr><td colspan="8" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ==================== ADVANCES ==================== -->
+  <div id="tabAdvances" class="form-section">
+    <h2 class="section-title"><i class="fas fa-hand-holding-usd" style="color:var(--primary)"></i> Staff Advances & Loans</h2>
+    <p class="section-desc">Request, approve, pay and track staff advances.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <h4 style="color:var(--primary);margin-bottom:10px">➕ New Advance Request</h4>
+      <div class="form-row-3">
+        <div class="form-group"><label>Worker *</label><select id="advWorker"><option value="">Select…</option></select></div>
+        <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="advAmount" min="0" step="1000" /></div>
+        <div class="form-group"><label>Repayment Months *</label><input type="number" id="advMonths" min="1" value="1" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Purpose</label><input type="text" id="advPurpose" placeholder="e.g., School fees" /></div>
+        <div class="form-group"><label>Request Date</label><input type="date" id="advDate" /></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="requestAdvance()">📤 Submit Request</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📋 Advance Records</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>ID</th><th>Worker</th><th>Amount</th><th>Balance</th><th>Monthly</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="advancesBody"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== EXPENSES ==================== -->
+  <div id="tabExpenses" class="form-section">
+    <h2 class="section-title"><i class="fas fa-receipt" style="color:var(--primary)"></i> School Expenditure</h2>
+    <p class="section-desc">Record all school expenses.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-3">
+        <div class="form-group"><label>Category *</label>
+          <select id="expCategory">
+            <option value="">Select…</option>
+            <option>Food</option><option>Salaries</option><option>Teaching Materials</option>
+            <option>Electricity</option><option>Water</option><option>Internet</option>
+            <option>Transport</option><option>Repairs</option><option>Fuel</option>
+            <option>Medical</option><option>School Activities</option><option>Office Supplies</option>
+            <option>Boarding</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="expAmount" min="0" step="100" /></div>
+        <div class="form-group"><label>Date *</label><input type="date" id="expDate" /></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Payee *</label><input type="text" id="expPayee" placeholder="Who was paid?" /></div>
+        <div class="form-group"><label>Payment Method *</label>
+          <select id="expMethod"><option value="cash">Cash</option><option value="bank">Bank</option><option value="mobile">Mobile Money</option><option value="cheque">Cheque</option><option value="other">Other</option></select>
+        </div>
+        <div class="form-group"><label>Reference Number</label><input type="text" id="expRef" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Requested By</label><input type="text" id="expRequestedBy" /></div>
+        <div class="form-group"><label>Description</label><input type="text" id="expDesc" placeholder="Details of expense" /></div>
+      </div>
+      <button class="btn btn-success btn-block" onclick="recordExpense()">💾 Record Expense</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📋 Recent Expenses</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Payee</th><th>Method</th><th></th></tr></thead>
+      <tbody id="expensesBody"><tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== SUPPLIERS ==================== -->
+  <div id="tabSuppliers" class="form-section">
+    <h2 class="section-title"><i class="fas fa-truck" style="color:var(--primary)"></i> Suppliers</h2>
+    <p class="section-desc">Manage suppliers, purchases and outstanding balances.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <h4 style="color:var(--primary);margin-bottom:10px">➕ Add Supplier</h4>
+      <div class="form-row-3">
+        <div class="form-group"><label>Supplier Name *</label><input type="text" id="supName" /></div>
+        <div class="form-group"><label>Contact Phone *</label><input type="tel" id="supPhone" /></div>
+        <div class="form-group"><label>Address</label><input type="text" id="supAddress" /></div>
+      </div>
+      <div class="form-group"><label>Products / Services</label><input type="text" id="supProducts" placeholder="e.g., Food, Stationery" /></div>
+      <button class="btn btn-success btn-block" onclick="saveSupplier()">💾 Save Supplier</button>
+    </div>
+
+    <div class="table-wrap" style="margin-top:14px"><table class="data-table">
+      <thead><tr><th>Name</th><th>Contact</th><th>Products</th><th>Outstanding</th><th>Actions</th></tr></thead>
+      <tbody id="suppliersBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== INCOME ==================== -->
+  <div id="tabIncome" class="form-section">
+    <h2 class="section-title"><i class="fas fa-plus-circle" style="color:var(--primary)"></i> School Income</h2>
+    <p class="section-desc">Record other income sources apart from student fees.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-3">
+        <div class="form-group"><label>Category *</label>
+          <select id="incCategory">
+            <option value="">Select…</option>
+            <option>Boarding Income</option><option>Transport</option><option>Uniforms</option>
+            <option>Meals</option><option>School Activities</option><option>Donations</option>
+            <option>Grants</option><option>Rentals</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="incAmount" min="0" step="100" /></div>
+        <div class="form-group"><label>Date *</label><input type="date" id="incDate" /></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Source / Payer *</label><input type="text" id="incSource" /></div>
+        <div class="form-group"><label>Payment Method *</label>
+          <select id="incMethod"><option value="cash">Cash</option><option value="bank">Bank</option><option value="mobile">Mobile Money</option><option value="cheque">Cheque</option><option value="other">Other</option></select>
+        </div>
+        <div class="form-group"><label>Reference</label><input type="text" id="incRef" /></div>
+      </div>
+      <div class="form-group"><label>Description</label><input type="text" id="incDesc" /></div>
+      <button class="btn btn-success btn-block" onclick="recordIncome()">💾 Record Income</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📋 Recent Income</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Category</th><th>Source</th><th>Amount</th><th>Method</th><th></th></tr></thead>
+      <tbody id="incomeBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== CASHBOOK ==================== -->
+  <div id="tabCashbook" class="form-section">
+    <h2 class="section-title"><i class="fas fa-book" style="color:var(--primary)"></i> Cashbook</h2>
+    <p class="section-desc">Auto-generated cashbook from all transactions.</p>
+
+    <div class="form-row-3">
+      <div class="form-group"><label>From</label><input type="date" id="cbFrom" onchange="loadCashbook()" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="cbTo" onchange="loadCashbook()" /></div>
+      <div class="form-group"><label>Account</label>
+        <select id="cbAccount" onchange="loadCashbook()">
+          <option value="all">All Accounts</option>
+          <option value="cash">Cash</option>
+          <option value="bank">Bank</option>
+          <option value="mobile">Mobile Money</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-info btn-block" onclick="loadCashbook()">🔄 Load Cashbook</button>
+
+    <div class="stats-grid">
+      <div class="stat-card success"><div class="stat-number" id="cbTotalIn">UGX 0</div><div class="stat-label">Total In</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="cbTotalOut">UGX 0</div><div class="stat-label">Total Out</div></div>
+      <div class="stat-card"><div class="stat-number" id="cbNet">UGX 0</div><div class="stat-label">Net Movement</div></div>
+      <div class="stat-card info"><div class="stat-number" id="cbClosing">UGX 0</div><div class="stat-label">Closing Balance</div></div>
+    </div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>In</th><th>Out</th><th>Balance</th></tr></thead>
+      <tbody id="cashbookBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== PETTY CASH ==================== -->
+  <div id="tabPettycash" class="form-section">
+    <h2 class="section-title"><i class="fas fa-coins" style="color:var(--primary)"></i> Petty Cash</h2>
+    <p class="section-desc">Track petty cash float and small expenses.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="pcOpening">UGX 0</div><div class="stat-label">Opening Balance</div></div>
+      <div class="stat-card success"><div class="stat-number" id="pcReceived">UGX 0</div><div class="stat-label">Cash Received</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="pcSpent">UGX 0</div><div class="stat-label">Expenses</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="pcBalance">UGX 0</div><div class="stat-label">Current Balance</div></div>
+    </div>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <h4 style="color:var(--primary);margin-bottom:10px">➕ Petty Cash Entry</h4>
+      <div class="form-row-3">
+        <div class="form-group"><label>Type *</label>
+          <select id="pcType"><option value="receive">💵 Cash Received</option><option value="spend">💸 Expense</option></select>
+        </div>
+        <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="pcAmount" min="0" step="100" /></div>
+        <div class="form-group"><label>Date *</label><input type="date" id="pcDate" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Person</label><input type="text" id="pcPerson" placeholder="Who received / paid?" /></div>
+        <div class="form-group"><label>Purpose</label><input type="text" id="pcPurpose" /></div>
+      </div>
+      <button class="btn btn-success btn-block" onclick="savePettyCash()">💾 Save Entry</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📋 Petty Cash Records</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Type</th><th>Person</th><th>Purpose</th><th>Amount</th><th>Balance</th></tr></thead>
+      <tbody id="pettycashBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== RECONCILIATION ==================== -->
+  <div id="tabReconciliation" class="form-section">
+    <h2 class="section-title"><i class="fas fa-balance-scale" style="color:var(--primary)"></i> Bank & Mobile Money Reconciliation</h2>
+    <p class="section-desc">Match bank/mobile statements with recorded transactions.</p>
+
+    <div class="info-box">
+      <div class="info-title">📌 How it works</div>
+      <div class="info-text">Paste or import bank/MoMo statements and the system will attempt auto-matching. Manual matching is always available.</div>
+    </div>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-2">
+        <div class="form-group"><label>Account *</label>
+          <select id="recAccount"><option value="bank">Bank Account</option><option value="mobile">Mobile Money</option></select>
+        </div>
+        <div class="form-group"><label>Statement Date</label><input type="date" id="recDate" /></div>
+      </div>
+      <div class="form-group"><label>Paste Statement (one line per transaction: date|amount|reference|description)</label>
+        <textarea id="recStatement" rows="6" placeholder="2026-03-15|250000|MOMO12345|John Mukasa fees&#10;2026-03-15|500000|BANK67|Term 3 payment"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="runReconciliation()">🔍 Run Auto-Match</button>
+    </div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Statement Line</th><th>Amount</th><th>Match</th><th>Confidence</th><th>Actions</th></tr></thead>
+      <tbody id="reconciliationBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Paste a statement above to begin.</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== BUDGET ==================== -->
+  <div id="tabBudget" class="form-section">
+    <h2 class="section-title"><i class="fas fa-chart-line" style="color:var(--primary)"></i> Budget Management</h2>
+    <p class="section-desc">Annual and term budgets vs actual spending.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <h4 style="color:var(--primary);margin-bottom:10px">➕ Set Budget Item</h4>
+      <div class="form-row-3">
+        <div class="form-group"><label>Category *</label>
+          <select id="bdCategory">
+            <option value="">Select…</option>
+            <option>Food</option><option>Salaries</option><option>Teaching Materials</option>
+            <option>Electricity</option><option>Water</option><option>Internet</option>
+            <option>Transport</option><option>Repairs</option><option>Fuel</option>
+            <option>Medical</option><option>School Activities</option><option>Office Supplies</option>
+            <option>Boarding</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Period *</label>
+          <select id="bdPeriod"><option value="term">This Term</option><option value="year">This Year</option></select>
+        </div>
+        <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="bdAmount" min="0" step="10000" /></div>
+      </div>
+      <button class="btn btn-success btn-block" onclick="saveBudget()">💾 Save Budget</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📊 Budget vs Actual</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Category</th><th>Budget</th><th>Spent</th><th>Remaining</th><th>%</th><th>Status</th></tr></thead>
+      <tbody id="budgetBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== REPORTS ==================== -->
+  <div id="tabReports" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-alt" style="color:var(--primary)"></i> Financial Reports</h2>
+    <p class="section-desc">Generate, print or download any report.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Report Type *</label>
+        <select id="reportType" onchange="updateReportTypeUI()">
+          <option value="daily">Daily Collection Report</option>
+          <option value="weekly">Weekly Collection Report</option>
+          <option value="termly">Termly Collection Report</option>
+          <option value="balances">Student Fee Balance Report</option>
+          <option value="classfees">Class Fee Collection Report</option>
+          <option value="outstanding">Outstanding Fees Report</option>
+          <option value="income">Income Report</option>
+          <option value="expenditure">Expenditure Report</option>
+          <option value="cashbook">Cashbook Report</option>
+          <option value="pettycash">Petty Cash Report</option>
+          <option value="payroll">Payroll Report</option>
+          <option value="workerreg">Worker Payment Register</option>
+          <option value="advances">Staff Advance Report</option>
+          <option value="suppliers">Supplier Payment Report</option>
+          <option value="budget">Budget vs Actual Report</option>
+          <option value="bankrec">Bank Reconciliation Report</option>
+          <option value="momrec">Mobile Money Reconciliation</option>
+          <option value="summary">Financial Summary</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Format</label>
+        <select id="reportFormat"><option value="html">📺 On-screen</option><option value="csv">📊 CSV Export</option><option value="print">🖨️ Print / PDF</option></select>
+      </div>
+    </div>
+    <div class="form-row-2" id="reportDateRange">
+      <div class="form-group"><label>From</label><input type="date" id="reportFrom" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="reportTo" /></div>
+    </div>
+    <button class="btn btn-success btn-block" onclick="generateReport()">📄 Generate Report</button>
+
+    <div id="reportOutput" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ==================== APPROVALS ==================== -->
+  <div id="tabApprovals" class="form-section">
+    <h2 class="section-title"><i class="fas fa-check-double" style="color:var(--primary)"></i> Approvals</h2>
+    <p class="section-desc">Pending approvals for payroll, expenses and advances.</p>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Type</th><th>Reference</th><th>Amount</th><th>Requested By</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody id="approvalsBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== AUDIT ==================== -->
+  <div id="tabAudit" class="form-section">
+    <h2 class="section-title"><i class="fas fa-history" style="color:var(--primary)"></i> Audit Trail</h2>
+    <p class="section-desc">Every financial action is permanently logged. Records cannot be silently deleted.</p>
+
+    <div class="search-bar"><input type="text" id="auditSearch" placeholder="Search audit log…" onkeyup="filterAudit()" /></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>From</label><input type="date" id="auditFrom" onchange="loadAudit()" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="auditTo" onchange="loadAudit()" /></div>
+    </div>
+    <button class="btn btn-info btn-block" onclick="loadAudit()">🔄 Load Audit Log</button>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>When</th><th>User</th><th>Action</th><th>Record</th><th>Details</th></tr></thead>
+      <tbody id="auditBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ==================== SETTINGS ==================== -->
+  <div id="tabSettings" class="form-section">
+    <h2 class="section-title"><i class="fas fa-cog" style="color:var(--primary)"></i> Settings</h2>
+    <p class="section-desc">Financial configuration for <strong id="settingsSchoolLabel">—</strong></p>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <h4>💵 Expected Fees (This Term)</h4>
+      <div class="form-row-2">
+        <div class="form-group"><label>Total Expected Fees Collection</label><input type="number" id="setExpectedFees" placeholder="e.g., 50000000" step="10000" /></div>
+        <div class="form-group"><label>Currency</label><input type="text" id="setCurrency" value="UGX" disabled /></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <h4>📅 Term Dates</h4>
+      <div class="form-row-2">
+        <div class="form-group"><label>Term Start Date</label><input type="date" id="setTermStart" /></div>
+        <div class="form-group"><label>Term End Date</label><input type="date" id="setTermEnd" /></div>
+        <div class="form-group"><label>Next Term Start</label><input type="date" id="setNextTermStart" /></div>
+        <div class="form-group"><label>Next Term End</label><input type="date" id="setNextTermEnd" /></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <h4>💰 Opening Balances</h4>
+      <div class="form-row-3">
+        <div class="form-group"><label>Cash Opening Balance</label><input type="number" id="setCashOpening" step="1000" value="0" /></div>
+        <div class="form-group"><label>Bank Opening Balance</label><input type="number" id="setBankOpening" step="1000" value="0" /></div>
+        <div class="form-group"><label>Mobile Money Opening</label><input type="number" id="setMomoOpening" step="1000" value="0" /></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <h4>💰 Petty Cash</h4>
+      <div class="form-row-2">
+        <div class="form-group"><label>Petty Cash Opening Float</label><input type="number" id="setPettyOpening" step="1000" value="0" /></div>
+        <div class="form-group"><label>Default Petty Cash Limit</label><input type="number" id="setPettyLimit" step="1000" value="500000" /></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <h4>🔗 Integration Placeholders (no keys exposed in frontend)</h4>
+      <div class="info-box warning">
+        <div class="info-title">⚠️ Configure on server side only</div>
+        <div class="info-text">These fields send requests to backend endpoints; secrets stay on the server (Google Apps Script Properties).</div>
+      </div>
+      <div class="form-group"><label>Mobile Money Integration Endpoint</label><input type="text" id="setMomoEndpoint" placeholder="Backend endpoint for MoMo collection" /></div>
+      <div class="form-group"><label>SMS Notification Endpoint</label><input type="text" id="setSmsEndpoint" placeholder="Backend endpoint for SMS" /></div>
+      <div class="form-group"><label>Email Notification Endpoint</label><input type="text" id="setEmailEndpoint" placeholder="Backend endpoint for email" /></div>
+      <div class="form-group"><label>WhatsApp Notification Endpoint</label><input type="text" id="setWaEndpoint" placeholder="Backend endpoint for WhatsApp" /></div>
+    </div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <h4>📥 Data & Backup</h4>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-success btn-sm" onclick="downloadBackup()">💾 Backup Data</button>
+        <button class="btn btn-info btn-sm" onclick="document.getElementById('restoreInput').click()">📤 Restore</button>
+        <input type="file" id="restoreInput" accept="application/json" style="display:none" onchange="restoreBackup(event)" />
+        <button class="btn btn-warning btn-sm" onclick="testConnection()">📡 Test Backend</button>
+        <span id="connBadge" class="badge badge-pending" style="padding:8px 14px">⏳ Checking…</span>
+      </div>
+    </div>
+
+    <div style="margin-top:14px">
+      <button class="btn btn-success btn-block" onclick="saveAllFinanceSettings()">💾 Save All Settings</button>
+    </div>
+  </div>
+
+  <div class="footer" style="text-align:center;padding:20px 0 10px;border-top:2px solid var(--border);margin-top:30px">
+    <div style="font-size:16px;font-weight:700;color:var(--primary)">💰 EduTrack Bursar</div>
+    <div style="font-size:12px;color:var(--text-3)">Powered by <strong>His Grace Technologies</strong></div>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receiptModal">
+  <div class="modal-box" style="max-width:800px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0" id="receiptModalTitle">Receipt</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeReceiptModal()">✖</button>
+    </div>
+    <div id="receiptModalBody"></div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn-info btn-sm" onclick="printCurrentReceipt()">🖨️ Print</button>
+      <button class="btn btn-primary btn-sm" onclick="downloadCurrentReceipt()">📥 Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   EduTrack Bursar — Finance Management System
+   ========================================================= */
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var FINANCE_SHEET_ID_KEY = 'financeSheetId'; // resolved per school
+var FINANCE_ACTIONS = {
+  STUDENTS: 'getStudents',
+  SAVE_PAYMENT: 'saveFeeRecord',
+  RECEIPTS: 'getFeeRecords',
+  WORKERS: 'getWorkers',
+  SAVE_WORKER: 'saveWorker',
+  PAYROLL: 'getPayroll',
+  SAVE_PAYROLL: 'savePayroll',
+  APPROVE_PAYROLL: 'approvePayroll',
+  MARK_PAID_PAYROLL: 'markPayrollPaid',
+  EXPENSES: 'getExpenses',
+  SAVE_EXPENSE: 'saveExpense',
+  INCOME: 'getIncome',
+  SAVE_INCOME: 'saveIncome',
+  SUPPLIERS: 'getSuppliers',
+  SAVE_SUPPLIER: 'saveSupplier',
+  PETTY: 'getPettyCash',
+  SAVE_PETTY: 'savePettyCash',
+  CASHBOOK: 'getCashbook',
+  BUDGET: 'getBudget',
+  SAVE_BUDGET: 'saveBudget',
+  APPROVALS: 'getApprovals',
+  AUDIT: 'getAuditLog',
+  LOG_AUDIT: 'logAudit',
+  REVOKE_PAYMENT: 'voidFeePayment',
+  // NEW (server-side must implement)
+  GET_FEE_STRUCTURES: 'getFeeStructures',
+  SAVE_FEE_STRUCTURE: 'saveFeeStructure',
+  GET_SUMMARY: 'getFinanceSummary',
+  GET_STUDENT_DETAIL: 'getStudentFinanceDetail',
+  GET_RECON: 'getReconciliation',
+  SAVE_RECON: 'saveReconciliation',
+  GET_ADVANCES: 'getAdvances',
+  SAVE_ADVANCE: 'saveAdvance',
+  APPROVE_ADVANCE: 'approveAdvance'
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+var authSession = null;
+var currentTab = 'dashboard';
+var dateRange = 'today';
+var currentPayType = 'student';
+var currentReceiptData = null;
+var feeStructures = [];
+var studentsCache = [];
+var studentsById = {};
+var workersCache = [];
+var receiptsCache = [];
+var expensesCache = [];
+var incomeCache = [];
+var suppliersCache = [];
+var pettyCache = [];
+var budgetCache = [];
+var approvalsCache = [];
+var auditCache = [];
+var currentPayrollRows = [];
+var selectedPayStudent = null;
+var chartInstances = {};
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+function fmt(v){ v = parseFloat(v)||0; return v.toLocaleString('en-UG', {maximumFractionDigits:0}); }
+function fmtUGX(v){ return 'UGX ' + fmt(v); }
+function parseAmt(v){ var n = parseFloat(v); return isNaN(n)?0:n; }
+function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function escapeHtml(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function nowStamp(){ return new Date().toISOString(); }
+function genId(prefix){ return (prefix||'ID') + '-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random()*1000); }
+function shortTime(ts){ try{ var d=new Date(ts); return d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ts; } }
+
+function showToast(msg, type){
+  type = type||'info';
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast-notification '+type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 20);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 400); }, 3500);
+}
+function showLoading(v){
+  var e = document.getElementById('loadingOverlay');
+  if(e) e.classList.toggle('active', v);
+}
+function showStatus(msg, type){
+  var m = document.getElementById('statusMessage');
+  if(!m) return;
+  if(!msg){ m.style.display='none'; return; }
+  m.style.display='block';
+  m.className='status-message '+(type||'info');
+  m.textContent = msg;
+  setTimeout(function(){ m.style.display='none'; }, 4000);
+}
+
+/* =========================================================
+   CONFIRM DIALOG
+   ========================================================= */
+var _confirmResolve = null;
+function confirmAction(title, msg, yesLabel, icon){
+  return new Promise(function(resolve){
+    _confirmResolve = resolve;
+    document.getElementById('confirmIcon').textContent = icon||'⚠️';
+    document.getElementById('confirmTitle').textContent = title||'Confirm';
+    document.getElementById('confirmMessage').textContent = msg||'Are you sure?';
+    document.getElementById('confirmYesBtn').textContent = yesLabel||'Yes, Continue';
+    document.getElementById('confirmYesBtn').onclick = function(){ closeConfirm(true); };
+    document.getElementById('confirmModal').classList.add('active');
+  });
+}
+function closeConfirm(yes){
+  document.getElementById('confirmModal').classList.remove('active');
+  if(_confirmResolve){ _confirmResolve(yes); _confirmResolve = null; }
+}
+
+/* =========================================================
+   RECEIPT MODAL
+   ========================================================= */
+function openReceiptModal(html, title){
+  currentReceiptData = { html: html, title: title||'Receipt' };
+  document.getElementById('receiptModalTitle').textContent = title||'Receipt';
+  document.getElementById('receiptModalBody').innerHTML = html;
+  document.getElementById('receiptModal').classList.add('active');
+}
+function closeReceiptModal(){ document.getElementById('receiptModal').classList.remove('active'); }
+function printCurrentReceipt(){
+  var body = document.getElementById('receiptModalBody').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>'+escapeHtml(currentReceiptData?.title||'Receipt')+'</title><style>body{font-family:Arial;padding:20px;max-width:800px;margin:0 auto}@page{size:A4;margin:10mm}</style></head><body>'+body+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 400);
+}
+function downloadCurrentReceipt(){
+  var body = document.getElementById('receiptModalBody').innerHTML;
+  var blob = new Blob(['<html><head><meta charset="utf-8"><title>'+escapeHtml(currentReceiptData?.title||'Receipt')+'</title></head><body>'+body+'</body></html>'], {type:'text/html'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (currentReceiptData?.title||'receipt').replace(/[^A-Za-z0-9-]/g,'_')+'.html';
+  a.click();
+}
+
+/* =========================================================
+   BACKEND CALL
+   ========================================================= */
+async function api(params){
+  if(APPS_SCRIPT_URL.indexOf('YOUR_DEPLOYMENT_ID_HERE') !== -1){
+    throw new Error('Update APPS_SCRIPT_URL in bursar.html');
+  }
+  var parts=[];
+  for(var k in params) if(params.hasOwnProperty(k) && params[k]!=null){
+    parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+  }
+  try{
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+      body: parts.join('&'),
+      signal: AbortSignal.timeout(30000)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  } catch(e){
+    // Offline/backend failure fallback — use local-only mode
+    console.warn('[api] fallback to local:', e.message);
+    return localFallback(params);
+  }
+}
+
+/* Offline local fallback so UI is usable even if backend is down */
+function localFallback(params){
+  var store = 'fin_store_'+getActiveSchool();
+  var db = JSON.parse(localStorage.getItem(store)||'{}');
+  var act = params.action;
+  if(act==='getStudents'){
+    return {success:true, data:{students: db.students||[]}};
+  }
+  if(act==='getFeeRecords'){
+    return {success:true, data:{records: db.receipts||[]}};
+  }
+  if(act==='saveFeeRecord'){
+    db.receipts = db.receipts||[];
+    db.receipts.push(JSON.parse(params.record));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getWorkers'){ return {success:true, data:{workers: db.workers||[]}}; }
+  if(act==='saveWorker'){
+    db.workers = db.workers||[];
+    db.workers.push(JSON.parse(params.worker));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getExpenses'){ return {success:true, data:{expenses: db.expenses||[]}}; }
+  if(act==='saveExpense'){
+    db.expenses = db.expenses||[];
+    db.expenses.push(JSON.parse(params.expense));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getIncome'){ return {success:true, data:{income: db.income||[]}}; }
+  if(act==='saveIncome'){
+    db.income = db.income||[];
+    db.income.push(JSON.parse(params.income));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getSuppliers'){ return {success:true, data:{suppliers: db.suppliers||[]}}; }
+  if(act==='saveSupplier'){
+    db.suppliers = db.suppliers||[];
+    db.suppliers.push(JSON.parse(params.supplier));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getPettyCash'){ return {success:true, data:{entries: db.petty||[]}}; }
+  if(act==='savePettyCash'){
+    db.petty = db.petty||[];
+    db.petty.push(JSON.parse(params.entry));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getPayroll'){ return {success:true, data:{payrolls: db.payrolls||[]}}; }
+  if(act==='savePayroll'){
+    db.payrolls = db.payrolls||[];
+    db.payrolls.push(JSON.parse(params.payroll));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getAdvances'){ return {success:true, data:{advances: db.advances||[]}}; }
+  if(act==='saveAdvance'){
+    db.advances = db.advances||[];
+    db.advances.push(JSON.parse(params.advance));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getBudget'){ return {success:true, data:{budget: db.budget||[]}}; }
+  if(act==='saveBudget'){
+    db.budget = db.budget||[];
+    db.budget.push(JSON.parse(params.item));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getFeeStructures'){ return {success:true, data:{feeStructures: db.feeStructures||[]}}; }
+  if(act==='saveFeeStructure'){
+    db.feeStructures = db.feeStructures||[];
+    db.feeStructures.push(JSON.parse(params.structure));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  if(act==='getAuditLog'){ return {success:true, data:{logs: db.audit||[]}}; }
+  if(act==='logAudit'){
+    db.audit = db.audit||[];
+    db.audit.push(JSON.parse(params.entry));
+    localStorage.setItem(store, JSON.stringify(db));
+    return {success:true};
+  }
+  return {success:false, message:'Offline / unknown action'};
+}
+
+/* =========================================================
+   AUDIT LOG
+   ========================================================= */
+async function audit(action, recordType, recordId, details, prevVal, newVal){
+  var entry = {
+    timestamp: nowStamp(),
+    user: authSession?.username || 'unknown',
+    userName: authSession?.name || '',
+    role: authSession?.role || '',
+    action: action,
+    recordType: recordType,
+    recordId: recordId||'',
+    details: details||'',
+    previousValue: prevVal==null?'':String(prevVal),
+    newValue: newVal==null?'':String(newVal),
+    device: navigator.userAgent.substring(0,80),
+    school: getActiveSchool()
+  };
+  try{
+    await api({ action: FINANCE_ACTIONS.LOG_AUDIT, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), entry: JSON.stringify(entry) });
+  } catch(e){ /* swallow */ }
+  // Also mirror locally so the audit tab always works
+  var key = 'fin_audit_'+getActiveSchool();
+  var logs = JSON.parse(localStorage.getItem(key)||'[]');
+  logs.push(entry);
+  if(logs.length > 5000) logs = logs.slice(-3000);
+  localStorage.setItem(key, JSON.stringify(logs));
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+function getActiveSchool(){ return authSession? authSession.school : ''; }
+function getFinanceSheetId(){ return localStorage.getItem(FINANCE_SHEET_ID_KEY+'_'+getActiveSchool()) || ACCOUNTS_SHEET_ID; }
+
+function toggleMobileMenu(){ document.getElementById('navbarMenu').classList.toggle('open'); }
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.form-section').forEach(function(el){ el.classList.remove('active'); });
+  var map = {
+    dashboard:'tabDashboard', students:'tabStudents', fees:'tabFees', payments:'tabPayments',
+    receipts:'tabReceipts', workers:'tabWorkers', payroll:'tabPayroll', advances:'tabAdvances',
+    expenses:'tabExpenses', suppliers:'tabSuppliers', income:'tabIncome', cashbook:'tabCashbook',
+    pettycash:'tabPettycash', reconciliation:'tabReconciliation', budget:'tabBudget',
+    reports:'tabReports', approvals:'tabApprovals', audit:'tabAudit', settings:'tabSettings'
+  };
+  var el = document.getElementById(map[tab]);
+  if(el) el.classList.add('active');
+
+  document.querySelectorAll('.nav-link').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.querySelectorAll('.bn-item').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+
+  // Close mobile menu
+  document.getElementById('navbarMenu').classList.remove('open');
+  window.scrollTo(0,0);
+
+  // Load tab data
+  if(tab==='dashboard') refreshDashboard();
+  if(tab==='students') loadStudents();
+  if(tab==='fees') loadFeeStructures();
+  if(tab==='payments') { populatePayForm(); loadRecentPayments(); }
+  if(tab==='receipts') loadReceipts();
+  if(tab==='workers') loadWorkers();
+  if(tab==='payroll') { loadPayrollWorkers(); loadPayrollHistory(); }
+  if(tab==='advances') { loadAdvances(); populateAdvWorkers(); }
+  if(tab==='expenses') { loadExpenses(); setDefaultDates(); }
+  if(tab==='suppliers') loadSuppliers();
+  if(tab==='income') { loadIncome(); setDefaultDates(); }
+  if(tab==='cashbook') { setDefaultDatesCashbook(); loadCashbook(); }
+  if(tab==='pettycash') { loadPettyCash(); setDefaultDates(); }
+  if(tab==='reconciliation') setDefaultDates();
+  if(tab==='budget') loadBudget();
+  if(tab==='approvals') loadApprovals();
+  if(tab==='audit') loadAudit();
+  if(tab==='settings') loadFinanceSettings();
+}
+
+function appLogout(){
+  if(!confirm('Log out of Bursar system?')) return;
+  sessionStorage.removeItem('authSession');
+  window.location.href = 'index.html';
+}
+
+/* =========================================================
+   PERMISSIONS
+   ========================================================= */
+function canEditFinance(){
+  var r = authSession?.role;
+  return r==='bursar' || r==='accountant' || r==='cashier' || r==='admin' || r==='superadmin';
+}
+function canApproveFinance(){
+  var r = authSession?.role;
+  return r==='headteacher' || r==='admin' || r==='superadmin' || r==='deputy';
+}
+function canViewOnly(){
+  var r = authSession?.role;
+  return r==='teacher' || r==='parent' || r==='student';
+}
+function requireEdit(){
+  if(!canEditFinance()){
+    showToast('🔒 Your role cannot modify financial records.', 'error');
+    return false;
+  }
+  return true;
+}
+
+/* =========================================================
+   DATE RANGES
+   ========================================================= */
+function setDateRange(range){
+  dateRange = range;
+  document.querySelectorAll('#dateFilters button').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-range')===range);
+  });
+  document.getElementById('customRangeBox').style.display = range==='custom'?'grid':'none';
+  if(range!=='custom'){
+    var r = computeDateRange(range);
+    document.getElementById('dashFrom').value = r.from;
+    document.getElementById('dashTo').value = r.to;
+  }
+  refreshDashboard();
+}
+function computeDateRange(range){
+  var t = new Date(); t.setHours(23,59,59,999);
+  var from = new Date(); from.setHours(0,0,0,0);
+  var to = new Date(t);
+  if(range==='today'){ /* already set */ }
+  else if(range==='week'){
+    var day = from.getDay();
+    from.setDate(from.getDate() - (day===0?6:day-1));
+  } else if(range==='month'){
+    from = new Date(from.getFullYear(), from.getMonth(), 1);
+  } else if(range==='term'){
+    var s = getSettings();
+    from = s.termStartDate? new Date(s.termStartDate) : new Date(from.getFullYear(), from.getMonth()-3, 1);
+    to = s.termEndDate? new Date(s.termEndDate) : new Date();
+  } else if(range==='prevterm'){
+    var s2 = getSettings();
+    var te = s2.termStartDate? new Date(s2.termStartDate) : new Date();
+    to = new Date(te.getTime() - 86400000);
+    from = new Date(to.getFullYear(), to.getMonth()-3, 1);
+  } else if(range==='year'){
+    from = new Date(from.getFullYear(), 0, 1);
+  }
+  var f2 = from.getFullYear()+'-'+String(from.getMonth()+1).padStart(2,'0')+'-'+String(from.getDate()).padStart(2,'0');
+  var t2 = to.getFullYear()+'-'+String(to.getMonth()+1).padStart(2,'0')+'-'+String(to.getDate()).padStart(2,'0');
+  return {from:f2, to:t2};
+}
+function setDefaultDates(){
+  var t = today();
+  ['expDate','incDate','pcDate','advDate','recDate'].forEach(function(id){
+    var e = document.getElementById(id); if(e && !e.value) e.value = t;
+  });
+}
+function setDefaultDatesCashbook(){
+  var t = today();
+  var f = document.getElementById('cbFrom');
+  var to = document.getElementById('cbTo');
+  if(f && !f.value){ var d=new Date(); d.setDate(1); f.value=d.toISOString().split('T')[0]; }
+  if(to && !to.value) to.value = t;
+}
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+function getSettings(){
+  var school = getActiveSchool();
+  try { return JSON.parse(localStorage.getItem('financeSettings_'+school)||'{}'); }
+  catch(e){ return {}; }
+}
+function loadFinanceSettings(){
+  var s = getSettings();
+  document.getElementById('settingsSchoolLabel').textContent = s.schoolName || getActiveSchool() || 'School';
+  var set = function(id,v){ var e=document.getElementById(id); if(e) e.value = v==null?'':v; };
+  set('setExpectedFees', s.expectedFeesThisTerm||'');
+  set('setTermStart', s.termStartDate||'');
+  set('setTermEnd', s.termEndDate||'');
+  set('setNextTermStart', s.nextTermStart||'');
+  set('setNextTermEnd', s.nextTermEnd||'');
+  set('setCashOpening', s.cashOpening||0);
+  set('setBankOpening', s.bankOpening||0);
+  set('setMomoOpening', s.momoOpening||0);
+  set('setPettyOpening', s.pettyOpening||0);
+  set('setPettyLimit', s.pettyLimit||500000);
+  set('setMomoEndpoint', s.momoEndpoint||'');
+  set('setSmsEndpoint', s.smsEndpoint||'');
+  set('setEmailEndpoint', s.emailEndpoint||'');
+  set('setWaEndpoint', s.waEndpoint||'');
+}
+function saveAllFinanceSettings(){
+  if(!requireEdit()) return;
+  var school = getActiveSchool();
+  var get = function(id){ var e=document.getElementById(id); return e? e.value.trim() : ''; };
+  var s = {
+    schoolName: get('settingsSchoolLabel'),
+    expectedFeesThisTerm: parseAmt(get('setExpectedFees')),
+    termStartDate: get('setTermStart'),
+    termEndDate: get('setTermEnd'),
+    nextTermStart: get('setNextTermStart'),
+    nextTermEnd: get('setNextTermEnd'),
+    cashOpening: parseAmt(get('setCashOpening')),
+    bankOpening: parseAmt(get('setBankOpening')),
+    momoOpening: parseAmt(get('setMomoOpening')),
+    pettyOpening: parseAmt(get('setPettyOpening')),
+    pettyLimit: parseAmt(get('setPettyLimit')),
+    momoEndpoint: get('setMomoEndpoint'),
+    smsEndpoint: get('setSmsEndpoint'),
+    emailEndpoint: get('setEmailEndpoint'),
+    waEndpoint: get('setWaEndpoint'),
+    updatedAt: nowStamp()
+  };
+  localStorage.setItem('financeSettings_'+school, JSON.stringify(s));
+  audit('UPDATE_SETTINGS', 'settings', school, 'Finance settings updated');
+  showToast('✅ Settings saved', 'success');
+}
+function testConnection(){
+  var badge = document.getElementById('connBadge');
+  badge.className = 'badge badge-pending'; badge.textContent = '⏳ Checking…';
+  api({action:'getStudentCount', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()})
+    .then(function(r){
+      if(r && (r.success || r.data)){ badge.className='badge badge-paid'; badge.textContent='✅ Connected'; }
+      else { badge.className='badge badge-cancelled'; badge.textContent='⚠️ Unexpected'; }
+    })
+    .catch(function(e){ badge.className='badge badge-cancelled'; badge.textContent='❌ Unreachable'; });
+}
+function downloadBackup(){
+  var school = getActiveSchool();
+  var backup = {
+    exportedAt: nowStamp(),
+    school: school,
+    financeSettings: getSettings(),
+    store: JSON.parse(localStorage.getItem('fin_store_'+school)||'{}'),
+    audit: JSON.parse(localStorage.getItem('fin_audit_'+school)||'[]')
+  };
+  var blob = new Blob([JSON.stringify(backup,null,2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'edutrack-finance-backup-'+today()+'.json';
+  a.click();
+  showToast('✅ Backup downloaded','success');
+}
+function restoreBackup(evt){
+  var f = evt.target.files[0]; if(!f) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var b = JSON.parse(e.target.result);
+      var school = getActiveSchool();
+      if(b.financeSettings) localStorage.setItem('financeSettings_'+school, JSON.stringify(b.financeSettings));
+      if(b.store) localStorage.setItem('fin_store_'+school, JSON.stringify(b.store));
+      if(b.audit) localStorage.setItem('fin_audit_'+school, JSON.stringify(b.audit));
+      showToast('✅ Backup restored','success');
+      loadFinanceSettings();
+    } catch(err){ showToast('❌ Invalid backup: '+err.message,'error'); }
+    evt.target.value='';
+  };
+  reader.readAsText(f);
+}
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+async function refreshDashboard(){
+  var r = computeDateRange(dateRange==='custom'?'today':dateRange);
+  var from = document.getElementById('dashFrom').value || r.from;
+  var to = document.getElementById('dashTo').value || r.to;
+  document.getElementById('dashSubtitle').textContent = 'Period: '+from+' to '+to;
+
+  showLoading(true);
+  try{
+    var [receipts, expenses, income, workers, petty, budget, approvals, advances, feeStructuresRes] = await Promise.all([
+      api({action:FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.EXPENSES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.INCOME, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.WORKERS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.PETTY, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.BUDGET, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.APPROVALS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.GET_ADVANCES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action:FINANCE_ACTIONS.GET_FEE_STRUCTURES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()})
+    ]);
+
+    var rec = (receipts?.data?.records || []);
+    var exp = (expenses?.data?.expenses || []);
+    var inc = (income?.data?.income || []);
+    var wrk = (workers?.data?.workers || []);
+    var pty = (petty?.data?.entries || []);
+    var bud = (budget?.data?.budget || []);
+    var app = (approvals?.data?.approvals || []);
+    var adv = (advances?.data?.advances || []);
+    var fs = (feeStructuresRes?.data?.feeStructures || []);
+
+    feeStructures = fs;
+    var s = getSettings();
+
+    var filterByRange = function(arr, dateField){
+      return arr.filter(function(x){ var d = x[dateField]||x.date||x.timestamp||''; return d && d>=from && d<=to; });
+    };
+
+    var recInRange = filterByRange(rec, 'date');
+    var expInRange = filterByRange(exp, 'date');
+    var incInRange = filterByRange(inc, 'date');
+    var todayStr = today();
+
+    var totalCollected = rec.reduce(function(s,r){ return s + parseAmt(r.amount); }, 0);
+    var collectedInRange = recInRange.reduce(function(s,r){ return s + parseAmt(r.amount); }, 0);
+    var todayCollection = rec.filter(function(r){ return r.date===todayStr; }).reduce(function(s,r){ return s+parseAmt(r.amount); }, 0);
+    var totalExp = exp.reduce(function(s,e){ return s + parseAmt(e.amount); }, 0);
+    var totalIncome = inc.reduce(function(s,i){ return s + parseAmt(i.amount); }, 0);
+    var expected = parseAmt(s.expectedFeesThisTerm) || 0;
+    var outstanding = Math.max(0, expected - totalCollected);
+
+    // Payroll this term
+    var activeWorkers = wrk.filter(function(w){ return w.status!=='inactive'; });
+    var monthlyPayroll = activeWorkers.reduce(function(sum,w){ return sum + parseAmt(w.basicSalary) + parseAmt(w.allowances); }, 0);
+
+    // Balances
+    var cashIn = 0, cashOut = 0, bankIn=0, bankOut=0, momoIn=0, momoOut=0;
+    rec.forEach(function(r){
+      var a = parseAmt(r.amount);
+      if(r.method==='cash') cashIn += a;
+      else if(r.method==='bank') bankIn += a;
+      else if(r.method==='mobile') momoIn += a;
+    });
+    exp.forEach(function(e){
+      var a = parseAmt(e.amount);
+      if(e.method==='cash') cashOut += a;
+      else if(e.method==='bank') bankOut += a;
+      else if(e.method==='mobile') momoOut += a;
+    });
+    var cashBal = parseAmt(s.cashOpening) + cashIn - cashOut;
+    var bankBal = parseAmt(s.bankOpening) + bankIn - bankOut;
+    var momoBal = parseAmt(s.momoOpening) + momoIn - momoOut;
+
+    // Supplier outstanding (sum of all supplier balances)
+    var sup = await api({action:FINANCE_ACTIONS.SUPPLIERS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var supList = (sup?.data?.suppliers || []);
+    var supOut = supList.reduce(function(s2,x){ return s2 + parseAmt(x.outstandingBalance); }, 0);
+
+    // Pending worker payments (pending payrolls)
+    var pr = await api({action:FINANCE_ACTIONS.PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var prList = (pr?.data?.payrolls || []);
+    var pendingPay = prList.filter(function(p){ return p.status==='pending' || p.status==='approved'; }).length;
+
+    // Populate stat cards
+    document.getElementById('dsExpectedFees').textContent = fmt(expected);
+    document.getElementById('dsCollected').textContent = fmt(totalCollected);
+    document.getElementById('dsOutstanding').textContent = fmt(outstanding);
+    document.getElementById('dsToday').textContent = fmt(todayCollection);
+    document.getElementById('dsIncome').textContent = fmt(totalIncome);
+    document.getElementById('dsExpenditure').textContent = fmt(totalExp);
+    document.getElementById('dsPayroll').textContent = fmt(monthlyPayroll);
+    document.getElementById('dsPendingPay').textContent = pendingPay;
+    document.getElementById('dsCashBalance').textContent = fmt(cashBal);
+    document.getElementById('dsBankBalance').textContent = fmt(bankBal);
+    document.getElementById('dsMomoBalance').textContent = fmt(momoBal);
+    document.getElementById('dsSupplierOut').textContent = fmt(supOut);
+
+    // Charts
+    drawDashTrendChart(rec, exp, inc);
+    drawDashFeesChart(rec);
+    drawDashExpenseChart(exp);
+    drawDashBudgetChart(bud, exp);
+
+    // Recent activity
+    renderDashActivity(rec, exp);
+
+    // Approval badge
+    var pendingApprovals = app.filter(function(a){ return a.status==='pending'; }).length;
+    var badge = document.getElementById('approvalBadge');
+    if(pendingApprovals>0){ badge.style.display='inline-block'; badge.textContent = pendingApprovals; }
+    else badge.style.display='none';
+
+  } catch(e){
+    showToast('❌ '+e.message, 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+function drawDashTrendChart(receipts, expenses, income){
+  var ctx = document.getElementById('dashTrendChart');
+  if(!ctx) return;
+  if(chartInstances.trend) chartInstances.trend.destroy();
+  // Last 6 months
+  var labels = [], incData = [], expData = [];
+  var now = new Date();
+  for(var i=5; i>=0; i--){
+    var d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    var ym = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    labels.push(d.toLocaleString('en',{month:'short'})+' '+d.getFullYear());
+    var monthInc = receipts.filter(function(r){ return (r.date||'').startsWith(ym); }).reduce(function(s,r){return s+parseAmt(r.amount);},0);
+    var monthInc2 = income.filter(function(r){ return (r.date||'').startsWith(ym); }).reduce(function(s,r){return s+parseAmt(r.amount);},0);
+    var monthExp = expenses.filter(function(r){ return (r.date||'').startsWith(ym); }).reduce(function(s,r){return s+parseAmt(r.amount);},0);
+    incData.push(monthInc + monthInc2);
+    expData.push(monthExp);
+  }
+  chartInstances.trend = new Chart(ctx, {
+    type:'line',
+    data:{ labels: labels, datasets: [
+      {label:'Income', data: incData, borderColor:'#2d6a4f', backgroundColor:'rgba(45,106,79,0.1)', tension:0.3, fill:true},
+      {label:'Expenditure', data: expData, borderColor:'#c1121f', backgroundColor:'rgba(193,18,31,0.1)', tension:0.3, fill:true}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}
+  });
+}
+function drawDashFeesChart(receipts){
+  var ctx = document.getElementById('dashFeesChart');
+  if(!ctx) return;
+  if(chartInstances.fees) chartInstances.fees.destroy();
+  var byClass = {};
+  receipts.forEach(function(r){
+    var c = r.class || r.className || 'Unknown';
+    byClass[c] = (byClass[c]||0) + parseAmt(r.amount);
+  });
+  chartInstances.fees = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: Object.keys(byClass), datasets:[{ label:'Collected', data: Object.values(byClass), backgroundColor:'rgba(48,43,99,0.75)' }]},
+    options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false}
+  });
+}
+function drawDashExpenseChart(expenses){
+  var ctx = document.getElementById('dashExpenseChart');
+  if(!ctx) return;
+  if(chartInstances.expense) chartInstances.expense.destroy();
+  var byCat = {};
+  expenses.forEach(function(e){ byCat[e.category] = (byCat[e.category]||0)+parseAmt(e.amount); });
+  chartInstances.expense = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels: Object.keys(byCat), datasets:[{ data: Object.values(byCat), backgroundColor:['#c1121f','#e85d04','#ffc107','#198754','#0dcaf0','#004085','#6f42c1','#20c997','#fd7e14','#6c757d','#d63384','#0d6efd','#198754','#ffc107'] }]},
+    options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}
+  });
+}
+function drawDashBudgetChart(budget, expenses){
+  var ctx = document.getElementById('dashBudgetChart');
+  if(!ctx) return;
+  if(chartInstances.budget) chartInstances.budget.destroy();
+  var topCats = budget.slice(0,8);
+  var labels = topCats.map(function(b){ return b.category; });
+  var bData = topCats.map(function(b){ return parseAmt(b.amount); });
+  var aData = topCats.map(function(b){
+    return expenses.filter(function(e){ return e.category===b.category; }).reduce(function(s,e){ return s+parseAmt(e.amount); },0);
+  });
+  chartInstances.budget = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: labels, datasets: [
+      {label:'Budget', data: bData, backgroundColor:'rgba(48,43,99,0.7)'},
+      {label:'Actual', data: aData, backgroundColor:'rgba(232,93,4,0.8)'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false,scales:{x:{ticks:{autoSkip:false,maxRotation:45}}}}
+  });
+}
+function renderDashActivity(receipts, expenses){
+  var body = document.getElementById('dashActivityBody');
+  var merged = [];
+  receipts.slice(-15).forEach(function(r){ merged.push({time:r.timestamp||r.date, action:'💰 '+ (r.studentName||r.studentId||'Payment'), by:r.receivedBy||'—', amount:r.amount}); });
+  expenses.slice(-15).forEach(function(e){ merged.push({time:e.timestamp||e.date, action:'💸 '+ (e.description||e.category||'Expense'), by:e.paidBy||'—', amount:e.amount}); });
+  merged.sort(function(a,b){ return String(b.time).localeCompare(String(a.time)); });
+  merged = merged.slice(0,10);
+  if(merged.length===0){ body.innerHTML='<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">No activity yet.</td></tr>'; return; }
+  body.innerHTML = merged.map(function(m){
+    return '<tr><td>'+escapeHtml(shortTime(m.time))+'</td><td>'+escapeHtml(m.action)+'</td><td>'+escapeHtml(m.by)+'</td><td class="amount">'+fmtUGX(m.amount)+'</td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   STUDENTS
+   ========================================================= */
+async function loadStudents(){
+  var body = document.getElementById('studentsBody');
+  body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var all = [];
+    var classes = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+    var school = getActiveSchool();
+    for(var i=0;i<classes.length;i++){
+      var sheetId = getClassSheetId(classes[i]);
+      if(!sheetId) continue;
+      try{
+        var r = await api({action:'getStudents', sheetId: sheetId, school: school, className: classes[i]});
+        (r?.data?.students||[]).forEach(function(s){ s.class = s.class || classes[i]; all.push(s); });
+      } catch(e){}
+    }
+    // Also include any local demo
+    var store = JSON.parse(localStorage.getItem('fin_store_'+school)||'{}');
+    if(store.students) all = all.concat(store.students);
+    studentsCache = all;
+    studentsById = {};
+    all.forEach(function(s){ studentsById[s.studentId]=s; });
+
+    var receipts = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var recList = receipts?.data?.records || [];
+    var byStudent = {};
+    recList.forEach(function(r){ byStudent[r.studentId] = (byStudent[r.studentId]||0)+parseAmt(r.amount); });
+
+    var s = getSettings();
+    var totalExpected = parseAmt(s.expectedFeesThisTerm);
+
+    var rowsHtml = '';
+    var totalOwed = 0, cleared = 0, owing = 0;
+    all.forEach(function(stu){
+      var expected = studentExpectedFee(stu.class, stu.boarding);
+      var paid = byStudent[stu.studentId] || 0;
+      var bal = expected - paid;
+      if(bal <= 0) cleared++; else { owing++; totalOwed += bal; }
+      rowsHtml += '<tr data-search="'+escapeHtml((stu.studentName||'')+' '+(stu.studentId||'')+' '+(stu.class||'')).toLowerCase()+'" data-class="'+escapeHtml(stu.class||'')+'" data-status="'+(bal>0?'owing':'cleared')+'">'+
+        '<td>'+escapeHtml(stu.studentId||'')+'</td>'+
+        '<td>'+escapeHtml(stu.studentName||'')+'</td>'+
+        '<td>'+escapeHtml(stu.class||'')+'</td>'+
+        '<td class="amount">'+fmt(expected)+'</td>'+
+        '<td class="amount credit">'+fmt(paid)+'</td>'+
+        '<td class="amount '+(bal>0?'debit':'credit')+'">'+fmt(bal)+'</td>'+
+        '<td><button class="btn btn-info btn-sm" onclick="viewStudentHistory(\''+escapeHtml(stu.studentId)+'\')">📋 History</button></td>'+
+      '</tr>';
+    });
+    body.innerHTML = rowsHtml || '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">No students.</td></tr>';
+
+    document.getElementById('stTotal').textContent = all.length;
+    document.getElementById('stCleared').textContent = cleared;
+    document.getElementById('stOwing').textContent = owing;
+    document.getElementById('stOwningAmount').textContent = fmtUGX(totalOwed);
+
+    // Populate class filter
+    var f = document.getElementById('studentClassFilter');
+    f.innerHTML = '<option value="">All Classes</option>';
+    ['S.1','S.2','S.3','S.4','S.5','S.6'].forEach(function(c){
+      f.innerHTML += '<option value="'+c+'">'+c+'</option>';
+    });
+  } catch(e){
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>';
+  }
+}
+function studentExpectedFee(className, boarding){
+  var s = getSettings();
+  var term = document.getElementById('payTerm')?.value || 'III';
+  var year = document.getElementById('payYear')?.value || '2026';
+  var match = feeStructures.filter(function(f){ return f.className===className && f.term===term && f.year===year; });
+  if(match.length===0){ return 0; }
+  var isBoarder = (boarding==='boarder');
+  var f = match[0];
+  var total = parseAmt(f.tuition) + parseAmt(f.development) + parseAmt(f.activity) + parseAmt(f.other);
+  if(isBoarder) total += parseAmt(f.boardingFee);
+  return total;
+}
+function getClassSheetId(className){
+  var school = getActiveSchool();
+  return localStorage.getItem('classLink_'+className+'_'+school) || '';
+}
+function filterStudents(){
+  var q = (document.getElementById('studentSearch').value||'').toLowerCase();
+  var cls = document.getElementById('studentClassFilter').value;
+  var stat = document.getElementById('studentStatusFilter').value;
+  document.querySelectorAll('#studentsBody tr').forEach(function(tr){
+    var matchQ = !q || (tr.getAttribute('data-search')||'').indexOf(q)!==-1;
+    var matchC = !cls || tr.getAttribute('data-class')===cls;
+    var matchS = !stat || tr.getAttribute('data-status')===stat;
+    tr.style.display = (matchQ && matchC && matchS) ? '' : 'none';
+  });
+}
+async function viewStudentHistory(studentId){
+  var stu = studentsById[studentId];
+  if(!stu){ showToast('Student not found.','error'); return; }
+  showLoading(true);
+  try{
+    var receipts = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var rec = (receipts?.data?.records || []).filter(function(r){ return r.studentId===studentId; });
+    var expected = studentExpectedFee(stu.class, stu.boarding);
+    var paid = rec.reduce(function(s,r){ return s+parseAmt(r.amount); },0);
+    var bal = expected - paid;
+    var rows = rec.map(function(r){
+      return '<tr><td>'+escapeHtml(r.date||'')+'</td><td>'+escapeHtml(r.id||'')+'</td><td>'+escapeHtml(r.method||'')+'</td><td class="amount credit">'+fmt(r.amount)+'</td><td>'+escapeHtml(r.receivedBy||'')+'</td><td><button class="btn btn-info btn-sm" onclick="reprintReceipt(\''+escapeHtml(r.id)+'\')">🖨️</button></td></tr>';
+    }).join('');
+    var html =
+      '<div class="info-box"><div class="info-title">'+escapeHtml(stu.studentName||'')+' ('+escapeHtml(studentId)+')</div><div class="info-text">Class: '+escapeHtml(stu.class||'')+' · Boarding: '+escapeHtml(stu.boarding||'day')+'</div></div>'+
+      '<div class="stats-grid">'+
+        '<div class="stat-card"><div class="stat-number">'+fmt(expected)+'</div><div class="stat-label">Total Due</div></div>'+
+        '<div class="stat-card success"><div class="stat-number">'+fmt(paid)+'</div><div class="stat-label">Paid</div></div>'+
+        '<div class="stat-card '+(bal>0?'danger':'success')+'"><div class="stat-number">'+fmt(bal)+'</div><div class="stat-label">Balance</div></div>'+
+      '</div>'+
+      '<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Receipt</th><th>Method</th><th>Amount</th><th>By</th><th></th></tr></thead><tbody>'+(rows||'<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No payments.</td></tr>')+'</tbody></table></div>';
+    openReceiptModal(html, 'Student Financial History');
+  } finally { showLoading(false); }
+}
+
+/* =========================================================
+   FEE STRUCTURES
+   ========================================================= */
+async function loadFeeStructures(){
+  var body = document.getElementById('feeStructuresBody');
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.GET_FEE_STRUCTURES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    feeStructures = r?.data?.feeStructures || [];
+    if(feeStructures.length===0){
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No fee structures yet.</td></tr>';
+    } else {
+      body.innerHTML = feeStructures.map(function(f){
+        var total = parseAmt(f.tuition)+parseAmt(f.boardingFee)+parseAmt(f.development)+parseAmt(f.activity)+parseAmt(f.other);
+        return '<tr><td>'+escapeHtml(f.className)+'</td><td>'+escapeHtml(f.boarding||'day')+'</td><td>'+escapeHtml(f.term)+'</td><td>'+escapeHtml(f.year)+'</td><td class="amount">'+fmt(total)+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteFeeStructure(\''+escapeHtml(f.id)+'\')">🗑️</button></td></tr>';
+      }).join('');
+    }
+    // Populate class select in FS form
+    var sel = document.getElementById('fsClass');
+    sel.innerHTML = '<option value="">Select Class</option>';
+    ['S.1','S.2','S.3','S.4','S.5','S.6'].forEach(function(c){ sel.innerHTML += '<option>'+c+'</option>'; });
+  } catch(e){
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>';
+  }
+}
+async function saveFeeStructure(){
+  if(!requireEdit()) return;
+  var f = {
+    id: genId('FS'),
+    className: document.getElementById('fsClass').value,
+    boarding: document.getElementById('fsBoarding').value,
+    term: document.getElementById('fsTerm').value,
+    year: document.getElementById('fsYear').value,
+    tuition: parseAmt(document.getElementById('fsTuition').value),
+    boardingFee: parseAmt(document.getElementById('fsBoardingFee').value),
+    development: parseAmt(document.getElementById('fsDev').value),
+    activity: parseAmt(document.getElementById('fsActivity').value),
+    other: parseAmt(document.getElementById('fsOther').value),
+    notes: document.getElementById('fsNotes').value,
+    createdAt: nowStamp(),
+    createdBy: authSession.username
+  };
+  if(!f.className){ showToast('Select a class','warning'); return; }
+  if(!f.tuition){ showToast('Enter tuition amount','warning'); return; }
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_FEE_STRUCTURE, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), structure: JSON.stringify(f)});
+    if(r.success || r.data){ showToast('✅ Fee structure saved','success'); audit('CREATE_FEE_STRUCTURE', 'fee_structure', f.id, f.className+' '+f.term+' '+f.year, '', JSON.stringify(f)); loadFeeStructures(); }
+    else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function deleteFeeStructure(id){
+  var ok = await confirmAction('Delete Fee Structure', 'This is a rare operation. It will be logged.', 'Delete', '⚠️');
+  if(!ok) return;
+  if(!requireEdit()) return;
+  try{
+    await api({action:'deleteFeeStructure', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id: id});
+    audit('DELETE_FEE_STRUCTURE', 'fee_structure', id, 'Fee structure removed');
+    showToast('🗑️ Deleted','info'); loadFeeStructures();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   PAYMENTS
+   ========================================================= */
+function setPayType(type){
+  currentPayType = type;
+  document.querySelectorAll('.tab-strip button').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-paytype')===type);
+  });
+  document.getElementById('paySubmitBtn').textContent = type==='discount'? '🎁 Record Waiver' : '💾 Record Payment';
+}
+function populatePayForm(){
+  document.getElementById('payDate').value = today();
+  document.getElementById('payReceivedBy').value = authSession?.name || authSession?.username || '';
+}
+function searchPayStudent(){
+  var q = document.getElementById('payStudentSearch').value.toLowerCase().trim();
+  var box = document.getElementById('payStudentResults');
+  if(!q){ box.innerHTML=''; return; }
+  var matches = studentsCache.filter(function(s){
+    return (s.studentName||'').toLowerCase().indexOf(q)!==-1 || (s.studentId||'').toLowerCase().indexOf(q)!==-1;
+  }).slice(0,8);
+  if(matches.length===0){ box.innerHTML='<div class="info-box warning"><div class="info-text">No student found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="worker-card" style="cursor:pointer" onclick="selectPayStudent(\''+escapeHtml(s.studentId)+'\')"><div class="avatar">'+escapeHtml((s.studentName||'?').charAt(0))+'</div><div class="info"><div class="name">'+escapeHtml(s.studentName)+'</div><div class="role">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div></div></div>';
+  }).join('');
+}
+async function selectPayStudent(studentId){
+  var s = studentsById[studentId];
+  if(!s){ showToast('Student not found','error'); return; }
+  selectedPayStudent = s;
+  document.getElementById('payStudentSearch').value = s.studentName+' ('+studentId+')';
+  document.getElementById('payStudentResults').innerHTML = '';
+  var expected = studentExpectedFee(s.class, s.boarding);
+  var receipts = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var paid = (receipts?.data?.records || []).filter(function(r){ return r.studentId===studentId; }).reduce(function(sum,r){ return sum+parseAmt(r.amount); },0);
+  var bal = expected - paid;
+  document.getElementById('payStudentInfo').style.display = 'block';
+  document.getElementById('payStudentInfo').innerHTML =
+    '<div class="info-title">'+escapeHtml(s.studentName)+' ('+escapeHtml(studentId)+')</div>'+
+    '<div class="info-text">Class: '+escapeHtml(s.class||'')+' · Expected: '+fmtUGX(expected)+' · Paid: '+fmtUGX(paid)+' · Balance: <strong>'+fmtUGX(bal)+'</strong></div>';
+  updatePayPreview();
+}
+function updatePayPreview(){
+  var preview = document.getElementById('payPreview');
+  if(!selectedPayStudent){ preview.style.display='none'; return; }
+  var amt = parseAmt(document.getElementById('payAmount').value);
+  if(amt<=0){ preview.style.display='none'; return; }
+  var expected = studentExpectedFee(selectedPayStudent.class, selectedPayStudent.boarding);
+  // Compute paid excluding this pending payment
+  var recs = JSON.parse(localStorage.getItem('fin_receipts_cache_'+getActiveSchool())||'[]');
+  preview.style.display = 'block';
+  preview.innerHTML =
+    '<div class="receipt-row"><span class="label">Expected Term Fee:</span><span class="value">'+fmtUGX(expected)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Amount Being Paid:</span><span class="value">'+fmtUGX(amt)+'</span></div>'+
+    (currentPayType==='discount'? '<div class="receipt-row"><span class="label">Type:</span><span class="value">Discount / Waiver</span></div>':'');
+}
+function resetPaymentForm(){
+  selectedPayStudent = null;
+  document.getElementById('payStudentSearch').value='';
+  document.getElementById('payStudentResults').innerHTML='';
+  document.getElementById('payStudentInfo').style.display='none';
+  document.getElementById('payAmount').value='';
+  document.getElementById('payRef').value='';
+  document.getElementById('payDesc').value='';
+  document.getElementById('payReceipt').value='';
+  document.getElementById('payPreview').style.display='none';
+  populatePayForm();
+}
+async function generateReceiptNo(){
+  // Format: RCP-YYYYMMDD-XXXX
+  var d = today().replace(/-/g,'');
+  var rand = Math.floor(Math.random()*9000+1000);
+  return 'RCP-'+d+'-'+rand;
+}
+async function previewReceipt(){
+  if(!selectedPayStudent){ showToast('Select a student first.','warning'); return; }
+  var amt = parseAmt(document.getElementById('payAmount').value);
+  if(amt<=0){ showToast('Enter amount','warning'); return; }
+  var rcp = document.getElementById('payReceipt').value || await generateReceiptNo();
+  document.getElementById('payReceipt').value = rcp;
+  var receipts = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var all = (receipts?.data?.records || []).filter(function(r){ return r.studentId===selectedPayStudent.studentId; });
+  var alreadyPaid = all.reduce(function(s,r){ return s+parseAmt(r.amount); },0);
+  var expected = studentExpectedFee(selectedPayStudent.class, selectedPayStudent.boarding);
+  var prevBal = expected - alreadyPaid;
+  var newBal = prevBal - amt;
+  var html = buildReceiptHtml({
+    receiptNo: rcp,
+    studentName: selectedPayStudent.studentName,
+    admissionNo: selectedPayStudent.studentId,
+    className: selectedPayStudent.class,
+    amount: amt,
+    prevBalance: prevBal,
+    newBalance: newBal,
+    method: document.getElementById('payMethod').value,
+    reference: document.getElementById('payRef').value,
+    date: document.getElementById('payDate').value,
+    receivedBy: document.getElementById('payReceivedBy').value,
+    description: document.getElementById('payDesc').value
+  });
+  openReceiptModal(html, 'Receipt Preview — '+rcp);
+}
+async function submitPayment(){
+  if(!requireEdit()) return;
+  if(!selectedPayStudent){ showToast('Select a student','warning'); return; }
+  var amt = parseAmt(document.getElementById('payAmount').value);
+  if(amt<=0){ showToast('Enter amount','warning'); return; }
+  var rcp = document.getElementById('payReceipt').value || await generateReceiptNo();
+  var receipts = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var all = (receipts?.data?.records || []);
+  if(all.some(function(r){ return r.id===rcp; })){ showToast('❌ Duplicate receipt number','error'); return; }
+
+  var entry = {
+    id: rcp,
+    studentId: selectedPayStudent.studentId,
+    studentName: selectedPayStudent.studentName,
+    class: selectedPayStudent.class,
+    amount: amt,
+    method: document.getElementById('payMethod').value,
+    reference: document.getElementById('payRef').value,
+    date: document.getElementById('payDate').value,
+    term: document.getElementById('payTerm').value,
+    year: document.getElementById('payYear').value,
+    receivedBy: authSession?.name || authSession?.username || '',
+    receivedByUsername: authSession?.username || '',
+    description: document.getElementById('payDesc').value,
+    type: currentPayType,
+    timestamp: nowStamp(),
+    school: getActiveSchool()
+  };
+  var ok = await confirmAction('Confirm Payment', 'Record '+fmtUGX(amt)+' for '+selectedPayStudent.studentName+'?', 'Yes, Record', '💰');
+  if(!ok) return;
+  showLoading(true);
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_PAYMENT, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), record: JSON.stringify(entry)});
+    if(r.success || r.data){
+      await audit('RECORD_PAYMENT', 'receipt', rcp, 'Recorded '+fmtUGX(amt)+' for '+selectedPayStudent.studentName, '', JSON.stringify(entry));
+      showToast('✅ Payment recorded — '+rcp, 'success');
+      // Auto-preview the receipt for immediate printing
+      var allNew = all.concat([entry]);
+      var alreadyPaid = allNew.filter(function(x){ return x.studentId===entry.studentId; }).reduce(function(s,x){ return s+parseAmt(x.amount); },0);
+      var expected = studentExpectedFee(entry.class, selectedPayStudent.boarding);
+      var prevBal = expected - (alreadyPaid - amt);
+      var newBal = expected - alreadyPaid;
+      openReceiptModal(buildReceiptHtml({
+        receiptNo: rcp, studentName: entry.studentName, admissionNo: entry.studentId, className: entry.class,
+        amount: amt, prevBalance: prevBal, newBalance: newBal, method: entry.method, reference: entry.reference,
+        date: entry.date, receivedBy: entry.receivedBy, description: entry.description
+      }), 'Receipt — '+rcp);
+      resetPaymentForm();
+      loadRecentPayments();
+    } else {
+      showToast('❌ '+(r.message||'Failed'), 'error');
+    }
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+  finally { showLoading(false); }
+}
+function buildReceiptHtml(d){
+  var s = getSettings();
+  var schoolName = s.schoolName || authSession?.school || 'School';
+  var badgeUrl = localStorage.getItem('reportCardBadge') || '';
+  var qrText = 'RCP:'+d.receiptNo+'|'+d.admissionNo+'|'+fmt(d.amount);
+  var sig = localStorage.getItem('headTeacherSignature')||'';
+  return ''+
+  '<div class="receipt-doc">'+
+    '<div class="receipt-header">'+
+      (badgeUrl?'<img src="'+badgeUrl+'" style="height:50px" />':'')+
+      '<div class="school-name">'+escapeHtml(schoolName)+'</div>'+
+      '<div class="school-meta">'+(s.schoolAddress||'')+'</div>'+
+      '<div class="school-meta">'+(s.schoolPhone||'')+'</div>'+
+    '</div>'+
+    '<div class="receipt-title">OFFICIAL RECEIPT</div>'+
+    '<div class="receipt-row"><span class="label">Receipt No:</span><span class="value">'+escapeHtml(d.receiptNo)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Date:</span><span class="value">'+escapeHtml(d.date)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Student:</span><span class="value">'+escapeHtml(d.studentName)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Admission No:</span><span class="value">'+escapeHtml(d.admissionNo)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Class:</span><span class="value">'+escapeHtml(d.className||'')+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Payment Method:</span><span class="value">'+escapeHtml(d.method)+'</span></div>'+
+    (d.reference?'<div class="receipt-row"><span class="label">Reference:</span><span class="value">'+escapeHtml(d.reference)+'</span></div>':'')+
+    (d.description?'<div class="receipt-row"><span class="label">Description:</span><span class="value">'+escapeHtml(d.description)+'</span></div>':'')+
+    '<div class="receipt-totals">'+
+      '<div class="receipt-row"><span class="label">Previous Balance:</span><span class="value">'+fmtUGX(d.prevBalance)+'</span></div>'+
+      '<div class="receipt-row"><span class="label">Amount Paid:</span><span class="value">'+fmtUGX(d.amount)+'</span></div>'+
+      '<div class="receipt-row highlight"><span class="label">New Balance:</span><span class="value">'+fmtUGX(d.newBalance)+'</span></div>'+
+    '</div>'+
+    '<div class="receipt-qr" data-qr="'+escapeHtml(qrText)+'"></div>'+
+    '<div class="receipt-footer">'+
+      '<div class="signature"><div class="line"></div><div class="role">Received By: '+escapeHtml(d.receivedBy||'')+'</div></div>'+
+      '<div class="signature"><div class="line">'+(sig?'<img src="'+sig+'" style="height:24px" />':'')+'</div><div class="role">Head Teacher Signature</div></div>'+
+    '</div>'+
+    '<div style="text-align:center;margin-top:8px;font-size:10px;color:#888">This is a computer-generated receipt. Invalid without school stamp.</div>'+
+  '</div>';
+}
+function renderQrInModal(){
+  document.querySelectorAll('#receiptModalBody [data-qr]').forEach(function(el){
+    var text = el.getAttribute('data-qr');
+    if(typeof QRCode!=='undefined'){ el.innerHTML=''; new QRCode(el,{text:text,width:64,height:64}); }
+    else { el.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=64x64&data='+encodeURIComponent(text)+'" />'; }
+  });
+}
+async function loadRecentPayments(){
+  var body = document.getElementById('recentPaymentsBody');
+  body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.records || []).slice(-20).reverse();
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">No payments yet.</td></tr>'; return; }
+    body.innerHTML = list.map(function(x){
+      return '<tr><td>'+escapeHtml(x.id||'')+'</td><td>'+escapeHtml(x.studentName||x.studentId||'')+'</td><td class="amount">'+fmt(x.amount)+'</td><td>'+escapeHtml(x.method||'')+'</td><td>'+escapeHtml(x.date||'')+'</td><td>'+escapeHtml(x.receivedBy||'')+'</td><td><button class="btn btn-info btn-sm" onclick="reprintReceipt(\''+escapeHtml(x.id)+'\')">🖨️</button></td></tr>';
+    }).join('');
+  } catch(e){
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>';
+  }
+}
+
+/* =========================================================
+   RECEIPTS TAB
+   ========================================================= */
+async function loadReceipts(){
+  var body = document.getElementById('receiptsBody');
+  body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.records || []);
+    var from = document.getElementById('receiptFrom').value;
+    var to = document.getElementById('receiptTo').value;
+    if(from) list = list.filter(function(x){ return x.date >= from; });
+    if(to) list = list.filter(function(x){ return x.date <= to; });
+    list = list.slice().reverse();
+    receiptsCache = list;
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">No receipts.</td></tr>'; return; }
+    body.innerHTML = list.map(function(x){
+      var status = x.void ? '<span class="badge badge-void">VOID</span>' : '<span class="badge badge-paid">PAID</span>';
+      return '<tr data-search="'+escapeHtml((x.id||'')+' '+(x.studentName||'')+' '+(x.studentId||'')).toLowerCase()+'"><td>'+escapeHtml(x.id||'')+'</td><td>'+escapeHtml(x.studentName||x.studentId||'')+'</td><td class="amount">'+fmt(x.amount)+'</td><td>'+escapeHtml(x.method||'')+'</td><td>'+escapeHtml(x.date||'')+'</td><td>'+status+'</td><td><button class="btn btn-info btn-sm" onclick="reprintReceipt(\''+escapeHtml(x.id)+'\')">🖨️</button> '+(canEditFinance()?'<button class="btn btn-danger btn-sm" onclick="voidReceipt(\''+escapeHtml(x.id)+'\')">🚫</button>':'')+'</td></tr>';
+    }).join('');
+  } catch(e){
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>';
+  }
+}
+function filterReceipts(){
+  var q = (document.getElementById('receiptSearch').value||'').toLowerCase();
+  document.querySelectorAll('#receiptsBody tr').forEach(function(tr){
+    var s = tr.getAttribute('data-search')||'';
+    tr.style.display = (!q || s.indexOf(q)!==-1)?'':'none';
+  });
+}
+async function reprintReceipt(id){
+  var r = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var rec = (r?.data?.records || []).filter(function(x){ return x.id===id; })[0];
+  if(!rec){ showToast('Receipt not found','error'); return; }
+  var html = buildReceiptHtml({
+    receiptNo: rec.id, studentName: rec.studentName||rec.studentId, admissionNo: rec.studentId,
+    className: rec.class, amount: parseAmt(rec.amount),
+    prevBalance: 0, newBalance: 0,
+    method: rec.method, reference: rec.reference, date: rec.date,
+    receivedBy: rec.receivedBy, description: rec.description
+  });
+  openReceiptModal(html, 'Receipt — '+id);
+  renderQrInModal();
+}
+async function voidReceipt(id){
+  var ok = await confirmAction('Void Receipt '+id, 'Financial records are not deleted. A void entry will be logged.', 'Void Receipt', '🚫');
+  if(!ok) return;
+  try{
+    var r = await api({action: FINANCE_ACTIONS.REVOKE_PAYMENT, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), receiptId: id, reason: prompt('Reason for voiding:')||'Not specified', voidedBy: authSession.username});
+    if(r.success || r.data){
+      await audit('VOID_RECEIPT', 'receipt', id, 'Receipt voided by '+authSession.username);
+      showToast('✅ Receipt voided (record kept for audit)','success');
+      loadReceipts();
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   WORKERS
+   ========================================================= */
+function showWorkerSub(sub){
+  document.getElementById('workerSubList').style.display = sub==='list'?'block':'none';
+  document.getElementById('workerSubAdd').style.display = sub==='add'?'block':'none';
+  document.querySelectorAll('#tabWorkers .tab-strip button').forEach(function(b,i){
+    b.classList.toggle('active', (i===0 && sub==='list')||(i===1 && sub==='add'));
+  });
+}
+async function loadWorkers(){
+  var grid = document.getElementById('workersGrid');
+  grid.innerHTML = '<p style="text-align:center;color:#999;padding:20px;grid-column:1/-1">Loading…</p>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.WORKERS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.workers || []);
+    workersCache = list;
+    var active = list.filter(function(w){ return w.status!=='inactive'; });
+    var inactive = list.filter(function(w){ return w.status==='inactive'; });
+    var monthly = active.reduce(function(s,w){ return s + parseAmt(w.basicSalary) + parseAmt(w.allowances); },0);
+    document.getElementById('wkTotal').textContent = list.length;
+    document.getElementById('wkActive').textContent = active.length;
+    document.getElementById('wkInactive').textContent = inactive.length;
+    document.getElementById('wkPayrollTotal').textContent = fmtUGX(monthly);
+    if(list.length===0){ grid.innerHTML = '<p style="text-align:center;color:#999;padding:20px;grid-column:1/-1">No workers yet. Add one above.</p>'; return; }
+    grid.innerHTML = list.map(function(w){
+      var status = w.status==='inactive'? '<span class="badge badge-inactive">INACTIVE</span>':'<span class="badge badge-active">ACTIVE</span>';
+      return '<div class="worker-card"><div class="avatar">'+escapeHtml((w.name||'?').charAt(0))+'</div><div class="info"><div class="name">'+escapeHtml(w.name||'')+' '+status+'</div><div class="role">'+escapeHtml(w.staffId||'')+' · '+escapeHtml(w.jobTitle||'')+' · '+escapeHtml(w.department||'')+'</div><div class="salary">'+fmtUGX(parseAmt(w.basicSalary)+parseAmt(w.allowances))+' / '+escapeHtml(w.paymentFrequency||'monthly')+'</div><div style="font-size:11px;color:#888;margin-top:4px">'+escapeHtml(w.phone||'')+'</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-info btn-sm" onclick="payWorkerNow(\''+escapeHtml(w.staffId)+'\')">💰 Pay</button><button class="btn btn-secondary btn-sm" onclick="viewWorkerHistory(\''+escapeHtml(w.staffId)+'\')">📋 History</button>'+(canEditFinance()?'<button class="btn btn-warning btn-sm" onclick="toggleWorkerStatus(\''+escapeHtml(w.staffId)+'\')">'+(w.status==='inactive'?'✅ Activate':'🚫 Deactivate')+'</button>':'')+'</div></div></div>';
+    }).join('');
+  } catch(e){
+    grid.innerHTML = '<p style="text-align:center;color:#c1121f;padding:20px;grid-column:1/-1">❌ '+escapeHtml(e.message)+'</p>';
+  }
+}
+function filterWorkers(){
+  var q = document.getElementById('workerSearch').value.toLowerCase().trim();
+  document.querySelectorAll('#workersGrid .worker-card').forEach(function(c){
+    c.style.display = (!q || c.textContent.toLowerCase().indexOf(q)!==-1)?'':'none';
+  });
+}
+function resetWorkerForm(){
+  ['wkStaffId','wkName','wkPhone','wkBasic','wkAllowances','wkBank','wkDateEmployed'].forEach(function(id){
+    var e = document.getElementById(id); if(e) e.value='';
+  });
+  document.getElementById('wkStatus').value='active';
+}
+async function saveWorker(){
+  if(!requireEdit()) return;
+  var w = {
+    staffId: document.getElementById('wkStaffId').value.trim() || genId('WK'),
+    name: document.getElementById('wkName').value.trim(),
+    jobTitle: document.getElementById('wkJobTitle').value,
+    department: document.getElementById('wkDept').value,
+    employmentType: document.getElementById('wkEmpType').value,
+    phone: document.getElementById('wkPhone').value.trim(),
+    dateEmployed: document.getElementById('wkDateEmployed').value,
+    basicSalary: parseAmt(document.getElementById('wkBasic').value),
+    allowances: parseAmt(document.getElementById('wkAllowances').value),
+    paymentFrequency: document.getElementById('wkFreq').value,
+    bankDetails: document.getElementById('wkBank').value.trim(),
+    status: document.getElementById('wkStatus').value,
+    createdAt: nowStamp(),
+    createdBy: authSession.username,
+    school: getActiveSchool()
+  };
+  if(!w.name){ showToast('Enter worker name','warning'); return; }
+  if(!w.basicSalary){ showToast('Enter basic salary','warning'); return; }
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_WORKER, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), worker: JSON.stringify(w)});
+    if(r.success || r.data){
+      await audit('CREATE_WORKER', 'worker', w.staffId, 'Created worker '+w.name, '', JSON.stringify(w));
+      showToast('✅ Worker saved','success');
+      resetWorkerForm();
+      showWorkerSub('list');
+      loadWorkers();
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function toggleWorkerStatus(staffId){
+  var w = workersCache.filter(function(x){ return x.staffId===staffId; })[0];
+  if(!w) return;
+  var newStatus = w.status==='inactive'?'active':'inactive';
+  var ok = await confirmAction('Change Status', 'Set '+w.name+' to '+newStatus+'?', 'Yes', '⚠️');
+  if(!ok) return;
+  try{
+    var upd = Object.assign({}, w, {status: newStatus});
+    await api({action: FINANCE_ACTIONS.SAVE_WORKER, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), worker: JSON.stringify(upd)});
+    await audit('CHANGE_WORKER_STATUS', 'worker', staffId, 'Status changed to '+newStatus, w.status, newStatus);
+    showToast('✅ Status updated','success');
+    loadWorkers();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function payWorkerNow(staffId){
+  switchTab('payroll');
+  setTimeout(function(){
+    var f = document.getElementById('prFilterType');
+    if(f) f.value = 'all';
+    loadPayrollWorkers();
+    setTimeout(function(){
+      var cb = document.querySelector('input[data-staff-id="'+staffId+'"]');
+      if(cb){ cb.checked = true; recalcPayroll(); }
+    }, 800);
+  }, 200);
+}
+async function viewWorkerHistory(staffId){
+  var w = workersCache.filter(function(x){ return x.staffId===staffId; })[0];
+  if(!w){ showToast('Worker not found','error'); return; }
+  var pr = await api({action: FINANCE_ACTIONS.PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var payrolls = (pr?.data?.payrolls || []);
+  var rows = [];
+  payrolls.forEach(function(p){
+    (p.items||[]).forEach(function(it){
+      if(it.staffId===staffId){
+        rows.push({period:p.period, status:p.status, gross:it.gross, net:it.net, date:p.paidDate||p.approvedDate||p.createdAt, by:p.createdBy});
+      }
+    });
+  });
+  var html =
+    '<div class="info-box"><div class="info-title">'+escapeHtml(w.name)+' ('+escapeHtml(w.staffId)+')</div><div class="info-text">'+escapeHtml(w.jobTitle)+' · '+escapeHtml(w.department)+'</div></div>'+
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Period</th><th>Status</th><th>Gross</th><th>Net</th><th>Date</th><th>By</th></tr></thead><tbody>'+
+    (rows.length===0? '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No payments yet.</td></tr>' : rows.map(function(r){
+      return '<tr><td>'+escapeHtml(r.period)+'</td><td>'+escapeHtml(r.status)+'</td><td class="amount">'+fmt(r.gross)+'</td><td class="amount credit">'+fmt(r.net)+'</td><td>'+escapeHtml(r.date||'')+'</td><td>'+escapeHtml(r.by||'')+'</td></tr>';
+    }).join(''))+
+    '</tbody></table></div>';
+  openReceiptModal(html, 'Worker Payment History');
+}
+
+/* =========================================================
+   PAYROLL
+   ========================================================= */
+function showPayrollSub(sub){
+  document.getElementById('payrollSubGenerate').style.display = sub==='generate'?'block':'none';
+  document.getElementById('payrollSubHistory').style.display = sub==='history'?'block':'none';
+  document.querySelectorAll('#tabPayroll .tab-strip button').forEach(function(b,i){
+    b.classList.toggle('active', (i===0 && sub==='generate')||(i===1 && sub==='history'));
+  });
+}
+async function loadPayrollWorkers(){
+  var body = document.getElementById('payrollWorkersBody');
+  body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.WORKERS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.workers || []).filter(function(w){ return w.status!=='inactive'; });
+    var filter = document.getElementById('prFilterType').value;
+    if(filter==='teaching') list = list.filter(function(w){ return w.department==='Teaching'; });
+    if(filter==='non-teaching') list = list.filter(function(w){ return w.department!=='Teaching'; });
+    if(filter==='casual') list = list.filter(function(w){ return w.employmentType==='casual' || w.paymentFrequency==='casual'; });
+    workersCache = (r?.data?.workers || []);
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:20px">No workers.</td></tr>'; return; }
+    currentPayrollRows = list.map(function(w){
+      return Object.assign({}, w, { selected: true, deductions: 0, net: parseAmt(w.basicSalary) + parseAmt(w.allowances) });
+    });
+    renderPayrollTable();
+  } catch(e){ body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+function renderPayrollTable(){
+  var body = document.getElementById('payrollWorkersBody');
+  body.innerHTML = currentPayrollRows.map(function(w, idx){
+    var gross = parseAmt(w.basicSalary) + parseAmt(w.allowances);
+    var net = gross - parseAmt(w.deductions);
+    return '<tr>'+
+      '<td><input type="checkbox" data-staff-id="'+escapeHtml(w.staffId)+'" '+(w.selected?'checked':'')+' onchange="togglePayrollRow('+idx+',this.checked)" /></td>'+
+      '<td>'+escapeHtml(w.staffId)+'</td>'+
+      '<td>'+escapeHtml(w.name)+'</td>'+
+      '<td>'+escapeHtml(w.jobTitle||'')+'</td>'+
+      '<td class="amount">'+fmt(w.basicSalary)+'</td>'+
+      '<td class="amount">'+fmt(w.allowances)+'</td>'+
+      '<td><input type="number" value="'+w.deductions+'" min="0" step="1000" style="width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:4px" onchange="setPayrollDeduction('+idx+',this.value)" /></td>'+
+      '<td class="amount credit" id="net_'+idx+'">'+fmt(net)+'</td>'+
+    '</tr>';
+  }).join('');
+  recalcPayroll();
+}
+function togglePayrollRow(idx, checked){ currentPayrollRows[idx].selected = checked; recalcPayroll(); }
+function setPayrollDeduction(idx, val){
+  currentPayrollRows[idx].deductions = parseAmt(val);
+  var gross = parseAmt(currentPayrollRows[idx].basicSalary)+parseAmt(currentPayrollRows[idx].allowances);
+  var net = gross - currentPayrollRows[idx].deductions;
+  document.getElementById('net_'+idx).textContent = fmt(net);
+  recalcPayroll();
+}
+function toggleAllPayroll(){
+  var v = document.getElementById('prSelectAll').checked;
+  currentPayrollRows.forEach(function(r){ r.selected = v; });
+  document.querySelectorAll('#payrollWorkersBody input[type="checkbox"]').forEach(function(cb){ cb.checked = v; });
+  recalcPayroll();
+}
+function recalcPayroll(){
+  var selected = currentPayrollRows.filter(function(r){ return r.selected; });
+  var gross = selected.reduce(function(s,r){ return s + parseAmt(r.basicSalary)+parseAmt(r.allowances); }, 0);
+  var deduct = selected.reduce(function(s,r){ return s + parseAmt(r.deductions); }, 0);
+  var net = gross - deduct;
+  document.getElementById('payrollSummary').innerHTML =
+    '<div class="receipt-row"><span class="label">Selected Workers:</span><span class="value">'+selected.length+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Total Gross:</span><span class="value">'+fmtUGX(gross)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Total Deductions:</span><span class="value">'+fmtUGX(deduct)+'</span></div>'+
+    '<div class="receipt-row highlight"><span class="label">Total Net Pay:</span><span class="value">'+fmtUGX(net)+'</span></div>';
+}
+function resetPayroll(){ currentPayrollRows=[]; document.getElementById('payrollWorkersBody').innerHTML='<tr><td colspan="8" style="text-align:center;color:#999;padding:20px">Click "Load Workers".</td></tr>'; document.getElementById('payrollSummary').innerHTML=''; }
+async function savePayrollAsDraft(){
+  if(!requireEdit()) return;
+  await submitPayroll('draft');
+}
+async function submitPayrollForApproval(){
+  if(!requireEdit()) return;
+  await submitPayroll('pending');
+}
+async function submitPayroll(targetStatus){
+  var selected = currentPayrollRows.filter(function(r){ return r.selected; });
+  if(selected.length===0){ showToast('Select at least one worker','warning'); return; }
+  var period = document.getElementById('prPeriod').value + '-' + (document.getElementById('prMonth').value || document.getElementById('prYear').value);
+  var items = selected.map(function(w){
+    var gross = parseAmt(w.basicSalary)+parseAmt(w.allowances);
+    return {
+      staffId: w.staffId, name: w.name, jobTitle: w.jobTitle,
+      basic: parseAmt(w.basicSalary), allowances: parseAmt(w.allowances),
+      deductions: parseAmt(w.deductions), gross: gross, net: gross - parseAmt(w.deductions)
+    };
+  });
+  var payroll = {
+    id: genId('PR'),
+    period: period,
+    status: targetStatus,
+    items: items,
+    totalGross: items.reduce(function(s,i){ return s+i.gross; },0),
+    totalNet: items.reduce(function(s,i){ return s+i.net; },0),
+    totalDeductions: items.reduce(function(s,i){ return s+i.deductions; },0),
+    createdBy: authSession.username,
+    createdAt: nowStamp(),
+    school: getActiveSchool()
+  };
+  var ok = await confirmAction('Confirm Payroll', 'Submit payroll for '+items.length+' workers? Total net: '+fmtUGX(payroll.totalNet), 'Yes', '💼');
+  if(!ok) return;
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), payroll: JSON.stringify(payroll)});
+    if(r.success || r.data){
+      await audit('CREATE_PAYROLL', 'payroll', payroll.id, 'Payroll for '+items.length+' workers, net '+fmtUGX(payroll.totalNet), '', JSON.stringify({id:payroll.id, total:payroll.totalNet, status:targetStatus}));
+      showToast('✅ Payroll saved ('+targetStatus+')','success');
+      resetPayroll();
+      loadPayrollHistory();
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadPayrollHistory(){
+  var body = document.getElementById('payrollHistoryBody');
+  body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.payrolls || []).slice().reverse();
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:20px">No payrolls yet.</td></tr>'; return; }
+    body.innerHTML = list.map(function(p){
+      var badge = p.status==='pending'?'badge-pending':p.status==='approved'?'badge-approved':p.status==='paid'?'badge-paid':'badge-cancelled';
+      return '<tr><td>'+escapeHtml(p.id)+'</td><td>'+escapeHtml(p.period)+'</td><td>'+(p.items||[]).length+'</td><td class="amount">'+fmt(p.totalGross)+'</td><td class="amount">'+fmt(p.totalNet)+'</td><td><span class="badge '+badge+'">'+escapeHtml(p.status||'')+'</span></td><td>'+escapeHtml(p.createdBy||'')+'</td><td><button class="btn btn-info btn-sm" onclick="viewPayroll(\''+escapeHtml(p.id)+'\')">👁️</button> '+(canApproveFinance()&&p.status==='pending'?'<button class="btn btn-success btn-sm" onclick="approvePayroll(\''+escapeHtml(p.id)+'\')">✅</button> ':'')+(canEditFinance()&&p.status==='approved'?'<button class="btn btn-warning btn-sm" onclick="markPayrollPaid(\''+escapeHtml(p.id)+'\')">💵</button>':'')+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+async function viewPayroll(id){
+  var r = await api({action: FINANCE_ACTIONS.PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var p = (r?.data?.payrolls || []).filter(function(x){ return x.id===id; })[0];
+  if(!p){ showToast('Payroll not found','error'); return; }
+  var rows = (p.items||[]).map(function(it){
+    return '<tr><td>'+escapeHtml(it.staffId)+'</td><td>'+escapeHtml(it.name)+'</td><td class="amount">'+fmt(it.basic)+'</td><td class="amount">'+fmt(it.allowances)+'</td><td class="amount">'+fmt(it.deductions)+'</td><td class="amount credit">'+fmt(it.net)+'</td><td><button class="btn btn-info btn-sm" onclick="printPayslip(\''+escapeHtml(p.id)+'\',\''+escapeHtml(it.staffId)+'\')">🖨️</button></td></tr>';
+  }).join('');
+  var html = '<div class="info-box"><div class="info-title">Payroll '+escapeHtml(p.id)+'</div><div class="info-text">Period: '+escapeHtml(p.period)+' · Status: '+escapeHtml(p.status)+' · Created by: '+escapeHtml(p.createdBy||'')+'</div></div>'+
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Staff ID</th><th>Name</th><th>Basic</th><th>Allowances</th><th>Deductions</th><th>Net</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  openReceiptModal(html, 'Payroll '+p.id);
+}
+async function approvePayroll(id){
+  if(!canApproveFinance()){ showToast('Only approvers can approve payrolls','error'); return; }
+  var ok = await confirmAction('Approve Payroll','Approve payroll '+id+'?', 'Approve', '✅');
+  if(!ok) return;
+  try{
+    var r = await api({action: FINANCE_ACTIONS.APPROVE_PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), payrollId: id, approvedBy: authSession.username});
+    if(r.success || r.data){ await audit('APPROVE_PAYROLL','payroll',id,'Payroll approved'); showToast('✅ Approved','success'); loadPayrollHistory(); }
+    else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function markPayrollPaid(id){
+  var ok = await confirmAction('Mark Payroll Paid','Confirm this payroll has been paid?', 'Mark as Paid', '💵');
+  if(!ok) return;
+  try{
+    var r = await api({action: FINANCE_ACTIONS.MARK_PAID_PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), payrollId: id, paidBy: authSession.username, paidDate: today()});
+    if(r.success || r.data){ await audit('PAY_PAYROLL','payroll',id,'Payroll marked paid'); showToast('✅ Marked paid','success'); loadPayrollHistory(); }
+    else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function printPayslip(payrollId, staffId){
+  var r = await api({action: FINANCE_ACTIONS.PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var p = (r?.data?.payrolls || []).filter(function(x){ return x.id===payrollId; })[0];
+  if(!p){ showToast('Payroll not found','error'); return; }
+  var it = (p.items||[]).filter(function(x){ return x.staffId===staffId; })[0];
+  if(!it){ showToast('Worker not in payroll','error'); return; }
+  var s = getSettings();
+  var badgeUrl = localStorage.getItem('reportCardBadge')||'';
+  var html = '<div class="payslip-doc">'+
+    '<div class="payslip-header">'+(badgeUrl?'<img src="'+badgeUrl+'" style="height:50px" />':'')+'<div class="school-name">'+escapeHtml(s.schoolName||getActiveSchool())+'</div><div class="school-meta">'+(s.schoolAddress||'')+' · '+(s.schoolPhone||'')+'</div></div>'+
+    '<div class="receipt-title">PAYSLIP — '+escapeHtml(p.period)+'</div>'+
+    '<div class="receipt-row"><span class="label">Staff ID:</span><span class="value">'+escapeHtml(it.staffId)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Name:</span><span class="value">'+escapeHtml(it.name)+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Job Title:</span><span class="value">'+escapeHtml(it.jobTitle||'')+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Payroll ID:</span><span class="value">'+escapeHtml(p.id)+'</span></div>'+
+    '<div class="receipt-totals">'+
+      '<div class="receipt-row"><span class="label">Basic Pay:</span><span class="value">'+fmtUGX(it.basic)+'</span></div>'+
+      '<div class="receipt-row"><span class="label">Allowances:</span><span class="value">'+fmtUGX(it.allowances)+'</span></div>'+
+      '<div class="receipt-row"><span class="label">Gross Pay:</span><span class="value">'+fmtUGX(it.gross)+'</span></div>'+
+      '<div class="receipt-row"><span class="label">Deductions:</span><span class="value">-'+fmtUGX(it.deductions)+'</span></div>'+
+      '<div class="receipt-row highlight"><span class="label">Net Pay:</span><span class="value">'+fmtUGX(it.net)+'</span></div>'+
+    '</div>'+
+    '<div class="receipt-row"><span class="label">Status:</span><span class="value">'+escapeHtml(p.status||'')+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Payment Date:</span><span class="value">'+escapeHtml(p.paidDate||'')+'</span></div>'+
+    '<div class="receipt-footer">'+
+      '<div class="signature"><div class="line"></div><div class="role">Prepared By: '+escapeHtml(p.createdBy||'')+'</div></div>'+
+      '<div class="signature"><div class="line"></div><div class="role">Approved By</div></div>'+
+    '</div>'+
+  '</div>';
+  openReceiptModal(html, 'Payslip — '+it.name);
+}
+
+/* =========================================================
+   ADVANCES
+   ========================================================= */
+async function populateAdvWorkers(){
+  var sel = document.getElementById('advWorker');
+  if(!workersCache.length){ await loadWorkers(); }
+  sel.innerHTML = '<option value="">Select…</option>' + workersCache.map(function(w){
+    return '<option value="'+escapeHtml(w.staffId)+'">'+escapeHtml(w.name+' ('+w.staffId+')')+'</option>';
+  }).join('');
+}
+async function requestAdvance(){
+  if(!requireEdit()) return;
+  var wId = document.getElementById('advWorker').value;
+  var amt = parseAmt(document.getElementById('advAmount').value);
+  var months = parseInt(document.getElementById('advMonths').value)||1;
+  if(!wId || !amt){ showToast('Fill required fields','warning'); return; }
+  var w = workersCache.filter(function(x){ return x.staffId===wId; })[0];
+  var adv = {
+    id: genId('ADV'),
+    staffId: wId,
+    name: w? w.name : wId,
+    amount: amt,
+    monthlyDeduction: amt/months,
+    balance: amt,
+    months: months,
+    purpose: document.getElementById('advPurpose').value,
+    requestDate: document.getElementById('advDate').value || today(),
+    status: 'pending',
+    requestedBy: authSession.username,
+    createdAt: nowStamp(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_ADVANCE, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), advance: JSON.stringify(adv)});
+    if(r.success || r.data){
+      await audit('REQUEST_ADVANCE','advance',adv.id,'Requested '+fmtUGX(amt)+' for '+adv.name);
+      showToast('✅ Advance requested','success');
+      loadAdvances();
+      document.getElementById('advAmount').value='';
+      document.getElementById('advPurpose').value='';
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadAdvances(){
+  var body = document.getElementById('advancesBody');
+  body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.GET_ADVANCES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.advances || []).slice().reverse();
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">No advances.</td></tr>'; return; }
+    body.innerHTML = list.map(function(a){
+      var badge = a.status==='pending'?'badge-pending':a.status==='approved'?'badge-approved':a.status==='paid'?'badge-paid':a.status==='completed'?'badge-active':'badge-cancelled';
+      return '<tr><td>'+escapeHtml(a.id)+'</td><td>'+escapeHtml(a.name||a.staffId)+'</td><td class="amount">'+fmt(a.amount)+'</td><td class="amount '+(a.balance>0?'debit':'credit')+'">'+fmt(a.balance||0)+'</td><td class="amount">'+fmt(a.monthlyDeduction||0)+'</td><td><span class="badge '+badge+'">'+escapeHtml(a.status||'')+'</span></td><td>'+(canApproveFinance()&&a.status==='pending'?'<button class="btn btn-success btn-sm" onclick="approveAdvance(\''+escapeHtml(a.id)+'\')">✅</button>':'')+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+async function approveAdvance(id){
+  var ok = await confirmAction('Approve Advance','Approve this advance?','Approve','✅');
+  if(!ok) return;
+  try{
+    var r = await api({action: FINANCE_ACTIONS.APPROVE_ADVANCE, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id: id, approvedBy: authSession.username});
+    if(r.success || r.data){ await audit('APPROVE_ADVANCE','advance',id,'Approved'); showToast('✅ Approved','success'); loadAdvances(); }
+    else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   EXPENSES
+   ========================================================= */
+async function recordExpense(){
+  if(!requireEdit()) return;
+  var exp = {
+    id: genId('EXP'),
+    category: document.getElementById('expCategory').value,
+    amount: parseAmt(document.getElementById('expAmount').value),
+    date: document.getElementById('expDate').value,
+    payee: document.getElementById('expPayee').value,
+    method: document.getElementById('expMethod').value,
+    reference: document.getElementById('expRef').value,
+    requestedBy: document.getElementById('expRequestedBy').value,
+    description: document.getElementById('expDesc').value,
+    paidBy: authSession.username,
+    timestamp: nowStamp(),
+    school: getActiveSchool()
+  };
+  if(!exp.category || !exp.amount){ showToast('Fill required fields','warning'); return; }
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_EXPENSE, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), expense: JSON.stringify(exp)});
+    if(r.success || r.data){
+      await audit('RECORD_EXPENSE','expense',exp.id,'Recorded '+fmtUGX(exp.amount)+' for '+exp.category);
+      showToast('✅ Expense recorded','success');
+      loadExpenses();
+      ['expAmount','expPayee','expRef','expRequestedBy','expDesc'].forEach(function(id){ document.getElementById(id).value=''; });
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadExpenses(){
+  var body = document.getElementById('expensesBody');
+  body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.EXPENSES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.expenses || []).slice().reverse();
+    expensesCache = list;
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">No expenses.</td></tr>'; return; }
+    body.innerHTML = list.slice(0,100).map(function(x){
+      return '<tr><td>'+escapeHtml(x.date||'')+'</td><td>'+escapeHtml(x.category||'')+'</td><td>'+escapeHtml(x.description||'')+'</td><td class="amount debit">'+fmt(x.amount)+'</td><td>'+escapeHtml(x.payee||'')+'</td><td>'+escapeHtml(x.method||'')+'</td><td>'+(canEditFinance()?'<button class="btn btn-danger btn-sm" onclick="voidExpense(\''+escapeHtml(x.id)+'\')">🚫</button>':'')+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+async function voidExpense(id){
+  var ok = await confirmAction('Void Expense','This will mark the expense as void (not deleted). Continue?','Void','🚫');
+  if(!ok) return;
+  try{
+    await api({action:'voidExpense', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id: id, voidedBy: authSession.username});
+    await audit('VOID_EXPENSE','expense',id,'Expense voided');
+    showToast('✅ Voided (record kept)','success');
+    loadExpenses();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   SUPPLIERS
+   ========================================================= */
+async function saveSupplier(){
+  if(!requireEdit()) return;
+  var s = {
+    id: genId('SUP'),
+    name: document.getElementById('supName').value.trim(),
+    phone: document.getElementById('supPhone').value.trim(),
+    address: document.getElementById('supAddress').value.trim(),
+    products: document.getElementById('supProducts').value.trim(),
+    outstandingBalance: 0,
+    createdAt: nowStamp(),
+    school: getActiveSchool()
+  };
+  if(!s.name || !s.phone){ showToast('Fill name and phone','warning'); return; }
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_SUPPLIER, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), supplier: JSON.stringify(s)});
+    if(r.success || r.data){
+      await audit('CREATE_SUPPLIER','supplier',s.id,'Supplier '+s.name);
+      showToast('✅ Supplier saved','success');
+      ['supName','supPhone','supAddress','supProducts'].forEach(function(id){ document.getElementById(id).value=''; });
+      loadSuppliers();
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadSuppliers(){
+  var body = document.getElementById('suppliersBody');
+  body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SUPPLIERS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.suppliers || []);
+    suppliersCache = list;
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No suppliers.</td></tr>'; return; }
+    body.innerHTML = list.map(function(s){
+      return '<tr><td>'+escapeHtml(s.name||'')+'</td><td>'+escapeHtml(s.phone||'')+'</td><td>'+escapeHtml(s.products||'')+'</td><td class="amount '+(parseAmt(s.outstandingBalance)>0?'debit':'credit')+'">'+fmt(s.outstandingBalance||0)+'</td><td><button class="btn btn-info btn-sm" onclick="recordSupplierPayment(\''+escapeHtml(s.id)+'\')">💰 Pay</button></td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+async function recordSupplierPayment(id){
+  var s = suppliersCache.filter(function(x){ return x.id===id; })[0];
+  if(!s) return;
+  var amt = parseFloat(prompt('Enter payment amount (UGX):',''));
+  if(!amt || amt<=0) return;
+  var ref = prompt('Reference / Receipt:','')||'';
+  try{
+    var payment = {id:genId('SPAY'), supplierId:id, supplierName:s.name, amount:amt, reference:ref, date:today(), paidBy:authSession.username, timestamp:nowStamp(), school:getActiveSchool()};
+    await api({action:'saveSupplierPayment', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), payment: JSON.stringify(payment)});
+    await audit('PAY_SUPPLIER','supplier',id,'Paid '+fmtUGX(amt)+' to '+s.name);
+    showToast('✅ Payment recorded','success');
+    loadSuppliers();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   INCOME
+   ========================================================= */
+async function recordIncome(){
+  if(!requireEdit()) return;
+  var inc = {
+    id: genId('INC'),
+    category: document.getElementById('incCategory').value,
+    amount: parseAmt(document.getElementById('incAmount').value),
+    date: document.getElementById('incDate').value,
+    source: document.getElementById('incSource').value,
+    method: document.getElementById('incMethod').value,
+    reference: document.getElementById('incRef').value,
+    description: document.getElementById('incDesc').value,
+    recordedBy: authSession.username,
+    timestamp: nowStamp(),
+    school: getActiveSchool()
+  };
+  if(!inc.category || !inc.amount){ showToast('Fill required fields','warning'); return; }
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_INCOME, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), income: JSON.stringify(inc)});
+    if(r.success || r.data){
+      await audit('RECORD_INCOME','income',inc.id,'Recorded '+fmtUGX(inc.amount)+' from '+inc.category);
+      showToast('✅ Income recorded','success');
+      loadIncome();
+      ['incAmount','incSource','incRef','incDesc'].forEach(function(id){ document.getElementById(id).value=''; });
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadIncome(){
+  var body = document.getElementById('incomeBody');
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.INCOME, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.income || []).slice().reverse();
+    incomeCache = list;
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No income records.</td></tr>'; return; }
+    body.innerHTML = list.slice(0,100).map(function(x){
+      return '<tr><td>'+escapeHtml(x.date||'')+'</td><td>'+escapeHtml(x.category||'')+'</td><td>'+escapeHtml(x.source||'')+'</td><td class="amount credit">'+fmt(x.amount)+'</td><td>'+escapeHtml(x.method||'')+'</td><td>'+(canEditFinance()?'<button class="btn btn-danger btn-sm" onclick="voidIncome(\''+escapeHtml(x.id)+'\')">🚫</button>':'')+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+async function voidIncome(id){
+  var ok = await confirmAction('Void Income','Income will be marked void (not deleted). Continue?','Void','🚫');
+  if(!ok) return;
+  try{
+    await api({action:'voidIncome', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id: id, voidedBy: authSession.username});
+    await audit('VOID_INCOME','income',id,'Income voided');
+    showToast('✅ Voided','success');
+    loadIncome();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   CASHBOOK
+   ========================================================= */
+async function loadCashbook(){
+  var body = document.getElementById('cashbookBody');
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var [rec, exp, inc] = await Promise.all([
+      api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action: FINANCE_ACTIONS.EXPENSES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action: FINANCE_ACTIONS.INCOME, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()})
+    ]);
+    var account = document.getElementById('cbAccount').value;
+    var from = document.getElementById('cbFrom').value;
+    var to = document.getElementById('cbTo').value;
+    var filterFn = function(x){
+      var d = x.date||x.timestamp||'';
+      if(from && d < from) return false;
+      if(to && d > to) return false;
+      if(account!=='all' && (x.method||'cash')!==account) return false;
+      return true;
+    };
+    var entries = [];
+    (rec?.data?.records || []).filter(filterFn).forEach(function(r){ entries.push({date:r.date, desc:'Fee Payment — '+(r.studentName||r.studentId), ref:r.id, in:parseAmt(r.amount), out:0, method:r.method}); });
+    (inc?.data?.income || []).filter(filterFn).forEach(function(i){ entries.push({date:i.date, desc:'Income — '+i.category+' ('+ (i.source||'') +')', ref:i.id, in:parseAmt(i.amount), out:0, method:i.method}); });
+    (exp?.data?.expenses || []).filter(filterFn).forEach(function(e){ entries.push({date:e.date, desc:'Expense — '+(e.category||'')+' ('+(e.payee||'')+')', ref:e.id, in:0, out:parseAmt(e.amount), method:e.method}); });
+    entries.sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); });
+    var bal = 0, totalIn = 0, totalOut = 0;
+    var rows = entries.map(function(e){
+      bal += e.in - e.out;
+      totalIn += e.in; totalOut += e.out;
+      return '<tr><td>'+escapeHtml(e.date)+'</td><td>'+escapeHtml(e.desc)+'</td><td>'+escapeHtml(e.ref||'')+'</td><td class="amount credit">'+(e.in?fmt(e.in):'')+'</td><td class="amount debit">'+(e.out?fmt(e.out):'')+'</td><td class="amount">'+fmt(bal)+'</td></tr>';
+    });
+    body.innerHTML = rows.length? rows.join('') : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No transactions in range.</td></tr>';
+    document.getElementById('cbTotalIn').textContent = fmtUGX(totalIn);
+    document.getElementById('cbTotalOut').textContent = fmtUGX(totalOut);
+    document.getElementById('cbNet').textContent = fmtUGX(totalIn-totalOut);
+    document.getElementById('cbClosing').textContent = fmtUGX(bal);
+  } catch(e){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+
+/* =========================================================
+   PETTY CASH
+   ========================================================= */
+async function savePettyCash(){
+  if(!requireEdit()) return;
+  var s = getSettings();
+  var entry = {
+    id: genId('PC'),
+    type: document.getElementById('pcType').value,
+    amount: parseAmt(document.getElementById('pcAmount').value),
+    date: document.getElementById('pcDate').value,
+    person: document.getElementById('pcPerson').value,
+    purpose: document.getElementById('pcPurpose').value,
+    recordedBy: authSession.username,
+    timestamp: nowStamp(),
+    school: getActiveSchool()
+  };
+  if(!entry.amount){ showToast('Enter amount','warning'); return; }
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_PETTY, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), entry: JSON.stringify(entry)});
+    if(r.success || r.data){
+      await audit('PETTY_CASH_'+entry.type.toUpperCase(),'petty_cash',entry.id,fmtUGX(entry.amount)+' — '+entry.purpose);
+      showToast('✅ Saved','success');
+      loadPettyCash();
+      ['pcAmount','pcPerson','pcPurpose'].forEach(function(id){ document.getElementById(id).value=''; });
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadPettyCash(){
+  var body = document.getElementById('pettycashBody');
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var r = await api({action: FINANCE_ACTIONS.PETTY, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.entries || []).sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); });
+    pettyCache = list;
+    var s = getSettings();
+    var opening = parseAmt(s.pettyOpening);
+    var received = 0, spent = 0, bal = opening;
+    var rows = list.map(function(e){
+      if(e.type==='receive'){ received += parseAmt(e.amount); bal += parseAmt(e.amount); }
+      else { spent += parseAmt(e.amount); bal -= parseAmt(e.amount); }
+      return '<tr><td>'+escapeHtml(e.date)+'</td><td>'+(e.type==='receive'?'💵 Received':'💸 Spent')+'</td><td>'+escapeHtml(e.person||'')+'</td><td>'+escapeHtml(e.purpose||'')+'</td><td class="amount">'+fmt(e.amount)+'</td><td class="amount">'+fmt(bal)+'</td></tr>';
+    });
+    body.innerHTML = rows.length? rows.join('') : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No entries.</td></tr>';
+    document.getElementById('pcOpening').textContent = fmtUGX(opening);
+    document.getElementById('pcReceived').textContent = fmtUGX(received);
+    document.getElementById('pcSpent').textContent = fmtUGX(spent);
+    document.getElementById('pcBalance').textContent = fmtUGX(bal);
+  } catch(e){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+
+/* =========================================================
+   RECONCILIATION
+   ========================================================= */
+async function runReconciliation(){
+  var lines = document.getElementById('recStatement').value.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  if(!lines.length){ showToast('Paste statement lines','warning'); return; }
+  var body = document.getElementById('reconciliationBody');
+  var parsed = [];
+  lines.forEach(function(l){
+    var parts = l.split('|').map(function(p){ return p.trim(); });
+    if(parts.length>=2){
+      parsed.push({date:parts[0], amount:parseAmt(parts[1]), ref:parts[2]||'', desc:parts[3]||'', match:null, confidence:0});
+    }
+  });
+  // Fetch recorded transactions
+  var rec = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+  var allRec = (rec?.data?.records || []);
+  parsed.forEach(function(p){
+    var match = allRec.filter(function(r){
+      var sameAmt = parseAmt(r.amount) === p.amount;
+      var sameRef = p.ref && (r.reference||'') && (r.reference||'').toLowerCase().indexOf(p.ref.toLowerCase())!==-1;
+      var sameDate = r.date === p.date;
+      return sameAmt && (sameRef || sameDate);
+    })[0];
+    if(match){ p.match = match; p.confidence = p.ref && (match.reference||'').indexOf(p.ref)!==-1 ? 95 : 75; }
+  });
+  body.innerHTML = parsed.map(function(p, i){
+    var sBadge = p.match ? '<span class="badge badge-paid">MATCHED</span>' : '<span class="badge badge-cancelled">UNMATCHED</span>';
+    return '<tr><td>'+escapeHtml(p.date)+' | '+escapeHtml(p.ref)+' | '+escapeHtml(p.desc)+'</td><td class="amount">'+fmt(p.amount)+'</td><td>'+sBadge+' '+(p.match?'→ '+escapeHtml(p.match.id||''):'')+'</td><td>'+p.confidence+'%</td><td>'+(p.match?'<button class="btn btn-success btn-sm" onclick="confirmReconciliation('+i+')">✅ Confirm</button>':'<button class="btn btn-secondary btn-sm">🔍 Find</button>')+'</td></tr>';
+  }).join('');
+  window._reconParsed = parsed;
+}
+function confirmReconciliation(i){
+  var p = window._reconParsed[i];
+  if(!p||!p.match) return;
+  audit('RECONCILE','receipt',p.match.id,'Matched statement line',null, JSON.stringify(p));
+  showToast('✅ Reconciled','success');
+}
+
+/* =========================================================
+   BUDGET
+   ========================================================= */
+async function saveBudget(){
+  if(!requireEdit()) return;
+  var s = getSettings();
+  var item = {
+    id: genId('BD'),
+    category: document.getElementById('bdCategory').value,
+    period: document.getElementById('bdPeriod').value,
+    amount: parseAmt(document.getElementById('bdAmount').value),
+    term: document.getElementById('settingsTerm')?.value || 'III',
+    year: document.getElementById('settingsYear')?.value || '2026',
+    createdAt: nowStamp(),
+    createdBy: authSession.username,
+    school: getActiveSchool()
+  };
+  if(!item.category || !item.amount){ showToast('Fill fields','warning'); return; }
+  try{
+    var r = await api({action: FINANCE_ACTIONS.SAVE_BUDGET, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+    if(r.success || r.data){
+      await audit('CREATE_BUDGET','budget',item.id,'Budget for '+item.category+' — '+fmtUGX(item.amount));
+      showToast('✅ Budget saved','success');
+      loadBudget();
+    } else showToast('❌ '+(r.message||'Failed'),'error');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadBudget(){
+  var body = document.getElementById('budgetBody');
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var [bud, exp] = await Promise.all([
+      api({action: FINANCE_ACTIONS.BUDGET, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action: FINANCE_ACTIONS.EXPENSES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()})
+    ]);
+    var list = (bud?.data?.budget || []);
+    var expenses = (exp?.data?.expenses || []);
+    budgetCache = list;
+    if(list.length===0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No budgets yet.</td></tr>'; return; }
+    body.innerHTML = list.map(function(b){
+      var spent = expenses.filter(function(e){ return e.category===b.category; }).reduce(function(s,e){ return s+parseAmt(e.amount); },0);
+      var remaining = parseAmt(b.amount) - spent;
+      var pct = parseAmt(b.amount) ? (spent/parseAmt(b.amount)*100) : 0;
+      var badge = pct>=100? '<span class="badge badge-cancelled">OVER</span>' : pct>=80? '<span class="badge badge-pending">WARNING</span>' : '<span class="badge badge-paid">OK</span>';
+      return '<tr><td>'+escapeHtml(b.category)+'</td><td class="amount">'+fmt(b.amount)+'</td><td class="amount">'+fmt(spent)+'</td><td class="amount '+(remaining<0?'debit':'credit')+'">'+fmt(remaining)+'</td><td>'+pct.toFixed(1)+'%</td><td>'+badge+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+
+/* =========================================================
+   REPORTS
+   ========================================================= */
+function updateReportTypeUI(){
+  var t = document.getElementById('reportType').value;
+  var rangeRow = document.getElementById('reportDateRange');
+  var needsRange = ['daily','weekly','termly','income','expenditure','cashbook','pettycash'].indexOf(t)!==-1;
+  rangeRow.style.display = needsRange? 'grid' : 'none';
+}
+async function generateReport(){
+  var type = document.getElementById('reportType').value;
+  var format = document.getElementById('reportFormat').value;
+  var out = document.getElementById('reportOutput');
+  out.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner"></div></div>';
+  try{
+    var html = await buildReportHtml(type);
+    if(format==='csv'){ downloadReportCsv(type, html); out.innerHTML='<div class="info-box success"><div class="info-text">CSV downloaded.</div></div>'; }
+    else if(format==='print'){ printHtml(html); out.innerHTML='<div class="info-box success"><div class="info-text">Print window opened.</div></div>'; }
+    else { out.innerHTML = html; }
+  } catch(e){ out.innerHTML = '<div class="info-box danger"><div class="info-text">❌ '+escapeHtml(e.message)+'</div></div>'; }
+}
+async function buildReportHtml(type){
+  var from = document.getElementById('reportFrom').value;
+  var to = document.getElementById('reportTo').value;
+  var school = getActiveSchool();
+  var s = getSettings();
+  var header = '<div class="info-box"><div class="info-title">'+escapeHtml(s.schoolName||school)+'</div><div class="info-text">'+(from&&to?'Period: '+from+' to '+to:'')+'</div></div>';
+
+  if(type==='daily' || type==='weekly' || type==='termly'){
+    var rec = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var list = (rec?.data?.records || []).filter(function(r){
+      if(from && r.date<from) return false;
+      if(to && r.date>to) return false;
+      return true;
+    });
+    var rows = list.map(function(r){ return '<tr><td>'+escapeHtml(r.date)+'</td><td>'+escapeHtml(r.id)+'</td><td>'+escapeHtml(r.studentName||r.studentId)+'</td><td>'+escapeHtml(r.class||'')+'</td><td class="amount">'+fmt(r.amount)+'</td><td>'+escapeHtml(r.method||'')+'</td></tr>'; }).join('');
+    var total = list.reduce(function(s,r){ return s+parseAmt(r.amount); },0);
+    return header+'<h4>Fee Collection Report</h4><div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Receipt</th><th>Student</th><th>Class</th><th>Amount</th><th>Method</th></tr></thead><tbody>'+rows+'<tr style="font-weight:700;background:#f0f4ff"><td colspan="4">TOTAL</td><td class="amount">'+fmt(total)+'</td><td></td></tr></tbody></table></div>';
+  }
+  if(type==='balances' || type==='outstanding'){
+    await loadStudents();
+    var s2 = getSettings();
+    var filterOwing = type==='outstanding';
+    var all = studentsCache;
+    var rec = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var paidByStudent = {};
+    (rec?.data?.records||[]).forEach(function(r){ paidByStudent[r.studentId] = (paidByStudent[r.studentId]||0)+parseAmt(r.amount); });
+    var rows = '';
+    all.forEach(function(stu){
+      var exp = studentExpectedFee(stu.class, stu.boarding);
+      var paid = paidByStudent[stu.studentId]||0;
+      var bal = exp - paid;
+      if(filterOwing && bal<=0) return;
+      rows += '<tr><td>'+escapeHtml(stu.studentId)+'</td><td>'+escapeHtml(stu.studentName)+'</td><td>'+escapeHtml(stu.class||'')+'</td><td class="amount">'+fmt(exp)+'</td><td class="amount credit">'+fmt(paid)+'</td><td class="amount '+(bal>0?'debit':'credit')+'">'+fmt(bal)+'</td></tr>';
+    });
+    return header+'<h4>'+(filterOwing?'Outstanding':'Student Fee Balance')+' Report</h4><div class="table-wrap"><table class="data-table"><thead><tr><th>Adm No</th><th>Name</th><th>Class</th><th>Expected</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">None</td></tr>')+'</tbody></table></div>';
+  }
+  if(type==='income' || type==='expenditure'){
+    var isInc = type==='income';
+    var r = await api({action: isInc? FINANCE_ACTIONS.INCOME : FINANCE_ACTIONS.EXPENSES, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var list = (isInc? r?.data?.income : r?.data?.expenses) || [];
+    if(from) list = list.filter(function(x){ return x.date>=from; });
+    if(to) list = list.filter(function(x){ return x.date<=to; });
+    var rows = list.map(function(x){ return '<tr><td>'+escapeHtml(x.date)+'</td><td>'+escapeHtml(x.category||'')+'</td><td>'+escapeHtml(x.source||x.payee||x.description||'')+'</td><td class="amount">'+fmt(x.amount)+'</td><td>'+escapeHtml(x.method||'')+'</td></tr>'; }).join('');
+    var total = list.reduce(function(s,x){ return s+parseAmt(x.amount); },0);
+    return header+'<h4>'+(isInc?'Income':'Expenditure')+' Report</h4><div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Category</th><th>Source</th><th>Amount</th><th>Method</th></tr></thead><tbody>'+rows+'<tr style="font-weight:700;background:#f0f4ff"><td colspan="3">TOTAL</td><td class="amount">'+fmt(total)+'</td><td></td></tr></tbody></table></div>';
+  }
+  if(type==='cashbook'){
+    await loadCashbook();
+    return header + document.getElementById('cashbookBody').closest('.table-wrap').outerHTML;
+  }
+  if(type==='pettycash'){
+    await loadPettyCash();
+    return header + document.getElementById('pettycashBody').closest('.table-wrap').outerHTML;
+  }
+  if(type==='payroll'){
+    var r = await api({action: FINANCE_ACTIONS.PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var list = (r?.data?.payrolls||[]);
+    var rows = list.map(function(p){ return '<tr><td>'+escapeHtml(p.id)+'</td><td>'+escapeHtml(p.period)+'</td><td>'+(p.items||[]).length+'</td><td class="amount">'+fmt(p.totalGross)+'</td><td class="amount credit">'+fmt(p.totalNet)+'</td><td>'+escapeHtml(p.status||'')+'</td></tr>'; }).join('');
+    return header+'<h4>Payroll Report</h4><div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Period</th><th>Workers</th><th>Gross</th><th>Net</th><th>Status</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">None</td></tr>')+'</tbody></table></div>';
+  }
+  if(type==='summary'){
+    var s3 = getSettings();
+    var rec = await api({action: FINANCE_ACTIONS.RECEIPTS, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var exp = await api({action: FINANCE_ACTIONS.EXPENSES, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var inc = await api({action: FINANCE_ACTIONS.INCOME, sheetId: ACCOUNTS_SHEET_ID, school: school});
+    var fees = (rec?.data?.records||[]).reduce(function(s,x){ return s+parseAmt(x.amount); },0);
+    var exps = (exp?.data?.expenses||[]).reduce(function(s,x){ return s+parseAmt(x.amount); },0);
+    var incs = (inc?.data?.income||[]).reduce(function(s,x){ return s+parseAmt(x.amount); },0);
+    var expected = parseAmt(s3.expectedFeesThisTerm);
+    return header+'<h4>Financial Summary</h4><div class="table-wrap"><table class="data-table"><tbody>'+
+      '<tr><td>Expected Fees</td><td class="amount">'+fmtUGX(expected)+'</td></tr>'+
+      '<tr><td>Fees Collected</td><td class="amount credit">'+fmtUGX(fees)+'</td></tr>'+
+      '<tr><td>Outstanding Fees</td><td class="amount debit">'+fmtUGX(expected-fees)+'</td></tr>'+
+      '<tr><td>Other Income</td><td class="amount credit">'+fmtUGX(incs)+'</td></tr>'+
+      '<tr><td>Total Expenditure</td><td class="amount debit">'+fmtUGX(exps)+'</td></tr>'+
+      '<tr style="font-weight:700;background:#f0f4ff"><td>Net Position</td><td class="amount">'+fmtUGX(fees+incs-exps)+'</td></tr>'+
+    '</tbody></table></div>';
+  }
+  return '<div class="info-box"><div class="info-text">Report type not implemented in this view.</div></div>';
+}
+function printHtml(html){
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>Report</title><style>body{font-family:Arial;padding:20px;max-width:900px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{border:1px solid #999;padding:6px}th{background:#302b63;color:#fff}</style></head><body>'+html+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 400);
+}
+function downloadReportCsv(type, html){
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(html, 'text/html');
+  var rows = [];
+  doc.querySelectorAll('table tr').forEach(function(tr){
+    var cells = [];
+    tr.querySelectorAll('th, td').forEach(function(td){ cells.push('"'+td.textContent.replace(/"/g,'""')+'"'); });
+    rows.push(cells.join(','));
+  });
+  var blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = type+'-report-'+today()+'.csv';
+  a.click();
+}
+
+/* =========================================================
+   APPROVALS
+   ========================================================= */
+async function loadApprovals(){
+  var body = document.getElementById('approvalsBody');
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var [pr, adv, app] = await Promise.all([
+      api({action: FINANCE_ACTIONS.PAYROLL, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action: FINANCE_ACTIONS.GET_ADVANCES, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()}),
+      api({action: FINANCE_ACTIONS.APPROVALS, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()})
+    ]);
+    var rows = [];
+    (pr?.data?.payrolls || []).forEach(function(p){
+      if(p.status==='pending') rows.push({type:'Payroll', ref:p.id, amount:p.totalNet, by:p.createdBy, date:p.createdAt, action:'approvePayroll'});
+    });
+    (adv?.data?.advances || []).forEach(function(a){
+      if(a.status==='pending') rows.push({type:'Advance', ref:a.id, amount:a.amount, by:a.requestedBy, date:a.createdAt, action:'approveAdvance'});
+    });
+    (app?.data?.approvals || []).forEach(function(a){
+      if(a.status==='pending') rows.push({type:a.type||'Approval', ref:a.id, amount:a.amount, by:a.requestedBy, date:a.createdAt, action:'approveGeneric'});
+    });
+    if(rows.length===0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No pending approvals.</td></tr>'; return; }
+    body.innerHTML = rows.map(function(r){
+      return '<tr><td>'+escapeHtml(r.type)+'</td><td>'+escapeHtml(r.ref)+'</td><td class="amount">'+fmt(r.amount)+'</td><td>'+escapeHtml(r.by||'')+'</td><td>'+escapeHtml((r.date||'').substring(0,10))+'</td><td>'+(canApproveFinance()? '<button class="btn btn-success btn-sm" onclick="'+r.action+'(\''+escapeHtml(r.ref)+'\')">✅ Approve</button>' : '🔒 View only')+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+function approveGeneric(id){ audit('APPROVE_GENERIC','approval',id,'Approved'); showToast('✅ Approved','success'); loadApprovals(); }
+
+/* =========================================================
+   AUDIT
+   ========================================================= */
+async function loadAudit(){
+  var body = document.getElementById('auditBody');
+  body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>';
+  try{
+    var from = document.getElementById('auditFrom').value;
+    var to = document.getElementById('auditTo').value;
+    // Always show local audit + remote
+    var local = JSON.parse(localStorage.getItem('fin_audit_'+getActiveSchool())||'[]');
+    var remote = [];
+    try{
+      var r = await api({action: FINANCE_ACTIONS.AUDIT, sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+      remote = (r?.data?.logs || []);
+    }catch(e){}
+    var all = remote.concat(local);
+    // Dedupe by timestamp+action+recordId
+    var seen = {};
+    all = all.filter(function(x){
+      var k = (x.timestamp||'')+'|'+(x.action||'')+'|'+(x.recordId||'');
+      if(seen[k]) return false; seen[k]=1; return true;
+    });
+    all = all.filter(function(x){
+      var d = (x.timestamp||'').substring(0,10);
+      if(from && d<from) return false;
+      if(to && d>to) return false;
+      return true;
+    });
+    all.sort(function(a,b){ return String(b.timestamp).localeCompare(String(a.timestamp)); });
+    auditCache = all;
+    if(all.length===0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No audit records.</td></tr>'; return; }
+    body.innerHTML = all.slice(0,200).map(function(a){
+      return '<tr data-search="'+escapeHtml((a.action+' '+(a.details||'')+' '+(a.user||'')).toLowerCase())+'"><td>'+escapeHtml(shortTime(a.timestamp))+'</td><td>'+escapeHtml(a.userName||a.user||'')+'</td><td><strong>'+escapeHtml(a.action||'')+'</strong></td><td>'+escapeHtml(a.recordType||'')+' '+escapeHtml(a.recordId||'')+'</td><td>'+escapeHtml(a.details||'')+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c1121f;padding:20px">❌ '+escapeHtml(e.message)+'</td></tr>'; }
+}
+function filterAudit(){
+  var q = document.getElementById('auditSearch').value.toLowerCase();
+  document.querySelectorAll('#auditBody tr').forEach(function(tr){
+    var s = tr.getAttribute('data-search')||'';
+    tr.style.display = (!q || s.indexOf(q)!==-1)?'':'none';
+  });
+}
+
+/* =========================================================
+   BOOT / INIT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', function(){
+  authSession = JSON.parse(sessionStorage.getItem('authSession')||'null');
+  if(!authSession){ window.location.href = 'index.html'; return; }
+  // Allow: bursar, accountant, cashier, admin, superadmin, headteacher, deputy
+  var allowed = ['bursar','accountant','cashier','admin','superadmin','headteacher','deputy'];
+  if(allowed.indexOf(authSession.role)===-1){
+    alert('Access denied. This module is for finance and administration roles.');
+    window.location.href = 'index.html'; return;
+  }
+
+  // Nav info
+  document.getElementById('navUserName').textContent = authSession.name || authSession.username;
+  document.getElementById('navUserAvatar').textContent = (authSession.name||'B').charAt(0).toUpperCase();
+  document.getElementById('navUserRole').textContent = (authSession.role||'bursar').charAt(0).toUpperCase()+(authSession.role||'bursar').slice(1);
+
+  // Hide tab-restricted elements if role cannot edit
+  if(!canEditFinance()){
+    // Disable all "submit" forms visually
+    document.querySelectorAll('#tabPayments .btn-success, #tabExpenses .btn-success, #tabIncome .btn-success, #tabSuppliers .btn-success, #tabPettycash .btn-success, #tabBudget .btn-success, #tabWorkers .btn-success, #tabFees .btn-success, #tabAdvances .btn-primary').forEach(function(b){
+      b.disabled = true; b.title = 'Read-only role';
+    });
+  }
+
+  // Default filters
+  setDateRange('today');
+  updateReportTypeUI();
+  loadFinanceSettings();
+
+  // Dashboard boot
+  refreshDashboard();
+
+  // QR library for receipts
+  window.addEventListener('click', function(e){
+    if(e.target.closest('#receiptModal')) renderQrInModal();
+  });
+});
+
+/* Re-render QR when receipt modal opens */
+var _openReceiptModal = openReceiptModal;
+openReceiptModal = function(html, title){ _openReceiptModal(html, title); setTimeout(renderQrInModal, 50); };
+</script>
+</body>
+</html>
