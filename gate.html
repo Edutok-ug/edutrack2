@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0f0c29" />
+<title>🛡️ Gate Security — EduTrack Pro</title>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg1:#0f0c29;--bg2:#302b63;--bg3:#24243e;
+  --primary:#302b63;--accent:#fcdc04;
+  --success:#1a8a4a;--success-dark:#2d6a4f;--danger:#c1121f;--danger-dark:#780000;
+  --warning:#e85d04;--warning-dark:#dc2f02;--info:#004085;--info-light:#0069d9;
+  --surface:#fff;--surface-2:#f8f9fa;--surface-3:#f0f4ff;
+  --text:#1a1a2e;--text-2:#555;--text-3:#888;--border:#e0e0e0;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.06);
+  --shadow-md:0 4px 15px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.15);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));min-height:100vh;padding:10px;color:var(--text)}
+@media(min-width:768px){body{padding:20px}}
+
+.navbar{background:rgba(255,255,255,.98);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:1000;border-bottom:3px solid var(--primary)}
+.navbar-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--primary);text-decoration:none;font-family:Georgia,serif}
+.navbar-brand .brand-text{background:linear-gradient(135deg,var(--bg1),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.navbar-toggle{display:none;background:none;border:none;font-size:22px;color:var(--primary);cursor:pointer;padding:6px}
+@media(max-width:900px){.navbar-toggle{display:block}}
+.navbar-menu{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+@media(max-width:900px){
+  .navbar-menu{display:none;width:100%;flex-direction:column;align-items:stretch;padding:10px 0;border-top:1px solid var(--border);margin-top:10px;max-height:70vh;overflow-y:auto}
+  .navbar-menu.open{display:flex}
+}
+.nav-link{padding:9px 13px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px;white-space:nowrap;text-align:left}
+.nav-link:hover{background:rgba(48,43,99,.08);color:var(--primary)}
+.nav-link.active{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff}
+.nav-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:20px;background:var(--surface-3);border:1px solid var(--primary)}
+.nav-user .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.nav-user .user-info{font-size:11px;line-height:1.2}
+.nav-user .user-info .user-name{font-weight:600}
+.nav-user .user-info .user-role{font-size:9px;color:var(--text-3)}
+
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0;z-index:900;box-shadow:0 -4px 15px rgba(0,0,0,.08)}
+.bottom-nav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:none;background:none;font-size:10px;color:var(--text-3);cursor:pointer;font-weight:600}
+.bottom-nav .bn-item.active{color:var(--primary)}
+.bottom-nav .bn-item i{font-size:18px}
+@media(max-width:900px){.bottom-nav{display:flex}body{padding-bottom:70px}}
+
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.97);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:18px 15px 24px;box-shadow:0 20px 60px rgba(0,0,0,.4);min-height:80vh;position:relative}
+@media(min-width:768px){.container{padding:22px 28px 32px}}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,var(--accent) 33%,var(--accent) 66%,#d90000 66%,#d90000 100%)}
+
+.form-section{display:none;animation:fadeIn .25s ease;padding-top:8px}
+.form-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:20px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.section-desc{color:var(--text-3);font-size:13px;margin-bottom:16px}
+
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-weight:600;color:var(--text-2);font-size:13px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:#fafafa;font-family:inherit;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(48,43,99,.15);background:#fff}
+.form-row-2{display:grid;grid-template-columns:1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.form-row-2{grid-template-columns:1fr 1fr}.form-row-3{grid-template-columns:1fr 1fr 1fr}}
+
+.btn{padding:14px 22px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:50px;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff}
+.btn-success{background:linear-gradient(135deg,var(--success),var(--success-dark));color:#fff}
+.btn-danger{background:linear-gradient(135deg,var(--danger),var(--danger-dark));color:#fff}
+.btn-warning{background:linear-gradient(135deg,var(--warning),var(--warning-dark));color:#fff}
+.btn-info{background:linear-gradient(135deg,var(--info),var(--info-light));color:#fff}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:8px 14px;font-size:12px;min-height:36px}
+.btn-block{width:100%}
+.btn-lg{min-height:64px;font-size:17px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* BIG ACTION GRID */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+@media(min-width:640px){.action-grid{grid-template-columns:repeat(4,1fr)}}
+.action-btn{background:#fff;border:2px solid var(--border);border-radius:var(--radius-md);padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-weight:700;color:var(--text);font-size:13px;text-align:center;min-height:110px;transition:.15s;box-shadow:var(--shadow-sm)}
+.action-btn:active{transform:scale(.96)}
+.action-btn .ai{font-size:32px}
+.action-btn.student-in{border-color:var(--success)}
+.action-btn.student-out{border-color:var(--warning)}
+.action-btn.visitor-in{border-color:var(--info)}
+.action-btn.emergency{border-color:var(--danger);background:#fff5f5}
+.action-btn.scan{border-color:var(--primary);background:var(--surface-3)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:#fff;border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;text-align:center}
+.stat-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--primary)}
+.stat-card.success::before{background:var(--success)}
+.stat-card.danger::before{background:var(--danger)}
+.stat-card.warning::before{background:var(--warning)}
+.stat-card.info::before{background:var(--info)}
+.stat-card .stat-icon{font-size:22px}
+.stat-card .stat-number{font-size:22px;font-weight:700;color:var(--text);margin:4px 0;line-height:1.1}
+.stat-card .stat-label{font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-md);background:#fff;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:10px 0}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+table.data-table th{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff;padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;position:sticky;top:0;z-index:2}
+table.data-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+table.data-table tr:last-child td{border-bottom:none}
+table.data-table tr:hover td{background:var(--surface-2)}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-pending{background:#fff3cd;color:#856404}
+.badge-approved{background:#cce5ff;color:#004085}
+.badge-active,.badge-inside,.badge-present{background:#d4edda;color:#155724}
+.badge-outside,.badge-absent{background:#f8d7da;color:#721c24}
+.badge-late{background:#fff3cd;color:#856404}
+.badge-resolved{background:#d4edda;color:#155724}
+.badge-open{background:#f8d7da;color:#721c24}
+.badge-review{background:#fff3cd;color:#856404}
+.badge-visiting{background:#cce5ff;color:#004085}
+
+.search-bar{position:relative;margin:10px 0}
+.search-bar input{width:100%;padding:14px 14px 14px 44px;border:2px solid var(--border);border-radius:10px;font-size:16px;background:#fafafa}
+.search-bar input:focus{border-color:var(--primary);outline:none;background:#fff}
+.search-bar::before{content:'🔍';position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.6}
+
+/* search results */
+.person-result{background:#fff;border:2px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;display:flex;gap:12px;align-items:center}
+.person-result:hover{border-color:var(--primary);background:var(--surface-3)}
+.person-result .pr-avatar{width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;overflow:hidden;flex-shrink:0}
+.person-result .pr-avatar img{width:100%;height:100%;object-fit:cover}
+.person-result .pr-info{flex:1;min-width:0}
+.person-result .pr-name{font-weight:700;color:var(--text);font-size:14px}
+.person-result .pr-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* big person card */
+.person-card{background:#fff;border:2px solid var(--primary);border-radius:var(--radius-md);padding:18px;text-align:center;margin:10px 0}
+.person-card .pc-photo{width:110px;height:110px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;margin:0 auto 12px;overflow:hidden}
+.person-card .pc-photo img{width:100%;height:100%;object-fit:cover}
+.person-card .pc-name{font-size:20px;font-weight:700;color:var(--text)}
+.person-card .pc-meta{font-size:13px;color:var(--text-3);margin-top:4px}
+.person-card .pc-status{display:inline-block;margin-top:10px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px}
+
+.camera-container{position:relative;overflow:hidden;background:#1a1a2e;border-radius:16px;padding:0;margin:15px 0;max-width:480px;margin-left:auto;margin-right:auto}
+.camera-container video,.camera-container #qr-reader{width:100%;display:block;border-radius:12px;background:#000;object-fit:cover;min-height:280px}
+.camera-container .face-box{position:absolute;border:3px solid #00ff88;border-radius:12px;pointer-events:none;display:none}
+.camera-container .status{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;display:none;text-align:center;z-index:5}
+.camera-container .status.active{display:block}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:center;justify-content:center;padding:15px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-box h3{text-align:center;color:var(--text);margin-bottom:10px;font-size:18px}
+.modal-box .modal-icon{font-size:44px;text-align:center;display:block;margin-bottom:8px}
+.modal-box p{text-align:center;color:var(--text-2);margin-bottom:18px;font-size:14px}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+.toast-notification{position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;color:#fff;font-weight:600;z-index:99999;opacity:0;transform:translateY(-20px);transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center}
+@media(min-width:640px){.toast-notification{left:auto;max-width:400px;text-align:left;transform:translateX(120%)}}
+.toast-notification.show{opacity:1;transform:translateY(0)}
+@media(min-width:640px){.toast-notification.show{transform:translateX(0)}}
+.toast-notification.success{background:linear-gradient(135deg,var(--success),var(--success-dark))}
+.toast-notification.error{background:linear-gradient(135deg,var(--danger),var(--danger-dark))}
+.toast-notification.info{background:linear-gradient(135deg,var(--bg1),var(--primary))}
+.toast-notification.warning{background:linear-gradient(135deg,var(--warning),var(--warning-dark))}
+
+.info-box{background:var(--surface-3);border-left:4px solid var(--primary);padding:12px 15px;border-radius:8px;margin:12px 0}
+.info-box.warning{background:#fff3cd;border-left-color:var(--warning)}
+.info-box.success{background:#d4edda;border-left-color:var(--success)}
+.info-box.danger{background:#f8d7da;border-left-color:var(--danger)}
+.info-box .info-title{font-weight:700;color:var(--primary);font-size:13px;margin-bottom:3px}
+.info-box .info-text{color:var(--text-2);font-size:12px;line-height:1.5}
+
+.emergency-panel{background:linear-gradient(135deg,#c1121f,#780000);color:#fff;padding:20px;border-radius:var(--radius-md);text-align:center;margin:14px 0}
+.emergency-panel h3{color:#fff;font-size:22px;margin-bottom:8px}
+.emergency-panel p{color:rgba(255,255,255,.9)}
+.emergency-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.emergency-type{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);color:#fff;padding:16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.emergency-type:active{background:rgba(255,255,255,.3)}
+
+.spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;z-index:9998}
+.loading-overlay.active{display:flex}
+
+.sync-badge{position:fixed;bottom:80px;right:16px;background:var(--warning);color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;z-index:800;box-shadow:var(--shadow-lg);cursor:pointer}
+.sync-badge.hidden{display:none}
+.sync-badge.error{background:var(--danger)}
+
+.shift-banner{background:linear-gradient(135deg,#1a8a4a,#2d6a4f);color:#fff;padding:14px;border-radius:var(--radius-md);margin-bottom:14px;text-align:center}
+.shift-banner .shift-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:.9}
+.shift-banner .shift-info{font-size:16px;font-weight:700;margin-top:4px}
+.shift-banner .shift-time{font-size:13px;opacity:.9;margin-top:4px}
+
+@media print{
+  .navbar,.bottom-nav,.btn,.no-print,.footer{display:none!important}
+  body{background:#fff!important;padding:0}
+  .container{box-shadow:none!important}
+  @page{size:A4;margin:10mm}
+}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+<div class="sync-badge hidden" id="syncBadge" onclick="syncOfflineQueue()">☁️ <span id="syncCount">0</span> unsynced</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <span class="modal-icon" id="confirmIcon">⚠️</span>
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancel</button>
+      <button class="btn btn-primary" id="confirmYesBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-box" style="max-width:800px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0;text-align:left" id="infoModalTitle">Details</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeInfoModal()">✖</button>
+    </div>
+    <div id="infoModalBody"></div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a href="gate.html" class="navbar-brand"><span style="font-size:26px">🛡️</span><span class="brand-text">EduTrack Gate</span></a>
+  <button class="navbar-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+  <div class="navbar-menu" id="navbarMenu">
+    <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+    <button class="nav-link" data-tab="studententry" onclick="switchTab('studententry')"><i class="fas fa-sign-in-alt"></i> Student In</button>
+    <button class="nav-link" data-tab="studentexit" onclick="switchTab('studentexit')"><i class="fas fa-sign-out-alt"></i> Student Out</button>
+    <button class="nav-link" data-tab="visitorin" onclick="switchTab('visitorin')"><i class="fas fa-user-plus"></i> Visitor In</button>
+    <button class="nav-link" data-tab="visitorout" onclick="switchTab('visitorout')"><i class="fas fa-user-minus"></i> Visitor Out</button>
+    <button class="nav-link" data-tab="staffmove" onclick="switchTab('staffmove')"><i class="fas fa-user-tie"></i> Staff Movement</button>
+    <button class="nav-link" data-tab="vehicles" onclick="switchTab('vehicles')"><i class="fas fa-car"></i> Vehicles</button>
+    <button class="nav-link" data-tab="deliveries" onclick="switchTab('deliveries')"><i class="fas fa-box"></i> Deliveries</button>
+    <button class="nav-link" data-tab="contractors" onclick="switchTab('contractors')"><i class="fas fa-hard-hat"></i> Contractors</button>
+    <button class="nav-link" data-tab="logbook" onclick="switchTab('logbook')"><i class="fas fa-book"></i> Gate Log</button>
+    <button class="nav-link" data-tab="incidents" onclick="switchTab('incidents')"><i class="fas fa-exclamation-triangle"></i> Incidents</button>
+    <button class="nav-link" data-tab="lostfound" onclick="switchTab('lostfound')"><i class="fas fa-search"></i> Lost & Found</button>
+    <button class="nav-link" data-tab="emergency" onclick="switchTab('emergency')"><i class="fas fa-ambulance"></i> Emergency</button>
+    <button class="nav-link" data-tab="shift" onclick="switchTab('shift')"><i class="fas fa-clock"></i> Shift</button>
+    <button class="nav-link" data-tab="report" onclick="switchTab('report')"><i class="fas fa-file-alt"></i> Report</button>
+    <button class="nav-link" data-tab="notifications" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Alerts <span id="notifBadge" style="display:none;background:#c1121f;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    <button class="nav-link" data-tab="profile" onclick="switchTab('profile')"><i class="fas fa-user"></i> Profile</button>
+    <div class="nav-user">
+      <div class="user-avatar" id="navUserAvatar">S</div>
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Loading…</div>
+        <div class="user-role" id="navUserRole">Security</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="appLogout()" style="padding:8px 14px;font-size:12px"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</nav>
+
+<div class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="bn-item" data-tab="scan" onclick="openScanner()"><i class="fas fa-qrcode"></i><span>Scan</span></button>
+  <button class="bn-item" data-tab="visitorin" onclick="switchTab('visitorin')"><i class="fas fa-user-plus"></i><span>Visitor</span></button>
+  <button class="bn-item" data-tab="logbook" onclick="switchTab('logbook')"><i class="fas fa-book"></i><span>Log</span></button>
+  <button class="bn-item" data-tab="emergency" onclick="switchTab('emergency')"><i class="fas fa-ambulance"></i><span>SOS</span></button>
+</div>
+
+<div class="container">
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="tabDashboard" class="form-section active">
+    <h2 class="section-title"><i class="fas fa-home" style="color:var(--primary)"></i> Security Dashboard</h2>
+    <div class="shift-banner" id="shiftBanner">
+      <div class="shift-title">ON DUTY</div>
+      <div class="shift-info" id="shiftInfo">—</div>
+      <div class="shift-time" id="shiftTime">—</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card success"><div class="stat-icon">🎓</div><div class="stat-number" id="dsStudentsIn">0</div><div class="stat-label">Students Inside</div></div>
+      <div class="stat-card warning"><div class="stat-icon">🚪</div><div class="stat-number" id="dsStudentsOut">0</div><div class="stat-label">Students Exited</div></div>
+      <div class="stat-card info"><div class="stat-icon">👥</div><div class="stat-number" id="dsVisitorsIn">0</div><div class="stat-label">Visitors Inside</div></div>
+      <div class="stat-card success"><div class="stat-icon">🧑‍🏫</div><div class="stat-number" id="dsStaffIn">0</div><div class="stat-label">Staff Inside</div></div>
+      <div class="stat-card info"><div class="stat-icon">🚗</div><div class="stat-number" id="dsVehiclesIn">0</div><div class="stat-label">Vehicles Inside</div></div>
+      <div class="stat-card"><div class="stat-icon">🚶</div><div class="stat-number" id="dsTodayVisitors">0</div><div class="stat-label">Today's Visitors</div></div>
+      <div class="stat-card warning"><div class="stat-icon">📦</div><div class="stat-number" id="dsTodayDeliveries">0</div><div class="stat-label">Deliveries</div></div>
+      <div class="stat-card danger"><div class="stat-icon">⚠️</div><div class="stat-number" id="dsOpenIncidents">0</div><div class="stat-label">Open Incidents</div></div>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">⚡ Quick Actions</h4>
+    <div class="action-grid">
+      <button class="action-btn scan" onclick="openScanner()"><div class="ai">📷</div>Scan QR</button>
+      <button class="action-btn student-in" onclick="switchTab('studententry')"><div class="ai">✅</div>Student In</button>
+      <button class="action-btn student-out" onclick="switchTab('studentexit')"><div class="ai">🚪</div>Student Out</button>
+      <button class="action-btn visitor-in" onclick="switchTab('visitorin')"><div class="ai">👤</div>Visitor</button>
+      <button class="action-btn" onclick="switchTab('staffmove')"><div class="ai">🧑‍🏫</div>Staff</button>
+      <button class="action-btn" onclick="switchTab('vehicles')"><div class="ai">🚗</div>Vehicle</button>
+      <button class="action-btn" onclick="switchTab('deliveries')"><div class="ai">📦</div>Delivery</button>
+      <button class="action-btn emergency" onclick="switchTab('emergency')"><div class="ai">🚨</div>Emergency</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--primary)">📋 Recent Gate Activity</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Person</th><th>Type</th><th>Action</th><th>Gate</th></tr></thead>
+      <tbody id="recentActivityBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ STUDENT ENTRY ============ -->
+  <div id="tabStudententry" class="form-section">
+    <h2 class="section-title"><i class="fas fa-sign-in-alt" style="color:var(--success)"></i> Student Entry</h2>
+    <p class="section-desc">Scan QR, use face recognition, or search manually.</p>
+
+    <div class="btn-group" style="margin-bottom:12px">
+      <button class="btn btn-primary" onclick="openScanner('student-entry')">📷 Scan QR</button>
+      <button class="btn btn-info" onclick="openFaceScan('student-entry')">👤 Face ID</button>
+    </div>
+
+    <div class="search-bar"><input type="text" id="seSearch" placeholder="Search student by name or admission number…" onkeyup="searchStudentForEntry()" autocomplete="off" /></div>
+    <div id="seResults"></div>
+    <div id="sePersonCard"></div>
+
+    <div id="seEntryForm" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Gate</label><select id="seGate"></select></div>
+        <div class="form-group"><label>Time</label><input type="text" id="seTime" disabled /></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetStudentEntry()">✖ Cancel</button>
+        <button class="btn btn-success btn-lg" onclick="submitStudentEntry()">✅ ALLOW ENTRY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ STUDENT EXIT ============ -->
+  <div id="tabStudentexit" class="form-section">
+    <h2 class="section-title"><i class="fas fa-sign-out-alt" style="color:var(--warning)"></i> Student Exit</h2>
+    <p class="section-desc">Exit requires authorization. Verify before releasing.</p>
+
+    <div class="info-box warning">
+      <div class="info-title">⚠️ Authorization Required</div>
+      <div class="info-text">Students may only leave with proper authorization from an administrator or listed guardian.</div>
+    </div>
+
+    <div class="btn-group" style="margin-bottom:12px">
+      <button class="btn btn-primary" onclick="openScanner('student-exit')">📷 Scan QR</button>
+      <button class="btn btn-info" onclick="openFaceScan('student-exit')">👤 Face ID</button>
+    </div>
+
+    <div class="search-bar"><input type="text" id="sxSearch" placeholder="Search student…" onkeyup="searchStudentForExit()" autocomplete="off" /></div>
+    <div id="sxResults"></div>
+    <div id="sxPersonCard"></div>
+
+    <div id="sxExitForm" style="display:none">
+      <div class="form-group"><label>Reason for Leaving *</label>
+        <select id="sxReason">
+          <option value="">Select…</option>
+          <option value="going-home">🏠 Going Home</option>
+          <option value="medical">🏥 Medical</option>
+          <option value="school-activity">🎯 School Activity</option>
+          <option value="parent-collection">👨‍👩‍👦 Parent Collection</option>
+          <option value="emergency">🚨 Emergency</option>
+          <option value="official">📋 Official School Permission</option>
+          <option value="other">📌 Other</option>
+        </select>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Collected By (Name)</label><input type="text" id="sxCollectedBy" /></div>
+        <div class="form-group"><label>Collected By (Phone)</label><input type="tel" id="sxCollectedPhone" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Authorized By</label><input type="text" id="sxAuthBy" placeholder="Administrator name" /></div>
+        <div class="form-group"><label>Gate</label><select id="sxGate"></select></div>
+      </div>
+      <div id="sxAuthStatus"></div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetStudentExit()">✖ Cancel</button>
+        <button class="btn btn-warning btn-lg" id="sxSubmitBtn" onclick="submitStudentExit()" disabled>🚪 ALLOW EXIT</button>
+      </div>
+      <div class="info-box danger" id="sxNotAuthorized" style="display:none;margin-top:12px">
+        <div class="info-title">🚫 EXIT NOT AUTHORIZED</div>
+        <div class="info-text">This student does not have a valid exit authorization on record.</div>
+      </div>
+      <div class="btn-group-3" id="sxAuthActions" style="display:none;margin-top:10px">
+        <button class="btn btn-info btn-sm" onclick="contactAdmin()">📞 Contact Admin</button>
+        <button class="btn btn-warning btn-sm" onclick="requestAuthorization()">📝 Request Auth</button>
+        <button class="btn btn-danger btn-sm" onclick="reportEmergencyExit()">🚨 Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VISITOR IN ============ -->
+  <div id="tabVisitorin" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user-plus" style="color:var(--info)"></i> Visitor Check-In</h2>
+    <p class="section-desc">Register visitor and generate pass.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="vinName" /></div>
+      <div class="form-group"><label>Phone Number *</label><input type="tel" id="vinPhone" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>ID Type</label>
+        <select id="vinIdType">
+          <option value="">—</option>
+          <option value="nin">National ID (NIN)</option>
+          <option value="driving">Driving Permit</option>
+          <option value="passport">Passport</option>
+          <option value="other">Other ID</option>
+        </select>
+      </div>
+      <div class="form-group"><label>ID Number</label><input type="text" id="vinIdNumber" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Organization</label><input type="text" id="vinOrg" /></div>
+      <div class="form-group"><label>Person Visiting *</label><input type="text" id="vinVisiting" placeholder="e.g., Headteacher" /></div>
+    </div>
+    <div class="form-group"><label>Purpose of Visit *</label>
+      <select id="vinPurpose">
+        <option value="">Select…</option>
+        <option value="meeting">Official Meeting</option>
+        <option value="parent">Parent Visit</option>
+        <option value="delivery">Delivery</option>
+        <option value="maintenance">Maintenance/Repairs</option>
+        <option value="inspection">Inspection</option>
+        <option value="personal">Personal</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Notes / Details</label><textarea id="vinNotes" rows="2"></textarea></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Gate</label><select id="vinGate"></select></div>
+      <div class="form-group"><label>Arrival Time</label><input type="text" id="vinTime" disabled /></div>
+    </div>
+    <button class="btn btn-success btn-lg btn-block" onclick="checkInVisitor()">✅ CHECK IN & GENERATE PASS</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">📋 Today's Visitors</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Pass</th><th>Name</th><th>Visiting</th><th>In</th><th>Status</th><th></th></tr></thead>
+      <tbody id="visitorsInBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ VISITOR OUT ============ -->
+  <div id="tabVisitorout" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user-minus" style="color:var(--info)"></i> Visitor Check-Out</h2>
+    <p class="section-desc">Search visitor and record departure.</p>
+
+    <div class="search-bar"><input type="text" id="voutSearch" placeholder="Search by name, phone or pass number…" onkeyup="searchVisitorOut()" /></div>
+    <div id="voutResults"></div>
+  </div>
+
+  <!-- ============ STAFF MOVEMENT ============ -->
+  <div id="tabStaffmove" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user-tie" style="color:var(--primary)"></i> Staff Movement</h2>
+    <p class="section-desc">Record staff entry/exit via QR, face, or manual search.</p>
+
+    <div class="btn-group" style="margin-bottom:12px">
+      <button class="btn btn-primary" onclick="openScanner('staff-move')">📷 Scan QR</button>
+      <button class="btn btn-info" onclick="openFaceScan('staff-move')">👤 Face ID</button>
+    </div>
+
+    <div class="search-bar"><input type="text" id="smSearch" placeholder="Search staff by name or ID…" onkeyup="searchStaff()" autocomplete="off" /></div>
+    <div id="smResults"></div>
+    <div id="smPersonCard"></div>
+
+    <div id="smForm" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Action *</label>
+          <select id="smAction"><option value="entry">⬅️ Entry</option><option value="exit">➡️ Exit</option></select>
+        </div>
+        <div class="form-group"><label>Gate</label><select id="smGate"></select></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetStaff()">✖ Cancel</button>
+        <button class="btn btn-success btn-lg" onclick="submitStaffMove()">✅ RECORD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VEHICLES ============ -->
+  <div id="tabVehicles" class="form-section">
+    <h2 class="section-title"><i class="fas fa-car" style="color:var(--primary)"></i> Vehicle Management</h2>
+    <p class="section-desc">Record vehicle entry and exit.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Vehicle Registration *</label><input type="text" id="vhPlate" placeholder="e.g., UAX 123B" style="text-transform:uppercase" /></div>
+      <div class="form-group"><label>Vehicle Type *</label>
+        <select id="vhType">
+          <option value="">Select…</option>
+          <option>School Bus</option><option>Teacher Vehicle</option><option>Parent Vehicle</option>
+          <option>Supplier Vehicle</option><option>Taxi</option><option>Motorcycle</option>
+          <option>Emergency Vehicle</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Driver Name</label><input type="text" id="vhDriver" /></div>
+      <div class="form-group"><label>Driver Phone</label><input type="tel" id="vhDriverPhone" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Action *</label>
+        <select id="vhAction"><option value="entry">🚪 Entry</option><option value="exit">🚪 Exit</option></select>
+      </div>
+      <div class="form-group"><label>Gate</label><select id="vhGate"></select></div>
+    </div>
+    <div class="form-group"><label>Purpose</label><input type="text" id="vhPurpose" placeholder="e.g., Food delivery, Student pickup" /></div>
+    <button class="btn btn-success btn-block btn-lg" onclick="recordVehicle()">✅ RECORD VEHICLE</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">🚗 Vehicles Inside</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Plate</th><th>Type</th><th>Driver</th><th>In Time</th><th></th></tr></thead>
+      <tbody id="vehiclesInBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ DELIVERIES ============ -->
+  <div id="tabDeliveries" class="form-section">
+    <h2 class="section-title"><i class="fas fa-box" style="color:var(--primary)"></i> Deliveries</h2>
+    <p class="section-desc">Record incoming deliveries (movement only — no payments).</p>
+
+    <div class="info-box warning">
+      <div class="info-title">⚠️ Note</div>
+      <div class="info-text">Record delivery details only. Do not approve payments or financial transactions.</div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Supplier Name *</label><input type="text" id="dvSupplier" /></div>
+      <div class="form-group"><label>Driver Name</label><input type="text" id="dvDriver" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Vehicle Registration</label><input type="text" id="dvPlate" style="text-transform:uppercase" /></div>
+      <div class="form-group"><label>Category</label>
+        <select id="dvCategory">
+          <option value="food">🍲 Food</option><option value="supplies">📚 School Supplies</option>
+          <option value="lab">🔬 Laboratory</option><option value="construction">🏗️ Construction</option>
+          <option value="furniture">🪑 Furniture</option><option value="fuel">⛽ Fuel</option>
+          <option value="other">📦 Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Items Being Delivered *</label><textarea id="dvItems" rows="2" placeholder="e.g., 10 bags of rice, 5 boxes of books"></textarea></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Purchase/Order Reference</label><input type="text" id="dvRef" /></div>
+      <div class="form-group"><label>Receiving Department *</label>
+        <select id="dvDept">
+          <option value="">Select…</option>
+          <option>Administration</option><option>Stores</option><option>Kitchen</option>
+          <option>Library</option><option>Laboratory</option><option>Boarding</option>
+          <option>Maintenance</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Person Receiving</label><input type="text" id="dvReceiver" /></div>
+    <div class="form-group"><label>Gate</label><select id="dvGate"></select></div>
+    <button class="btn btn-success btn-block btn-lg" onclick="recordDelivery()">📦 RECORD DELIVERY</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">📋 Today's Deliveries</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Supplier</th><th>Category</th><th>Dept</th><th>Status</th></tr></thead>
+      <tbody id="deliveriesBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ CONTRACTORS ============ -->
+  <div id="tabContractors" class="form-section">
+    <h2 class="section-title"><i class="fas fa-hard-hat" style="color:var(--primary)"></i> Contractors & Workers</h2>
+    <p class="section-desc">Temporary workers and contractors.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="ctName" /></div>
+      <div class="form-group"><label>Company</label><input type="text" id="ctCompany" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Phone</label><input type="tel" id="ctPhone" /></div>
+      <div class="form-group"><label>Person Responsible</label><input type="text" id="ctResponsible" /></div>
+    </div>
+    <div class="form-group"><label>Purpose *</label><textarea id="ctPurpose" rows="2"></textarea></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Authorization</label><input type="text" id="ctAuth" placeholder="Approved by…" /></div>
+      <div class="form-group"><label>Gate</label><select id="ctGate"></select></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Entry Time</label><input type="time" id="ctEntry" /></div>
+      <div class="form-group"><label>Expected Departure</label><input type="time" id="ctExpected" /></div>
+    </div>
+    <button class="btn btn-success btn-block btn-lg" onclick="recordContractor()">✅ RECORD ENTRY</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">👷 Contractors Inside</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Name</th><th>Company</th><th>In</th><th>Expected Out</th><th></th></tr></thead>
+      <tbody id="contractorsBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ LOGBOOK ============ -->
+  <div id="tabLogbook" class="form-section">
+    <h2 class="section-title"><i class="fas fa-book" style="color:var(--primary)"></i> Gate Logbook</h2>
+    <p class="section-desc">Complete digital record of all movements.</p>
+
+    <div class="form-row-3">
+      <div class="form-group"><label>Date</label><input type="date" id="lgDate" onchange="loadLogbook()" /></div>
+      <div class="form-group"><label>Category</label>
+        <select id="lgCategory" onchange="loadLogbook()">
+          <option value="">All</option>
+          <option value="student">Student</option><option value="staff">Staff</option>
+          <option value="visitor">Visitor</option><option value="parent">Parent</option>
+          <option value="vehicle">Vehicle</option><option value="supplier">Supplier</option>
+          <option value="contractor">Contractor</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-info btn-block" onclick="loadLogbook()">🔄 Filter</button></div>
+    </div>
+
+    <div class="search-bar"><input type="text" id="lgSearch" placeholder="Search person, plate, or reference…" onkeyup="filterLogbook()" /></div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Person</th><th>Category</th><th>Action</th><th>Gate</th><th>Officer</th></tr></thead>
+      <tbody id="logbookBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ INCIDENTS ============ -->
+  <div id="tabIncidents" class="form-section">
+    <h2 class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> Incident Reporting</h2>
+    <p class="section-desc">Report security incidents.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Incident Type *</label>
+        <select id="inType">
+          <option value="">Select…</option>
+          <option value="unauthorized-entry">Unauthorized Entry</option>
+          <option value="unauthorized-exit">Student Attempting Unauthorized Exit</option>
+          <option value="theft">Theft</option>
+          <option value="lost">Lost Property</option>
+          <option value="fight">Fight</option>
+          <option value="accident">Accident</option>
+          <option value="suspicious">Suspicious Activity</option>
+          <option value="damage">Property Damage</option>
+          <option value="medical">Medical Emergency</option>
+          <option value="fire">Fire</option>
+          <option value="breach">Security Breach</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Location *</label><input type="text" id="inLocation" placeholder="e.g., Main Gate, Block A" /></div>
+    </div>
+    <div class="form-group"><label>People Involved</label><input type="text" id="inPeople" /></div>
+    <div class="form-group"><label>Witnesses</label><input type="text" id="inWitnesses" /></div>
+    <div class="form-group"><label>Description *</label><textarea id="inDescription" rows="4" placeholder="Describe what happened…"></textarea></div>
+    <div class="form-group"><label>Immediate Action Taken</label><textarea id="inAction" rows="2"></textarea></div>
+    <button class="btn btn-danger btn-block btn-lg" onclick="reportIncident()">🚨 SUBMIT INCIDENT</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">📋 Recent Incidents</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Type</th><th>Location</th><th>Status</th><th></th></tr></thead>
+      <tbody id="incidentsBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ LOST & FOUND ============ -->
+  <div id="tabLostfound" class="form-section">
+    <h2 class="section-title"><i class="fas fa-search" style="color:var(--primary)"></i> Lost & Found</h2>
+    <p class="section-desc">Record found items and claims.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Item *</label><input type="text" id="lfItem" placeholder="e.g., Blue school bag" /></div>
+      <div class="form-group"><label>Location Found *</label><input type="text" id="lfLocation" /></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="lfDesc" rows="2"></textarea></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Found By</label><input type="text" id="lfFoundBy" /></div>
+      <div class="form-group"><label>Storage Location</label><input type="text" id="lfStorage" placeholder="e.g., Security office" /></div>
+    </div>
+    <button class="btn btn-success btn-block" onclick="recordLostFound()">📦 RECORD ITEM</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">📋 Items</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Item</th><th>Found</th><th>Status</th><th>Claimant</th><th></th></tr></thead>
+      <tbody id="lostFoundBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ EMERGENCY ============ -->
+  <div id="tabEmergency" class="form-section">
+    <h2 class="section-title"><i class="fas fa-ambulance" style="color:var(--danger)"></i> Emergency Alert</h2>
+    <p class="section-desc">Trigger an emergency alert immediately.</p>
+
+    <div class="emergency-panel">
+      <h3>🚨 EMERGENCY</h3>
+      <p>Select emergency type to alert administrators</p>
+      <div class="emergency-grid">
+        <button class="emergency-type" onclick="triggerEmergency('fire')">🔥<br>Fire</button>
+        <button class="emergency-type" onclick="triggerEmergency('medical')">🏥<br>Medical</button>
+        <button class="emergency-type" onclick="triggerEmergency('security')">🛡️<br>Security</button>
+        <button class="emergency-type" onclick="triggerEmergency('student')">🎓<br>Student</button>
+        <button class="emergency-type" onclick="triggerEmergency('violence')">⚠️<br>Violence</button>
+        <button class="emergency-type" onclick="triggerEmergency('other')">📌<br>Other</button>
+      </div>
+    </div>
+
+    <div class="info-box danger">
+      <div class="info-title">⚠️ Important</div>
+      <div class="info-text">Emergency contacts are only visible to authorized administrators. Your alert will be logged and time-stamped.</div>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">📋 Recent Alerts</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Type</th><th>Location</th><th>Status</th><th></th></tr></thead>
+      <tbody id="emergencyBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ SHIFT ============ -->
+  <div id="tabShift" class="form-section">
+    <h2 class="section-title"><i class="fas fa-clock" style="color:var(--primary)"></i> Shift & Handover</h2>
+    <p class="section-desc">Shift management and end-of-shift handover.</p>
+
+    <div class="shift-banner">
+      <div class="shift-title">CURRENT SHIFT</div>
+      <div class="shift-info" id="shiftInfo2">—</div>
+      <div class="shift-time" id="shiftTime2">—</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card info"><div class="stat-number" id="shVisitorsIn">0</div><div class="stat-label">Visitors Inside</div></div>
+      <div class="stat-card info"><div class="stat-number" id="shVehiclesIn">0</div><div class="stat-label">Vehicles Inside</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="shOpenIncidents">0</div><div class="stat-label">Open Incidents</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="shPendingDeliveries">0</div><div class="stat-label">Pending Deliveries</div></div>
+    </div>
+
+    <div class="form-group"><label>Handover Notes</label><textarea id="shNotes" rows="5" placeholder="Important information for the next officer…"></textarea></div>
+    <button class="btn btn-success btn-block btn-lg" onclick="submitHandover()">📋 SUBMIT HANDOVER</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--primary)">📋 Recent Handovers</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Officer</th><th>Visitors</th><th>Vehicles</th><th>Incidents</th><th></th></tr></thead>
+      <tbody id="handoversBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ REPORT ============ -->
+  <div id="tabReport" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-alt" style="color:var(--primary)"></i> Daily Security Report</h2>
+    <p class="section-desc">Automatic summary of today's gate activity.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Report Date</label><input type="date" id="rpDate" onchange="loadDailyReport()" /></div>
+      <div class="form-group" style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn btn-info btn-block" onclick="loadDailyReport()">📊 Load</button>
+        <button class="btn btn-secondary btn-block" onclick="printReport()">🖨️ Print</button>
+      </div>
+    </div>
+
+    <div id="dailyReportOutput"><p style="color:#999;text-align:center;padding:20px">Select a date and click Load.</p></div>
+  </div>
+
+  <!-- ============ NOTIFICATIONS ============ -->
+  <div id="tabNotifications" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bell" style="color:var(--primary)"></i> Notifications</h2>
+    <p class="section-desc">Alerts and messages from administrators.</p>
+    <div id="notificationsList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ PROFILE ============ -->
+  <div id="tabProfile" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user" style="color:var(--primary)"></i> Profile</h2>
+    <div class="person-card">
+      <div class="pc-photo" id="pfPhoto"><span id="pfInitial">S</span></div>
+      <div class="pc-name" id="pfName">Loading…</div>
+      <div class="pc-meta" id="pfMeta">—</div>
+    </div>
+    <div class="info-box">
+      <div class="info-title">📌 Your Details</div>
+      <div class="info-text" id="pfDetails"></div>
+    </div>
+    <div class="info-box warning">
+      <div class="info-title">🔒 Privacy</div>
+      <div class="info-text">Your account shows only information needed for gate security duties. Contact the administrator for changes.</div>
+    </div>
+    <button class="btn btn-danger btn-block" onclick="appLogout()">🚪 Logout</button>
+  </div>
+
+  <div class="footer" style="text-align:center;padding:20px 0 10px;border-top:2px solid var(--border);margin-top:30px">
+    <div style="font-size:16px;font-weight:700;color:var(--primary)">🛡️ EduTrack Gate Security</div>
+    <div style="font-size:12px;color:var(--text-3)">Powered by <strong>His Grace Technologies</strong></div>
+  </div>
+</div>
+
+<!-- SCANNER MODAL -->
+<div class="modal-overlay" id="scannerModal">
+  <div class="modal-box" style="max-width:520px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0" id="scannerTitle">Scan QR Code</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeScanner()">✖</button>
+    </div>
+    <div class="camera-container">
+      <div id="qr-reader"></div>
+      <div class="status active" id="scannerStatus">📷 Point camera at QR code</div>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn btn-secondary btn-sm" onclick="switchCamera()">🔄 Switch Camera</button>
+    </div>
+  </div>
+</div>
+
+<!-- FACE MODAL -->
+<div class="modal-overlay" id="faceModal">
+  <div class="modal-box" style="max-width:520px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0" id="faceTitle">Face Scan</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeFaceScan()">✖</button>
+    </div>
+    <div class="camera-container">
+      <video id="faceVideo" autoplay playsinline></video>
+      <div class="face-box" id="faceBox"></div>
+      <div class="status" id="faceStatus">📷 Position face</div>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn btn-primary" onclick="captureFace()">📸 Capture & Identify</button>
+    </div>
+  </div>
+</div>
+
+<!-- VISITOR PASS MODAL -->
+<div class="modal-overlay" id="passModal">
+  <div class="modal-box" style="max-width:520px">
+    <h3 style="text-align:center">✅ Visitor Pass</h3>
+    <div id="passBody"></div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn-info" onclick="printCurrentPass()">🖨️ Print</button>
+      <button class="btn btn-primary" onclick="closePassModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   EduTrack — Gate Security Portal
+   ========================================================= */
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+var GATES = ['Main Gate','Students\' Gate','Staff Gate','Boarding Gate','Emergency Gate'];
+var FACE_MODEL_PATH = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+var FACE_THRESHOLD = 0.55;
+
+/* ========== STATE ========== */
+var authSession = null;
+var officer = null;
+var currentTab = 'dashboard';
+var scanMode = null; // 'student-entry' | 'student-exit' | 'staff-move'
+var html5QrScanner = null;
+var faceStream = null;
+var faceDetectInterval = null;
+var faceModelsLoaded = false;
+var faceOptions = null;
+var studentsCache = [];
+var staffCache = [];
+var visitorsCache = [];
+var vehiclesCache = [];
+var incidentsCache = [];
+var logbookCache = [];
+var attendanceToday = {}; // studentId -> status
+var offlineQueue = [];
+var currentPassData = null;
+var selectedPerson = null;
+
+/* ========== UTILITIES ========== */
+function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function nowIso(){ return new Date().toISOString(); }
+function nowTime(){ return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+function genId(prefix){ return (prefix||'ID')+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.floor(Math.random()*1000); }
+function escapeHtml(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function getActiveSchool(){ return authSession ? authSession.school : ''; }
+function getClassSheetId(cls){ return localStorage.getItem('classLink_'+cls+'_'+getActiveSchool()) || ''; }
+
+function showToast(msg, type){
+  type = type||'info';
+  var t = document.createElement('div');
+  t.className = 'toast-notification '+type;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 20);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 400); }, 3500);
+}
+function showLoading(v){ document.getElementById('loadingOverlay').classList.toggle('active', v); }
+function toggleMobileMenu(){ document.getElementById('navbarMenu').classList.toggle('open'); }
+
+var _confirmResolve = null;
+function confirmAction(title, msg, yesLabel, icon){
+  return new Promise(function(resolve){
+    _confirmResolve = resolve;
+    document.getElementById('confirmIcon').textContent = icon||'⚠️';
+    document.getElementById('confirmTitle').textContent = title||'Confirm';
+    document.getElementById('confirmMessage').textContent = msg||'Are you sure?';
+    document.getElementById('confirmYesBtn').textContent = yesLabel||'Yes';
+    document.getElementById('confirmYesBtn').onclick = function(){ closeConfirm(true); };
+    document.getElementById('confirmModal').classList.add('active');
+  });
+}
+function closeConfirm(yes){
+  document.getElementById('confirmModal').classList.remove('active');
+  if(_confirmResolve){ _confirmResolve(yes); _confirmResolve = null; }
+}
+function openInfoModal(html, title){
+  document.getElementById('infoModalTitle').textContent = title||'Details';
+  document.getElementById('infoModalBody').innerHTML = html;
+  document.getElementById('infoModal').classList.add('active');
+}
+function closeInfoModal(){ document.getElementById('infoModal').classList.remove('active'); }
+
+/* ========== API ========== */
+async function api(params){
+  if(APPS_SCRIPT_URL.indexOf('YOUR_DEPLOYMENT_ID_HERE')!==-1) throw new Error('Update APPS_SCRIPT_URL');
+  var parts=[];
+  for(var k in params) if(params.hasOwnProperty(k) && params[k]!=null){
+    parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+  }
+  try{
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+      body: parts.join('&'),
+      signal: AbortSignal.timeout(20000)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  } catch(e){
+    console.warn('[api offline]', e.message);
+    return {success:false, offline:true};
+  }
+}
+
+/* ========== AUDIT ========== */
+async function audit(action, recordType, recordId, details){
+  var entry = {
+    timestamp: nowIso(),
+    user: authSession?.username || 'unknown',
+    userName: authSession?.name || '',
+    role: 'gate-security',
+    action: action,
+    recordType: recordType,
+    recordId: recordId||'',
+    details: details||'',
+    device: navigator.userAgent.substring(0,80),
+    school: getActiveSchool()
+  };
+  await api({action:'logGateAudit', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), entry: JSON.stringify(entry)});
+  var local = JSON.parse(localStorage.getItem('gate_audit_'+getActiveSchool())||'[]');
+  local.push(entry);
+  if(local.length > 2000) local = local.slice(-1500);
+  localStorage.setItem('gate_audit_'+getActiveSchool(), JSON.stringify(local));
+}
+
+/* ========== OFFLINE QUEUE ========== */
+function queueOffline(action, payload){
+  offlineQueue.push({id:genId('Q'), action:action, payload:payload, timestamp:nowIso()});
+  localStorage.setItem('gate_queue_'+getActiveSchool(), JSON.stringify(offlineQueue));
+  updateSyncBadge();
+}
+function loadOfflineQueue(){
+  try{ offlineQueue = JSON.parse(localStorage.getItem('gate_queue_'+getActiveSchool())||'[]'); } catch(e){ offlineQueue = []; }
+  updateSyncBadge();
+}
+function updateSyncBadge(){
+  var badge = document.getElementById('syncBadge');
+  var count = document.getElementById('syncCount');
+  if(offlineQueue.length > 0){
+    badge.classList.remove('hidden');
+    count.textContent = offlineQueue.length;
+  } else badge.classList.add('hidden');
+}
+async function syncOfflineQueue(){
+  if(offlineQueue.length === 0){ showToast('✅ All synced','success'); return; }
+  showLoading(true);
+  var remaining = [];
+  for(var i=0;i<offlineQueue.length;i++){
+    var item = offlineQueue[i];
+    try{
+      var params = Object.assign({}, item.payload);
+      params.action = item.action;
+      var r = await api(params);
+      if(r && (r.success || r.data)) continue; // synced
+      remaining.push(item);
+    } catch(e){ remaining.push(item); }
+  }
+  offlineQueue = remaining;
+  localStorage.setItem('gate_queue_'+getActiveSchool(), JSON.stringify(offlineQueue));
+  updateSyncBadge();
+  showLoading(false);
+  if(offlineQueue.length === 0) showToast('✅ All synced','success');
+  else showToast('⚠️ '+offlineQueue.length+' still pending','warning');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function initGate(){
+  authSession = JSON.parse(sessionStorage.getItem('authSession')||'null');
+  if(!authSession){ window.location.href='index.html'; return; }
+  if(['gateman','security','admin','superadmin'].indexOf(authSession.role) === -1){
+    alert('Access denied'); window.location.href='index.html'; return;
+  }
+
+  document.getElementById('navUserName').textContent = authSession.name || authSession.username;
+  document.getElementById('navUserAvatar').textContent = (authSession.name||'S').charAt(0).toUpperCase();
+  document.getElementById('navUserRole').textContent = authSession.role==='gateman' ? 'Gate Man' : 'Security';
+
+  // Officer info
+  officer = {
+    staffId: authSession.staffId || authSession.username,
+    name: authSession.name || authSession.username,
+    gate: authSession.gate || GATES[0],
+    shiftStart: authSession.shiftStart || '07:00',
+    shiftEnd: authSession.shiftEnd || '19:00'
+  };
+  updateShiftBanner();
+
+  // Set date inputs
+  document.getElementById('lgDate').value = today();
+  document.getElementById('rpDate').value = today();
+
+  // Load gate dropdowns
+  [ 'seGate','sxGate','vinGate','smGate','vhGate','dvGate','ctGate' ].forEach(function(id){
+    var sel = document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML = GATES.map(function(g){ return '<option>'+escapeHtml(g)+'</option>'; }).join('');
+    sel.value = officer.gate;
+  });
+
+  loadOfflineQueue();
+  await loadStudentsCache();
+  await loadStaffCache();
+  await loadVisitors();
+  await loadVehicles();
+  await loadIncidents();
+  await loadEmergencyAlerts();
+  await loadLostFound();
+  await loadHandovers();
+  await loadNotifications();
+  await loadLogbook();
+  await loadAttendanceToday();
+  updateDashboard();
+  updateProfile();
+
+  // Auto-retry sync every 60s
+  setInterval(function(){ if(offlineQueue.length && navigator.onLine) syncOfflineQueue(); }, 60000);
+
+  // Update clock
+  setInterval(function(){ updateShiftBanner(); }, 30000);
+}
+
+/* =========================================================
+   SHIFT & DASHBOARD
+   ========================================================= */
+function updateShiftBanner(){
+  var timeStr = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  var info = officer.name + ' · ' + officer.staffId + ' · Gate: ' + officer.gate;
+  var shift = 'Shift: ' + officer.shiftStart + ' – ' + officer.shiftEnd + ' · Now ' + timeStr;
+  ['shiftInfo','shiftInfo2'].forEach(function(id){ var el = document.getElementById(id); if(el) el.textContent = info; });
+  ['shiftTime','shiftTime2'].forEach(function(id){ var el = document.getElementById(id); if(el) el.textContent = shift; });
+}
+
+async function updateDashboard(){
+  var present = 0, absent = 0, exited = 0;
+  for(var sid in attendanceToday){
+    var s = attendanceToday[sid];
+    if(s==='present') present++;
+    else if(s==='absent') absent++;
+    else if(s==='exited') exited++;
+  }
+  document.getElementById('dsStudentsIn').textContent = present;
+  document.getElementById('dsStudentsOut').textContent = exited;
+  document.getElementById('dsVisitorsIn').textContent = visitorsCache.filter(function(v){ return v.status==='visiting'; }).length;
+  document.getElementById('dsStaffIn').textContent = staffCache.filter(function(s){ return s.inSchool; }).length;
+  document.getElementById('dsVehiclesIn').textContent = vehiclesCache.filter(function(v){ return v.inSchool; }).length;
+  document.getElementById('dsTodayVisitors').textContent = visitorsCache.length;
+  document.getElementById('dsTodayDeliveries').textContent = (await loadTodayDeliveries()).length || 0;
+  document.getElementById('dsOpenIncidents').textContent = incidentsCache.filter(function(i){ return i.status==='open' || i.status==='review'; }).length;
+  await loadRecentActivity();
+}
+
+async function loadRecentActivity(){
+  var body = document.getElementById('recentActivityBody');
+  try{
+    var r = await api({action:'getGateLog', school: getActiveSchool(), date: today()});
+    var list = (r?.data?.logs || []).slice(-15).reverse();
+    logbookCache = (r?.data?.logs || []);
+    if(list.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No activity yet today.</td></tr>'; return; }
+    body.innerHTML = list.map(function(l){
+      return '<tr><td>'+escapeHtml(l.time||'')+'</td><td>'+escapeHtml(l.person||'')+'</td><td>'+escapeHtml(l.category||'')+'</td><td><span class="badge badge-'+(l.action==='entry'?'inside':'outside')+'">'+escapeHtml(l.action||'')+'</span></td><td>'+escapeHtml(l.gate||'')+'</td></tr>';
+    }).join('');
+  } catch(e){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Offline — no activity shown.</td></tr>'; }
+}
+
+/* =========================================================
+   CACHE LOADERS
+   ========================================================= */
+async function loadStudentsCache(){
+  var all = [];
+  for(var i=0;i<CLASSES.length;i++){
+    var cls = CLASSES[i];
+    var sheetId = getClassSheetId(cls);
+    if(!sheetId) continue;
+    try{
+      var r = await api({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: cls});
+      (r?.data?.students||[]).forEach(function(s){
+        s.class = s.class || cls;
+        all.push(s);
+      });
+    } catch(e){}
+  }
+  // Merge any offline-known students
+  var local = JSON.parse(localStorage.getItem('gate_students_'+getActiveSchool())||'[]');
+  var byId = {};
+  all.concat(local).forEach(function(s){ if(s.studentId) byId[s.studentId] = s; });
+  studentsCache = Object.values(byId);
+  localStorage.setItem('gate_students_'+getActiveSchool(), JSON.stringify(studentsCache));
+  console.log('[students cache]', studentsCache.length);
+}
+async function loadStaffCache(){
+  try{
+    var r = await api({action:'getAllAccounts', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    staffCache = (r?.data?.accounts || []).map(function(a){
+      return {staffId:a.staffId||a.username, name:a.name||a.username, role:a.role, department:a.department||'', inSchool:false};
+    });
+  } catch(e){ staffCache = []; }
+}
+async function loadVisitors(){
+  try{
+    var r = await api({action:'getVisitors', school: getActiveSchool(), date: today()});
+    visitorsCache = r?.data?.visitors || [];
+    localStorage.setItem('gate_visitors_'+getActiveSchool(), JSON.stringify(visitorsCache));
+  } catch(e){
+    visitorsCache = JSON.parse(localStorage.getItem('gate_visitors_'+getActiveSchool())||'[]');
+  }
+  renderVisitorsIn();
+}
+async function loadVehicles(){
+  try{
+    var r = await api({action:'getVehiclesInside', school: getActiveSchool()});
+    vehiclesCache = r?.data?.vehicles || [];
+  } catch(e){}
+  renderVehiclesIn();
+}
+async function loadIncidents(){
+  try{
+    var r = await api({action:'getIncidents', school: getActiveSchool()});
+    incidentsCache = (r?.data?.incidents || []).reverse();
+  } catch(e){}
+  renderIncidents();
+}
+async function loadEmergencyAlerts(){
+  try{
+    var r = await api({action:'getEmergencyAlerts', school: getActiveSchool()});
+    var list = (r?.data?.alerts || []).reverse();
+    document.getElementById('emergencyBody').innerHTML = list.length ? list.map(function(e){
+      return '<tr><td>'+escapeHtml(e.time||'')+'</td><td>'+escapeHtml(e.type||'')+'</td><td>'+escapeHtml(e.gate||'')+'</td><td><span class="badge badge-'+(e.status==='resolved'?'resolved':'open')+'">'+escapeHtml(e.status||'open')+'</span></td><td><button class="btn btn-info btn-sm" onclick="viewEmergency(\''+escapeHtml(e.id)+'\')">👁️</button></td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No alerts.</td></tr>';
+  } catch(e){}
+}
+async function loadLostFound(){
+  try{
+    var r = await api({action:'getLostFound', school: getActiveSchool()});
+    var list = (r?.data?.items || []).reverse();
+    document.getElementById('lostFoundBody').innerHTML = list.length ? list.map(function(i){
+      return '<tr><td>'+escapeHtml(i.item||'')+'</td><td>'+escapeHtml(i.locationFound||'')+'</td><td><span class="badge badge-'+(i.status==='claimed'?'resolved':'open')+'">'+escapeHtml(i.status||'found')+'</span></td><td>'+escapeHtml(i.claimant||'—')+'</td><td><button class="btn btn-info btn-sm" onclick="claimItem(\''+escapeHtml(i.id)+'\')">✋ Claim</button></td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No items.</td></tr>';
+  } catch(e){}
+}
+async function loadHandovers(){
+  try{
+    var r = await api({action:'getGateHandovers', school: getActiveSchool()});
+    var list = (r?.data?.handovers || []).reverse().slice(0,20);
+    document.getElementById('handoversBody').innerHTML = list.length ? list.map(function(h){
+      return '<tr><td>'+escapeHtml(h.date||'')+'</td><td>'+escapeHtml(h.officerName||'')+'</td><td>'+escapeHtml(h.visitorsIn||'0')+'</td><td>'+escapeHtml(h.vehiclesIn||'0')+'</td><td>'+escapeHtml(h.openIncidents||'0')+'</td><td><button class="btn btn-info btn-sm" onclick="viewHandover(\''+escapeHtml(h.id)+'\')">👁️</button></td></tr>';
+    }).join('') : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No handovers.</td></tr>';
+  } catch(e){}
+}
+async function loadNotifications(){
+  try{
+    var r = await api({action:'getGateNotifications', school: getActiveSchool(), gate: officer.gate});
+    var list = (r?.data?.notifications || []);
+    var unread = list.filter(function(n){ return !n.read; }).length;
+    var badge = document.getElementById('notifBadge');
+    if(unread>0){ badge.style.display='inline-block'; badge.textContent = unread; }
+    else badge.style.display='none';
+    document.getElementById('notificationsList').innerHTML = list.length ? list.map(function(n){
+      return '<div class="info-box '+(n.priority==='high'?'danger':'')+'"><div class="info-title">'+escapeHtml(n.title||'')+'</div><div class="info-text">'+escapeHtml(n.body||'')+'</div><div style="font-size:10px;color:#888;margin-top:4px">'+escapeHtml(n.timestamp||'')+'</div></div>';
+    }).join('') : '<p style="color:#999;text-align:center;padding:20px">No notifications.</p>';
+  } catch(e){}
+}
+async function loadLogbook(){
+  var date = document.getElementById('lgDate').value || today();
+  var cat = document.getElementById('lgCategory').value;
+  try{
+    var r = await api({action:'getGateLog', school: getActiveSchool(), date: date});
+    var list = r?.data?.logs || [];
+    if(cat) list = list.filter(function(l){ return l.category === cat; });
+    logbookCache = list;
+    renderLogbook();
+  } catch(e){ renderLogbook(); }
+}
+function renderLogbook(){
+  var body = document.getElementById('logbookBody');
+  if(logbookCache.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No records.</td></tr>'; return; }
+  var list = logbookCache.slice().reverse();
+  body.innerHTML = list.map(function(l){
+    return '<tr data-search="'+escapeHtml((l.person+' '+(l.category||'')+' '+(l.reference||'')).toLowerCase())+'"><td>'+escapeHtml(l.time||'')+'</td><td>'+escapeHtml(l.person||'')+'</td><td>'+escapeHtml(l.category||'')+'</td><td><span class="badge badge-'+(l.action==='entry'?'inside':'outside')+'">'+escapeHtml(l.action||'')+'</span></td><td>'+escapeHtml(l.gate||'')+'</td><td>'+escapeHtml(l.officer||'')+'</td></tr>';
+  }).join('');
+}
+function filterLogbook(){
+  var q = document.getElementById('lgSearch').value.toLowerCase();
+  document.querySelectorAll('#logbookBody tr').forEach(function(tr){
+    var s = tr.getAttribute('data-search')||'';
+    tr.style.display = (!q || s.indexOf(q)!==-1)?'':'none';
+  });
+}
+async function loadAttendanceToday(){
+  try{
+    var r = await api({action:'getGateAttendance', school: getActiveSchool(), date: today()});
+    var list = (r?.data?.attendance || []);
+    attendanceToday = {};
+    list.forEach(function(a){ attendanceToday[a.studentId] = a.status; });
+  } catch(e){}
+}
+async function loadTodayDeliveries(){
+  try{
+    var r = await api({action:'getDeliveries', school: getActiveSchool(), date: today()});
+    var list = (r?.data?.deliveries || []);
+    document.getElementById('deliveriesBody').innerHTML = list.length ? list.map(function(d){
+      return '<tr><td>'+escapeHtml(d.time||'')+'</td><td>'+escapeHtml(d.supplier||'')+'</td><td>'+escapeHtml(d.category||'')+'</td><td>'+escapeHtml(d.department||'')+'</td><td><span class="badge badge-'+(d.departureTime?'approved':'pending')+'">'+(d.departureTime?'Departed':'Inside')+'</span></td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No deliveries today.</td></tr>';
+    return list;
+  } catch(e){ return []; }
+}
+
+/* =========================================================
+   STUDENT ENTRY
+   ========================================================= */
+function searchStudentForEntry(){
+  var q = document.getElementById('seSearch').value.trim().toLowerCase();
+  var box = document.getElementById('seResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var matches = studentsCache.filter(function(s){
+    return (s.studentName||'').toLowerCase().indexOf(q) !== -1 || (s.studentId||'').toLowerCase().indexOf(q) !== -1;
+  }).slice(0,10);
+  if(matches.length === 0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No student found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectStudentEntry(\''+escapeHtml(s.studentId)+'\')"><div class="pr-avatar">'+(s.photo?'<img src="'+s.photo+'" />':escapeHtml((s.studentName||'?').charAt(0)))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.studentName)+'</div><div class="pr-meta">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div></div></div>';
+  }).join('');
+}
+function selectStudentEntry(studentId){
+  var s = studentsCache.filter(function(x){ return x.studentId === studentId; })[0];
+  if(!s){ showToast('Student not found','error'); return; }
+  selectedPerson = {type:'student', data:s};
+  document.getElementById('seResults').innerHTML = '';
+  document.getElementById('seSearch').value = '';
+  renderStudentEntryCard(s);
+}
+function renderStudentEntryCard(s){
+  var isIn = attendanceToday[s.studentId] === 'present';
+  document.getElementById('sePersonCard').innerHTML =
+    '<div class="person-card">'+
+      '<div class="pc-photo">'+(s.photo?'<img src="'+s.photo+'" />':escapeHtml((s.studentName||'?').charAt(0)))+'</div>'+
+      '<div class="pc-name">'+escapeHtml(s.studentName)+'</div>'+
+      '<div class="pc-meta">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div>'+
+      '<span class="pc-status badge-'+(isIn?'inside':'pending')+'">'+(isIn?'ALREADY INSIDE':'NOT YET ENTERED')+'</span>'+
+    '</div>';
+  document.getElementById('seEntryForm').style.display = 'block';
+  document.getElementById('seTime').value = nowTime();
+}
+function resetStudentEntry(){
+  selectedPerson = null;
+  document.getElementById('sePersonCard').innerHTML = '';
+  document.getElementById('seEntryForm').style.display = 'none';
+}
+async function submitStudentEntry(){
+  if(!selectedPerson) return;
+  var s = selectedPerson.data;
+  var entry = {
+    id: genId('SE'),
+    studentId: s.studentId,
+    person: s.studentName,
+    category: 'student',
+    action: 'entry',
+    class: s.class,
+    gate: document.getElementById('seGate').value,
+    date: today(),
+    time: nowTime(),
+    officer: officer.name,
+    officerId: officer.staffId,
+    timestamp: nowIso(),
+    school: getActiveSchool(),
+    reference: 'manual'
+  };
+  try{
+    var r = await api({action:'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify(entry)});
+    if(r.offline) queueOffline('saveGateLog', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify(entry)});
+    await audit('STUDENT_ENTRY','student',s.studentId,s.studentName+' entered via '+entry.gate);
+    // Mark attendance locally
+    attendanceToday[s.studentId] = 'present';
+    await api({action:'markGateAttendance', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), studentId:s.studentId, date:today(), status:'present'});
+    showToast('✅ '+s.studentName+' — ENTRY recorded','success');
+    resetStudentEntry();
+    updateDashboard();
+    loadLogbook();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   STUDENT EXIT
+   ========================================================= */
+function searchStudentForExit(){
+  var q = document.getElementById('sxSearch').value.trim().toLowerCase();
+  var box = document.getElementById('sxResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var matches = studentsCache.filter(function(s){
+    return (s.studentName||'').toLowerCase().indexOf(q) !== -1 || (s.studentId||'').toLowerCase().indexOf(q) !== -1;
+  }).slice(0,10);
+  if(matches.length === 0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No student found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectStudentExit(\''+escapeHtml(s.studentId)+'\')"><div class="pr-avatar">'+escapeHtml((s.studentName||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.studentName)+'</div><div class="pr-meta">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div></div></div>';
+  }).join('');
+}
+async function selectStudentExit(studentId){
+  var s = studentsCache.filter(function(x){ return x.studentId === studentId; })[0];
+  if(!s){ showToast('Student not found','error'); return; }
+  selectedPerson = {type:'student-exit', data:s};
+  document.getElementById('sxResults').innerHTML = '';
+  document.getElementById('sxSearch').value = '';
+  // Check authorization
+  var auth = null;
+  try{
+    var r = await api({action:'getExitAuthorization', school: getActiveSchool(), studentId: studentId});
+    auth = r?.data?.authorization;
+  } catch(e){}
+  var isAuthorized = auth && auth.status === 'approved';
+  document.getElementById('sxPersonCard').innerHTML =
+    '<div class="person-card">'+
+      '<div class="pc-photo">'+(s.photo?'<img src="'+s.photo+'" />':escapeHtml((s.studentName||'?').charAt(0)))+'</div>'+
+      '<div class="pc-name">'+escapeHtml(s.studentName)+'</div>'+
+      '<div class="pc-meta">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div>'+
+      (isAuthorized
+        ? '<span class="pc-status badge-inside">✅ AUTHORIZED — '+escapeHtml(auth.reason||'')+'</span>'
+        : '<span class="pc-status badge-absent">🚫 NOT AUTHORIZED</span>')+
+    '</div>';
+  document.getElementById('sxExitForm').style.display = 'block';
+  document.getElementById('sxSubmitBtn').disabled = !isAuthorized;
+  document.getElementById('sxNotAuthorized').style.display = isAuthorized ? 'none' : 'block';
+  document.getElementById('sxAuthActions').style.display = isAuthorized ? 'none' : 'grid';
+  if(isAuthorized){
+    document.getElementById('sxAuthBy').value = auth.authorizedBy || '';
+    document.getElementById('sxReason').value = auth.reason || '';
+  }
+}
+function resetStudentExit(){
+  selectedPerson = null;
+  document.getElementById('sxPersonCard').innerHTML = '';
+  document.getElementById('sxExitForm').style.display = 'none';
+}
+async function submitStudentExit(){
+  if(!selectedPerson){ return; }
+  var s = selectedPerson.data;
+  var reason = document.getElementById('sxReason').value;
+  if(!reason){ showToast('Select reason for leaving','warning'); return; }
+  var entry = {
+    id: genId('SX'),
+    studentId: s.studentId,
+    person: s.studentName,
+    category: 'student',
+    action: 'exit',
+    class: s.class,
+    gate: document.getElementById('sxGate').value,
+    date: today(),
+    time: nowTime(),
+    officer: officer.name,
+    officerId: officer.staffId,
+    reason: reason,
+    collectedBy: document.getElementById('sxCollectedBy').value,
+    collectedPhone: document.getElementById('sxCollectedPhone').value,
+    authorizedBy: document.getElementById('sxAuthBy').value,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  var ok = await confirmAction('Confirm Exit','Allow '+s.studentName+' to exit?','Allow Exit','🚪');
+  if(!ok) return;
+  try{
+    var r = await api({action:'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify(entry)});
+    if(r.offline) queueOffline('saveGateLog', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify(entry)});
+    await audit('STUDENT_EXIT','student',s.studentId,s.studentName+' exited — '+reason);
+    attendanceToday[s.studentId] = 'exited';
+    await api({action:'markGateAttendance', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), studentId:s.studentId, date:today(), status:'exited'});
+    showToast('✅ '+s.studentName+' — EXIT recorded','success');
+    resetStudentExit();
+    updateDashboard();
+    loadLogbook();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function contactAdmin(){ showToast('📞 Contacting administrator…','info'); audit('CONTACT_ADMIN','security','','Officer requested admin contact'); }
+function requestAuthorization(){
+  if(!selectedPerson){ return; }
+  audit('REQUEST_EXIT_AUTH','student',selectedPerson.data.studentId,'Exit auth requested for '+selectedPerson.data.studentName);
+  showToast('📝 Authorization request sent to admin','info');
+}
+function reportEmergencyExit(){
+  if(!selectedPerson){ return; }
+  audit('EMERGENCY_EXIT_REPORT','student',selectedPerson.data.studentId,'Emergency exit reported');
+  switchTab('emergency');
+  showToast('🚨 Emergency — please select type','warning');
+}
+
+/* =========================================================
+   VISITOR IN/OUT
+   ========================================================= */
+async function checkInVisitor(){
+  var name = document.getElementById('vinName').value.trim();
+  var phone = document.getElementById('vinPhone').value.trim();
+  var visiting = document.getElementById('vinVisiting').value.trim();
+  var purpose = document.getElementById('vinPurpose').value;
+  if(!name || !phone || !visiting || !purpose){ showToast('Fill required fields','warning'); return; }
+  var passNo = 'VIS-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000+1000));
+  var visitor = {
+    id: genId('V'),
+    passNo: passNo,
+    name: name,
+    phone: phone,
+    idType: document.getElementById('vinIdType').value,
+    idNumber: document.getElementById('vinIdNumber').value,
+    organization: document.getElementById('vinOrg').value,
+    visiting: visiting,
+    purpose: purpose,
+    notes: document.getElementById('vinNotes').value,
+    gate: document.getElementById('vinGate').value,
+    arrivalTime: nowTime(),
+    date: today(),
+    status: 'visiting',
+    officer: officer.name,
+    officerId: officer.staffId,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveVisitor', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), visitor: JSON.stringify(visitor)});
+    if(r.offline) queueOffline('saveVisitor', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), visitor: JSON.stringify(visitor)});
+    await audit('VISITOR_CHECKIN','visitor',passNo,name+' visiting '+visiting);
+    // Log to gate log too
+    await api({action:'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify({
+      id:visitor.id, person:name, category:'visitor', action:'entry', gate:visitor.gate,
+      date:today(), time:visitor.arrivalTime, officer:officer.name, reference:passNo, school:getActiveSchool()
+    })});
+    // Show pass
+    showVisitorPass(visitor);
+    // Reset form
+    ['vinName','vinPhone','vinIdNumber','vinOrg','vinVisiting','vinNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+    loadVisitors();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function showVisitorPass(v){
+  currentPassData = v;
+  document.getElementById('passBody').innerHTML =
+    '<div class="person-card" style="border:2px solid var(--success)">'+
+      '<div style="font-size:12px;color:#888;text-transform:uppercase">VISITOR PASS</div>'+
+      '<div style="font-size:26px;font-weight:700;color:var(--primary);margin:8px 0" id="passNoText">'+escapeHtml(v.passNo)+'</div>'+
+      '<div class="pc-name">'+escapeHtml(v.name)+'</div>'+
+      '<div class="pc-meta">Phone: '+escapeHtml(v.phone)+'</div>'+
+      '<div class="pc-meta">Visiting: '+escapeHtml(v.visiting)+'</div>'+
+      '<div class="pc-meta">Purpose: '+escapeHtml(v.purpose)+'</div>'+
+      '<div class="pc-meta">Arrival: '+escapeHtml(v.arrivalTime)+'</div>'+
+      '<div class="pc-meta">Gate: '+escapeHtml(v.gate)+'</div>'+
+      '<span class="pc-status badge-inside">STATUS: INSIDE</span>'+
+      '<div style="margin-top:12px" id="passQR"></div>'+
+    '</div>';
+  document.getElementById('passModal').classList.add('active');
+  // QR
+  if(typeof QRCode !== 'undefined'){
+    document.getElementById('passQR').innerHTML = '';
+    new QRCode(document.getElementById('passQR'), {text:'VISITOR:'+v.passNo, width:100, height:100});
+  }
+}
+function closePassModal(){ document.getElementById('passModal').classList.remove('active'); }
+function printCurrentPass(){
+  var html = document.getElementById('passBody').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>Visitor Pass</title><style>body{font-family:Arial;padding:20px;text-align:center}</style></head><body>'+html+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 300);
+}
+function searchVisitorOut(){
+  var q = document.getElementById('voutSearch').value.trim().toLowerCase();
+  var box = document.getElementById('voutResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var matches = visitorsCache.filter(function(v){
+    return v.status === 'visiting' && (
+      (v.name||'').toLowerCase().indexOf(q) !== -1 ||
+      (v.phone||'').indexOf(q) !== -1 ||
+      (v.passNo||'').toLowerCase().indexOf(q) !== -1
+    );
+  }).slice(0,10);
+  if(matches.length === 0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No visitor inside found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(v){
+    return '<div class="person-result"><div class="pr-avatar">'+escapeHtml((v.name||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(v.name)+'</div><div class="pr-meta">'+escapeHtml(v.passNo)+' · Visiting: '+escapeHtml(v.visiting)+' · In: '+escapeHtml(v.arrivalTime)+'</div></div><button class="btn btn-warning btn-sm" onclick="checkOutVisitor(\''+escapeHtml(v.id)+'\')">CHECK OUT</button></div>';
+  }).join('');
+}
+async function checkOutVisitor(id){
+  var v = visitorsCache.filter(function(x){ return x.id === id; })[0];
+  if(!v) return;
+  var ok = await confirmAction('Visitor Check-Out','Check out '+v.name+'?','Check Out','🚪');
+  if(!ok) return;
+  var departureTime = nowTime();
+  try{
+    var r = await api({action:'updateVisitorCheckout', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), visitorId: id, departureTime: departureTime});
+    if(r.offline) queueOffline('updateVisitorCheckout', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), visitorId: id, departureTime: departureTime});
+    await audit('VISITOR_CHECKOUT','visitor',v.passNo,v.name+' checked out');
+    await api({action:'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify({
+      id:genId('VL'), person:v.name, category:'visitor', action:'exit', gate:v.gate,
+      date:today(), time:departureTime, officer:officer.name, reference:v.passNo, school:getActiveSchool()
+    })});
+    showToast('✅ '+v.name+' checked out','success');
+    loadVisitors();
+    updateDashboard();
+    document.getElementById('voutSearch').value = '';
+    document.getElementById('voutResults').innerHTML = '';
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function renderVisitorsIn(){
+  var body = document.getElementById('visitorsInBody');
+  var list = visitorsCache.filter(function(v){ return v.status === 'visiting'; });
+  if(list.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No visitors inside.</td></tr>'; return; }
+  body.innerHTML = list.map(function(v){
+    return '<tr><td>'+escapeHtml(v.passNo||'')+'</td><td>'+escapeHtml(v.name)+'</td><td>'+escapeHtml(v.visiting||'')+'</td><td>'+escapeHtml(v.arrivalTime||'')+'</td><td><span class="badge badge-visiting">INSIDE</span></td><td><button class="btn btn-warning btn-sm" onclick="checkOutVisitor(\''+escapeHtml(v.id)+'\')">Out</button></td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   STAFF MOVEMENT
+   ========================================================= */
+function searchStaff(){
+  var q = document.getElementById('smSearch').value.trim().toLowerCase();
+  var box = document.getElementById('smResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var matches = staffCache.filter(function(s){
+    return (s.name||'').toLowerCase().indexOf(q) !== -1 || (s.staffId||'').toLowerCase().indexOf(q) !== -1;
+  }).slice(0,10);
+  if(matches.length === 0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No staff found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectStaff(\''+escapeHtml(s.staffId)+'\')"><div class="pr-avatar">'+escapeHtml((s.name||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.name)+'</div><div class="pr-meta">'+escapeHtml(s.staffId)+' · '+escapeHtml(s.role||'')+'</div></div></div>';
+  }).join('');
+}
+function selectStaff(staffId){
+  var s = staffCache.filter(function(x){ return x.staffId === staffId; })[0];
+  if(!s){ showToast('Staff not found','error'); return; }
+  selectedPerson = {type:'staff', data:s};
+  document.getElementById('smResults').innerHTML = '';
+  document.getElementById('smSearch').value = '';
+  document.getElementById('smPersonCard').innerHTML =
+    '<div class="person-card">'+
+      '<div class="pc-photo">'+escapeHtml((s.name||'?').charAt(0))+'</div>'+
+      '<div class="pc-name">'+escapeHtml(s.name)+'</div>'+
+      '<div class="pc-meta">'+escapeHtml(s.staffId)+' · '+escapeHtml(s.role||'')+' · '+escapeHtml(s.department||'')+'</div>'+
+    '</div>';
+  document.getElementById('smForm').style.display = 'block';
+}
+function resetStaff(){
+  selectedPerson = null;
+  document.getElementById('smPersonCard').innerHTML = '';
+  document.getElementById('smForm').style.display = 'none';
+}
+async function submitStaffMove(){
+  if(!selectedPerson){ return; }
+  var s = selectedPerson.data;
+  var action = document.getElementById('smAction').value;
+  var entry = {
+    id: genId('SM'),
+    person: s.name,
+    personId: s.staffId,
+    category: 'staff',
+    action: action,
+    role: s.role,
+    gate: document.getElementById('smGate').value,
+    date: today(),
+    time: nowTime(),
+    officer: officer.name,
+    officerId: officer.staffId,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify(entry)});
+    if(r.offline) queueOffline('saveGateLog', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify(entry)});
+    await audit('STAFF_'+action.toUpperCase(),'staff',s.staffId,s.name+' '+action);
+    s.inSchool = action === 'entry';
+    showToast('✅ '+s.name+' — '+action.toUpperCase(),'success');
+    resetStaff();
+    updateDashboard();
+    loadLogbook();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   VEHICLES
+   ========================================================= */
+async function recordVehicle(){
+  var plate = document.getElementById('vhPlate').value.trim().toUpperCase();
+  var type = document.getElementById('vhType').value;
+  if(!plate || !type){ showToast('Fill required fields','warning'); return; }
+  var action = document.getElementById('vhAction').value;
+  var v = {
+    id: genId('VH'),
+    plate: plate,
+    type: type,
+    driver: document.getElementById('vhDriver').value,
+    driverPhone: document.getElementById('vhDriverPhone').value,
+    action: action,
+    gate: document.getElementById('vhGate').value,
+    purpose: document.getElementById('vhPurpose').value,
+    date: today(),
+    time: nowTime(),
+    officer: officer.name,
+    officerId: officer.staffId,
+    timestamp: nowIso(),
+    school: getActiveSchool(),
+    inSchool: action === 'entry'
+  };
+  try{
+    var r = await api({action:'saveVehicleMovement', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), vehicle: JSON.stringify(v)});
+    if(r.offline) queueOffline('saveVehicleMovement', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), vehicle: JSON.stringify(v)});
+    await audit('VEHICLE_'+action.toUpperCase(),'vehicle',plate,type+' — '+action);
+    await api({action:'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify({
+      id:v.id, person:plate+' ('+type+')', category:'vehicle', action:action, gate:v.gate,
+      date:today(), time:v.time, officer:officer.name, reference:plate, school:getActiveSchool()
+    })});
+    showToast('✅ Vehicle '+action+' recorded','success');
+    ['vhPlate','vhDriver','vhDriverPhone','vhPurpose'].forEach(function(id){ document.getElementById(id).value=''; });
+    loadVehicles();
+    updateDashboard();
+    loadLogbook();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function renderVehiclesIn(){
+  var body = document.getElementById('vehiclesInBody');
+  var list = vehiclesCache.filter(function(v){ return v.inSchool; });
+  if(list.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No vehicles inside.</td></tr>'; return; }
+  body.innerHTML = list.map(function(v){
+    return '<tr><td>'+escapeHtml(v.plate)+'</td><td>'+escapeHtml(v.type)+'</td><td>'+escapeHtml(v.driver||'')+'</td><td>'+escapeHtml(v.time||'')+'</td><td><button class="btn btn-warning btn-sm" onclick="markVehicleExited(\''+escapeHtml(v.id)+'\')">Exit</button></td></tr>';
+  }).join('');
+}
+async function markVehicleExited(id){
+  var v = vehiclesCache.filter(function(x){ return x.id === id; })[0];
+  if(!v) return;
+  var ok = await confirmAction('Vehicle Exit','Record exit for '+v.plate+'?','Exit','🚗');
+  if(!ok) return;
+  try{
+    await api({action:'markVehicleExited', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id:id, departureTime:nowTime(), officer:officer.name});
+    await audit('VEHICLE_EXIT','vehicle',v.plate,'Vehicle exited');
+    v.inSchool = false;
+    showToast('✅ Vehicle exited','success');
+    loadVehicles();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   DELIVERIES
+   ========================================================= */
+async function recordDelivery(){
+  var supplier = document.getElementById('dvSupplier').value.trim();
+  var items = document.getElementById('dvItems').value.trim();
+  var dept = document.getElementById('dvDept').value;
+  if(!supplier || !items || !dept){ showToast('Fill required fields','warning'); return; }
+  var d = {
+    id: genId('DV'),
+    supplier: supplier,
+    driver: document.getElementById('dvDriver').value,
+    plate: document.getElementById('dvPlate').value.toUpperCase(),
+    category: document.getElementById('dvCategory').value,
+    items: items,
+    reference: document.getElementById('dvRef').value,
+    department: dept,
+    receiver: document.getElementById('dvReceiver').value,
+    gate: document.getElementById('dvGate').value,
+    date: today(),
+    time: nowTime(),
+    officer: officer.name,
+    officerId: officer.staffId,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveDelivery', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), delivery: JSON.stringify(d)});
+    if(r.offline) queueOffline('saveDelivery', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), delivery: JSON.stringify(d)});
+    await audit('DELIVERY','delivery',d.id,supplier+' — '+d.category);
+    await api({action:'saveGateLog', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), log: JSON.stringify({
+      id:d.id, person:supplier, category:'supplier', action:'entry', gate:d.gate,
+      date:today(), time:d.time, officer:officer.name, reference:d.plate, school:getActiveSchool()
+    })});
+    showToast('✅ Delivery recorded','success');
+    ['dvSupplier','dvDriver','dvPlate','dvItems','dvRef','dvReceiver'].forEach(function(id){ document.getElementById(id).value=''; });
+    loadTodayDeliveries();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   CONTRACTORS
+   ========================================================= */
+async function recordContractor(){
+  var name = document.getElementById('ctName').value.trim();
+  var purpose = document.getElementById('ctPurpose').value.trim();
+  if(!name || !purpose){ showToast('Fill required fields','warning'); return; }
+  var c = {
+    id: genId('CT'),
+    name: name,
+    company: document.getElementById('ctCompany').value,
+    phone: document.getElementById('ctPhone').value,
+    responsible: document.getElementById('ctResponsible').value,
+    purpose: purpose,
+    authorization: document.getElementById('ctAuth').value,
+    gate: document.getElementById('ctGate').value,
+    date: today(),
+    entryTime: document.getElementById('ctEntry').value || nowTime(),
+    expectedDeparture: document.getElementById('ctExpected').value,
+    officer: officer.name,
+    status: 'inside',
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveContractor', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), contractor: JSON.stringify(c)});
+    if(r.offline) queueOffline('saveContractor', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), contractor: JSON.stringify(c)});
+    await audit('CONTRACTOR_IN','contractor',c.id,name+' — '+(c.company||''));
+    showToast('✅ Contractor recorded','success');
+    ['ctName','ctCompany','ctPhone','ctResponsible','ctPurpose','ctAuth'].forEach(function(id){ document.getElementById(id).value=''; });
+    loadContractors();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadContractors(){
+  try{
+    var r = await api({action:'getContractors', school: getActiveSchool()});
+    var list = (r?.data?.contractors || []).filter(function(c){ return c.status === 'inside'; });
+    document.getElementById('contractorsBody').innerHTML = list.length ? list.map(function(c){
+      return '<tr><td>'+escapeHtml(c.name)+'</td><td>'+escapeHtml(c.company||'')+'</td><td>'+escapeHtml(c.entryTime||'')+'</td><td>'+escapeHtml(c.expectedDeparture||'')+'</td><td><button class="btn btn-warning btn-sm" onclick="markContractorOut(\''+escapeHtml(c.id)+'\')">Out</button></td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No contractors inside.</td></tr>';
+  } catch(e){}
+}
+async function markContractorOut(id){
+  await api({action:'markContractorOut', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id:id, departureTime:nowTime()});
+  await audit('CONTRACTOR_OUT','contractor',id,'Contractor exited');
+  loadContractors();
+  showToast('✅ Contractor out','success');
+}
+
+/* =========================================================
+   INCIDENTS
+   ========================================================= */
+async function reportIncident(){
+  var type = document.getElementById('inType').value;
+  var location = document.getElementById('inLocation').value.trim();
+  var desc = document.getElementById('inDescription').value.trim();
+  if(!type || !location || !desc){ showToast('Fill required fields','warning'); return; }
+  var inc = {
+    id: genId('INC'),
+    type: type,
+    location: location,
+    people: document.getElementById('inPeople').value,
+    witnesses: document.getElementById('inWitnesses').value,
+    description: desc,
+    action: document.getElementById('inAction').value,
+    gate: officer.gate,
+    date: today(),
+    time: nowTime(),
+    officer: officer.name,
+    officerId: officer.staffId,
+    status: 'open',
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveIncident', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), incident: JSON.stringify(inc)});
+    if(r.offline) queueOffline('saveIncident', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), incident: JSON.stringify(inc)});
+    await audit('INCIDENT_REPORT','incident',inc.id,type+' at '+location);
+    showToast('🚨 Incident reported','success');
+    ['inPeople','inWitnesses','inDescription','inAction','inLocation'].forEach(function(id){ document.getElementById(id).value=''; });
+    loadIncidents();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function renderIncidents(){
+  var body = document.getElementById('incidentsBody');
+  if(incidentsCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No incidents.</td></tr>'; return; }
+  body.innerHTML = incidentsCache.slice(0,20).map(function(i){
+    var cls = i.status==='open'?'open':i.status==='resolved'?'resolved':'review';
+    return '<tr><td>'+escapeHtml(i.date)+' '+escapeHtml(i.time||'')+'</td><td>'+escapeHtml(i.type)+'</td><td>'+escapeHtml(i.location||'')+'</td><td><span class="badge badge-'+cls+'">'+escapeHtml(i.status||'open')+'</span></td><td><button class="btn btn-info btn-sm" onclick="viewIncident(\''+escapeHtml(i.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewIncident(id){
+  var i = incidentsCache.filter(function(x){ return x.id===id; })[0];
+  if(!i) return;
+  openInfoModal(
+    '<div class="info-box danger"><div class="info-title">'+escapeHtml(i.type)+' — '+escapeHtml(i.location)+'</div><div class="info-text">'+escapeHtml(i.date)+' '+escapeHtml(i.time||'')+' · Reported by '+escapeHtml(i.officer||'')+'</div></div>'+
+    '<h4 style="margin:10px 0 4px">Description</h4><p style="font-size:13px">'+escapeHtml(i.description||'')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Action Taken</h4><p style="font-size:13px">'+escapeHtml(i.action||'—')+'</p>'+
+    '<h4 style="margin:10px 0 4px">People / Witnesses</h4><p style="font-size:13px">'+escapeHtml(i.people||'—')+' · '+escapeHtml(i.witnesses||'—')+'</p>'+
+    '<p style="margin-top:10px"><strong>Status:</strong> <span class="badge badge-'+(i.status==='resolved'?'resolved':'open')+'">'+escapeHtml(i.status)+'</span></p>',
+    'Incident Details');
+}
+
+/* =========================================================
+   LOST & FOUND
+   ========================================================= */
+async function recordLostFound(){
+  var item = document.getElementById('lfItem').value.trim();
+  var loc = document.getElementById('lfLocation').value.trim();
+  if(!item || !loc){ showToast('Fill item and location','warning'); return; }
+  var f = {
+    id: genId('LF'),
+    item: item,
+    locationFound: loc,
+    description: document.getElementById('lfDesc').value,
+    foundBy: document.getElementById('lfFoundBy').value,
+    storage: document.getElementById('lfStorage').value,
+    date: today(),
+    time: nowTime(),
+    status: 'found',
+    officer: officer.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveLostFound', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(f)});
+    if(r.offline) queueOffline('saveLostFound', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(f)});
+    await audit('LOST_FOUND','item',f.id,item+' found at '+loc);
+    showToast('✅ Item recorded','success');
+    ['lfItem','lfLocation','lfDesc','lfFoundBy','lfStorage'].forEach(function(id){ document.getElementById(id).value=''; });
+    loadLostFound();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function claimItem(id){
+  var claimant = prompt('Enter claimant name:');
+  if(!claimant) return;
+  await api({action:'claimLostFound', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id:id, claimant:claimant});
+  await audit('LOST_FOUND_CLAIM','item',id,'Claimed by '+claimant);
+  showToast('✅ Claimed','success');
+  loadLostFound();
+}
+
+/* =========================================================
+   EMERGENCY
+   ========================================================= */
+async function triggerEmergency(type){
+  var ok = await confirmAction('🚨 CONFIRM EMERGENCY', 'Alert administrators NOW? Type: '+type.toUpperCase(), 'SEND ALERT', '🚨');
+  if(!ok) return;
+  var alert = {
+    id: genId('EM'),
+    type: type,
+    gate: officer.gate,
+    location: officer.gate,
+    date: today(),
+    time: nowTime(),
+    officer: officer.name,
+    officerId: officer.staffId,
+    status: 'open',
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveEmergencyAlert', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), alert: JSON.stringify(alert)});
+    if(r.offline) queueOffline('saveEmergencyAlert', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), alert: JSON.stringify(alert)});
+    await audit('EMERGENCY_ALERT','emergency',alert.id,type+' at '+officer.gate);
+    showToast('🚨 EMERGENCY ALERT SENT','error');
+    loadEmergencyAlerts();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function viewEmergency(id){ showToast('📞 Contact admin for details','info'); }
+
+/* =========================================================
+   SHIFT HANDOVER
+   ========================================================= */
+async function submitHandover(){
+  var visitorsIn = visitorsCache.filter(function(v){ return v.status==='visiting'; }).length;
+  var vehiclesIn = vehiclesCache.filter(function(v){ return v.inSchool; }).length;
+  var openInc = incidentsCache.filter(function(i){ return i.status==='open' || i.status==='review'; }).length;
+  var h = {
+    id: genId('HO'),
+    officer: officer.staffId,
+    officerName: officer.name,
+    gate: officer.gate,
+    date: today(),
+    time: nowTime(),
+    visitorsIn: visitorsIn,
+    vehiclesIn: vehiclesIn,
+    openIncidents: openInc,
+    notes: document.getElementById('shNotes').value,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveHandover', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), handover: JSON.stringify(h)});
+    if(r.offline) queueOffline('saveHandover', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), handover: JSON.stringify(h)});
+    await audit('SHIFT_HANDOVER','shift',h.id,'Handover submitted');
+    showToast('✅ Handover submitted','success');
+    document.getElementById('shNotes').value = '';
+    loadHandovers();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function viewHandover(id){
+  showToast('📋 Handover details','info');
+}
+
+/* =========================================================
+   DAILY REPORT
+   ========================================================= */
+async function loadDailyReport(){
+  var date = document.getElementById('rpDate').value || today();
+  try{
+    var r = await api({action:'getDailyGateReport', school: getActiveSchool(), date: date});
+    var d = r?.data?.report || {};
+    var html =
+      '<div class="info-box"><div class="info-title">📊 Daily Gate Report — '+escapeHtml(date)+'</div></div>'+
+      '<div class="stats-grid">'+
+        '<div class="stat-card success"><div class="stat-number">'+(d.studentEntries||0)+'</div><div class="stat-label">Student Entries</div></div>'+
+        '<div class="stat-card warning"><div class="stat-number">'+(d.studentExits||0)+'</div><div class="stat-label">Student Exits</div></div>'+
+        '<div class="stat-card info"><div class="stat-number">'+(d.visitors||0)+'</div><div class="stat-label">Visitors</div></div>'+
+        '<div class="stat-card info"><div class="stat-number">'+(d.staffMovements||0)+'</div><div class="stat-label">Staff Movements</div></div>'+
+        '<div class="stat-card"><div class="stat-number">'+(d.vehicles||0)+'</div><div class="stat-label">Vehicles</div></div>'+
+        '<div class="stat-card"><div class="stat-number">'+(d.deliveries||0)+'</div><div class="stat-label">Deliveries</div></div>'+
+        '<div class="stat-card danger"><div class="stat-number">'+(d.incidents||0)+'</div><div class="stat-label">Incidents</div></div>'+
+        '<div class="stat-card info"><div class="stat-number">'+(d.emergencies||0)+'</div><div class="stat-label">Emergencies</div></div>'+
+      '</div>';
+    document.getElementById('dailyReportOutput').innerHTML = html;
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function printReport(){
+  var html = document.getElementById('dailyReportOutput').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>Gate Report</title><style>body{font-family:Arial;padding:20px}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat-card{border:1px solid #999;padding:10px;border-radius:6px}</style></head><body><h2>Gate Daily Report</h2>'+html+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 300);
+}
+
+/* =========================================================
+   QR SCANNER
+   ========================================================= */
+function openScanner(mode){
+  scanMode = mode || null;
+  document.getElementById('scannerTitle').textContent = mode ? 'Scan — '+mode : 'Scan QR Code';
+  document.getElementById('scannerModal').classList.add('active');
+  document.getElementById('scannerStatus').textContent = '📷 Point camera at QR code';
+  document.getElementById('scannerStatus').classList.add('active');
+  if(html5QrScanner){ html5QrScanner.clear().catch(function(){}); }
+  setTimeout(startQrScanner, 300);
+}
+function startQrScanner(){
+  if(typeof Html5Qrcode === 'undefined'){ showToast('Scanner not available','error'); return; }
+  html5QrScanner = new Html5Qrcode('qr-reader');
+  html5QrScanner.start(
+    {facingMode:'environment'},
+    {fps:10, qrbox:{width:250, height:250}},
+    function(decodedText){
+      onQrScanned(decodedText);
+    },
+    function(){}
+  ).catch(function(err){
+    console.warn(err);
+    document.getElementById('scannerStatus').textContent = '❌ Camera error: '+err.message;
+  });
+}
+function closeScanner(){
+  document.getElementById('scannerModal').classList.remove('active');
+  if(html5QrScanner){ html5QrScanner.stop().then(function(){ html5QrScanner.clear(); html5QrScanner = null; }).catch(function(){}); }
+}
+function switchCamera(){
+  if(html5QrScanner){
+    html5QrScanner.stop().then(function(){
+      closeScanner();
+      setTimeout(function(){ openScanner(scanMode); }, 300);
+    }).catch(function(){});
+  }
+}
+async function onQrScanned(text){
+  // QR format: "STUDENT:ADM-001" or "STAFF:TCH-0024" or visitor pass
+  try{
+    var parts = text.split(':');
+    var type = parts[0].toUpperCase();
+    var id = parts[1] || parts[0];
+    if(type === 'STUDENT'){
+      var s = studentsCache.filter(function(x){ return x.studentId === id; })[0];
+      if(!s){ showToast('Student not in cache — refreshing','warning'); await loadStudentsCache(); s = studentsCache.filter(function(x){ return x.studentId === id; })[0]; }
+      if(!s){ showToast('❌ Student not found','error'); return; }
+      closeScanner();
+      if(scanMode === 'student-exit'){ switchTab('studentexit'); setTimeout(function(){ selectStudentExit(s.studentId); }, 200); }
+      else { switchTab('studententry'); setTimeout(function(){ selectStudentEntry(s.studentId); }, 200); }
+    }
+    else if(type === 'STAFF'){
+      closeScanner();
+      switchTab('staffmove');
+      setTimeout(function(){ selectStaff(id); }, 200);
+    }
+    else if(type === 'VISITOR'){
+      showToast('Visitor pass: '+id, 'info');
+      closeScanner();
+    }
+    else {
+      showToast('Unknown QR: '+text, 'warning');
+    }
+  } catch(e){ showToast('Invalid QR code','error'); }
+}
+
+/* =========================================================
+   FACE SCANNER
+   ========================================================= */
+async function openFaceScan(mode){
+  scanMode = mode || null;
+  document.getElementById('faceTitle').textContent = mode ? 'Face — '+mode : 'Face Scan';
+  document.getElementById('faceModal').classList.add('active');
+  document.getElementById('faceStatus').textContent = '📷 Loading camera…';
+  document.getElementById('faceStatus').classList.add('active');
+  await loadFaceModels();
+  try{
+    faceStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    document.getElementById('faceVideo').srcObject = faceStream;
+    document.getElementById('faceStatus').textContent = '📸 Position face';
+    // Continuous detection loop
+    faceDetectInterval = setInterval(detectFace, 800);
+  } catch(e){ showToast('❌ Camera: '+e.message,'error'); closeFaceScan(); }
+}
+function closeFaceScan(){
+  document.getElementById('faceModal').classList.remove('active');
+  if(faceDetectInterval){ clearInterval(faceDetectInterval); faceDetectInterval = null; }
+  if(faceStream){ faceStream.getTracks().forEach(function(t){ t.stop(); }); faceStream = null; }
+}
+async function loadFaceModels(){
+  if(faceModelsLoaded) return true;
+  try{
+    if(typeof faceapi === 'undefined') return false;
+    await faceapi.nets.tinyFaceDetector.loadFromUri(FACE_MODEL_PATH);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(FACE_MODEL_PATH);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(FACE_MODEL_PATH);
+    faceOptions = new faceapi.TinyFaceDetectorOptions({inputSize:416, scoreThreshold:0.4});
+    faceModelsLoaded = true;
+    return true;
+  } catch(e){ console.warn(e); return false; }
+}
+async function detectFace(){
+  if(!faceModelsLoaded) return;
+  var video = document.getElementById('faceVideo');
+  if(!video || !video.videoWidth) return;
+  try{
+    var det = await faceapi.detectSingleFace(video, faceOptions);
+    var box = document.getElementById('faceBox');
+    if(det){
+      var r = det.box;
+      var sx = video.clientWidth / video.videoWidth;
+      var sy = video.clientHeight / video.videoHeight;
+      box.style.display = 'block';
+      box.style.left = (video.clientWidth - (r.x + r.width) * sx) + 'px';
+      box.style.top = (r.y * sy) + 'px';
+      box.style.width = (r.width * sx) + 'px';
+      box.style.height = (r.height * sy) + 'px';
+    } else { box.style.display = 'none'; }
+  } catch(e){}
+}
+async function captureFace(){
+  if(!faceModelsLoaded) return;
+  var video = document.getElementById('faceVideo');
+  if(!video || !video.videoWidth){ showToast('Camera not ready','warning'); return; }
+  try{
+    var det = await faceapi.detectSingleFace(video, faceOptions).withFaceLandmarks().withFaceDescriptor();
+    if(!det){ showToast('❌ No face detected','error'); return; }
+    var descriptor = det.descriptor;
+    // Check against cached faces
+    var registered = JSON.parse(localStorage.getItem('registeredFaces')||'[]');
+    if(registered.length === 0){ showToast('⚠️ No registered faces','warning'); return; }
+    var best = null, bestDist = 999;
+    for(var i=0;i<registered.length;i++){
+      var rec = registered[i];
+      var descs = rec.descriptors || [rec.descriptor];
+      for(var j=0;j<descs.length;j++){
+        if(!descs[j]) continue;
+        var f = new Float32Array(descs[j]);
+        if(f.length !== descriptor.length) continue;
+        var d = 0;
+        for(var k=0;k<f.length;k++){ var diff = f[k] - descriptor[k]; d += diff*diff; }
+        d = Math.sqrt(d);
+        if(d < bestDist){ bestDist = d; best = rec; }
+      }
+    }
+    if(best && bestDist <= FACE_THRESHOLD){
+      closeFaceScan();
+      var id = best.id;
+      // Try to determine if student or staff
+      var s = studentsCache.filter(function(x){ return x.studentId === id || x.studentId === best.studentId; })[0];
+      if(s){
+        if(scanMode === 'student-exit'){ switchTab('studentexit'); setTimeout(function(){ selectStudentExit(s.studentId); }, 200); }
+        else { switchTab('studententry'); setTimeout(function(){ selectStudentEntry(s.studentId); }, 200); }
+      } else {
+        switchTab('staffmove'); setTimeout(function(){ selectStaff(id); }, 200);
+      }
+      showToast('✅ Identified: '+best.name,'success');
+    } else {
+      showToast('❌ Face not recognized','error');
+    }
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   TAB SWITCHING
+   ========================================================= */
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.form-section').forEach(function(el){ el.classList.remove('active'); });
+  var map = {
+    dashboard:'tabDashboard', studententry:'tabStudententry', studentexit:'tabStudentexit',
+    visitorin:'tabVisitorin', visitorout:'tabVisitorout', staffmove:'tabStaffmove',
+    vehicles:'tabVehicles', deliveries:'tabDeliveries', contractors:'tabContractors',
+    logbook:'tabLogbook', incidents:'tabIncidents', lostfound:'tabLostfound',
+    emergency:'tabEmergency', shift:'tabShift', report:'tabReport',
+    notifications:'tabNotifications', profile:'tabProfile'
+  };
+  var el = document.getElementById(map[tab]);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.querySelectorAll('.bn-item').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.getElementById('navbarMenu').classList.remove('open');
+  window.scrollTo(0,0);
+
+  if(tab === 'dashboard') updateDashboard();
+  if(tab === 'logbook') loadLogbook();
+  if(tab === 'incidents') loadIncidents();
+  if(tab === 'lostfound') loadLostFound();
+  if(tab === 'shift') loadHandovers();
+  if(tab === 'deliveries') loadTodayDeliveries();
+  if(tab === 'contractors') loadContractors();
+  if(tab === 'vehicles') loadVehicles();
+  if(tab === 'notifications') loadNotifications();
+  if(tab === 'report') loadDailyReport();
+  if(tab === 'emergency') loadEmergencyAlerts();
+  if(tab === 'visitorin') loadVisitors();
+  if(tab === 'visitorout') loadVisitors();
+}
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+function updateProfile(){
+  document.getElementById('pfName').textContent = officer.name;
+  document.getElementById('pfMeta').textContent = officer.staffId+' · '+officer.gate;
+  document.getElementById('pfInitial').textContent = officer.name.charAt(0).toUpperCase();
+  document.getElementById('pfDetails').innerHTML =
+    '<strong>Staff ID:</strong> '+escapeHtml(officer.staffId)+'<br>'+
+    '<strong>Gate:</strong> '+escapeHtml(officer.gate)+'<br>'+
+    '<strong>Shift:</strong> '+escapeHtml(officer.shiftStart)+' – '+escapeHtml(officer.shiftEnd)+'<br>'+
+    '<strong>Date:</strong> '+today()+'<br>'+
+    '<strong>Role:</strong> Gate Security Officer';
+}
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+function appLogout(){
+  if(!confirm('Log out?')) return;
+  closeScanner(); closeFaceScan();
+  sessionStorage.removeItem('authSession');
+  window.location.href = 'index.html';
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', initGate);
+</script>
+</body>
+</html>
