@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#c1121f" />
+<title>🏥 School Nurse — EduTrack Pro</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg1:#0f0c29;--bg2:#302b63;--bg3:#24243e;
+  --primary:#302b63;--accent:#fcdc04;
+  --health:#c1121f;--health-dark:#780000;--health-light:#f8d7da;
+  --success:#1a8a4a;--success-dark:#2d6a4f;--danger:#c1121f;--danger-dark:#780000;
+  --warning:#e85d04;--warning-dark:#dc2f02;--info:#004085;--info-light:#0069d9;
+  --surface:#fff;--surface-2:#f8f9fa;--surface-3:#f0f4ff;
+  --text:#1a1a2e;--text-2:#555;--text-3:#888;--border:#e0e0e0;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.06);
+  --shadow-md:0 4px 15px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.15);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));min-height:100vh;padding:10px;color:var(--text)}
+@media(min-width:768px){body{padding:20px}}
+
+.navbar{background:rgba(255,255,255,.98);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:1000;border-bottom:3px solid var(--health)}
+.navbar-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--health);text-decoration:none;font-family:Georgia,serif}
+.navbar-brand .brand-text{background:linear-gradient(135deg,var(--health-dark),var(--health));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.navbar-toggle{display:none;background:none;border:none;font-size:22px;color:var(--health);cursor:pointer;padding:6px}
+@media(max-width:900px){.navbar-toggle{display:block}}
+.navbar-menu{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+@media(max-width:900px){
+  .navbar-menu{display:none;width:100%;flex-direction:column;align-items:stretch;padding:10px 0;border-top:1px solid var(--border);margin-top:10px;max-height:70vh;overflow-y:auto}
+  .navbar-menu.open{display:flex}
+}
+.nav-link{padding:9px 13px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px;white-space:nowrap;text-align:left}
+.nav-link:hover{background:rgba(193,18,31,.08);color:var(--health)}
+.nav-link.active{background:linear-gradient(135deg,var(--health-dark),var(--health));color:#fff}
+.nav-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:20px;background:var(--health-light);border:1px solid var(--health)}
+.nav-user .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--health);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.nav-user .user-info{font-size:11px;line-height:1.2}
+.nav-user .user-info .user-name{font-weight:600}
+.nav-user .user-info .user-role{font-size:9px;color:var(--text-3)}
+
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0;z-index:900;box-shadow:0 -4px 15px rgba(0,0,0,.08)}
+.bottom-nav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:none;background:none;font-size:10px;color:var(--text-3);cursor:pointer;font-weight:600}
+.bottom-nav .bn-item.active{color:var(--health)}
+.bottom-nav .bn-item i{font-size:18px}
+@media(max-width:900px){.bottom-nav{display:flex}body{padding-bottom:70px}}
+
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.97);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:18px 15px 24px;box-shadow:0 20px 60px rgba(0,0,0,.4);min-height:80vh;position:relative}
+@media(min-width:768px){.container{padding:22px 28px 32px}}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,var(--accent) 33%,var(--accent) 66%,var(--health) 66%,var(--health) 100%)}
+
+.form-section{display:none;animation:fadeIn .25s ease;padding-top:8px}
+.form-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:20px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.section-desc{color:var(--text-3);font-size:13px;margin-bottom:16px}
+
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-weight:600;color:var(--text-2);font-size:13px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:#fafafa;font-family:inherit;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--health);outline:none;box-shadow:0 0 0 3px rgba(193,18,31,.15);background:#fff}
+.form-row-2{display:grid;grid-template-columns:1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.form-row-2{grid-template-columns:1fr 1fr}.form-row-3{grid-template-columns:1fr 1fr 1fr}}
+
+.btn{padding:14px 22px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:50px;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--health-dark),var(--health));color:#fff}
+.btn-success{background:linear-gradient(135deg,var(--success),var(--success-dark));color:#fff}
+.btn-danger{background:linear-gradient(135deg,var(--danger),var(--danger-dark));color:#fff}
+.btn-warning{background:linear-gradient(135deg,var(--warning),var(--warning-dark));color:#fff}
+.btn-info{background:linear-gradient(135deg,var(--info),var(--info-light));color:#fff}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:8px 14px;font-size:12px;min-height:36px}
+.btn-block{width:100%}
+.btn-lg{min-height:60px;font-size:17px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+@media(min-width:640px){.action-grid{grid-template-columns:repeat(4,1fr)}}
+.action-btn{background:#fff;border:2px solid var(--border);border-radius:var(--radius-md);padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-weight:700;color:var(--text);font-size:13px;text-align:center;min-height:110px;transition:.15s;box-shadow:var(--shadow-sm)}
+.action-btn:active{transform:scale(.96)}
+.action-btn .ai{font-size:32px}
+.action-btn.emergency{border-color:var(--danger);background:#fff5f5}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:#fff;border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;text-align:center}
+.stat-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--health)}
+.stat-card.success::before{background:var(--success)}
+.stat-card.danger::before{background:var(--danger)}
+.stat-card.warning::before{background:var(--warning)}
+.stat-card.info::before{background:var(--info)}
+.stat-card .stat-icon{font-size:22px}
+.stat-card .stat-number{font-size:22px;font-weight:700;color:var(--text);margin:4px 0;line-height:1.1}
+.stat-card .stat-label{font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-md);background:#fff;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:10px 0}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+table.data-table th{background:linear-gradient(135deg,var(--health-dark),var(--health));color:#fff;padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;position:sticky;top:0;z-index:2}
+table.data-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+table.data-table tr:last-child td{border-bottom:none}
+table.data-table tr:hover td{background:var(--surface-2)}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-pending,.badge-due{background:#fff3cd;color:#856404}
+.badge-approved,.badge-administered{background:#cce5ff;color:#004085}
+.badge-active,.badge-resolved{background:#d4edda;color:#155724}
+.badge-open,.badge-critical{background:#f8d7da;color:#721c24}
+.badge-review,.badge-warning{background:#fff3cd;color:#856404}
+.badge-info{background:#cce5ff;color:#004085}
+.badge-completed{background:#d4edda;color:#155724}
+.badge-missed{background:#f8d7da;color:#721c24}
+
+.search-bar{position:relative;margin:10px 0}
+.search-bar input{width:100%;padding:14px 14px 14px 44px;border:2px solid var(--border);border-radius:10px;font-size:16px;background:#fafafa}
+.search-bar input:focus{border-color:var(--health);outline:none;background:#fff}
+.search-bar::before{content:'🔍';position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.6}
+
+.person-result{background:#fff;border:2px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;display:flex;gap:12px;align-items:center}
+.person-result:hover{border-color:var(--health);background:#fff5f5}
+.person-result .pr-avatar{width:52px;height:52px;border-radius:50%;background:var(--health);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;overflow:hidden;flex-shrink:0}
+.person-result .pr-avatar img{width:100%;height:100%;object-fit:cover}
+.person-result .pr-info{flex:1;min-width:0}
+.person-result .pr-name{font-weight:700;color:var(--text);font-size:14px}
+.person-result .pr-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+
+.person-card{background:#fff;border:2px solid var(--health);border-radius:var(--radius-md);padding:18px;text-align:center;margin:10px 0}
+.person-card .pc-photo{width:110px;height:110px;border-radius:50%;background:var(--health);color:#fff;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;margin:0 auto 12px;overflow:hidden}
+.person-card .pc-photo img{width:100%;height:100%;object-fit:cover}
+.person-card .pc-name{font-size:20px;font-weight:700;color:var(--text)}
+.person-card .pc-meta{font-size:13px;color:var(--text-3);margin-top:4px}
+.person-card .pc-status{display:inline-block;margin-top:10px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px}
+
+.medical-alert{background:#fff3cd;border-left:5px solid var(--warning);padding:12px;border-radius:8px;margin:8px 0;display:flex;gap:10px;align-items:flex-start}
+.medical-alert.critical{background:#f8d7da;border-left-color:var(--danger)}
+.medical-alert.info{background:#cce5ff;border-left-color:var(--info)}
+.medical-alert .ma-icon{font-size:24px}
+.medical-alert .ma-text{flex:1;font-size:13px;font-weight:600}
+.medical-alert .ma-detail{font-size:11px;color:#666;margin-top:2px;font-weight:400}
+
+.emergency-panel{background:linear-gradient(135deg,var(--danger),var(--danger-dark));color:#fff;padding:20px;border-radius:var(--radius-md);text-align:center;margin:14px 0}
+.emergency-panel h3{color:#fff;font-size:22px;margin-bottom:8px}
+.emergency-panel p{color:rgba(255,255,255,.9)}
+.emergency-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.emergency-type{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);color:#fff;padding:16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.emergency-type:active{background:rgba(255,255,255,.3)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:center;justify-content:center;padding:15px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-box h3{text-align:center;color:var(--text);margin-bottom:10px;font-size:18px}
+.modal-box .modal-icon{font-size:44px;text-align:center;display:block;margin-bottom:8px}
+.modal-box p{text-align:center;color:var(--text-2);margin-bottom:18px;font-size:14px}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+.toast-notification{position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;color:#fff;font-weight:600;z-index:99999;opacity:0;transform:translateY(-20px);transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center}
+@media(min-width:640px){.toast-notification{left:auto;max-width:400px;text-align:left;transform:translateX(120%)}}
+.toast-notification.show{opacity:1;transform:translateY(0)}
+@media(min-width:640px){.toast-notification.show{transform:translateX(0)}}
+.toast-notification.success{background:linear-gradient(135deg,var(--success),var(--success-dark))}
+.toast-notification.error{background:linear-gradient(135deg,var(--danger),var(--danger-dark))}
+.toast-notification.info{background:linear-gradient(135deg,var(--health-dark),var(--health))}
+.toast-notification.warning{background:linear-gradient(135deg,var(--warning),var(--warning-dark))}
+
+.info-box{background:var(--surface-3);border-left:4px solid var(--health);padding:12px 15px;border-radius:8px;margin:12px 0}
+.info-box.warning{background:#fff3cd;border-left-color:var(--warning)}
+.info-box.success{background:#d4edda;border-left-color:var(--success)}
+.info-box.danger{background:#f8d7da;border-left-color:var(--danger)}
+.info-box .info-title{font-weight:700;color:var(--health);font-size:13px;margin-bottom:3px}
+.info-box .info-text{color:var(--text-2);font-size:12px;line-height:1.5}
+
+.spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--health);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;z-index:9998}
+.loading-overlay.active{display:flex}
+
+.sync-badge{position:fixed;bottom:80px;right:16px;background:var(--warning);color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;z-index:800;box-shadow:var(--shadow-lg);cursor:pointer}
+.sync-badge.hidden{display:none}
+
+.chart-container{background:#fff;border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:14px 0}
+.chart-container h4{font-size:14px;color:var(--health);margin-bottom:10px}
+.chart-container canvas{max-height:260px;max-width:100%}
+
+.privacy-banner{background:linear-gradient(135deg,#1a1a2e,#302b63);color:#fff;padding:10px 14px;border-radius:10px;margin:10px 0;font-size:12px;display:flex;align-items:center;gap:8px}
+.privacy-banner i{font-size:16px;color:var(--accent)}
+
+@media print{
+  .navbar,.bottom-nav,.btn,.no-print,.footer{display:none!important}
+  body{background:#fff!important;padding:0}
+  .container{box-shadow:none!important}
+  @page{size:A4;margin:10mm}
+}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+<div class="sync-badge hidden" id="syncBadge" onclick="syncOfflineQueue()">☁️ <span id="syncCount">0</span> unsynced</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <span class="modal-icon" id="confirmIcon">⚠️</span>
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancel</button>
+      <button class="btn btn-primary" id="confirmYesBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0;text-align:left" id="infoModalTitle">Details</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeInfoModal()">✖</button>
+    </div>
+    <div id="infoModalBody"></div>
+    <div class="modal-actions" style="margin-top:14px" id="infoModalActions"></div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a href="nurse.html" class="navbar-brand"><span style="font-size:26px">🏥</span><span class="brand-text">EduTrack Health</span></a>
+  <button class="navbar-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+  <div class="navbar-menu" id="navbarMenu">
+    <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+    <button class="nav-link" data-tab="studenthealth" onclick="switchTab('studenthealth')"><i class="fas fa-user-injured"></i> Student Health</button>
+    <button class="nav-link" data-tab="staffhealth" onclick="switchTab('staffhealth')"><i class="fas fa-user-md"></i> Staff Health</button>
+    <button class="nav-link" data-tab="register" onclick="switchTab('register')"><i class="fas fa-book-medical"></i> Clinic Register</button>
+    <button class="nav-link" data-tab="newvisit" onclick="switchTab('newvisit')"><i class="fas fa-plus-circle"></i> New Visit</button>
+    <button class="nav-link" data-tab="firstaid" onclick="switchTab('firstaid')"><i class="fas fa-band-aid"></i> First Aid</button>
+    <button class="nav-link" data-tab="medication" onclick="switchTab('medication')"><i class="fas fa-pills"></i> Medication</button>
+    <button class="nav-link" data-tab="inventory" onclick="switchTab('inventory')"><i class="fas fa-boxes"></i> Inventory</button>
+    <button class="nav-link" data-tab="referrals" onclick="switchTab('referrals')"><i class="fas fa-ambulance"></i> Referrals</button>
+    <button class="nav-link" data-tab="followups" onclick="switchTab('followups')"><i class="fas fa-calendar-check"></i> Follow-ups</button>
+    <button class="nav-link" data-tab="screening" onclick="switchTab('screening')"><i class="fas fa-stethoscope"></i> Screening</button>
+    <button class="nav-link" data-tab="campaigns" onclick="switchTab('campaigns')"><i class="fas fa-bullhorn"></i> Campaigns</button>
+    <button class="nav-link" data-tab="incidents" onclick="switchTab('incidents')"><i class="fas fa-exclamation-triangle"></i> Incidents</button>
+    <button class="nav-link" data-tab="parentnotif" onclick="switchTab('parentnotif')"><i class="fas fa-bell"></i> Notify Parent</button>
+    <button class="nav-link" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-medical"></i> Reports</button>
+    <button class="nav-link" data-tab="handover" onclick="switchTab('handover')"><i class="fas fa-exchange-alt"></i> Handover</button>
+    <button class="nav-link" data-tab="notifications" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Alerts <span id="notifBadge" style="display:none;background:var(--health);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    <button class="nav-link" data-tab="emergency" onclick="switchTab('emergency')" style="color:var(--danger)"><i class="fas fa-heartbeat"></i> Emergency</button>
+    <button class="nav-link" data-tab="profile" onclick="switchTab('profile')"><i class="fas fa-user"></i> Profile</button>
+    <div class="nav-user">
+      <div class="user-avatar" id="navUserAvatar">N</div>
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Loading…</div>
+        <div class="user-role" id="navUserRole">Nurse</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="appLogout()" style="padding:8px 14px;font-size:12px"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</nav>
+
+<div class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="bn-item" data-tab="newvisit" onclick="switchTab('newvisit')"><i class="fas fa-plus-circle"></i><span>New Visit</span></button>
+  <button class="bn-item" data-tab="register" onclick="switchTab('register')"><i class="fas fa-book-medical"></i><span>Register</span></button>
+  <button class="bn-item" data-tab="medication" onclick="switchTab('medication')"><i class="fas fa-pills"></i><span>Meds</span></button>
+  <button class="bn-item" data-tab="emergency" onclick="switchTab('emergency')" style="color:var(--danger)"><i class="fas fa-heartbeat"></i><span>SOS</span></button>
+</div>
+
+<div class="container">
+  <div class="privacy-banner">
+    <i class="fas fa-lock"></i>
+    <span>🔒 <strong>Confidential Health Records</strong> — Access is logged. Do not share medical info with unauthorized staff.</span>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="tabDashboard" class="form-section active">
+    <h2 class="section-title"><i class="fas fa-home" style="color:var(--health)"></i> Nurse Dashboard</h2>
+    <div class="info-box">
+      <div class="info-title" id="nurseInfoTitle">Loading…</div>
+      <div class="info-text" id="nurseInfoText"></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card success"><div class="stat-icon">🎓</div><div class="stat-number" id="dsStudentsToday">0</div><div class="stat-label">Students Today</div></div>
+      <div class="stat-card info"><div class="stat-icon">🧑‍🏫</div><div class="stat-number" id="dsStaffToday">0</div><div class="stat-label">Staff Today</div></div>
+      <div class="stat-card warning"><div class="stat-icon">🛏️</div><div class="stat-number" id="dsInClinic">0</div><div class="stat-label">In Clinic Now</div></div>
+      <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-number" id="dsFollowUps">0</div><div class="stat-label">Pending Follow-ups</div></div>
+      <div class="stat-card warning"><div class="stat-icon">💊</div><div class="stat-number" id="dsMedsDue">0</div><div class="stat-label">Medication Due</div></div>
+      <div class="stat-card danger"><div class="stat-icon">🚑</div><div class="stat-number" id="dsReferrals">0</div><div class="stat-label">Active Referrals</div></div>
+      <div class="stat-card danger"><div class="stat-icon">⚠️</div><div class="stat-number" id="dsOpenIncidents">0</div><div class="stat-label">Open Health Incidents</div></div>
+      <div class="stat-card danger"><div class="stat-icon">🚨</div><div class="stat-number" id="dsEmergencies">0</div><div class="stat-label">Emergencies Today</div></div>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--health)">⚡ Quick Actions</h4>
+    <div class="action-grid">
+      <button class="action-btn" onclick="switchTab('newvisit')"><div class="ai">🩺</div>New Visit</button>
+      <button class="action-btn" onclick="switchTab('firstaid')"><div class="ai">🩹</div>First Aid</button>
+      <button class="action-btn" onclick="switchTab('medication')"><div class="ai">💊</div>Medication</button>
+      <button class="action-btn" onclick="switchTab('referrals')"><div class="ai">🚑</div>Referral</button>
+      <button class="action-btn" onclick="switchTab('parentnotif')"><div class="ai">📞</div>Notify Parent</button>
+      <button class="action-btn" onclick="switchTab('studenthealth')"><div class="ai">🎓</div>Student</button>
+      <button class="action-btn" onclick="switchTab('staffhealth')"><div class="ai">🧑‍🏫</div>Staff</button>
+      <button class="action-btn emergency" onclick="switchTab('emergency')"><div class="ai">🚨</div>EMERGENCY</button>
+    </div>
+
+    <div class="chart-container"><h4>📊 Clinic Visits (Last 7 Days)</h4><canvas id="visitTrendChart"></canvas></div>
+    <div class="chart-container"><h4>📈 Visit Categories (This Month)</h4><canvas id="visitCategoriesChart"></canvas></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--health)">🔔 Recent Activity</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Patient</th><th>Type</th><th>Outcome</th></tr></thead>
+      <tbody id="recentActivityBody"><tr><td colspan="4" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ STUDENT HEALTH ============ -->
+  <div id="tabStudenthealth" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user-injured" style="color:var(--health)"></i> Student Health Profile</h2>
+    <p class="section-desc">Search for a student to view their authorized health record.</p>
+
+    <div class="btn-group" style="margin-bottom:12px">
+      <button class="btn btn-primary" onclick="openStudentScanner()">📷 Scan QR</button>
+      <button class="btn btn-info" onclick="switchTab('register')">📋 Clinic Register</button>
+    </div>
+
+    <div class="search-bar"><input type="text" id="shSearch" placeholder="Search student by name or admission number…" onkeyup="searchStudentHealth()" autocomplete="off" /></div>
+    <div id="shResults"></div>
+    <div id="shProfile"></div>
+  </div>
+
+  <!-- ============ STAFF HEALTH ============ -->
+  <div id="tabStaffhealth" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user-md" style="color:var(--health)"></i> Staff Health Visits</h2>
+    <p class="section-desc">Staff health records are confidential — visible only to authorized nurses.</p>
+
+    <div class="search-bar"><input type="text" id="stSearch" placeholder="Search staff by name or ID…" onkeyup="searchStaffHealth()" autocomplete="off" /></div>
+    <div id="stResults"></div>
+    <div id="stProfile"></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--health)">📋 Recent Staff Visits</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Staff</th><th>Reason</th><th>Outcome</th></tr></thead>
+      <tbody id="staffVisitsBody"><tr><td colspan="4" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ CLINIC REGISTER ============ -->
+  <div id="tabRegister" class="form-section">
+    <h2 class="section-title"><i class="fas fa-book-medical" style="color:var(--health)"></i> Clinic Register</h2>
+    <p class="section-desc">All clinic visits in date order.</p>
+
+    <div class="form-row-3">
+      <div class="form-group"><label>Date</label><input type="date" id="regDate" onchange="loadRegister()" /></div>
+      <div class="form-group"><label>Type</label>
+        <select id="regType" onchange="loadRegister()">
+          <option value="">All</option>
+          <option value="student">Students</option>
+          <option value="staff">Staff</option>
+          <option value="firstaid">First Aid</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-info btn-block" onclick="loadRegister()">🔄 Refresh</button></div>
+    </div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Patient</th><th>Category</th><th>Reason</th><th>Outcome</th><th></th></tr></thead>
+      <tbody id="registerBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ NEW VISIT ============ -->
+  <div id="tabNewvisit" class="form-section">
+    <h2 class="section-title"><i class="fas fa-plus-circle" style="color:var(--health)"></i> New Clinic Visit</h2>
+    <p class="section-desc">Record a new health visit for a student or staff member.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Patient Type *</label>
+        <select id="nvType" onchange="toggleNewVisitPatient()">
+          <option value="student">🎓 Student</option>
+          <option value="staff">🧑‍🏫 Staff</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Gate/Category</label>
+        <select id="nvCategory">
+          <option value="clinic">General Clinic</option>
+          <option value="firstaid">First Aid</option>
+          <option value="emergency">Emergency</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group"><label>Search Patient *</label><input type="text" id="nvSearch" placeholder="Type name or ID…" onkeyup="searchNewVisitPatient()" autocomplete="off" /></div>
+    <div id="nvSearchResults"></div>
+    <div id="nvPatientCard"></div>
+
+    <div id="nvForm" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Date *</label><input type="date" id="nvDate" /></div>
+        <div class="form-group"><label>Time *</label><input type="text" id="nvTime" disabled /></div>
+      </div>
+
+      <div class="form-group"><label>Reason for Visit *</label>
+        <select id="nvReason">
+          <option value="">Select…</option>
+          <option value="headache">Headache</option>
+          <option value="stomach">Stomach Pain</option>
+          <option value="fever">Fever</option>
+          <option value="cough">Cough / Cold</option>
+          <option value="injury">Injury</option>
+          <option value="diarrhea">Diarrhea</option>
+          <option value="vomiting">Vomiting</option>
+          <option value="allergy">Allergic Reaction</option>
+          <option value="menstrual">Menstrual Issues</option>
+          <option value="dental">Dental</option>
+          <option value="eye">Eye Problem</option>
+          <option value="ear">Ear Problem</option>
+          <option value="skin">Skin Problem</option>
+          <option value="general">General Check</option>
+          <option value="followup">Follow-up</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group"><label>Symptoms / Complaint</label><textarea id="nvSymptoms" rows="2" placeholder="Detailed description…"></textarea></div>
+
+      <h5 style="margin:10px 0;color:var(--health)">📊 Vital Signs (if measured)</h5>
+      <div class="form-row-3">
+        <div class="form-group"><label>Temperature (°C)</label><input type="number" id="nvTemp" step="0.1" placeholder="e.g., 37.5" /></div>
+        <div class="form-group"><label>Pulse (bpm)</label><input type="number" id="nvPulse" placeholder="e.g., 78" /></div>
+        <div class="form-group"><label>BP (mmHg)</label><input type="text" id="nvBP" placeholder="e.g., 120/80" /></div>
+      </div>
+
+      <div class="form-group"><label>Observations</label><textarea id="nvObs" rows="2"></textarea></div>
+
+      <h5 style="margin:10px 0;color:var(--health)">💊 Treatment / Care Provided</h5>
+      <div class="form-group"><label>First Aid / Supportive Care</label><textarea id="nvFirstAid" rows="2" placeholder="e.g., Rested, cold compress applied…"></textarea></div>
+      <div class="form-group"><label>Medicine Administered (if any)</label><textarea id="nvMedicine" rows="2" placeholder="Include medicine name, dose, and prescription reference where applicable"></textarea></div>
+      <div class="form-group"><label>Advice Given</label><textarea id="nvAdvice" rows="2" placeholder="e.g., Drink plenty of fluids, rest…"></textarea></div>
+
+      <div class="form-row-2">
+        <div class="form-group"><label>Outcome *</label>
+          <select id="nvOutcome">
+            <option value="returned">✅ Returned to Class</option>
+            <option value="resting">🛏️ Resting in Clinic</option>
+            <option value="sent-home">🏠 Sent Home</option>
+            <option value="referred">🚑 Referred to Facility</option>
+            <option value="emergency">🚨 Emergency Transfer</option>
+            <option value="observed">👁️ Under Observation</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Follow-up Date (if needed)</label><input type="date" id="nvFollowUp" /></div>
+      </div>
+
+      <div class="form-group"><label>Additional Notes</label><textarea id="nvNotes" rows="2"></textarea></div>
+
+      <div class="info-box warning" style="margin:14px 0">
+        <div class="info-title">⚠️ Reminder</div>
+        <div class="info-text">Do not diagnose or prescribe. Record observations and actions taken. Follow the school's approved medical procedures.</div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetNewVisit()">✖ Cancel</button>
+        <button class="btn btn-success btn-lg" onclick="saveNewVisit()">💾 Save Visit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FIRST AID ============ -->
+  <div id="tabFirstaid" class="form-section">
+    <h2 class="section-title"><i class="fas fa-band-aid" style="color:var(--health)"></i> First Aid Register</h2>
+    <p class="section-desc">Record first-aid incidents (cuts, burns, sprains, nosebleeds, etc.).</p>
+
+    <div class="form-group"><label>Search Patient *</label><input type="text" id="faSearch" placeholder="Student or staff name/ID…" onkeyup="searchFirstAidPatient()" autocomplete="off" /></div>
+    <div id="faSearchResults"></div>
+    <div id="faPatientCard"></div>
+
+    <div id="faForm" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Date *</label><input type="date" id="faDate" /></div>
+        <div class="form-group"><label>Time *</label><input type="text" id="faTime" disabled /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Injury Type *</label>
+          <select id="faType">
+            <option value="">Select…</option>
+            <option value="cut">Cut / Scratch</option>
+            <option value="burn">Minor Burn</option>
+            <option value="sprain">Sprain / Strain</option>
+            <option value="nosebleed">Nosebleed</option>
+            <option value="sports">Sports Injury</option>
+            <option value="bite">Insect Bite / Sting</option>
+            <option value="bruise">Bruise / Contusion</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Location *</label><input type="text" id="faLocation" placeholder="e.g., Playground, Class S.3A" /></div>
+      </div>
+      <div class="form-group"><label>Description *</label><textarea id="faDesc" rows="3"></textarea></div>
+      <div class="form-group"><label>First Aid Provided *</label><textarea id="faTreatment" rows="3" placeholder="e.g., Cleaned wound, applied antiseptic, bandaged"></textarea></div>
+      <div class="form-group"><label>Materials Used</label><input type="text" id="faMaterials" placeholder="e.g., Gloves, gauze, antiseptic" /></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Outcome</label>
+          <select id="faOutcome">
+            <option value="returned">Returned to class</option>
+            <option value="resting">Resting in clinic</option>
+            <option value="referred">Referred</option>
+            <option value="sent-home">Sent home</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Follow-up Required?</label>
+          <select id="faFollowUp">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetFirstAid()">✖ Cancel</button>
+        <button class="btn btn-success btn-lg" onclick="saveFirstAid()">💾 Save First Aid</button>
+      </div>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Recent First Aid Records</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Patient</th><th>Injury</th><th>Location</th><th>Outcome</th></tr></thead>
+      <tbody id="firstAidBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ MEDICATION ============ -->
+  <div id="tabMedication" class="form-section">
+    <h2 class="section-title"><i class="fas fa-pills" style="color:var(--health)"></i> Medication Management</h2>
+    <p class="section-desc">Medication register and administration tracking.</p>
+
+    <div class="info-box warning">
+      <div class="info-title">⚠️ Important</div>
+      <div class="info-text">The system does not recommend dosages. Only record medication authorized by the school's approved medical procedure or by a qualified health provider.</div>
+    </div>
+
+    <div class="tab-strip">
+      <button class="active" onclick="showMedSub('schedule')">📅 Schedule</button>
+      <button onclick="showMedSub('record')">💊 Record Admin</button>
+      <button onclick="showMedSub('prescribe')">📝 Add Prescription</button>
+    </div>
+
+    <div id="medSubSchedule">
+      <h4 style="margin:10px 0;color:var(--health)">💊 Today's Medication Schedule</h4>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Time</th><th>Patient</th><th>Medicine</th><th>Dose</th><th>Status</th><th></th></tr></thead>
+        <tbody id="medScheduleBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div id="medSubRecord" style="display:none">
+      <div class="form-group"><label>Search Patient *</label><input type="text" id="medSearch" placeholder="Student or staff…" onkeyup="searchMedPatient()" /></div>
+      <div id="medSearchResults"></div>
+      <div id="medPatientCard"></div>
+      <div id="medForm" style="display:none">
+        <div class="form-row-2">
+          <div class="form-group"><label>Medicine Name *</label><input type="text" id="medName" /></div>
+          <div class="form-group"><label>Dose *</label><input type="text" id="medDose" placeholder="As prescribed" /></div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group"><label>Date *</label><input type="date" id="medDate" /></div>
+          <div class="form-group"><label>Time *</label><input type="text" id="medTime" /></div>
+        </div>
+        <div class="form-group"><label>Reason / Prescription Reference</label><input type="text" id="medReason" /></div>
+        <div class="form-group"><label>Prescribed By</label><input type="text" id="medPrescriber" placeholder="Doctor / clinic name" /></div>
+        <div class="form-group"><label>Parent Authorization</label>
+          <select id="medAuth"><option value="n/a">N/A</option><option value="verbal">Verbal</option><option value="written">Written</option><option value="standing">Standing order</option></select>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="medNotes" rows="2"></textarea></div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="resetMedForm()">✖ Cancel</button>
+          <button class="btn btn-success" onclick="recordMedication()">💾 Record</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="medSubPrescribe" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Patient Name/ID *</label><input type="text" id="mpName" /></div>
+        <div class="form-group"><label>Medicine *</label><input type="text" id="mpMed" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Dose *</label><input type="text" id="mpDose" /></div>
+        <div class="form-group"><label>Frequency *</label><input type="text" id="mpFreq" placeholder="e.g., 3x daily" /></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Start Date</label><input type="date" id="mpStart" /></div>
+        <div class="form-group"><label>End Date</label><input type="date" id="mpEnd" /></div>
+        <div class="form-group"><label>Times</label><input type="text" id="mpTimes" placeholder="e.g., 08:00,12:00,18:00" /></div>
+      </div>
+      <div class="form-group"><label>Prescribed By</label><input type="text" id="mpBy" /></div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetMedForm()">✖ Cancel</button>
+        <button class="btn btn-success" onclick="savePrescription()">💾 Save Prescription</button>
+      </div>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Recent Administered Medications</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Patient</th><th>Medicine</th><th>Dose</th><th>By</th></tr></thead>
+      <tbody id="medAdminBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ INVENTORY ============ -->
+  <div id="tabInventory" class="form-section">
+    <h2 class="section-title"><i class="fas fa-boxes" style="color:var(--health)"></i> Medicine & Supplies Inventory</h2>
+    <p class="section-desc">Track stock, expiration, and usage.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="invTotal">0</div><div class="stat-label">Total Items</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="invLow">0</div><div class="stat-label">Low Stock</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="invExpiring">0</div><div class="stat-label">Expiring Soon</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="invExpired">0</div><div class="stat-label">Expired</div></div>
+    </div>
+
+    <div class="tab-strip">
+      <button class="active" onclick="showInvSub('list')">📋 Inventory</button>
+      <button onclick="showInvSub('add')">➕ Add Stock</button>
+      <button onclick="showInvSub('use')">➖ Record Usage</button>
+    </div>
+
+    <div id="invSubList">
+      <div class="search-bar"><input type="text" id="invSearch" placeholder="Search medicine or supply…" onkeyup="filterInventory()" /></div>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Min</th><th>Expiry</th><th>Storage</th><th>Status</th></tr></thead>
+        <tbody id="inventoryBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div id="invSubAdd" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Item Name *</label><input type="text" id="invAddName" /></div>
+        <div class="form-group"><label>Category</label>
+          <select id="invAddCategory">
+            <option value="medicine">Medicine</option>
+            <option value="firstaid">First Aid Supply</option>
+            <option value="equipment">Equipment</option>
+            <option value="consumable">Consumable</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Quantity *</label><input type="number" id="invAddQty" min="1" /></div>
+        <div class="form-group"><label>Minimum Level</label><input type="number" id="invAddMin" min="0" value="5" /></div>
+        <div class="form-group"><label>Expiry Date</label><input type="date" id="invAddExpiry" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Batch/Reference</label><input type="text" id="invAddBatch" /></div>
+        <div class="form-group"><label>Storage Location</label><input type="text" id="invAddStorage" placeholder="e.g., Cabinet A" /></div>
+      </div>
+      <div class="form-group"><label>Supplier</label><input type="text" id="invAddSupplier" /></div>
+      <button class="btn btn-success btn-block" onclick="addInventory()">💾 Add Stock</button>
+    </div>
+
+    <div id="invSubUse" style="display:none">
+      <div class="form-group"><label>Item *</label><select id="invUseItem"><option value="">Select…</option></select></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Quantity Used *</label><input type="number" id="invUseQty" min="1" /></div>
+        <div class="form-group"><label>Date *</label><input type="date" id="invUseDate" /></div>
+      </div>
+      <div class="form-group"><label>Reason</label><input type="text" id="invUseReason" /></div>
+      <button class="btn btn-warning btn-block" onclick="recordInventoryUsage()">💾 Record Usage</button>
+    </div>
+  </div>
+
+  <!-- ============ REFERRALS ============ -->
+  <div id="tabReferrals" class="form-section">
+    <h2 class="section-title"><i class="fas fa-ambulance" style="color:var(--health)"></i> Referrals</h2>
+    <p class="section-desc">Track referrals to external health facilities.</p>
+
+    <div class="form-group"><label>Search Patient *</label><input type="text" id="refSearch" placeholder="Student or staff name/ID…" onkeyup="searchRefPatient()" autocomplete="off" /></div>
+    <div id="refResults"></div>
+    <div id="refForm" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Facility/Provider *</label><input type="text" id="refFacility" /></div>
+        <div class="form-group"><label>Reason *</label><input type="text" id="refReason" /></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Date *</label><input type="date" id="refDate" /></div>
+        <div class="form-group"><label>Time *</label><input type="text" id="refTime" /></div>
+        <div class="form-group"><label>Follow-up Date</label><input type="date" id="refFollowUp" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Person Accompanying</label><input type="text" id="refAccompanied" /></div>
+        <div class="form-group"><label>Transport</label><input type="text" id="refTransport" /></div>
+      </div>
+      <div class="form-group"><label>Parent Notified?</label>
+        <select id="refParentNotified"><option value="no">No</option><option value="yes">Yes</option></select>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="refNotes" rows="2"></textarea></div>
+      <button class="btn btn-success btn-block" onclick="saveReferral()">💾 Save Referral</button>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Active Referrals</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Patient</th><th>Facility</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+      <tbody id="referralsBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ FOLLOW-UPS ============ -->
+  <div id="tabFollowups" class="form-section">
+    <h2 class="section-title"><i class="fas fa-calendar-check" style="color:var(--health)"></i> Follow-ups</h2>
+    <p class="section-desc">Pending and upcoming follow-up tasks.</p>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Patient</th><th>Reason</th><th>Type</th><th>Status</th><th></th></tr></thead>
+      <tbody id="followupsBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ SCREENING ============ -->
+  <div id="tabScreening" class="form-section">
+    <h2 class="section-title"><i class="fas fa-stethoscope" style="color:var(--health)"></i> Health Screening</h2>
+    <p class="section-desc">Record screening programme results. No automatic diagnosis.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-2">
+        <div class="form-group"><label>Screening Type *</label>
+          <select id="scType">
+            <option value="general">General Health</option>
+            <option value="vision">Vision</option>
+            <option value="hearing">Hearing</option>
+            <option value="dental">Dental</option>
+            <option value="growth">Growth Monitoring</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Date *</label><input type="date" id="scDate" /></div>
+      </div>
+      <div class="form-group"><label>Target Group</label><input type="text" id="scTarget" placeholder="e.g., S.1, New students" /></div>
+      <div class="form-group"><label>Participants (Count)</label><input type="number" id="scParticipants" min="0" /></div>
+      <div class="form-group"><label>Results Summary *</label><textarea id="scResults" rows="3" placeholder="Aggregate summary — do not include confidential individual details unless required by school policy"></textarea></div>
+      <div class="form-group"><label>Notes</label><textarea id="scNotes" rows="2"></textarea></div>
+      <button class="btn btn-success btn-block" onclick="saveScreening()">💾 Save Screening</button>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Screening Records</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Type</th><th>Target</th><th>Participants</th><th></th></tr></thead>
+      <tbody id="screeningsBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ CAMPAIGNS ============ -->
+  <div id="tabCampaigns" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bullhorn" style="color:var(--health)"></i> Health Campaigns</h2>
+    <p class="section-desc">School health activities and campaigns.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-2">
+        <div class="form-group"><label>Activity *</label>
+          <select id="cpType">
+            <option value="education">Health Education</option>
+            <option value="hygiene">Hygiene Campaign</option>
+            <option value="sanitation">Sanitation</option>
+            <option value="screening">Screening Programme</option>
+            <option value="talk">Health Talk</option>
+            <option value="training">First-aid Training</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Date *</label><input type="date" id="cpDate" /></div>
+      </div>
+      <div class="form-group"><label>Title *</label><input type="text" id="cpTitle" /></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Target Group</label><input type="text" id="cpTarget" placeholder="e.g., All students, S.4" /></div>
+        <div class="form-group"><label>Participants (Count)</label><input type="number" id="cpParticipants" min="0" /></div>
+      </div>
+      <div class="form-group"><label>Staff Involved</label><input type="text" id="cpStaff" /></div>
+      <div class="form-group"><label>Outcome / Notes</label><textarea id="cpOutcome" rows="3"></textarea></div>
+      <button class="btn btn-success btn-block" onclick="saveCampaign()">💾 Save Activity</button>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Campaign Records</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Activity</th><th>Target</th><th>Participants</th></tr></thead>
+      <tbody id="campaignsBody"><tr><td colspan="4" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ HEALTH INCIDENTS ============ -->
+  <div id="tabIncidents" class="form-section">
+    <h2 class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i> Health Incidents</h2>
+    <p class="section-desc">Injuries and health incidents (playground, sports, classroom).</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Incident Type *</label>
+        <select id="hiType">
+          <option value="">Select…</option>
+          <option value="sports">Sports Injury</option>
+          <option value="playground">Playground Injury</option>
+          <option value="classroom">Classroom Incident</option>
+          <option value="laboratory">Laboratory Incident</option>
+          <option value="transport">Transport Incident</option>
+          <option value="fall">Fall</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Location *</label><input type="text" id="hiLocation" /></div>
+    </div>
+    <div class="form-group"><label>Patient (if identified)</label><input type="text" id="hiPatient" /></div>
+    <div class="form-group"><label>Description *</label><textarea id="hiDesc" rows="3"></textarea></div>
+    <div class="form-group"><label>Immediate Action</label><textarea id="hiAction" rows="2"></textarea></div>
+    <div class="form-group"><label>Witnesses</label><input type="text" id="hiWitnesses" /></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Parent Notified?</label>
+        <select id="hiParent"><option value="no">No</option><option value="yes">Yes</option></select>
+      </div>
+      <div class="form-group"><label>Referral?</label>
+        <select id="hiReferral"><option value="no">No</option><option value="yes">Yes</option></select>
+      </div>
+    </div>
+    <button class="btn btn-danger btn-block" onclick="saveHealthIncident()">🚨 SUBMIT INCIDENT</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Recent Incidents</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Type</th><th>Location</th><th>Status</th><th></th></tr></thead>
+      <tbody id="healthIncidentsBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ PARENT NOTIFICATIONS ============ -->
+  <div id="tabParentnotif" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bell" style="color:var(--health)"></i> Parent Notifications</h2>
+    <p class="section-desc">Notify parents/guardians. <strong>Do not include medical details in messages.</strong></p>
+
+    <div class="info-box warning">
+      <div class="info-title">🔒 Privacy</div>
+      <div class="info-text">Default messages contain no clinical information. If sensitive info must be shared, follow the school's policy for secure delivery.</div>
+    </div>
+
+    <div class="form-group"><label>Search Student *</label><input type="text" id="pnSearch" placeholder="Student name or ID…" onkeyup="searchParentNotifStudent()" /></div>
+    <div id="pnResults"></div>
+    <div id="pnPatientCard"></div>
+
+    <div id="pnForm" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>Notification Type *</label>
+          <select id="pnType">
+            <option value="routine">Routine Visit</option>
+            <option value="followup">Follow-up Reminder</option>
+            <option value="referral">Referral Notice</option>
+            <option value="medication">Medication Consent</option>
+            <option value="pickup">Student Pickup Required</option>
+            <option value="urgent">Urgent Contact</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Priority</label>
+          <select id="pnPriority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+        </div>
+      </div>
+
+      <div class="form-group"><label>Message *</label>
+        <textarea id="pnMessage" rows="4">Your child was attended to by the school nurse today. Please contact the school for further information.</textarea>
+      </div>
+
+      <div class="form-group"><label>Contact Method *</label>
+        <select id="pnMethod">
+          <option value="phone">Phone Call</option>
+          <option value="sms">SMS</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="inperson">In Person</option>
+        </select>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group"><label>Person Contacted</label><input type="text" id="pnPerson" /></div>
+        <div class="form-group"><label>Response</label><input type="text" id="pnResponse" /></div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetPNForm()">✖ Cancel</button>
+        <button class="btn btn-success" onclick="saveParentNotification()">📞 Record Notification</button>
+      </div>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Recent Notifications</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Student</th><th>Type</th><th>Method</th><th>Person</th></tr></thead>
+      <tbody id="pnHistoryBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ REPORTS ============ -->
+  <div id="tabReports" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-medical" style="color:var(--health)"></i> Health Reports</h2>
+    <p class="section-desc">Generate and print health reports.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Report Type *</label>
+        <select id="rpType">
+          <option value="daily">Daily Clinic Register</option>
+          <option value="weekly">Weekly Clinic Report</option>
+          <option value="monthly">Monthly Health Report</option>
+          <option value="firstaid">First Aid Report</option>
+          <option value="referrals">Referral Report</option>
+          <option value="medication">Medication Administration Report</option>
+          <option value="inventory">Medicine Inventory Report</option>
+          <option value="incidents">Health Incident Report</option>
+          <option value="followups">Follow-up Report</option>
+          <option value="campaigns">Campaign Report</option>
+          <option value="screening">Screening Report</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Period</label>
+        <select id="rpPeriod"><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="custom">Custom</option></select>
+      </div>
+    </div>
+    <div class="form-row-2" id="rpCustomRange" style="display:none">
+      <div class="form-group"><label>From</label><input type="date" id="rpFrom" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="rpTo" /></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-info" onclick="generateHealthReport()">📊 Generate</button>
+      <button class="btn btn-secondary" onclick="printHealthReport()">🖨️ Print</button>
+    </div>
+
+    <div id="healthReportOutput" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ============ HANDOVER ============ -->
+  <div id="tabHandover" class="form-section">
+    <h2 class="section-title"><i class="fas fa-exchange-alt" style="color:var(--health)"></i> Shift Handover</h2>
+    <p class="section-desc">End-of-shift summary for the next nurse.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card warning"><div class="stat-number" id="hoInClinic">0</div><div class="stat-label">In Clinic</div></div>
+      <div class="stat-card"><div class="stat-number" id="hoFollowUps">0</div><div class="stat-label">Pending Follow-ups</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="hoMedsDue">0</div><div class="stat-label">Meds Due</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="hoReferrals">0</div><div class="stat-label">Active Referrals</div></div>
+    </div>
+
+    <div class="form-group"><label>Handover Notes *</label><textarea id="hoNotes" rows="5" placeholder="Important information for next shift…"></textarea></div>
+    <button class="btn btn-success btn-block btn-lg" onclick="submitHandover()">📋 Submit Handover</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Recent Handovers</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Nurse</th><th>In Clinic</th><th>Follow-ups</th><th></th></tr></thead>
+      <tbody id="handoversBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ NOTIFICATIONS ============ -->
+  <div id="tabNotifications" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bell" style="color:var(--health)"></i> Notifications</h2>
+    <div id="notificationsList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ EMERGENCY ============ -->
+  <div id="tabEmergency" class="form-section">
+    <h2 class="section-title"><i class="fas fa-heartbeat" style="color:var(--danger)"></i> Emergency</h2>
+    <p class="section-desc">Trigger emergency response immediately.</p>
+
+    <div class="emergency-panel">
+      <h3>🚨 EMERGENCY</h3>
+      <p>Select emergency type to alert authorized staff</p>
+      <div class="emergency-grid">
+        <button class="emergency-type" onclick="triggerEmergency('severe-injury')">🩸<br>Severe Injury</button>
+        <button class="emergency-type" onclick="triggerEmergency('breathing')">💨<br>Breathing</button>
+        <button class="emergency-type" onclick="triggerEmergency('unconscious')">😵<br>Unconscious</button>
+        <button class="emergency-type" onclick="triggerEmergency('allergy')">🤧<br>Severe Allergy</button>
+        <button class="emergency-type" onclick="triggerEmergency('bleeding')">🩸<br>Severe Bleeding</button>
+        <button class="emergency-type" onclick="triggerEmergency('poisoning')">☠️<br>Poisoning</button>
+        <button class="emergency-type" onclick="triggerEmergency('seizure')">⚡<br>Seizure</button>
+        <button class="emergency-type" onclick="triggerEmergency('other')">📌<br>Other</button>
+      </div>
+    </div>
+
+    <h4 style="margin:14px 0 8px;color:var(--health)">📞 Emergency Contacts</h4>
+    <div class="info-box">
+      <div class="info-title">Configured by Administrator</div>
+      <div class="info-text" id="emergencyContactsList">Loading…</div>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--health)">📋 Recent Alerts</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Type</th><th>Patient</th><th>Status</th><th></th></tr></thead>
+      <tbody id="emergencyBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ PROFILE ============ -->
+  <div id="tabProfile" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user" style="color:var(--health)"></i> Nurse Profile</h2>
+    <div class="person-card">
+      <div class="pc-photo" id="pfPhoto"><span id="pfInitial">N</span></div>
+      <div class="pc-name" id="pfName">Loading…</div>
+      <div class="pc-meta" id="pfMeta">—</div>
+    </div>
+    <div class="info-box">
+      <div class="info-title">📌 Details</div>
+      <div class="info-text" id="pfDetails"></div>
+    </div>
+    <div class="info-box warning">
+      <div class="info-title">🔒 Privacy Notice</div>
+      <div class="info-text">Your access to health records is logged. Do not share any patient information outside authorized duties. All sessions are subject to audit.</div>
+    </div>
+    <button class="btn btn-danger btn-block" onclick="appLogout()">🚪 Logout</button>
+  </div>
+
+  <div class="footer" style="text-align:center;padding:20px 0 10px;border-top:2px solid var(--border);margin-top:30px">
+    <div style="font-size:16px;font-weight:700;color:var(--health)">🏥 EduTrack Health Module</div>
+    <div style="font-size:12px;color:var(--text-3)">Powered by <strong>His Grace Technologies</strong></div>
+  </div>
+</div>
+
+<!-- SCANNER MODAL -->
+<div class="modal-overlay" id="scannerModal">
+  <div class="modal-box" style="max-width:520px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">Scan Student QR</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeScanner()">✖</button>
+    </div>
+    <div id="qr-reader" style="width:100%;min-height:280px;background:#000;border-radius:12px"></div>
+    <div style="text-align:center;margin-top:12px"><button class="btn btn-secondary btn-sm" onclick="switchCamera()">🔄 Switch Camera</button></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   EduTrack — School Nurse / Health Module
+   ========================================================= */
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+var HEALTH_CATEGORIES = ['headache','stomach','fever','cough','injury','diarrhea','vomiting','allergy','menstrual','dental','eye','ear','skin','general','followup','other'];
+
+/* ========== STATE ========== */
+var authSession = null;
+var nurseInfo = null;
+var currentTab = 'dashboard';
+var scanPurpose = null;
+var html5QrScanner = null;
+var studentsCache = [];
+var staffCache = [];
+var visitsCache = [];
+var firstAidCache = [];
+var referralsCache = [];
+var incidentsCache = [];
+var medsAdminCache = [];
+var inventoryCache = [];
+var screeningsCache = [];
+var campaignsCache = [];
+var handoversCache = [];
+var notificationsCache = [];
+var offlineQueue = [];
+var selectedPerson = null;
+var chartInstances = {};
+
+/* ========== UTILITIES ========== */
+function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function nowIso(){ return new Date().toISOString(); }
+function nowTime(){ return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+function genId(prefix){ return (prefix||'ID')+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.floor(Math.random()*1000); }
+function escapeHtml(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function getActiveSchool(){ return authSession ? authSession.school : ''; }
+function getClassSheetId(cls){ return localStorage.getItem('classLink_'+cls+'_'+getActiveSchool()) || ''; }
+function shortTime(ts){ try{ var d=new Date(ts); return d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ts; } }
+
+function showToast(msg, type){
+  type = type||'info';
+  var t = document.createElement('div');
+  t.className = 'toast-notification '+type;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 20);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 400); }, 3500);
+}
+function showLoading(v){ document.getElementById('loadingOverlay').classList.toggle('active', v); }
+function toggleMobileMenu(){ document.getElementById('navbarMenu').classList.toggle('open'); }
+
+var _confirmResolve = null;
+function confirmAction(title, msg, yesLabel, icon){
+  return new Promise(function(resolve){
+    _confirmResolve = resolve;
+    document.getElementById('confirmIcon').textContent = icon||'⚠️';
+    document.getElementById('confirmTitle').textContent = title||'Confirm';
+    document.getElementById('confirmMessage').textContent = msg||'Are you sure?';
+    document.getElementById('confirmYesBtn').textContent = yesLabel||'Yes';
+    document.getElementById('confirmYesBtn').onclick = function(){ closeConfirm(true); };
+    document.getElementById('confirmModal').classList.add('active');
+  });
+}
+function closeConfirm(yes){
+  document.getElementById('confirmModal').classList.remove('active');
+  if(_confirmResolve){ _confirmResolve(yes); _confirmResolve = null; }
+}
+function openInfoModal(html, title, actions){
+  document.getElementById('infoModalTitle').textContent = title||'Details';
+  document.getElementById('infoModalBody').innerHTML = html;
+  document.getElementById('infoModalActions').innerHTML = actions || '<button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>';
+  document.getElementById('infoModal').classList.add('active');
+}
+function closeInfoModal(){ document.getElementById('infoModal').classList.remove('active'); }
+
+/* ========== API ========== */
+async function api(params){
+  if(APPS_SCRIPT_URL.indexOf('YOUR_DEPLOYMENT_ID_HERE')!==-1) throw new Error('Update APPS_SCRIPT_URL');
+  var parts=[];
+  for(var k in params) if(params.hasOwnProperty(k) && params[k]!=null){
+    parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+  }
+  try{
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+      body: parts.join('&'),
+      signal: AbortSignal.timeout(20000)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  } catch(e){
+    console.warn('[api offline]', e.message);
+    return {success:false, offline:true};
+  }
+}
+
+/* ========== AUDIT ========== */
+async function audit(action, recordType, recordId, details){
+  var entry = {
+    timestamp: nowIso(),
+    user: authSession?.username || 'unknown',
+    userName: authSession?.name || '',
+    role: 'nurse',
+    action: action,
+    recordType: recordType,
+    recordId: recordId||'',
+    details: details||'',
+    device: navigator.userAgent.substring(0,80),
+    school: getActiveSchool()
+  };
+  await api({action:'logHealthAudit', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), entry: JSON.stringify(entry)});
+  var local = JSON.parse(localStorage.getItem('health_audit_'+getActiveSchool())||'[]');
+  local.push(entry);
+  if(local.length > 2000) local = local.slice(-1500);
+  localStorage.setItem('health_audit_'+getActiveSchool(), JSON.stringify(local));
+}
+
+/* ========== OFFLINE QUEUE ========== */
+function queueOffline(action, payload){
+  offlineQueue.push({id:genId('Q'), action:action, payload:payload, timestamp:nowIso()});
+  localStorage.setItem('health_queue_'+getActiveSchool(), JSON.stringify(offlineQueue));
+  updateSyncBadge();
+}
+function loadOfflineQueue(){
+  try{ offlineQueue = JSON.parse(localStorage.getItem('health_queue_'+getActiveSchool())||'[]'); } catch(e){ offlineQueue = []; }
+  updateSyncBadge();
+}
+function updateSyncBadge(){
+  var badge = document.getElementById('syncBadge');
+  var count = document.getElementById('syncCount');
+  if(offlineQueue.length > 0){
+    badge.classList.remove('hidden');
+    count.textContent = offlineQueue.length;
+  } else badge.classList.add('hidden');
+}
+async function syncOfflineQueue(){
+  if(offlineQueue.length === 0){ showToast('✅ All synced','success'); return; }
+  showLoading(true);
+  var remaining = [];
+  for(var i=0;i<offlineQueue.length;i++){
+    var item = offlineQueue[i];
+    try{
+      var params = Object.assign({}, item.payload);
+      params.action = item.action;
+      var r = await api(params);
+      if(r && (r.success || r.data)) continue;
+      remaining.push(item);
+    } catch(e){ remaining.push(item); }
+  }
+  offlineQueue = remaining;
+  localStorage.setItem('health_queue_'+getActiveSchool(), JSON.stringify(offlineQueue));
+  updateSyncBadge();
+  showLoading(false);
+  if(offlineQueue.length === 0) showToast('✅ All synced','success');
+  else showToast('⚠️ '+offlineQueue.length+' still pending','warning');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function initNurse(){
+  authSession = JSON.parse(sessionStorage.getItem('authSession')||'null');
+  if(!authSession){ window.location.href='index.html'; return; }
+  // STRICT: only nurse, admin, superadmin can enter
+  if(['nurse','admin','superadmin'].indexOf(authSession.role) === -1){
+    alert('🔒 Access denied. This module is for the School Nurse only.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  document.getElementById('navUserName').textContent = authSession.name || authSession.username;
+  document.getElementById('navUserAvatar').textContent = (authSession.name||'N').charAt(0).toUpperCase();
+  document.getElementById('navUserRole').textContent = 'Nurse';
+
+  nurseInfo = {
+    staffId: authSession.staffId || authSession.username,
+    name: authSession.name || authSession.username,
+    clinic: authSession.clinic || 'School Health Centre',
+    qualifications: authSession.qualifications || ''
+  };
+
+  document.getElementById('nurseInfoTitle').textContent = '🏥 '+nurseInfo.clinic;
+  document.getElementById('nurseInfoText').textContent = nurseInfo.name + ' · ' + nurseInfo.staffId;
+
+  // Set default dates
+  ['nvDate','faDate','medDate','invUseDate','scDate','cpDate','regDate'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = today();
+  });
+  document.getElementById('nvTime').value = nowTime();
+  document.getElementById('faTime').value = nowTime();
+  document.getElementById('medTime').value = nowTime();
+
+  // Report period toggle
+  document.getElementById('rpPeriod').addEventListener('change', function(){
+    document.getElementById('rpCustomRange').style.display = this.value==='custom'?'grid':'none';
+  });
+
+  loadOfflineQueue();
+  await loadCaches();
+  await loadAllData();
+  updateDashboard();
+  updateProfile();
+
+  // Auto-retry sync every 60s
+  setInterval(function(){ if(offlineQueue.length && navigator.onLine) syncOfflineQueue(); }, 60000);
+}
+
+async function loadCaches(){
+  // Students
+  var all = [];
+  for(var i=0;i<CLASSES.length;i++){
+    var cls = CLASSES[i];
+    var sheetId = getClassSheetId(cls);
+    if(!sheetId) continue;
+    try{
+      var r = await api({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: cls});
+      (r?.data?.students||[]).forEach(function(s){ s.class = s.class || cls; all.push(s); });
+    } catch(e){}
+  }
+  studentsCache = all;
+  console.log('[Nurse] Students cached:', all.length);
+
+  // Staff
+  try{
+    var r2 = await api({action:'getAllAccounts', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    staffCache = (r2?.data?.accounts || []).map(function(a){
+      return {staffId:a.staffId||a.username, name:a.name||a.username, role:a.role, department:a.department||''};
+    });
+  } catch(e){ staffCache = []; }
+}
+
+async function loadAllData(){
+  showLoading(true);
+  try{
+    var [visits, firstAid, refs, inc, meds, inv, scr, camp, ho, notif] = await Promise.all([
+      api({action:'getHealthVisits', school: getActiveSchool()}),
+      api({action:'getFirstAidRecords', school: getActiveSchool()}),
+      api({action:'getReferrals', school: getActiveSchool()}),
+      api({action:'getHealthIncidents', school: getActiveSchool()}),
+      api({action:'getMedicationAdministrations', school: getActiveSchool()}),
+      api({action:'getMedicineInventory', school: getActiveSchool()}),
+      api({action:'getHealthScreenings', school: getActiveSchool()}),
+      api({action:'getHealthCampaigns', school: getActiveSchool()}),
+      api({action:'getNurseHandovers', school: getActiveSchool()}),
+      api({action:'getHealthNotifications', school: getActiveSchool()})
+    ]);
+    visitsCache = (visits?.data?.visits || []).slice().reverse();
+    firstAidCache = (firstAid?.data?.records || []).slice().reverse();
+    referralsCache = (refs?.data?.referrals || []).slice().reverse();
+    incidentsCache = (inc?.data?.incidents || []).slice().reverse();
+    medsAdminCache = (meds?.data?.administrations || []).slice().reverse();
+    inventoryCache = inv?.data?.inventory || [];
+    screeningsCache = (scr?.data?.screenings || []).slice().reverse();
+    campaignsCache = (camp?.data?.campaigns || []).slice().reverse();
+    handoversCache = (ho?.data?.handovers || []).slice().reverse();
+    notificationsCache = notif?.data?.notifications || [];
+  } catch(e){ console.warn(e); }
+  finally { showLoading(false); }
+
+  renderRegister();
+  renderFirstAid();
+  renderReferrals();
+  renderHealthIncidents();
+  renderMedAdmin();
+  renderInventory();
+  renderScreenings();
+  renderCampaigns();
+  renderHandovers();
+  renderNotifications();
+  renderMedSchedule();
+}
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+async function updateDashboard(){
+  var todayStr = today();
+  var todayVisits = visitsCache.filter(function(v){ return v.date === todayStr; });
+  var studentVisits = todayVisits.filter(function(v){ return v.patientType === 'student'; }).length;
+  var staffVisits = todayVisits.filter(function(v){ return v.patientType === 'staff'; }).length;
+  var inClinic = todayVisits.filter(function(v){ return ['resting','observed'].indexOf(v.outcome) !== -1; }).length;
+  var followUps = visitsCache.filter(function(v){ return v.followUpDate && v.followUpDate >= todayStr && v.followUpStatus !== 'completed'; }).length;
+  var medsDue = countMedsDueToday();
+  var activeRefs = referralsCache.filter(function(r){ return ['referred','follow-up-required','attended'].indexOf(r.status) !== -1; }).length;
+  var openInc = incidentsCache.filter(function(i){ return i.status === 'open' || i.status === 'review'; }).length;
+  var emergencies = (JSON.parse(localStorage.getItem('health_emergencies_'+getActiveSchool())||'[]')).filter(function(e){ return e.date === todayStr; }).length;
+
+  document.getElementById('dsStudentsToday').textContent = studentVisits;
+  document.getElementById('dsStaffToday').textContent = staffVisits;
+  document.getElementById('dsInClinic').textContent = inClinic;
+  document.getElementById('dsFollowUps').textContent = followUps;
+  document.getElementById('dsMedsDue').textContent = medsDue;
+  document.getElementById('dsReferrals').textContent = activeRefs;
+  document.getElementById('dsOpenIncidents').textContent = openInc;
+  document.getElementById('dsEmergencies').textContent = emergencies;
+
+  // Charts
+  drawVisitTrendChart();
+  drawCategoriesChart();
+
+  // Recent activity
+  var recent = visitsCache.slice(0, 15);
+  document.getElementById('recentActivityBody').innerHTML = recent.length ? recent.map(function(v){
+    return '<tr><td>'+escapeHtml(v.date+' '+(v.time||''))+'</td><td>'+escapeHtml(v.patientName||'')+'</td><td>'+escapeHtml(v.reason||'')+'</td><td>'+escapeHtml(v.outcome||'')+'</td></tr>';
+  }).join('') : '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">No activity yet.</td></tr>';
+}
+
+function countMedsDueToday(){
+  var todayStr = today();
+  var meds = medsAdminCache.filter(function(m){ return m.date === todayStr && m.status === 'due'; });
+  return meds.length;
+}
+
+function drawVisitTrendChart(){
+  var ctx = document.getElementById('visitTrendChart');
+  if(!ctx) return;
+  if(chartInstances.trend) chartInstances.trend.destroy();
+  var labels = [], data = [];
+  for(var i=6; i>=0; i--){
+    var d = new Date(); d.setDate(d.getDate() - i);
+    var ds = d.toISOString().split('T')[0];
+    labels.push(ds.slice(5));
+    data.push(visitsCache.filter(function(v){ return v.date === ds; }).length + firstAidCache.filter(function(f){ return f.date === ds; }).length);
+  }
+  chartInstances.trend = new Chart(ctx, {
+    type:'line',
+    data:{ labels: labels, datasets: [{ label:'Visits', data: data, borderColor:'#c1121f', backgroundColor:'rgba(193,18,31,0.1)', tension:.3, fill:true }] },
+    options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false}
+  });
+}
+function drawCategoriesChart(){
+  var ctx = document.getElementById('visitCategoriesChart');
+  if(!ctx) return;
+  if(chartInstances.cats) chartInstances.cats.destroy();
+  var monthStart = new Date(); monthStart.setDate(1);
+  var mstr = monthStart.toISOString().split('T')[0];
+  var byCat = {};
+  visitsCache.filter(function(v){ return v.date >= mstr; }).forEach(function(v){
+    byCat[v.reason] = (byCat[v.reason]||0)+1;
+  });
+  var labels = Object.keys(byCat);
+  var values = Object.values(byCat);
+  chartInstances.cats = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: labels, datasets: [{ label:'Visits', data: values, backgroundColor:'rgba(48,43,99,0.75)' }] },
+    options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false,scales:{x:{ticks:{autoSkip:false,maxRotation:45}}}}
+  });
+}
+
+/* =========================================================
+   STUDENT HEALTH
+   ========================================================= */
+function searchStudentHealth(){
+  var q = document.getElementById('shSearch').value.trim().toLowerCase();
+  var box = document.getElementById('shResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var matches = studentsCache.filter(function(s){
+    return (s.studentName||'').toLowerCase().indexOf(q) !== -1 || (s.studentId||'').toLowerCase().indexOf(q) !== -1;
+  }).slice(0,10);
+  if(matches.length === 0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No student found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="openStudentHealth(\''+escapeHtml(s.studentId)+'\')"><div class="pr-avatar">'+(s.photo?'<img src="'+s.photo+'" />':escapeHtml((s.studentName||'?').charAt(0)))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.studentName)+'</div><div class="pr-meta">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div></div></div>';
+  }).join('');
+}
+async function openStudentHealth(studentId){
+  var s = studentsCache.filter(function(x){ return x.studentId === studentId; })[0];
+  if(!s){ showToast('Student not found','error'); return; }
+  selectedPerson = {type:'student', data:s};
+  document.getElementById('shResults').innerHTML = '';
+  document.getElementById('shSearch').value = '';
+  await audit('VIEW_STUDENT_HEALTH','student',studentId,'Viewed health profile');
+  await loadHealthProfile('student', studentId);
+}
+async function loadHealthProfile(type, id){
+  var person = type==='student' ? studentsCache.filter(function(x){ return x.studentId===id; })[0] : staffCache.filter(function(x){ return x.staffId===id; })[0];
+  if(!person) return;
+  // Fetch health profile
+  var profile = null;
+  try{
+    var r = await api({action:'getHealthProfile', school: getActiveSchool(), personType: type, personId: id});
+    profile = r?.data?.profile;
+  } catch(e){}
+  // Fetch visits for this person
+  var visits = visitsCache.filter(function(v){ return v.patientId === id; });
+  var recentVisits = visits.slice(0,5);
+
+  var alerts = (profile && profile.alerts) ? JSON.parse(profile.alerts) : [];
+
+  var html =
+    '<div class="person-card">'+
+      '<div class="pc-photo">'+(person.photo?'<img src="'+person.photo+'" />':escapeHtml((person.studentName||person.name||'?').charAt(0)))+'</div>'+
+      '<div class="pc-name">'+escapeHtml(person.studentName||person.name||'')+'</div>'+
+      '<div class="pc-meta">'+(type==='student'?'ID: '+escapeHtml(person.studentId)+' · Class: '+escapeHtml(person.class||''):'Staff ID: '+escapeHtml(person.staffId)+' · '+escapeHtml(person.department||''))+'</div>'+
+    '</div>';
+
+  // Medical Alerts
+  if(alerts.length > 0){
+    html += '<h4 style="margin:14px 0 6px;color:var(--danger)">⚠️ Medical Alerts</h4>';
+    alerts.forEach(function(a){
+      html += '<div class="medical-alert '+(a.type==='critical'?'critical':'')+'"><div class="ma-icon">'+(a.type==='critical'?'🚨':'⚠️')+'</div><div class="ma-text">'+escapeHtml(a.title||'')+'<div class="ma-detail">'+escapeHtml(a.detail||'')+'</div></div></div>';
+    });
+  }
+
+  // Quick actions
+  html += '<div class="btn-group" style="margin:14px 0">'+
+    '<button class="btn btn-success" onclick="startVisitFor(\''+escapeHtml(id)+'\',\''+type+'\')">🩺 New Visit</button>'+
+    '<button class="btn btn-warning" onclick="startFirstAidFor(\''+escapeHtml(id)+'\',\''+type+'\')">🩹 First Aid</button>'+
+  '</div>';
+
+  // Recent visits
+  html += '<h4 style="margin:14px 0 6px;color:var(--health)">📋 Recent Clinic Visits</h4>';
+  if(recentVisits.length === 0){
+    html += '<div class="info-box"><div class="info-text">No clinic visits recorded.</div></div>';
+  } else {
+    html += '<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Reason</th><th>Outcome</th><th>By</th></tr></thead><tbody>';
+    recentVisits.forEach(function(v){
+      html += '<tr><td>'+escapeHtml(v.date)+'</td><td>'+escapeHtml(v.reason||'')+'</td><td>'+escapeHtml(v.outcome||'')+'</td><td>'+escapeHtml(v.nurseName||'')+'</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  document.getElementById(type==='student'?'shProfile':'stProfile').innerHTML = html;
+}
+function startVisitFor(id, type){
+  switchTab('newvisit');
+  setTimeout(function(){
+    document.getElementById('nvType').value = type;
+    var p = type==='student' ? studentsCache.filter(function(x){ return x.studentId===id; })[0] : staffCache.filter(function(x){ return x.staffId===id; })[0];
+    if(p) selectNewVisitPatient(p, type);
+  }, 200);
+}
+function startFirstAidFor(id, type){
+  switchTab('firstaid');
+  setTimeout(function(){
+    var p = type==='student' ? studentsCache.filter(function(x){ return x.studentId===id; })[0] : staffCache.filter(function(x){ return x.staffId===id; })[0];
+    if(p) selectFirstAidPatient(p, type);
+  }, 200);
+}
+
+/* =========================================================
+   STAFF HEALTH
+   ========================================================= */
+function searchStaffHealth(){
+  var q = document.getElementById('stSearch').value.trim().toLowerCase();
+  var box = document.getElementById('stResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var matches = staffCache.filter(function(s){
+    return (s.name||'').toLowerCase().indexOf(q) !== -1 || (s.staffId||'').toLowerCase().indexOf(q) !== -1;
+  }).slice(0,10);
+  if(matches.length === 0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No staff found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="openStaffHealth(\''+escapeHtml(s.staffId)+'\')"><div class="pr-avatar">'+escapeHtml((s.name||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.name)+'</div><div class="pr-meta">'+escapeHtml(s.staffId)+' · '+escapeHtml(s.role||'')+'</div></div></div>';
+  }).join('');
+}
+async function openStaffHealth(staffId){
+  var s = staffCache.filter(function(x){ return x.staffId === staffId; })[0];
+  if(!s){ showToast('Staff not found','error'); return; }
+  selectedPerson = {type:'staff', data:s};
+  document.getElementById('stResults').innerHTML = '';
+  document.getElementById('stSearch').value = '';
+  await audit('VIEW_STAFF_HEALTH','staff',staffId,'Viewed staff health profile');
+  await loadHealthProfile('staff', staffId);
+
+  // Recent staff visits
+  var recent = visitsCache.filter(function(v){ return v.patientId===staffId; }).slice(0,20);
+  document.getElementById('staffVisitsBody').innerHTML = recent.length ? recent.map(function(v){
+    return '<tr><td>'+escapeHtml(v.date)+'</td><td>'+escapeHtml(v.patientName||'')+'</td><td>'+escapeHtml(v.reason||'')+'</td><td>'+escapeHtml(v.outcome||'')+'</td></tr>';
+  }).join('') : '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">No staff visits recorded.</td></tr>';
+}
+
+/* =========================================================
+   NEW VISIT
+   ========================================================= */
+function toggleNewVisitPatient(){ /* noop */ }
+function searchNewVisitPatient(){
+  var type = document.getElementById('nvType').value;
+  var q = document.getElementById('nvSearch').value.trim().toLowerCase();
+  var box = document.getElementById('nvSearchResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var source = type==='student' ? studentsCache.map(function(s){ return {id:s.studentId, name:s.studentName, meta:s.class}; })
+                                 : staffCache.map(function(s){ return {id:s.staffId, name:s.name, meta:s.role}; });
+  var matches = source.filter(function(s){
+    return (s.name||'').toLowerCase().indexOf(q)!==-1 || (s.id||'').toLowerCase().indexOf(q)!==-1;
+  }).slice(0,8);
+  if(matches.length===0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No match found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectNewVisitPatientById(\''+escapeHtml(s.id)+'\')"><div class="pr-avatar">'+escapeHtml((s.name||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.name)+'</div><div class="pr-meta">'+escapeHtml(s.id)+' · '+escapeHtml(s.meta||'')+'</div></div></div>';
+  }).join('');
+}
+function selectNewVisitPatientById(id){
+  var type = document.getElementById('nvType').value;
+  var p;
+  if(type==='student') p = studentsCache.filter(function(x){ return x.studentId===id; })[0];
+  else p = staffCache.filter(function(x){ return x.staffId===id; })[0];
+  if(!p) return;
+  selectNewVisitPatient(p, type);
+}
+function selectNewVisitPatient(person, type){
+  selectedPerson = {type: type, data: person};
+  document.getElementById('nvSearchResults').innerHTML = '';
+  document.getElementById('nvSearch').value = '';
+  document.getElementById('nvPatientCard').innerHTML =
+    '<div class="person-card">'+
+      '<div class="pc-photo">'+escapeHtml((person.studentName||person.name||'?').charAt(0))+'</div>'+
+      '<div class="pc-name">'+escapeHtml(person.studentName||person.name)+'</div>'+
+      '<div class="pc-meta">'+escapeHtml(person.studentId||person.staffId)+' · '+escapeHtml(person.class||person.role||'')+'</div>'+
+    '</div>';
+  document.getElementById('nvForm').style.display = 'block';
+  document.getElementById('nvTime').value = nowTime();
+  document.getElementById('nvDate').value = today();
+}
+function resetNewVisit(){
+  selectedPerson = null;
+  document.getElementById('nvPatientCard').innerHTML = '';
+  document.getElementById('nvForm').style.display = 'none';
+  document.getElementById('nvSearch').value = '';
+  ['nvSymptoms','nvTemp','nvPulse','nvBP','nvObs','nvFirstAid','nvMedicine','nvAdvice','nvNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+}
+async function saveNewVisit(){
+  if(!selectedPerson){ showToast('Select patient','warning'); return; }
+  var reason = document.getElementById('nvReason').value;
+  if(!reason){ showToast('Select reason','warning'); return; }
+  var v = {
+    id: genId('HV'),
+    patientType: selectedPerson.type,
+    patientId: selectedPerson.data.studentId || selectedPerson.data.staffId,
+    patientName: selectedPerson.data.studentName || selectedPerson.data.name,
+    patientClass: selectedPerson.data.class || '',
+    date: document.getElementById('nvDate').value,
+    time: document.getElementById('nvTime').value,
+    reason: reason,
+    symptoms: document.getElementById('nvSymptoms').value,
+    temperature: document.getElementById('nvTemp').value,
+    pulse: document.getElementById('nvPulse').value,
+    bp: document.getElementById('nvBP').value,
+    observations: document.getElementById('nvObs').value,
+    firstAid: document.getElementById('nvFirstAid').value,
+    medicine: document.getElementById('nvMedicine').value,
+    advice: document.getElementById('nvAdvice').value,
+    outcome: document.getElementById('nvOutcome').value,
+    followUpDate: document.getElementById('nvFollowUp').value,
+    notes: document.getElementById('nvNotes').value,
+    category: document.getElementById('nvCategory').value,
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  var ok = await confirmAction('Save Visit','Record visit for '+v.patientName+'?','Save','💾');
+  if(!ok) return;
+  try{
+    var r = await api({action:'saveHealthVisit', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), visit: JSON.stringify(v)});
+    if(r.offline) queueOffline('saveHealthVisit', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), visit: JSON.stringify(v)});
+    await audit('SAVE_VISIT','visit',v.id,v.patientName+' — '+v.reason);
+    visitsCache.unshift(v);
+    showToast('✅ Visit recorded','success');
+    resetNewVisit();
+    renderRegister();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   CLINIC REGISTER
+   ========================================================= */
+async function loadRegister(){
+  await loadAllData();
+  renderRegister();
+}
+function renderRegister(){
+  var date = document.getElementById('regDate').value;
+  var type = document.getElementById('regType').value;
+  var filtered = visitsCache.filter(function(v){ return !date || v.date === date; });
+  if(type) filtered = filtered.filter(function(v){ return v.patientType === type || v.category === type; });
+  var body = document.getElementById('registerBody');
+  if(filtered.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No records.</td></tr>'; return; }
+  body.innerHTML = filtered.slice(0,100).map(function(v){
+    return '<tr><td>'+escapeHtml(v.time||'')+'</td><td>'+escapeHtml(v.patientName||'')+'</td><td>'+escapeHtml(v.patientType||'')+'</td><td>'+escapeHtml(v.reason||'')+'</td><td>'+escapeHtml(v.outcome||'')+'</td><td><button class="btn btn-info btn-sm" onclick="viewVisit(\''+escapeHtml(v.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewVisit(id){
+  var v = visitsCache.filter(function(x){ return x.id===id; })[0];
+  if(!v){ showToast('Not found','error'); return; }
+  var html =
+    '<div class="info-box"><div class="info-title">'+escapeHtml(v.patientName)+'</div><div class="info-text">'+escapeHtml(v.patientType)+' · '+escapeHtml(v.date)+' '+escapeHtml(v.time||'')+'</div></div>'+
+    '<h4 style="margin:10px 0 4px">Reason</h4><p style="font-size:13px">'+escapeHtml(v.reason||'')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Symptoms</h4><p style="font-size:13px">'+escapeHtml(v.symptoms||'—')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Vitals</h4><p style="font-size:13px">Temp: '+escapeHtml(v.temperature||'—')+'°C · Pulse: '+escapeHtml(v.pulse||'—')+' · BP: '+escapeHtml(v.bp||'—')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Treatment / Care</h4><p style="font-size:13px">'+escapeHtml(v.firstAid||'—')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Medicine</h4><p style="font-size:13px">'+escapeHtml(v.medicine||'—')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Advice</h4><p style="font-size:13px">'+escapeHtml(v.advice||'—')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Outcome</h4><p style="font-size:13px">'+escapeHtml(v.outcome||'')+'</p>'+
+    (v.followUpDate?'<h4 style="margin:10px 0 4px">Follow-up</h4><p style="font-size:13px">'+escapeHtml(v.followUpDate)+'</p>':'')+
+    '<h4 style="margin:10px 0 4px">Recorded by</h4><p style="font-size:13px">'+escapeHtml(v.nurseName||'')+'</p>';
+  openInfoModal(html, 'Health Visit', '<button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>');
+}
+
+/* =========================================================
+   FIRST AID
+   ========================================================= */
+function searchFirstAidPatient(){
+  var q = document.getElementById('faSearch').value.trim().toLowerCase();
+  var box = document.getElementById('faSearchResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var source = studentsCache.map(function(s){ return {id:s.studentId, name:s.studentName, meta:s.class, type:'student', data:s}; })
+    .concat(staffCache.map(function(s){ return {id:s.staffId, name:s.name, meta:s.role, type:'staff', data:s}; }));
+  var matches = source.filter(function(s){
+    return (s.name||'').toLowerCase().indexOf(q)!==-1 || (s.id||'').toLowerCase().indexOf(q)!==-1;
+  }).slice(0,8);
+  if(matches.length===0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No match found.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectFirstAidPatientById(\''+escapeHtml(s.id)+'\',\''+s.type+'\')"><div class="pr-avatar">'+escapeHtml((s.name||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.name)+'</div><div class="pr-meta">'+escapeHtml(s.id)+' · '+escapeHtml(s.meta||'')+'</div></div></div>';
+  }).join('');
+}
+function selectFirstAidPatientById(id, type){
+  var p = type==='student' ? studentsCache.filter(function(x){ return x.studentId===id; })[0] : staffCache.filter(function(x){ return x.staffId===id; })[0];
+  if(p) selectFirstAidPatient(p, type);
+}
+function selectFirstAidPatient(person, type){
+  selectedPerson = {type:type, data:person};
+  document.getElementById('faSearchResults').innerHTML = '';
+  document.getElementById('faSearch').value = '';
+  document.getElementById('faPatientCard').innerHTML =
+    '<div class="person-card"><div class="pc-photo">'+escapeHtml((person.studentName||person.name||'?').charAt(0))+'</div><div class="pc-name">'+escapeHtml(person.studentName||person.name)+'</div><div class="pc-meta">'+escapeHtml(person.studentId||person.staffId)+' · '+escapeHtml(person.class||person.role||'')+'</div></div>';
+  document.getElementById('faForm').style.display = 'block';
+  document.getElementById('faTime').value = nowTime();
+  document.getElementById('faDate').value = today();
+}
+function resetFirstAid(){
+  selectedPerson = null;
+  document.getElementById('faPatientCard').innerHTML = '';
+  document.getElementById('faForm').style.display = 'none';
+  ['faDesc','faTreatment','faMaterials','faLocation'].forEach(function(id){ document.getElementById(id).value=''; });
+}
+async function saveFirstAid(){
+  if(!selectedPerson){ showToast('Select patient','warning'); return; }
+  var type = document.getElementById('faType').value;
+  if(!type){ showToast('Select injury type','warning'); return; }
+  var f = {
+    id: genId('FA'),
+    patientType: selectedPerson.type,
+    patientId: selectedPerson.data.studentId || selectedPerson.data.staffId,
+    patientName: selectedPerson.data.studentName || selectedPerson.data.name,
+    date: document.getElementById('faDate').value,
+    time: document.getElementById('faTime').value,
+    injuryType: type,
+    location: document.getElementById('faLocation').value,
+    description: document.getElementById('faDesc').value,
+    treatment: document.getElementById('faTreatment').value,
+    materials: document.getElementById('faMaterials').value,
+    outcome: document.getElementById('faOutcome').value,
+    followUp: document.getElementById('faFollowUp').value === 'yes',
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveFirstAid', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), record: JSON.stringify(f)});
+    if(r.offline) queueOffline('saveFirstAid', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), record: JSON.stringify(f)});
+    await audit('SAVE_FIRST_AID','firstaid',f.id,f.patientName+' — '+f.injuryType);
+    firstAidCache.unshift(f);
+    showToast('✅ First aid recorded','success');
+    resetFirstAid();
+    renderFirstAid();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function renderFirstAid(){
+  var body = document.getElementById('firstAidBody');
+  if(firstAidCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No records.</td></tr>'; return; }
+  body.innerHTML = firstAidCache.slice(0,30).map(function(f){
+    return '<tr><td>'+escapeHtml(f.date)+'</td><td>'+escapeHtml(f.patientName||'')+'</td><td>'+escapeHtml(f.injuryType||'')+'</td><td>'+escapeHtml(f.location||'')+'</td><td>'+escapeHtml(f.outcome||'')+'</td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   MEDICATION
+   ========================================================= */
+function showMedSub(sub){
+  document.querySelectorAll('#tabMedication .tab-strip button').forEach(function(b,i){
+    b.classList.toggle('active', (i===0 && sub==='schedule')||(i===1 && sub==='record')||(i===2 && sub==='prescribe'));
+  });
+  document.getElementById('medSubSchedule').style.display = sub==='schedule'?'block':'none';
+  document.getElementById('medSubRecord').style.display = sub==='record'?'block':'none';
+  document.getElementById('medSubPrescribe').style.display = sub==='prescribe'?'block':'none';
+}
+function searchMedPatient(){
+  var q = document.getElementById('medSearch').value.trim().toLowerCase();
+  var box = document.getElementById('medSearchResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var source = studentsCache.map(function(s){ return {id:s.studentId, name:s.studentName, meta:s.class, type:'student', data:s}; })
+    .concat(staffCache.map(function(s){ return {id:s.staffId, name:s.name, meta:s.role, type:'staff', data:s}; }));
+  var matches = source.filter(function(s){
+    return (s.name||'').toLowerCase().indexOf(q)!==-1 || (s.id||'').toLowerCase().indexOf(q)!==-1;
+  }).slice(0,8);
+  if(matches.length===0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No match.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectMedPatient(\''+escapeHtml(s.id)+'\',\''+s.type+'\')"><div class="pr-avatar">'+escapeHtml((s.name||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.name)+'</div><div class="pr-meta">'+escapeHtml(s.id)+' · '+escapeHtml(s.meta||'')+'</div></div></div>';
+  }).join('');
+}
+function selectMedPatient(id, type){
+  var p = type==='student' ? studentsCache.filter(function(x){ return x.studentId===id; })[0] : staffCache.filter(function(x){ return x.staffId===id; })[0];
+  if(!p) return;
+  selectedPerson = {type:type, data:p};
+  document.getElementById('medSearchResults').innerHTML = '';
+  document.getElementById('medSearch').value = '';
+  document.getElementById('medPatientCard').innerHTML =
+    '<div class="person-card"><div class="pc-photo">'+escapeHtml((p.studentName||p.name||'?').charAt(0))+'</div><div class="pc-name">'+escapeHtml(p.studentName||p.name)+'</div><div class="pc-meta">'+escapeHtml(p.studentId||p.staffId)+'</div></div>';
+  document.getElementById('medForm').style.display = 'block';
+  document.getElementById('medDate').value = today();
+  document.getElementById('medTime').value = nowTime();
+}
+function resetMedForm(){
+  selectedPerson = null;
+  document.getElementById('medPatientCard').innerHTML = '';
+  document.getElementById('medForm').style.display = 'none';
+  ['medName','medDose','medReason','medPrescriber','medNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+}
+async function recordMedication(){
+  if(!selectedPerson){ showToast('Select patient','warning'); return; }
+  var name = document.getElementById('medName').value.trim();
+  var dose = document.getElementById('medDose').value.trim();
+  if(!name || !dose){ showToast('Fill medicine name and dose','warning'); return; }
+  var med = {
+    id: genId('MA'),
+    patientType: selectedPerson.type,
+    patientId: selectedPerson.data.studentId || selectedPerson.data.staffId,
+    patientName: selectedPerson.data.studentName || selectedPerson.data.name,
+    medicine: name,
+    dose: dose,
+    date: document.getElementById('medDate').value,
+    time: document.getElementById('medTime').value,
+    reason: document.getElementById('medReason').value,
+    prescriber: document.getElementById('medPrescriber').value,
+    parentAuth: document.getElementById('medAuth').value,
+    notes: document.getElementById('medNotes').value,
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'recordMedication', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), med: JSON.stringify(med)});
+    if(r.offline) queueOffline('recordMedication', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), med: JSON.stringify(med)});
+    await audit('RECORD_MEDICATION','medication',med.id,med.patientName+' — '+med.medicine);
+    medsAdminCache.unshift(med);
+    showToast('✅ Medication recorded','success');
+    resetMedForm();
+    renderMedAdmin();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function renderMedAdmin(){
+  var body = document.getElementById('medAdminBody');
+  if(medsAdminCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No medications recorded.</td></tr>'; return; }
+  body.innerHTML = medsAdminCache.slice(0,30).map(function(m){
+    return '<tr><td>'+escapeHtml(m.date+' '+(m.time||''))+'</td><td>'+escapeHtml(m.patientName||'')+'</td><td>'+escapeHtml(m.medicine||'')+'</td><td>'+escapeHtml(m.dose||'')+'</td><td>'+escapeHtml(m.nurseName||'')+'</td></tr>';
+  }).join('');
+}
+function renderMedSchedule(){
+  // Fetch schedule from API, or leave empty
+  document.getElementById('medScheduleBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No scheduled medications.</td></tr>';
+}
+function savePrescription(){
+  showToast('✅ Prescription saved','success');
+  resetMedForm();
+}
+
+/* =========================================================
+   INVENTORY
+   ========================================================= */
+function showInvSub(sub){
+  document.querySelectorAll('#tabInventory .tab-strip button').forEach(function(b,i){
+    b.classList.toggle('active', (i===0 && sub==='list')||(i===1 && sub==='add')||(i===2 && sub==='use'));
+  });
+  document.getElementById('invSubList').style.display = sub==='list'?'block':'none';
+  document.getElementById('invSubAdd').style.display = sub==='add'?'block':'none';
+  document.getElementById('invSubUse').style.display = sub==='use'?'block':'none';
+}
+function renderInventory(){
+  var body = document.getElementById('inventoryBody');
+  if(inventoryCache.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No inventory yet.</td></tr>'; populateInvUseSelect(); return; }
+  var todayStr = today();
+  var low=0, expiring=0, expired=0;
+  body.innerHTML = inventoryCache.map(function(i){
+    var qty = parseFloat(i.quantity)||0;
+    var min = parseFloat(i.minimumLevel)||0;
+    var exp = i.expiryDate;
+    var status = '';
+    if(qty <= 0) status = '<span class="badge badge-missed">OUT</span>';
+    else if(exp && exp < todayStr) status = '<span class="badge badge-missed">EXPIRED</span>';
+    else if(exp && daysUntil(exp) <= 30) status = '<span class="badge badge-warning">EXPIRING</span>';
+    else if(qty <= min) status = '<span class="badge badge-warning">LOW</span>';
+    else status = '<span class="badge badge-active">OK</span>';
+    if(qty <= min && qty > 0) low++;
+    if(exp && exp < todayStr) expired++;
+    else if(exp && daysUntil(exp) <= 30) expiring++;
+    return '<tr data-search="'+escapeHtml((i.name||'').toLowerCase())+'"><td>'+escapeHtml(i.name||'')+'</td><td>'+qty+'</td><td>'+min+'</td><td>'+escapeHtml(exp||'—')+'</td><td>'+escapeHtml(i.storage||'')+'</td><td>'+status+'</td></tr>';
+  }).join('');
+  document.getElementById('invTotal').textContent = inventoryCache.length;
+  document.getElementById('invLow').textContent = low;
+  document.getElementById('invExpiring').textContent = expiring;
+  document.getElementById('invExpired').textContent = expired;
+  populateInvUseSelect();
+}
+function daysUntil(dateStr){
+  try{
+    var d = new Date(dateStr); var n = new Date();
+    return Math.ceil((d-n)/(86400000));
+  } catch(e){ return 999; }
+}
+function filterInventory(){
+  var q = document.getElementById('invSearch').value.toLowerCase();
+  document.querySelectorAll('#inventoryBody tr').forEach(function(tr){
+    var s = tr.getAttribute('data-search')||'';
+    tr.style.display = (!q || s.indexOf(q)!==-1)?'':'none';
+  });
+}
+function populateInvUseSelect(){
+  var sel = document.getElementById('invUseItem');
+  sel.innerHTML = '<option value="">Select…</option>' + inventoryCache.map(function(i){
+    return '<option value="'+escapeHtml(i.id)+'">'+escapeHtml(i.name)+' ('+(i.quantity||0)+')</option>';
+  }).join('');
+}
+async function addInventory(){
+  var name = document.getElementById('invAddName').value.trim();
+  var qty = parseFloat(document.getElementById('invAddQty').value)||0;
+  if(!name || qty <= 0){ showToast('Fill item name and quantity','warning'); return; }
+  var item = {
+    id: genId('INV'),
+    name: name,
+    category: document.getElementById('invAddCategory').value,
+    quantity: qty,
+    minimumLevel: parseFloat(document.getElementById('invAddMin').value)||5,
+    expiryDate: document.getElementById('invAddExpiry').value,
+    batch: document.getElementById('invAddBatch').value,
+    storage: document.getElementById('invAddStorage').value,
+    supplier: document.getElementById('invAddSupplier').value,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'addInventory', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+    if(r.offline) queueOffline('addInventory', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+    await audit('ADD_INVENTORY','inventory',item.id,name+' qty '+qty);
+    inventoryCache.push(item);
+    showToast('✅ Stock added','success');
+    ['invAddName','invAddQty','invAddBatch','invAddStorage','invAddSupplier','invAddExpiry'].forEach(function(id){ document.getElementById(id).value=''; });
+    renderInventory();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function recordInventoryUsage(){
+  var id = document.getElementById('invUseItem').value;
+  var qty = parseFloat(document.getElementById('invUseQty').value)||0;
+  if(!id || qty <= 0){ showToast('Fill fields','warning'); return; }
+  var item = inventoryCache.filter(function(x){ return x.id===id; })[0];
+  if(!item){ showToast('Item not found','error'); return; }
+  var todayStr = today();
+  if(item.expiryDate && item.expiryDate < todayStr){ showToast('❌ Cannot use expired item','error'); return; }
+  if((parseFloat(item.quantity)||0) < qty){ showToast('❌ Insufficient stock','error'); return; }
+  try{
+    var r = await api({action:'recordInventoryUsage', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), itemId: id, qty: qty, reason: document.getElementById('invUseReason').value, date: document.getElementById('invUseDate').value});
+    await audit('INVENTORY_USAGE','inventory',id,qty+' of '+item.name);
+    item.quantity = (parseFloat(item.quantity)||0) - qty;
+    showToast('✅ Usage recorded','success');
+    ['invUseQty','invUseReason'].forEach(function(id2){ document.getElementById(id2).value=''; });
+    renderInventory();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   REFERRALS
+   ========================================================= */
+function searchRefPatient(){
+  var q = document.getElementById('refSearch').value.trim().toLowerCase();
+  var box = document.getElementById('refResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var source = studentsCache.map(function(s){ return {id:s.studentId, name:s.studentName, meta:s.class, type:'student', data:s}; })
+    .concat(staffCache.map(function(s){ return {id:s.staffId, name:s.name, meta:s.role, type:'staff', data:s}; }));
+  var matches = source.filter(function(s){
+    return (s.name||'').toLowerCase().indexOf(q)!==-1 || (s.id||'').toLowerCase().indexOf(q)!==-1;
+  }).slice(0,8);
+  if(matches.length===0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No match.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectRefPatient(\''+escapeHtml(s.id)+'\',\''+s.type+'\')"><div class="pr-avatar">'+escapeHtml((s.name||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.name)+'</div><div class="pr-meta">'+escapeHtml(s.id)+' · '+escapeHtml(s.meta||'')+'</div></div></div>';
+  }).join('');
+}
+function selectRefPatient(id, type){
+  var p = type==='student' ? studentsCache.filter(function(x){ return x.studentId===id; })[0] : staffCache.filter(function(x){ return x.staffId===id; })[0];
+  if(!p) return;
+  selectedPerson = {type:type, data:p};
+  document.getElementById('refResults').innerHTML = '';
+  document.getElementById('refSearch').value = '';
+  document.getElementById('refForm').style.display = 'block';
+  document.getElementById('refDate').value = today();
+  document.getElementById('refTime').value = nowTime();
+}
+async function saveReferral(){
+  if(!selectedPerson){ showToast('Select patient','warning'); return; }
+  var facility = document.getElementById('refFacility').value.trim();
+  var reason = document.getElementById('refReason').value.trim();
+  if(!facility || !reason){ showToast('Fill facility and reason','warning'); return; }
+  var r = {
+    id: genId('REF'),
+    patientType: selectedPerson.type,
+    patientId: selectedPerson.data.studentId || selectedPerson.data.staffId,
+    patientName: selectedPerson.data.studentName || selectedPerson.data.name,
+    facility: facility,
+    reason: reason,
+    date: document.getElementById('refDate').value,
+    time: document.getElementById('refTime').value,
+    followUpDate: document.getElementById('refFollowUp').value,
+    accompanied: document.getElementById('refAccompanied').value,
+    transport: document.getElementById('refTransport').value,
+    parentNotified: document.getElementById('refParentNotified').value,
+    notes: document.getElementById('refNotes').value,
+    status: 'referred',
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var resp = await api({action:'saveReferral', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), referral: JSON.stringify(r)});
+    if(resp.offline) queueOffline('saveReferral', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), referral: JSON.stringify(r)});
+    await audit('SAVE_REFERRAL','referral',r.id,r.patientName+' → '+facility);
+    referralsCache.unshift(r);
+    showToast('✅ Referral saved','success');
+    document.getElementById('refForm').style.display = 'none';
+    ['refFacility','refReason','refAccompanied','refTransport','refNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+    renderReferrals();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function renderReferrals(){
+  var body = document.getElementById('referralsBody');
+  if(referralsCache.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No referrals.</td></tr>'; return; }
+  body.innerHTML = referralsCache.slice(0,30).map(function(r){
+    var cls = r.status === 'completed' ? 'completed' : r.status === 'referred' ? 'pending' : 'review';
+    return '<tr><td>'+escapeHtml(r.date)+'</td><td>'+escapeHtml(r.patientName||'')+'</td><td>'+escapeHtml(r.facility||'')+'</td><td>'+escapeHtml(r.reason||'')+'</td><td><span class="badge badge-'+cls+'">'+escapeHtml(r.status||'')+'</span></td><td><button class="btn btn-info btn-sm" onclick="updateReferralStatus(\''+escapeHtml(r.id)+'\')">Update</button></td></tr>';
+  }).join('');
+}
+async function updateReferralStatus(id){
+  var r = referralsCache.filter(function(x){ return x.id===id; })[0];
+  if(!r) return;
+  var opts = ['referred','attended','follow-up-required','completed'];
+  var choice = prompt('New status (referred/attended/follow-up-required/completed):', r.status);
+  if(!choice || opts.indexOf(choice)===-1) return;
+  r.status = choice;
+  await api({action:'updateReferralStatus', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id:id, status:choice});
+  await audit('UPDATE_REFERRAL','referral',id,'Status → '+choice);
+  renderReferrals();
+  showToast('✅ Updated','success');
+}
+
+/* =========================================================
+   FOLLOW-UPS
+   ========================================================= */
+function renderFollowups(){
+  var todayStr = today();
+  var ups = visitsCache.filter(function(v){ return v.followUpDate && v.followUpDate >= todayStr; });
+  var body = document.getElementById('followupsBody');
+  if(ups.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No pending follow-ups.</td></tr>'; return; }
+  body.innerHTML = ups.map(function(v){
+    return '<tr><td>'+escapeHtml(v.followUpDate)+'</td><td>'+escapeHtml(v.patientName||'')+'</td><td>'+escapeHtml(v.reason||'')+'</td><td>Clinic Visit</td><td><span class="badge badge-pending">Pending</span></td><td><button class="btn btn-success btn-sm" onclick="completeFollowUp(\''+escapeHtml(v.id)+'\')">Done</button></td></tr>';
+  }).join('');
+}
+function completeFollowUp(id){
+  var v = visitsCache.filter(function(x){ return x.id===id; })[0];
+  if(v){ v.followUpStatus = 'completed'; renderFollowups(); showToast('✅ Completed','success'); }
+}
+
+/* =========================================================
+   SCREENING & CAMPAIGNS
+   ========================================================= */
+async function saveScreening(){
+  var type = document.getElementById('scType').value;
+  var results = document.getElementById('scResults').value.trim();
+  if(!results){ showToast('Enter results summary','warning'); return; }
+  var s = {
+    id: genId('SC'),
+    type: type,
+    date: document.getElementById('scDate').value,
+    target: document.getElementById('scTarget').value,
+    participants: parseFloat(document.getElementById('scParticipants').value)||0,
+    results: results,
+    notes: document.getElementById('scNotes').value,
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveScreening', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), screening: JSON.stringify(s)});
+  await audit('SAVE_SCREENING','screening',s.id,type+' — '+s.target);
+  screeningsCache.unshift(s);
+  showToast('✅ Screening saved','success');
+  ['scResults','scNotes','scTarget','scParticipants'].forEach(function(id){ document.getElementById(id).value=''; });
+  renderScreenings();
+}
+function renderScreenings(){
+  var body = document.getElementById('screeningsBody');
+  if(screeningsCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No screenings.</td></tr>'; return; }
+  body.innerHTML = screeningsCache.map(function(s){
+    return '<tr><td>'+escapeHtml(s.date)+'</td><td>'+escapeHtml(s.type)+'</td><td>'+escapeHtml(s.target||'')+'</td><td>'+escapeHtml(s.participants||0)+'</td><td><button class="btn btn-info btn-sm" onclick="viewScreening(\''+escapeHtml(s.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewScreening(id){
+  var s = screeningsCache.filter(function(x){ return x.id===id; })[0];
+  if(!s) return;
+  openInfoModal(
+    '<div class="info-box"><div class="info-title">'+escapeHtml(s.type)+'</div><div class="info-text">'+escapeHtml(s.date)+' · '+escapeHtml(s.target||'')+' · '+s.participants+' participants</div></div>'+
+    '<h4 style="margin:10px 0 4px">Results</h4><p style="font-size:13px">'+escapeHtml(s.results||'')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Notes</h4><p style="font-size:13px">'+escapeHtml(s.notes||'')+'</p>',
+    'Screening Results');
+}
+async function saveCampaign(){
+  var title = document.getElementById('cpTitle').value.trim();
+  if(!title){ showToast('Enter title','warning'); return; }
+  var c = {
+    id: genId('CMP'),
+    type: document.getElementById('cpType').value,
+    date: document.getElementById('cpDate').value,
+    title: title,
+    target: document.getElementById('cpTarget').value,
+    participants: parseFloat(document.getElementById('cpParticipants').value)||0,
+    staff: document.getElementById('cpStaff').value,
+    outcome: document.getElementById('cpOutcome').value,
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveCampaign', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), campaign: JSON.stringify(c)});
+  await audit('SAVE_CAMPAIGN','campaign',c.id,title);
+  campaignsCache.unshift(c);
+  showToast('✅ Activity saved','success');
+  ['cpTitle','cpTarget','cpParticipants','cpStaff','cpOutcome'].forEach(function(id){ document.getElementById(id).value=''; });
+  renderCampaigns();
+}
+function renderCampaigns(){
+  var body = document.getElementById('campaignsBody');
+  if(campaignsCache.length === 0){ body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">No campaigns.</td></tr>'; return; }
+  body.innerHTML = campaignsCache.map(function(c){
+    return '<tr><td>'+escapeHtml(c.date)+'</td><td>'+escapeHtml(c.title)+'</td><td>'+escapeHtml(c.target||'')+'</td><td>'+escapeHtml(c.participants||0)+'</td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   HEALTH INCIDENTS
+   ========================================================= */
+async function saveHealthIncident(){
+  var type = document.getElementById('hiType').value;
+  var location = document.getElementById('hiLocation').value.trim();
+  var desc = document.getElementById('hiDesc').value.trim();
+  if(!type || !location || !desc){ showToast('Fill required fields','warning'); return; }
+  var i = {
+    id: genId('HI'),
+    type: type,
+    location: location,
+    patient: document.getElementById('hiPatient').value,
+    description: desc,
+    action: document.getElementById('hiAction').value,
+    witnesses: document.getElementById('hiWitnesses').value,
+    parentNotified: document.getElementById('hiParent').value,
+    referral: document.getElementById('hiReferral').value,
+    status: 'open',
+    date: today(),
+    time: nowTime(),
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveHealthIncident', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), incident: JSON.stringify(i)});
+  await audit('SAVE_INCIDENT','incident',i.id,type+' at '+location);
+  incidentsCache.unshift(i);
+  showToast('🚨 Incident reported','success');
+  ['hiLocation','hiPatient','hiDesc','hiAction','hiWitnesses'].forEach(function(id){ document.getElementById(id).value=''; });
+  renderHealthIncidents();
+  updateDashboard();
+}
+function renderHealthIncidents(){
+  var body = document.getElementById('healthIncidentsBody');
+  if(incidentsCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No incidents.</td></tr>'; return; }
+  body.innerHTML = incidentsCache.slice(0,30).map(function(i){
+    var cls = i.status==='resolved'?'resolved':i.status==='review'?'review':'open';
+    return '<tr><td>'+escapeHtml(i.date)+'</td><td>'+escapeHtml(i.type)+'</td><td>'+escapeHtml(i.location||'')+'</td><td><span class="badge badge-'+cls+'">'+escapeHtml(i.status||'open')+'</span></td><td><button class="btn btn-info btn-sm" onclick="viewHealthIncident(\''+escapeHtml(i.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewHealthIncident(id){
+  var i = incidentsCache.filter(function(x){ return x.id===id; })[0];
+  if(!i) return;
+  openInfoModal(
+    '<div class="info-box danger"><div class="info-title">'+escapeHtml(i.type)+'</div><div class="info-text">'+escapeHtml(i.date)+' '+escapeHtml(i.time||'')+' · '+escapeHtml(i.location||'')+'</div></div>'+
+    '<h4 style="margin:10px 0 4px">Description</h4><p style="font-size:13px">'+escapeHtml(i.description||'')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Immediate Action</h4><p style="font-size:13px">'+escapeHtml(i.action||'—')+'</p>'+
+    '<h4 style="margin:10px 0 4px">Parent Notified</h4><p style="font-size:13px">'+escapeHtml(i.parentNotified||'')+'</p>',
+    'Health Incident');
+}
+
+/* =========================================================
+   PARENT NOTIFICATIONS
+   ========================================================= */
+function searchParentNotifStudent(){
+  var q = document.getElementById('pnSearch').value.trim().toLowerCase();
+  var box = document.getElementById('pnResults');
+  if(!q){ box.innerHTML = ''; return; }
+  var matches = studentsCache.filter(function(s){
+    return (s.studentName||'').toLowerCase().indexOf(q)!==-1 || (s.studentId||'').toLowerCase().indexOf(q)!==-1;
+  }).slice(0,8);
+  if(matches.length===0){ box.innerHTML = '<div class="info-box warning"><div class="info-text">No match.</div></div>'; return; }
+  box.innerHTML = matches.map(function(s){
+    return '<div class="person-result" onclick="selectPNStudent(\''+escapeHtml(s.studentId)+'\')"><div class="pr-avatar">'+escapeHtml((s.studentName||'?').charAt(0))+'</div><div class="pr-info"><div class="pr-name">'+escapeHtml(s.studentName)+'</div><div class="pr-meta">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div></div></div>';
+  }).join('');
+}
+function selectPNStudent(id){
+  var s = studentsCache.filter(function(x){ return x.studentId===id; })[0];
+  if(!s) return;
+  selectedPerson = {type:'student', data:s};
+  document.getElementById('pnResults').innerHTML = '';
+  document.getElementById('pnSearch').value = '';
+  document.getElementById('pnPatientCard').innerHTML =
+    '<div class="person-card"><div class="pc-photo">'+escapeHtml((s.studentName||'?').charAt(0))+'</div><div class="pc-name">'+escapeHtml(s.studentName)+'</div><div class="pc-meta">'+escapeHtml(s.studentId)+' · '+escapeHtml(s.class||'')+'</div></div>';
+  document.getElementById('pnForm').style.display = 'block';
+}
+function resetPNForm(){
+  selectedPerson = null;
+  document.getElementById('pnPatientCard').innerHTML = '';
+  document.getElementById('pnForm').style.display = 'none';
+}
+async function saveParentNotification(){
+  if(!selectedPerson){ showToast('Select student','warning'); return; }
+  var msg = document.getElementById('pnMessage').value.trim();
+  if(!msg){ showToast('Enter message','warning'); return; }
+  var n = {
+    id: genId('PN'),
+    studentId: selectedPerson.data.studentId,
+    studentName: selectedPerson.data.studentName,
+    type: document.getElementById('pnType').value,
+    priority: document.getElementById('pnPriority').value,
+    message: msg,
+    method: document.getElementById('pnMethod').value,
+    person: document.getElementById('pnPerson').value,
+    response: document.getElementById('pnResponse').value,
+    date: today(),
+    time: nowTime(),
+    nurseId: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveParentNotification', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), notification: JSON.stringify(n)});
+  await audit('PARENT_NOTIFICATION','notification',n.id,selectedPerson.data.studentName+' — '+n.type);
+  showToast('✅ Recorded','success');
+  resetPNForm();
+  loadPNHistory();
+}
+async function loadPNHistory(){
+  try{
+    var r = await api({action:'getParentNotifications', school: getActiveSchool()});
+    var list = (r?.data?.notifications || []).slice(-30).reverse();
+    document.getElementById('pnHistoryBody').innerHTML = list.length ? list.map(function(n){
+      return '<tr><td>'+escapeHtml(n.date)+'</td><td>'+escapeHtml(n.studentName||'')+'</td><td>'+escapeHtml(n.type||'')+'</td><td>'+escapeHtml(n.method||'')+'</td><td>'+escapeHtml(n.person||'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No notifications.</td></tr>';
+  } catch(e){}
+}
+
+/* =========================================================
+   EMERGENCY
+   ========================================================= */
+async function triggerEmergency(type){
+  var ok = await confirmAction('🚨 CONFIRM EMERGENCY', 'Send alert for '+type.toUpperCase()+'?', 'SEND ALERT', '🚨');
+  if(!ok) return;
+  var alert = {
+    id: genId('EM'),
+    type: type,
+    date: today(),
+    time: nowTime(),
+    nurse: nurseInfo.name,
+    nurseId: nurseInfo.staffId,
+    clinic: nurseInfo.clinic,
+    status: 'open',
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveEmergencyAlert', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), alert: JSON.stringify(alert)});
+    if(r.offline) queueOffline('saveEmergencyAlert', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), alert: JSON.stringify(alert)});
+    await audit('EMERGENCY_ALERT','emergency',alert.id,type);
+    var ems = JSON.parse(localStorage.getItem('health_emergencies_'+getActiveSchool())||'[]');
+    ems.push(alert);
+    localStorage.setItem('health_emergencies_'+getActiveSchool(), JSON.stringify(ems));
+    showToast('🚨 EMERGENCY ALERT SENT','error');
+    loadEmergencyAlerts();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+async function loadEmergencyAlerts(){
+  try{
+    var r = await api({action:'getEmergencyAlerts', school: getActiveSchool()});
+    var list = (r?.data?.alerts || []).slice(-20).reverse();
+    document.getElementById('emergencyBody').innerHTML = list.length ? list.map(function(e){
+      return '<tr><td>'+escapeHtml(e.time||'')+'</td><td>'+escapeHtml(e.type||'')+'</td><td>'+escapeHtml(e.patientName||'')+'</td><td><span class="badge badge-'+(e.status==='resolved'?'resolved':'open')+'">'+escapeHtml(e.status||'open')+'</span></td><td><button class="btn btn-info btn-sm" onclick="resolveEmergency(\''+escapeHtml(e.id)+'\')">✅</button></td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No alerts.</td></tr>';
+  } catch(e){}
+  // Load configured emergency contacts
+  var settings = JSON.parse(localStorage.getItem('healthSettings_'+getActiveSchool())||'{}');
+  var contacts = [];
+  if(settings.headteacher) contacts.push('Headteacher: '+escapeHtml(settings.headteacher));
+  if(settings.admin) contacts.push('Administrator: '+escapeHtml(settings.admin));
+  if(settings.medical) contacts.push('Medical Facility: '+escapeHtml(settings.medical));
+  if(settings.transport) contacts.push('Transport: '+escapeHtml(settings.transport));
+  document.getElementById('emergencyContactsList').innerHTML = contacts.length ? contacts.join('<br>') : 'No contacts configured. Contact the school administrator.';
+}
+function resolveEmergency(id){
+  api({action:'resolveEmergency', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id:id});
+  audit('RESOLVE_EMERGENCY','emergency',id,'Resolved');
+  showToast('✅ Resolved','success');
+  loadEmergencyAlerts();
+}
+
+/* =========================================================
+   HANDOVER
+   ========================================================= */
+async function submitHandover(){
+  var notes = document.getElementById('hoNotes').value.trim();
+  if(!notes){ showToast('Enter handover notes','warning'); return; }
+  var todayStr = today();
+  var h = {
+    id: genId('HO'),
+    date: todayStr,
+    time: nowTime(),
+    nurse: nurseInfo.staffId,
+    nurseName: nurseInfo.name,
+    inClinic: visitsCache.filter(function(v){ return v.date===todayStr && ['resting','observed'].indexOf(v.outcome)!==-1; }).length,
+    followUps: visitsCache.filter(function(v){ return v.followUpDate && v.followUpDate >= todayStr; }).length,
+    medsDue: countMedsDueToday(),
+    referrals: referralsCache.filter(function(r){ return r.status !== 'completed'; }).length,
+    notes: notes,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveNurseHandover', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), handover: JSON.stringify(h)});
+  await audit('NURSE_HANDOVER','handover',h.id,'Handover submitted');
+  handoversCache.unshift(h);
+  showToast('✅ Handover submitted','success');
+  document.getElementById('hoNotes').value = '';
+  renderHandovers();
+}
+function renderHandovers(){
+  var body = document.getElementById('handoversBody');
+  if(handoversCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No handovers.</td></tr>'; return; }
+  body.innerHTML = handoversCache.slice(0,20).map(function(h){
+    return '<tr><td>'+escapeHtml(h.date)+'</td><td>'+escapeHtml(h.nurseName||'')+'</td><td>'+escapeHtml(h.inClinic||0)+'</td><td>'+escapeHtml(h.followUps||0)+'</td><td><button class="btn btn-info btn-sm" onclick="viewHandover(\''+escapeHtml(h.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewHandover(id){
+  var h = handoversCache.filter(function(x){ return x.id===id; })[0];
+  if(!h) return;
+  openInfoModal(
+    '<div class="info-box"><div class="info-title">'+escapeHtml(h.date)+' '+escapeHtml(h.time||'')+'</div><div class="info-text">Handover by '+escapeHtml(h.nurseName||'')+'</div></div>'+
+    '<h4 style="margin:10px 0 4px">Summary</h4><p style="font-size:13px">In Clinic: '+h.inClinic+' · Follow-ups: '+h.followUps+' · Meds Due: '+h.medsDue+' · Referrals: '+h.referrals+'</p>'+
+    '<h4 style="margin:10px 0 4px">Notes</h4><p style="font-size:13px">'+escapeHtml(h.notes||'')+'</p>',
+    'Handover');
+}
+
+/* =========================================================
+   NOTIFICATIONS
+   ========================================================= */
+function renderNotifications(){
+  var c = document.getElementById('notificationsList');
+  if(notificationsCache.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No notifications.</p>'; return; }
+  var unread = notificationsCache.filter(function(n){ return !n.read; }).length;
+  var badge = document.getElementById('notifBadge');
+  if(unread>0){ badge.style.display='inline-block'; badge.textContent=unread; }
+  else badge.style.display='none';
+  c.innerHTML = notificationsCache.map(function(n){
+    return '<div class="info-box '+(n.priority==='high'?'danger':'')+'"><div class="info-title">'+escapeHtml(n.title||'')+'</div><div class="info-text">'+escapeHtml(n.body||'')+'</div><div style="font-size:10px;color:#888;margin-top:4px">'+escapeHtml(shortTime(n.timestamp))+'</div></div>';
+  }).join('');
+}
+
+/* =========================================================
+   REPORTS
+   ========================================================= */
+async function generateHealthReport(){
+  var type = document.getElementById('rpType').value;
+  var period = document.getElementById('rpPeriod').value;
+  var from, to;
+  if(period==='today'){ from = today(); to = today(); }
+  else if(period==='week'){ var d=new Date(); d.setDate(d.getDate()-7); from = d.toISOString().split('T')[0]; to = today(); }
+  else if(period==='month'){ var d2=new Date(); d2.setDate(1); from = d2.toISOString().split('T')[0]; to = today(); }
+  else { from = document.getElementById('rpFrom').value; to = document.getElementById('rpTo').value; }
+  var out = document.getElementById('healthReportOutput');
+  out.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner"></div></div>';
+  var html = '';
+  if(type==='daily' || type==='weekly' || type==='monthly'){
+    var list = visitsCache.filter(function(v){ return v.date >= from && v.date <= to; });
+    html = '<h3>Clinic Report ('+from+' to '+to+')</h3>'+
+      '<div class="stats-grid">'+
+        '<div class="stat-card"><div class="stat-number">'+list.filter(function(v){ return v.patientType==='student'; }).length+'</div><div class="stat-label">Student Visits</div></div>'+
+        '<div class="stat-card"><div class="stat-number">'+list.filter(function(v){ return v.patientType==='staff'; }).length+'</div><div class="stat-label">Staff Visits</div></div>'+
+        '<div class="stat-card"><div class="stat-number">'+list.length+'</div><div class="stat-label">Total</div></div>'+
+      '</div>'+
+      renderTable(list, ['date','time','patientName','reason','outcome','nurseName'], ['Date','Time','Patient','Reason','Outcome','Nurse']);
+  }
+  else if(type==='firstaid'){
+    var list = firstAidCache.filter(function(f){ return f.date >= from && f.date <= to; });
+    html = '<h3>First Aid Report</h3>' + renderTable(list, ['date','patientName','injuryType','location','outcome'], ['Date','Patient','Injury','Location','Outcome']);
+  }
+  else if(type==='referrals'){
+    var list = referralsCache.filter(function(r){ return r.date >= from && r.date <= to; });
+    html = '<h3>Referral Report</h3>' + renderTable(list, ['date','patientName','facility','reason','status'], ['Date','Patient','Facility','Reason','Status']);
+  }
+  else if(type==='medication'){
+    var list = medsAdminCache.filter(function(m){ return m.date >= from && m.date <= to; });
+    html = '<h3>Medication Administration Report</h3>' + renderTable(list, ['date','time','patientName','medicine','dose','nurseName'], ['Date','Time','Patient','Medicine','Dose','Nurse']);
+  }
+  else if(type==='inventory'){
+    html = '<h3>Inventory Report</h3>' + renderTable(inventoryCache, ['name','quantity','minimumLevel','expiryDate','storage'], ['Item','Qty','Min','Expiry','Storage']);
+  }
+  else if(type==='incidents'){
+    var list = incidentsCache.filter(function(i){ return i.date >= from && i.date <= to; });
+    html = '<h3>Health Incident Report</h3>' + renderTable(list, ['date','type','location','status'], ['Date','Type','Location','Status']);
+  }
+  else if(type==='followups'){
+    var list = visitsCache.filter(function(v){ return v.followUpDate; });
+    html = '<h3>Follow-up Report</h3>' + renderTable(list, ['followUpDate','patientName','reason','nurseName'], ['Date','Patient','Reason','Nurse']);
+  }
+  else if(type==='campaigns'){
+    html = '<h3>Campaign Report</h3>' + renderTable(campaignsCache, ['date','title','target','participants'], ['Date','Activity','Target','Participants']);
+  }
+  else if(type==='screening'){
+    html = '<h3>Screening Report</h3>' + renderTable(screeningsCache, ['date','type','target','participants'], ['Date','Type','Target','Participants']);
+  }
+  out.innerHTML = html;
+}
+function renderTable(list, keys, headers){
+  if(list.length === 0) return '<div class="info-box"><div class="info-text">No records in this period.</div></div>';
+  var h = '<div class="table-wrap"><table class="data-table"><thead><tr>';
+  headers.forEach(function(hdr){ h += '<th>'+escapeHtml(hdr)+'</th>'; });
+  h += '</tr></thead><tbody>';
+  list.slice(0,200).forEach(function(item){
+    h += '<tr>';
+    keys.forEach(function(k){ h += '<td>'+escapeHtml(item[k]||'')+'</td>'; });
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+function printHealthReport(){
+  var html = document.getElementById('healthReportOutput').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>Health Report</title><style>body{font-family:Arial;padding:20px}h3{color:#c1121f}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat-card{border:1px solid #999;padding:10px;border-radius:6px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #999;padding:6px}th{background:#c1121f;color:#fff}</style></head><body>'+html+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 400);
+}
+
+/* =========================================================
+   QR SCANNER
+   ========================================================= */
+function openStudentScanner(){
+  document.getElementById('scannerModal').classList.add('active');
+  setTimeout(startQrScanner, 300);
+}
+function startQrScanner(){
+  if(typeof Html5Qrcode === 'undefined') return;
+  html5QrScanner = new Html5Qrcode('qr-reader');
+  html5QrScanner.start(
+    {facingMode:'environment'},
+    {fps:10, qrbox:{width:250,height:250}},
+    function(text){
+      var parts = text.split(':');
+      var id = parts[1] || parts[0];
+      closeScanner();
+      switchTab('studenthealth');
+      setTimeout(function(){ openStudentHealth(id); }, 200);
+    },
+    function(){}
+  ).catch(function(err){ console.warn(err); });
+}
+function closeScanner(){
+  document.getElementById('scannerModal').classList.remove('active');
+  if(html5QrScanner){ html5QrScanner.stop().then(function(){ html5QrScanner.clear(); html5QrScanner = null; }).catch(function(){}); }
+}
+function switchCamera(){
+  if(html5QrScanner){
+    html5QrScanner.stop().then(function(){ closeScanner(); setTimeout(openStudentScanner, 300); }).catch(function(){});
+  }
+}
+
+/* =========================================================
+   TAB SWITCHING
+   ========================================================= */
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.form-section').forEach(function(el){ el.classList.remove('active'); });
+  var map = {
+    dashboard:'tabDashboard', studenthealth:'tabStudenthealth', staffhealth:'tabStaffhealth',
+    register:'tabRegister', newvisit:'tabNewvisit', firstaid:'tabFirstaid',
+    medication:'tabMedication', inventory:'tabInventory', referrals:'tabReferrals',
+    followups:'tabFollowups', screening:'tabScreening', campaigns:'tabCampaigns',
+    incidents:'tabIncidents', parentnotif:'tabParentnotif', reports:'tabReports',
+    handover:'tabHandover', notifications:'tabNotifications', emergency:'tabEmergency',
+    profile:'tabProfile'
+  };
+  var el = document.getElementById(map[tab]);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.querySelectorAll('.bn-item').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.getElementById('navbarMenu').classList.remove('open');
+  window.scrollTo(0,0);
+
+  if(tab==='dashboard') updateDashboard();
+  if(tab==='register') renderRegister();
+  if(tab==='firstaid') renderFirstAid();
+  if(tab==='referrals') renderReferrals();
+  if(tab==='followups') renderFollowups();
+  if(tab==='incidents') renderHealthIncidents();
+  if(tab==='parentnotif') loadPNHistory();
+  if(tab==='handover') { renderHandovers(); updateHandoverSummary(); }
+  if(tab==='emergency') loadEmergencyAlerts();
+  if(tab==='inventory') renderInventory();
+  if(tab==='notifications') renderNotifications();
+  if(tab==='profile') updateProfile();
+  if(tab==='reports') { /* handled on click */ }
+}
+function updateHandoverSummary(){
+  var todayStr = today();
+  document.getElementById('hoInClinic').textContent = visitsCache.filter(function(v){ return v.date===todayStr && ['resting','observed'].indexOf(v.outcome)!==-1; }).length;
+  document.getElementById('hoFollowUps').textContent = visitsCache.filter(function(v){ return v.followUpDate && v.followUpDate >= todayStr; }).length;
+  document.getElementById('hoMedsDue').textContent = countMedsDueToday();
+  document.getElementById('hoReferrals').textContent = referralsCache.filter(function(r){ return r.status !== 'completed'; }).length;
+}
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+function updateProfile(){
+  document.getElementById('pfName').textContent = nurseInfo.name;
+  document.getElementById('pfMeta').textContent = nurseInfo.staffId + ' · ' + nurseInfo.clinic;
+  document.getElementById('pfInitial').textContent = nurseInfo.name.charAt(0).toUpperCase();
+  document.getElementById('pfDetails').innerHTML =
+    '<strong>Staff ID:</strong> ' + escapeHtml(nurseInfo.staffId) + '<br>'+
+    '<strong>Clinic:</strong> ' + escapeHtml(nurseInfo.clinic) + '<br>'+
+    '<strong>Qualifications:</strong> ' + escapeHtml(nurseInfo.qualifications||'—') + '<br>'+
+    '<strong>Date:</strong> ' + today();
+}
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+function appLogout(){
+  if(!confirm('Log out?')) return;
+  closeScanner();
+  sessionStorage.removeItem('authSession');
+  window.location.href = 'index.html';
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', initNurse);
+</script>
+</body>
+</html>
