@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#1a8a4a" />
+<title>👨‍👩‍👦 Parent Portal — EduTrack Pro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg1:#0f0c29;--bg2:#302b63;--bg3:#24243e;
+  --primary:#302b63;--accent:#fcdc04;
+  --family:#1a8a4a;--family-dark:#2d6a4f;--family-light:#d4edda;
+  --success:#1a8a4a;--danger:#c1121f;--warning:#e85d04;--info:#004085;
+  --surface:#fff;--surface-2:#f8f9fa;--surface-3:#f0f4ff;
+  --text:#1a1a2e;--text-2:#555;--text-3:#888;--border:#e0e0e0;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.06);
+  --shadow-md:0 4px 15px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.15);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));min-height:100vh;padding:10px;color:var(--text)}
+@media(min-width:768px){body{padding:20px}}
+
+/* NAVBAR */
+.navbar{background:rgba(255,255,255,.98);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:1000;border-bottom:3px solid var(--family)}
+.navbar-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--family);text-decoration:none;font-family:Georgia,serif}
+.navbar-brand .brand-text{background:linear-gradient(135deg,var(--family-dark),var(--family));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.navbar-toggle{display:none;background:none;border:none;font-size:22px;color:var(--family);cursor:pointer;padding:6px}
+@media(max-width:900px){.navbar-toggle{display:block}}
+.navbar-menu{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+@media(max-width:900px){
+  .navbar-menu{display:none;width:100%;flex-direction:column;align-items:stretch;padding:10px 0;border-top:1px solid var(--border);margin-top:10px;max-height:70vh;overflow-y:auto}
+  .navbar-menu.open{display:flex}
+}
+.nav-link{padding:9px 13px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px;white-space:nowrap;text-align:left}
+.nav-link:hover{background:rgba(26,138,74,.08);color:var(--family)}
+.nav-link.active{background:linear-gradient(135deg,var(--family-dark),var(--family));color:#fff}
+.nav-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:20px;background:var(--family-light);border:1px solid var(--family)}
+.nav-user .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--family);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;overflow:hidden}
+.nav-user .user-avatar img{width:100%;height:100%;object-fit:cover}
+.nav-user .user-info{font-size:11px;line-height:1.2}
+.nav-user .user-info .user-name{font-weight:600}
+.nav-user .user-info .user-role{font-size:9px;color:var(--text-3)}
+
+/* BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0;z-index:900;box-shadow:0 -4px 15px rgba(0,0,0,.08)}
+.bottom-nav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:none;background:none;font-size:10px;color:var(--text-3);cursor:pointer;font-weight:600;position:relative}
+.bottom-nav .bn-item.active{color:var(--family)}
+.bottom-nav .bn-item i{font-size:18px}
+.bottom-nav .bn-item .bn-badge{position:absolute;top:2px;right:calc(50% - 16px);background:#c1121f;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
+@media(max-width:900px){.bottom-nav{display:flex}body{padding-bottom:70px}}
+
+/* CONTAINER */
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.97);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:18px 15px 24px;box-shadow:0 20px 60px rgba(0,0,0,.4);min-height:80vh;position:relative}
+@media(min-width:768px){.container{padding:22px 28px 32px}}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,var(--accent) 33%,var(--accent) 66%,var(--family) 66%,var(--family) 100%)}
+
+/* SECTIONS */
+.form-section{display:none;animation:fadeIn .25s ease;padding-top:8px}
+.form-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:20px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.section-desc{color:var(--text-3);font-size:13px;margin-bottom:16px}
+
+/* CHILD SELECTOR */
+.child-selector{display:flex;gap:8px;overflow-x:auto;padding:6px 0;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+.child-chip{flex-shrink:0;background:#fff;border:2px solid var(--border);border-radius:50px;padding:8px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px;transition:.15s;white-space:nowrap}
+.child-chip.active{background:linear-gradient(135deg,var(--family-dark),var(--family));color:#fff;border-color:var(--family-dark)}
+.child-chip .cc-avatar{width:28px;height:28px;border-radius:50%;background:var(--family);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;overflow:hidden}
+.child-chip.active .cc-avatar{background:rgba(255,255,255,.25)}
+.child-chip .cc-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* FORMS */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-weight:600;color:var(--text-2);font-size:13px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:#fafafa;font-family:inherit;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--family);outline:none;box-shadow:0 0 0 3px rgba(26,138,74,.15);background:#fff}
+.form-row-2{display:grid;grid-template-columns:1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.form-row-2{grid-template-columns:1fr 1fr}.form-row-3{grid-template-columns:1fr 1fr 1fr}}
+
+/* BUTTONS */
+.btn{padding:14px 22px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:48px;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--family-dark),var(--family));color:#fff}
+.btn-success{background:linear-gradient(135deg,var(--success),var(--family-dark));color:#fff}
+.btn-danger{background:linear-gradient(135deg,var(--danger),#780000);color:#fff}
+.btn-warning{background:linear-gradient(135deg,var(--warning),#dc2f02);color:#fff}
+.btn-info{background:linear-gradient(135deg,var(--info),#0069d9);color:#fff}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:8px 14px;font-size:12px;min-height:36px}
+.btn-block{width:100%}
+.btn-lg{min-height:56px;font-size:16px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* QUICK ACTIONS */
+.quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+@media(min-width:640px){.quick-actions{grid-template-columns:repeat(3,1fr)}}
+.qa-btn{background:#fff;border:2px solid var(--border);border-radius:var(--radius-md);padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;font-weight:700;color:var(--text);font-size:12px;text-align:center;min-height:90px;box-shadow:var(--shadow-sm);transition:.15s}
+.qa-btn:active{transform:scale(.96)}
+.qa-btn .qa-icon{font-size:28px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:#fff;border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;text-align:center}
+.stat-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--family)}
+.stat-card.success::before{background:var(--success)}
+.stat-card.danger::before{background:var(--danger)}
+.stat-card.warning::before{background:var(--warning)}
+.stat-card.info::before{background:var(--info)}
+.stat-card .stat-icon{font-size:22px}
+.stat-card .stat-number{font-size:20px;font-weight:700;color:var(--text);margin:4px 0;line-height:1.1}
+.stat-card .stat-label{font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600}
+
+/* CHILD CARDS */
+.child-card{background:#fff;border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);border:2px solid var(--border);margin-bottom:12px;border-left:5px solid var(--family)}
+.child-card .cc-header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.child-card .cc-header .cc-photo{width:56px;height:56px;border-radius:50%;background:var(--family);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;overflow:hidden;flex-shrink:0}
+.child-card .cc-header .cc-photo img{width:100%;height:100%;object-fit:cover}
+.child-card .cc-header .cc-info{flex:1;min-width:0}
+.child-card .cc-header .cc-name{font-size:16px;font-weight:700;color:var(--text)}
+.child-card .cc-header .cc-class{font-size:12px;color:var(--text-3);margin-top:2px}
+.child-card .cc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:12px;border-top:1px dashed var(--border)}
+.child-card .cc-stat{text-align:center}
+.child-card .cc-stat .cs-value{font-size:15px;font-weight:700;color:var(--family)}
+.child-card .cc-stat .cs-value.danger{color:var(--danger)}
+.child-card .cc-stat .cs-label{font-size:10px;color:var(--text-3);text-transform:uppercase;margin-top:2px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-md);background:#fff;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:10px 0}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+table.data-table th{background:linear-gradient(135deg,var(--family-dark),var(--family));color:#fff;padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;position:sticky;top:0;z-index:2}
+table.data-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+table.data-table tr:last-child td{border-bottom:none}
+table.data-table tr:hover td{background:var(--surface-2)}
+.amount{font-weight:700;text-align:right;white-space:nowrap}
+.amount.credit{color:var(--success)}
+.amount.debit{color:var(--danger)}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-pending{background:#fff3cd;color:#856404}
+.badge-approved{background:#cce5ff;color:#004085}
+.badge-paid,.badge-present,.badge-active,.badge-resolved{background:#d4edda;color:#155724}
+.badge-cancelled,.badge-absent,.badge-rejected{background:#f8d7da;color:#721c24}
+.badge-late{background:#fff3cd;color:#856404}
+.badge-excused{background:#cce5ff;color:#004085}
+.badge-info{background:#cce5ff;color:#004085}
+.badge-urgent{background:#c1121f;color:#fff}
+.badge-submitted{background:#cce5ff;color:#004085}
+.badge-reviewed{background:#fff3cd;color:#856404}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:center;justify-content:center;padding:15px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-box h3{text-align:center;color:var(--text);margin-bottom:10px;font-size:18px}
+.modal-box .modal-icon{font-size:44px;text-align:center;display:block;margin-bottom:8px}
+.modal-box p{text-align:center;color:var(--text-2);margin-bottom:18px;font-size:14px}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* TOAST */
+.toast-notification{position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;color:#fff;font-weight:600;z-index:99999;opacity:0;transform:translateY(-20px);transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center}
+@media(min-width:640px){.toast-notification{left:auto;max-width:400px;text-align:left;transform:translateX(120%)}}
+.toast-notification.show{opacity:1;transform:translateY(0)}
+@media(min-width:640px){.toast-notification.show{transform:translateX(0)}}
+.toast-notification.success{background:linear-gradient(135deg,var(--success),var(--family-dark))}
+.toast-notification.error{background:linear-gradient(135deg,var(--danger),#780000)}
+.toast-notification.info{background:linear-gradient(135deg,var(--family-dark),var(--family))}
+.toast-notification.warning{background:linear-gradient(135deg,var(--warning),#dc2f02)}
+
+/* INFO BOX */
+.info-box{background:var(--surface-3);border-left:4px solid var(--family);padding:12px 15px;border-radius:8px;margin:12px 0}
+.info-box.warning{background:#fff3cd;border-left-color:var(--warning)}
+.info-box.success{background:#d4edda;border-left-color:var(--success)}
+.info-box.danger{background:#f8d7da;border-left-color:var(--danger)}
+.info-box.urgent{background:#c1121f;color:#fff;border-left-color:#780000}
+.info-box.urgent .info-title,.info-box.urgent .info-text{color:#fff}
+.info-box .info-title{font-weight:700;color:var(--family);font-size:13px;margin-bottom:3px}
+.info-box .info-text{color:var(--text-2);font-size:12px;line-height:1.5}
+
+/* SEARCH */
+.search-bar{position:relative;margin:10px 0}
+.search-bar input{width:100%;padding:12px 14px 12px 40px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:#fafafa}
+.search-bar input:focus{border-color:var(--family);outline:none;background:#fff}
+.search-bar::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.6}
+
+/* TABS */
+.tab-strip{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:12px;margin:12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-strip button{flex:1;padding:9px 12px;border:none;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:none;color:#666;white-space:nowrap;min-width:90px}
+.tab-strip button.active{background:linear-gradient(135deg,var(--family-dark),var(--family));color:#fff}
+
+/* MESSAGE */
+.msg-item{background:#fff;border-radius:var(--radius-md);padding:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:8px;cursor:pointer}
+.msg-item.unread{border-left:4px solid var(--family);background:var(--surface-3)}
+.msg-item .msg-from{font-weight:700;color:var(--family);font-size:13px}
+.msg-item .msg-subject{font-weight:600;color:var(--text);font-size:13px;margin:3px 0}
+.msg-item .msg-preview{font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.msg-item .msg-time{font-size:10px;color:var(--text-3);margin-top:4px}
+
+/* NOTIFICATION */
+.notif-item{background:#fff;border-radius:var(--radius-md);padding:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:8px;border-left:4px solid var(--family)}
+.notif-item.unread{background:var(--surface-3)}
+.notif-item.cat-fees{border-left-color:var(--warning)}
+.notif-item.cat-attendance{border-left-color:var(--info)}
+.notif-item.cat-health{border-left-color:var(--danger)}
+.notif-item.cat-emergency{border-left-color:var(--danger);background:#fff5f5}
+.notif-item.cat-academic{border-left-color:var(--family)}
+.notif-item .notif-title{font-weight:700;color:var(--text);font-size:13px}
+.notif-item .notif-body{font-size:12px;color:var(--text-2);margin:4px 0}
+.notif-item .notif-time{font-size:10px;color:var(--text-3)}
+
+/* TIMETABLE */
+.timetable-grid{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-radius:8px;overflow:hidden}
+.timetable-grid th{background:linear-gradient(135deg,var(--family-dark),var(--family));color:#fff;padding:8px;text-align:center;font-size:10px}
+.timetable-grid td{border:1px solid var(--border);padding:6px;text-align:center;vertical-align:top;min-height:40px}
+.timetable-grid td .tt-subject{font-weight:700;color:var(--family);font-size:11px}
+.timetable-grid td .tt-teacher{font-size:9px;color:var(--text-3);margin-top:2px}
+.timetable-grid td .tt-room{font-size:9px;color:var(--text-3);font-style:italic}
+
+/* CALENDAR */
+.event-item{background:#fff;border-radius:var(--radius-md);padding:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:8px;border-left:4px solid var(--family);display:flex;gap:12px}
+.event-item .ev-date{background:var(--family-light);color:var(--family-dark);padding:8px 12px;border-radius:8px;text-align:center;font-weight:700;font-size:12px;min-width:60px}
+.event-item .ev-details{flex:1}
+.event-item .ev-title{font-weight:700;color:var(--text);font-size:13px}
+.event-item .ev-desc{font-size:12px;color:var(--text-2);margin-top:3px}
+.event-item .ev-cat{font-size:10px;color:var(--text-3);margin-top:4px;text-transform:uppercase}
+
+/* CHART */
+.chart-container{background:#fff;border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:14px 0}
+.chart-container h4{font-size:14px;color:var(--family);margin-bottom:10px}
+.chart-container canvas{max-height:240px;max-width:100%}
+
+/* PAYMENT METHOD */
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.pay-method{background:#fff;border:2px solid var(--border);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;font-weight:700;font-size:12px;transition:.15s}
+.pay-method.active{border-color:var(--family);background:var(--family-light)}
+.pay-method .pm-icon{font-size:24px;display:block;margin-bottom:6px}
+
+/* LOW-DATA MODE INDICATOR */
+.low-data-badge{display:inline-block;padding:4px 10px;border-radius:20px;background:var(--family-light);color:var(--family-dark);font-size:11px;font-weight:700;margin-left:8px}
+
+/* SPINNER */
+.spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--family);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;z-index:9998}
+.loading-overlay.active{display:flex}
+
+@media print{
+  .navbar,.bottom-nav,.btn,.no-print,.footer{display:none!important}
+  body{background:#fff!important;padding:0}
+  .container{box-shadow:none!important}
+  @page{size:A4;margin:10mm}
+}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <span class="modal-icon" id="confirmIcon">⚠️</span>
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancel</button>
+      <button class="btn btn-primary" id="confirmYesBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0;text-align:left" id="infoModalTitle">Details</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeInfoModal()">✖</button>
+    </div>
+    <div id="infoModalBody"></div>
+    <div class="modal-actions" style="margin-top:14px" id="infoModalActions"></div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a href="parent.html" class="navbar-brand"><span style="font-size:26px">👨‍👩‍👦</span><span class="brand-text">EduTrack Parent</span></a>
+  <button class="navbar-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+  <div class="navbar-menu" id="navbarMenu">
+    <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i> Home</button>
+    <button class="nav-link" data-tab="children" onclick="switchTab('children')"><i class="fas fa-child"></i> My Children</button>
+    <button class="nav-link" data-tab="fees" onclick="switchTab('fees')"><i class="fas fa-money-bill-wave"></i> Fees</button>
+    <button class="nav-link" data-tab="receipts" onclick="switchTab('receipts')"><i class="fas fa-receipt"></i> Receipts</button>
+    <button class="nav-link" data-tab="results" onclick="switchTab('results')"><i class="fas fa-chart-bar"></i> Results</button>
+    <button class="nav-link" data-tab="reportcards" onclick="switchTab('reportcards')"><i class="fas fa-file-alt"></i> Report Cards</button>
+    <button class="nav-link" data-tab="attendance" onclick="switchTab('attendance')"><i class="fas fa-calendar-check"></i> Attendance</button>
+    <button class="nav-link" data-tab="assignments" onclick="switchTab('assignments')"><i class="fas fa-tasks"></i> Assignments</button>
+    <button class="nav-link" data-tab="timetable" onclick="switchTab('timetable')"><i class="fas fa-clock"></i> Timetable</button>
+    <button class="nav-link" data-tab="calendar" onclick="switchTab('calendar')"><i class="fas fa-calendar"></i> Calendar</button>
+    <button class="nav-link" data-tab="announcements" onclick="switchTab('announcements')"><i class="fas fa-bullhorn"></i> Announcements</button>
+    <button class="nav-link" data-tab="messages" onclick="switchTab('messages')"><i class="fas fa-comments"></i> Messages <span id="msgBadge" style="display:none;background:#c1121f;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    <button class="nav-link" data-tab="healthnotices" onclick="switchTab('healthnotices')"><i class="fas fa-heartbeat"></i> Health Notices</button>
+    <button class="nav-link" data-tab="earlyexit" onclick="switchTab('earlyexit')"><i class="fas fa-door-open"></i> Early Exit</button>
+    <button class="nav-link" data-tab="transport" onclick="switchTab('transport')"><i class="fas fa-bus"></i> Transport</button>
+    <button class="nav-link" data-tab="consent" onclick="switchTab('consent')"><i class="fas fa-file-signature"></i> Consent Forms</button>
+    <button class="nav-link" data-tab="documents" onclick="switchTab('documents')"><i class="fas fa-folder"></i> Documents</button>
+    <button class="nav-link" data-tab="feedback" onclick="switchTab('feedback')"><i class="fas fa-comment-dots"></i> Feedback</button>
+    <button class="nav-link" data-tab="notifications" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Notifications <span id="notifBadge" style="display:none;background:#c1121f;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    <button class="nav-link" data-tab="profile" onclick="switchTab('profile')"><i class="fas fa-user"></i> Profile</button>
+    <button class="nav-link" data-tab="settings" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</button>
+    <div class="nav-user">
+      <div class="user-avatar" id="navUserAvatar">P</div>
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Loading…</div>
+        <div class="user-role" id="navUserRole">Parent</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="appLogout()" style="padding:8px 14px;font-size:12px"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</nav>
+
+<div class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="bn-item" data-tab="fees" onclick="switchTab('fees')"><i class="fas fa-money-bill-wave"></i><span>Fees</span></button>
+  <button class="bn-item" data-tab="results" onclick="switchTab('results')"><i class="fas fa-chart-bar"></i><span>Results</span></button>
+  <button class="bn-item" data-tab="messages" onclick="switchTab('messages')"><i class="fas fa-comments"></i><span>Messages</span><span class="bn-badge" id="bnMsgBadge" style="display:none">0</span></button>
+  <button class="bn-item" data-tab="notifications" onclick="switchTab('notifications')"><i class="fas fa-bell"></i><span>Alerts</span><span class="bn-badge" id="bnNotifBadge" style="display:none">0</span></button>
+</div>
+
+<div class="container">
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="tabDashboard" class="form-section active">
+    <h2 class="section-title"><i class="fas fa-home" style="color:var(--family)"></i> Welcome, <span id="dashParentName">Parent</span> <span class="low-data-badge" id="lowDataBadge" style="display:none">📶 Low Data Mode</span></h2>
+    <p class="section-desc" id="dashSubtitle">—</p>
+
+    <!-- Emergency notifications appear here prominently -->
+    <div id="emergencyBanner"></div>
+
+    <!-- Child selector -->
+    <div class="child-selector" id="childSelector"></div>
+
+    <!-- Child summary card -->
+    <div id="dashChildCard"></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--family)">⚡ Quick Actions</h4>
+    <div class="quick-actions">
+      <button class="qa-btn" onclick="switchTab('fees')"><span class="qa-icon">💰</span>Pay Fees</button>
+      <button class="qa-btn" onclick="switchTab('results')"><span class="qa-icon">📊</span>Results</button>
+      <button class="qa-btn" onclick="switchTab('attendance')"><span class="qa-icon">📅</span>Attendance</button>
+      <button class="qa-btn" onclick="switchTab('assignments')"><span class="qa-icon">📝</span>Assignments</button>
+      <button class="qa-btn" onclick="switchTab('messages')"><span class="qa-icon">💬</span>Message Teacher</button>
+      <button class="qa-btn" onclick="switchTab('calendar')"><span class="qa-icon">📅</span>Calendar</button>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--family)">📊 Overall Statistics</h4>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">👨‍👩‍👦</div><div class="stat-number" id="dsChildrenCount">0</div><div class="stat-label">Children</div></div>
+      <div class="stat-card success"><div class="stat-icon">📅</div><div class="stat-number" id="dsAttendance">0%</div><div class="stat-label">Avg Attendance</div></div>
+      <div class="stat-card info"><div class="stat-icon">📊</div><div class="stat-number" id="dsAvgScore">0%</div><div class="stat-label">Avg Score</div></div>
+      <div class="stat-card warning"><div class="stat-icon">💰</div><div class="stat-number" id="dsFeesBalance">0</div><div class="stat-label">Fees Balance</div></div>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--family)">📢 Recent Announcements</h4>
+    <div id="dashAnnouncements"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ CHILDREN ============ -->
+  <div id="tabChildren" class="form-section">
+    <h2 class="section-title"><i class="fas fa-child" style="color:var(--family)"></i> My Children</h2>
+    <p class="section-desc">All students linked to your account.</p>
+    <div id="childrenList"></div>
+  </div>
+
+  <!-- ============ FEES ============ -->
+  <div id="tabFees" class="form-section">
+    <h2 class="section-title"><i class="fas fa-money-bill-wave" style="color:var(--warning)"></i> School Fees</h2>
+    <p class="section-desc" id="feesChildLabel">—</p>
+
+    <div class="child-selector" id="feesChildSelector"></div>
+
+    <div id="feesSummary"></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--family)">💳 Pay Fees Online</h4>
+    <div class="info-box success">
+      <div class="info-title">🔒 Secure Payment</div>
+      <div class="info-text">Payment is processed by the school's approved provider. Your PIN and card details are never stored on this device.</div>
+    </div>
+    <div class="pay-methods">
+      <div class="pay-method" data-method="momo" onclick="selectPayMethod('momo')"><span class="pm-icon">📱</span>Mobile Money</div>
+      <div class="pay-method" data-method="bank" onclick="selectPayMethod('bank')"><span class="pm-icon">🏛️</span>Bank Transfer</div>
+      <div class="pay-method" data-method="card" onclick="selectPayMethod('card')"><span class="pm-icon">💳</span>Card</div>
+    </div>
+
+    <div id="paymentForm" style="display:none">
+      <div class="form-group"><label>Amount (UGX) *</label><input type="number" id="payAmount" min="1000" step="1000" /></div>
+      <div class="form-group"><label>Phone / Account Number *</label><input type="text" id="payPhone" placeholder="e.g., 077XXXXXXX" /></div>
+      <div class="form-group"><label>Reference / Note</label><input type="text" id="payNote" placeholder="Optional" /></div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="initiatePayment()">🔒 PROCEED TO PAY</button>
+      <p style="font-size:11px;color:#888;text-align:center;margin-top:8px">You will be redirected to the payment provider. Do not enter your PIN here.</p>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--family)">📋 Payment History</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Receipt</th><th>Amount</th><th>Method</th><th>Term</th></tr></thead>
+      <tbody id="feesHistoryBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ RECEIPTS ============ -->
+  <div id="tabReceipts" class="form-section">
+    <h2 class="section-title"><i class="fas fa-receipt" style="color:var(--family)"></i> Receipts</h2>
+    <p class="section-desc">View and download your fee receipts.</p>
+
+    <div class="child-selector" id="receiptsChildSelector"></div>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>From</label><input type="date" id="recFrom" onchange="loadReceipts()" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="recTo" onchange="loadReceipts()" /></div>
+    </div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Receipt</th><th>Amount</th><th>Method</th><th></th></tr></thead>
+      <tbody id="receiptsBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div id="tabResults" class="form-section">
+    <h2 class="section-title"><i class="fas fa-chart-bar" style="color:var(--family)"></i> Academic Results</h2>
+    <p class="section-desc">Approved results for the selected term.</p>
+
+    <div class="child-selector" id="resultsChildSelector"></div>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Term</label>
+        <select id="resTerm" onchange="loadResults()">
+          <option value="I">Term I</option><option value="II">Term II</option><option value="III" selected>Term III</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Year</label>
+        <select id="resYear" onchange="loadResults()">
+          <option>2024</option><option>2025</option><option selected>2026</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="resultsSummary"></div>
+
+    <div class="chart-container"><h4>📊 Subject Performance</h4><canvas id="resultsChart"></canvas></div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Subject</th><th>AOI</th><th>EOT</th><th>Total</th><th>Grade</th><th>Comment</th></tr></thead>
+      <tbody id="resultsBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Select term and year to view results.</td></tr></tbody>
+    </table></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--family)">📈 Trend (Last 3 Terms)</h4>
+    <div class="chart-container"><canvas id="resultsTrendChart"></canvas></div>
+  </div>
+
+  <!-- ============ REPORT CARDS ============ -->
+  <div id="tabReportcards" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-alt" style="color:var(--family)"></i> Report Cards</h2>
+    <p class="section-desc">Approved and released report cards.</p>
+
+    <div class="child-selector" id="rcChildSelector"></div>
+
+    <div id="reportCardsList"></div>
+  </div>
+
+  <!-- ============ ATTENDANCE ============ -->
+  <div id="tabAttendance" class="form-section">
+    <h2 class="section-title"><i class="fas fa-calendar-check" style="color:var(--family)"></i> Attendance</h2>
+    <p class="section-desc">Your child's attendance record.</p>
+
+    <div class="child-selector" id="attChildSelector"></div>
+
+    <div class="stats-grid" id="attStats"></div>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>From</label><input type="date" id="attFrom" onchange="loadAttendanceDetails()" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="attTo" onchange="loadAttendanceDetails()" /></div>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--family)">📅 Recent Records</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Status</th><th>Note</th></tr></thead>
+      <tbody id="attendanceBody"><tr><td colspan="3" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+
+    <h4 style="margin:20px 0 8px;color:var(--family)">📝 Submit Absence Request</h4>
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-2">
+        <div class="form-group"><label>Date *</label><input type="date" id="abDate" /></div>
+        <div class="form-group"><label>Expected Return</label><input type="date" id="abReturn" /></div>
+      </div>
+      <div class="form-group"><label>Reason *</label><textarea id="abReason" rows="3" placeholder="Briefly describe the reason…"></textarea></div>
+      <button class="btn btn-success btn-block" onclick="submitAbsenceRequest()">📤 Submit Request</button>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--family)">📋 My Requests</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody id="absenceRequestsBody"><tr><td colspan="3" style="text-align:center;color:#999;padding:20px">No requests yet.</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ ASSIGNMENTS ============ -->
+  <div id="tabAssignments" class="form-section">
+    <h2 class="section-title"><i class="fas fa-tasks" style="color:var(--family)"></i> Assignments</h2>
+    <p class="section-desc">Assignments and submissions for your child.</p>
+
+    <div class="child-selector" id="asChildSelector"></div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Subject</th><th>Title</th><th>Issued</th><th>Deadline</th><th>Status</th><th>Score</th></tr></thead>
+      <tbody id="assignmentsBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></table>
+  </div>
+
+  <!-- ============ TIMETABLE ============ -->
+  <div id="tabTimetable" class="form-section">
+    <h2 class="section-title"><i class="fas fa-clock" style="color:var(--family)"></i> Timetable</h2>
+    <p class="section-desc">Weekly class schedule.</p>
+
+    <div class="child-selector" id="ttChildSelector"></div>
+
+    <div id="timetableDisplay"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ CALENDAR ============ -->
+  <div id="tabCalendar" class="form-section">
+    <h2 class="section-title"><i class="fas fa-calendar" style="color:var(--family)"></i> School Calendar</h2>
+    <p class="section-desc">Term dates, exams, and events.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Month</label>
+        <select id="calMonth" onchange="loadCalendar()">
+          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+          <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Year</label>
+        <select id="calYear" onchange="loadCalendar()">
+          <option>2024</option><option>2025</option><option selected>2026</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="calendarDisplay"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ ANNOUNCEMENTS ============ -->
+  <div id="tabAnnouncements" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bullhorn" style="color:var(--family)"></i> School Announcements</h2>
+    <p class="section-desc">Notices from the school administration.</p>
+    <div id="announcementsList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ MESSAGES ============ -->
+  <div id="tabMessages" class="form-section">
+    <h2 class="section-title"><i class="fas fa-comments" style="color:var(--family)"></i> Messages</h2>
+    <p class="section-desc">Communicate with authorized staff.</p>
+
+    <div class="tab-strip">
+      <button class="active" onclick="showMsgSub('inbox')">📥 Inbox</button>
+      <button onclick="showMsgSub('compose')">✏️ Compose</button>
+      <button onclick="showMsgSub('sent')">📤 Sent</button>
+    </div>
+
+    <div id="msgSubInbox">
+      <div class="search-bar"><input type="text" id="msgSearch" placeholder="Search messages…" onkeyup="filterMessages()" /></div>
+      <div id="inboxList"></div>
+    </div>
+
+    <div id="msgSubCompose" style="display:none">
+      <div class="form-group"><label>To *</label><select id="msgTo"><option value="">Select recipient…</option></select></div>
+      <div class="form-group"><label>Subject *</label><input type="text" id="msgSubject" /></div>
+      <div class="form-group"><label>Message *</label><textarea id="msgBody" rows="6"></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="sendParentMessage()">📤 Send Message</button>
+    </div>
+
+    <div id="msgSubSent" style="display:none">
+      <div id="sentList"></div>
+    </div>
+  </div>
+
+  <!-- ============ HEALTH NOTICES ============ -->
+  <div id="tabHealthnotices" class="form-section">
+    <h2 class="section-title"><i class="fas fa-heartbeat" style="color:var(--danger)"></i> Health Notices</h2>
+    <p class="section-desc">Health notifications shared by the school nurse.</p>
+
+    <div class="child-selector" id="hnChildSelector"></div>
+
+    <div class="info-box warning">
+      <div class="info-title">🔒 Privacy</div>
+      <div class="info-text">Detailed medical records are held by the school nurse. Only summary notifications are shared here.</div>
+    </div>
+
+    <div id="healthNoticesList"><p style="color:#999;text-align:center;padding:20px">No health notices.</p></div>
+  </div>
+
+  <!-- ============ EARLY EXIT ============ -->
+  <div id="tabEarlyexit" class="form-section">
+    <h2 class="section-title"><i class="fas fa-door-open" style="color:var(--family)"></i> Early Exit Requests</h2>
+    <p class="section-desc">Request permission for your child to leave school early.</p>
+
+    <div class="child-selector" id="exChildSelector"></div>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-2">
+        <div class="form-group"><label>Date *</label><input type="date" id="exDate" /></div>
+        <div class="form-group"><label>Requested Exit Time *</label><input type="time" id="exTime" /></div>
+      </div>
+      <div class="form-group"><label>Reason *</label><textarea id="exReason" rows="3"></textarea></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Person Collecting *</label><input type="text" id="exCollector" /></div>
+        <div class="form-group"><label>Contact Phone *</label><input type="tel" id="exPhone" /></div>
+      </div>
+      <div class="form-group"><label>Additional Notes</label><textarea id="exNotes" rows="2"></textarea></div>
+      <button class="btn btn-success btn-block" onclick="submitEarlyExitRequest()">📤 Submit Request</button>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--family)">📋 My Requests</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+      <tbody id="earlyExitHistoryBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No requests yet.</td></tr></table>
+  </div>
+
+  <!-- ============ TRANSPORT ============ -->
+  <div id="tabTransport" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bus" style="color:var(--family)"></i> School Transport</h2>
+    <p class="section-desc">Bus and route information.</p>
+
+    <div class="child-selector" id="tpChildSelector"></div>
+
+    <div id="transportInfo"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ CONSENT FORMS ============ -->
+  <div id="tabConsent" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-signature" style="color:var(--family)"></i> Consent Forms</h2>
+    <p class="section-desc">Review and respond to school consent requests.</p>
+
+    <div class="child-selector" id="csChildSelector"></div>
+
+    <div id="consentFormsList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ DOCUMENTS ============ -->
+  <div id="tabDocuments" class="form-section">
+    <h2 class="section-title"><i class="fas fa-folder" style="color:var(--family)"></i> School Documents</h2>
+    <p class="section-desc">Download important school documents.</p>
+    <div id="documentsList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ FEEDBACK ============ -->
+  <div id="tabFeedback" class="form-section">
+    <h2 class="section-title"><i class="fas fa-comment-dots" style="color:var(--family)"></i> Feedback & Complaints</h2>
+    <p class="section-desc">Submit a suggestion, complaint, or feedback to the school.</p>
+
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
+      <div class="form-row-2">
+        <div class="form-group"><label>Category *</label>
+          <select id="fbCategory">
+            <option value="suggestion">💡 Suggestion</option>
+            <option value="complaint">⚠️ Complaint</option>
+            <option value="question">❓ Question</option>
+            <option value="appreciation">🙏 Appreciation</option>
+            <option value="other">📌 Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Priority</label>
+          <select id="fbPriority"><option value="normal">Normal</option><option value="high">High</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Subject *</label><input type="text" id="fbSubject" /></div>
+      <div class="form-group"><label>Message *</label><textarea id="fbMessage" rows="5"></textarea></div>
+      <div class="form-group"><label>Related Child (optional)</label><select id="fbChild"><option value="">—</option></select></div>
+      <button class="btn btn-success btn-block" onclick="submitFeedback()">📤 Submit</button>
+    </div>
+
+    <h4 style="margin:20px 0 8px;color:var(--family)">📋 My Submissions</h4>
+    <div id="feedbackHistory"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ NOTIFICATIONS ============ -->
+  <div id="tabNotifications" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bell" style="color:var(--family)"></i> Notifications</h2>
+    <p class="section-desc">All alerts and updates.</p>
+
+    <div class="tab-strip">
+      <button class="active" onclick="filterNotifs('all')">All</button>
+      <button onclick="filterNotifs('academic')">📚 Academic</button>
+      <button onclick="filterNotifs('fees')">💰 Fees</button>
+      <button onclick="filterNotifs('attendance')">📅 Attendance</button>
+      <button onclick="filterNotifs('health')">🏥 Health</button>
+      <button onclick="filterNotifs('emergency')">🚨 Emergency</button>
+    </div>
+
+    <button class="btn btn-secondary btn-sm" onclick="markAllRead()">✖ Mark all as read</button>
+
+    <div id="notificationsList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ PROFILE ============ -->
+  <div id="tabProfile" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user" style="color:var(--family)"></i> My Profile</h2>
+
+    <div style="text-align:center;margin:14px 0">
+      <div style="width:100px;height:100px;border-radius:50%;background:var(--family);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto;overflow:hidden" id="profileAvatar">
+        <span id="profileInitial">P</span>
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Full Name</label><input type="text" id="pfName" disabled /></div>
+      <div class="form-group"><label>Parent ID</label><input type="text" id="pfId" disabled /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Phone</label><input type="tel" id="pfPhone" /></div>
+      <div class="form-group"><label>Email</label><input type="email" id="pfEmail" /></div>
+    </div>
+    <div class="form-group"><label>Address</label><input type="text" id="pfAddress" /></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--family)">👨‍👩‍👦 Linked Children</h4>
+    <div id="linkedChildrenList"></div>
+
+    <div class="info-box warning">
+      <div class="info-title">⚠️ Verification Required</div>
+      <div class="info-text">To link additional children or change sensitive information, please contact the school administration.</div>
+    </div>
+
+    <button class="btn btn-success btn-block" onclick="saveProfile()">💾 Save Profile</button>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="form-section" id="tabSettings">
+    <h2 class="section-title"><i class="fas fa-cog" style="color:var(--family)"></i> Settings</h2>
+
+    <div class="info-box">
+      <div class="info-title">📶 Low Data Mode</div>
+      <div class="info-text">Reduces images and heavy content. Recommended when using mobile data.</div>
+    </div>
+    <label style="display:flex;align-items:center;gap:10px;background:var(--surface-2);padding:14px;border-radius:10px;margin-bottom:14px">
+      <input type="checkbox" id="setLowData" style="width:auto" onchange="toggleLowData()" />
+      <span style="font-size:14px;font-weight:600">Enable Low Data Mode</span>
+    </label>
+
+    <div class="info-box">
+      <div class="info-title">🔔 Notification Preferences</div>
+    </div>
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md)">
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px"><input type="checkbox" id="setNotifFees" style="width:auto" /> Fees reminders</label>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px"><input type="checkbox" id="setNotifAtt" style="width:auto" /> Attendance alerts</label>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px"><input type="checkbox" id="setNotifAcademic" style="width:auto" /> Academic updates</label>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px"><input type="checkbox" id="setNotifHealth" style="width:auto" /> Health notices</label>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px"><input type="checkbox" id="setNotifGate" style="width:auto" /> Gate/exit notifications</label>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px"><input type="checkbox" id="setNotifEmergency" style="width:auto" /> Emergency alerts</label>
+    </div>
+    <button class="btn btn-success btn-block" style="margin-top:14px" onclick="saveSettings()">💾 Save Settings</button>
+
+    <div class="info-box" style="margin-top:20px">
+      <div class="info-title">🔒 Security</div>
+      <div class="info-text">To change your password or update your phone number, please contact the school administrator for verification.</div>
+    </div>
+  </div>
+
+  <div class="footer" style="text-align:center;padding:20px 0 10px;border-top:2px solid var(--border);margin-top:30px">
+    <div style="font-size:16px;font-weight:700;color:var(--family)">👨‍👩‍👦 EduTrack Parent Portal</div>
+    <div style="font-size:12px;color:var(--text-3)">Powered by <strong>His Grace Technologies</strong></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   EduTrack — Parent Portal
+   ========================================================= */
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+
+/* ========== STATE ========== */
+var authSession = null;
+var parentInfo = null;
+var children = [];           // [{studentId, studentName, class, photo, ...}]
+var activeChildId = null;
+var currentTab = 'dashboard';
+var chartInstances = {};
+var notificationsCache = [];
+var unreadNotifCount = 0;
+var unreadMsgCount = 0;
+var allMessages = {inbox:[], sent:[]};
+var currentMessage = null;
+var selectedPayMethod = null;
+var currentNotifFilter = 'all';
+var lowDataMode = false;
+
+/* ========== UTILITIES ========== */
+function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function nowIso(){ return new Date().toISOString(); }
+function genId(prefix){ return (prefix||'ID')+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.floor(Math.random()*1000); }
+function escapeHtml(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function fmtUGX(v){ return 'UGX ' + (parseFloat(v)||0).toLocaleString(); }
+function getActiveSchool(){ return authSession ? authSession.school : ''; }
+function shortTime(ts){ try{ var d=new Date(ts); return d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ts; } }
+function getClassSheetId(cls){ return localStorage.getItem('classLink_'+cls+'_'+getActiveSchool()) || ''; }
+
+function showToast(msg, type){
+  type = type||'info';
+  var t = document.createElement('div');
+  t.className = 'toast-notification '+type;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 20);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 400); }, 3500);
+}
+function showLoading(v){ document.getElementById('loadingOverlay').classList.toggle('active', v); }
+function toggleMobileMenu(){ document.getElementById('navbarMenu').classList.toggle('open'); }
+
+var _confirmResolve = null;
+function confirmAction(title, msg, yesLabel, icon){
+  return new Promise(function(resolve){
+    _confirmResolve = resolve;
+    document.getElementById('confirmIcon').textContent = icon||'⚠️';
+    document.getElementById('confirmTitle').textContent = title||'Confirm';
+    document.getElementById('confirmMessage').textContent = msg||'Are you sure?';
+    document.getElementById('confirmYesBtn').textContent = yesLabel||'Yes';
+    document.getElementById('confirmYesBtn').onclick = function(){ closeConfirm(true); };
+    document.getElementById('confirmModal').classList.add('active');
+  });
+}
+function closeConfirm(yes){
+  document.getElementById('confirmModal').classList.remove('active');
+  if(_confirmResolve){ _confirmResolve(yes); _confirmResolve = null; }
+}
+function openInfoModal(html, title, actions){
+  document.getElementById('infoModalTitle').textContent = title||'Details';
+  document.getElementById('infoModalBody').innerHTML = html;
+  document.getElementById('infoModalActions').innerHTML = actions || '<button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>';
+  document.getElementById('infoModal').classList.add('active');
+}
+function closeInfoModal(){ document.getElementById('infoModal').classList.remove('active'); }
+
+/* ========== API ========== */
+async function api(params){
+  if(APPS_SCRIPT_URL.indexOf('YOUR_DEPLOYMENT_ID_HERE')!==-1) throw new Error('Update APPS_SCRIPT_URL');
+  var parts=[];
+  for(var k in params) if(params.hasOwnProperty(k) && params[k]!=null){
+    parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+  }
+  try{
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+      body: parts.join('&'),
+      signal: AbortSignal.timeout(20000)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  } catch(e){
+    console.warn('[api offline]', e.message);
+    return {success:false, offline:true};
+  }
+}
+
+/* ========== AUDIT ========== */
+async function audit(action, recordType, recordId, details){
+  var entry = {
+    timestamp: nowIso(),
+    user: authSession?.username || 'unknown',
+    userName: authSession?.name || '',
+    role: 'parent',
+    action: action,
+    recordType: recordType,
+    recordId: recordId||'',
+    details: details||'',
+    device: navigator.userAgent.substring(0,80),
+    school: getActiveSchool()
+  };
+  await api({action:'logParentAudit', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), entry: JSON.stringify(entry)});
+  var local = JSON.parse(localStorage.getItem('parent_audit_'+getActiveSchool())||'[]');
+  local.push(entry);
+  if(local.length > 1000) local = local.slice(-800);
+  localStorage.setItem('parent_audit_'+getActiveSchool(), JSON.stringify(local));
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function initParent(){
+  authSession = JSON.parse(sessionStorage.getItem('authSession')||'null');
+  if(!authSession){ window.location.href='index.html'; return; }
+  if(authSession.role !== 'parent' && authSession.role !== 'admin' && authSession.role !== 'superadmin'){
+    alert('🔒 Access denied.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Load low-data preference
+  lowDataMode = localStorage.getItem('lowDataMode_'+authSession.username) === '1';
+  document.getElementById('setLowData').checked = lowDataMode;
+  document.getElementById('lowDataBadge').style.display = lowDataMode ? 'inline-block' : 'none';
+
+  document.getElementById('navUserName').textContent = authSession.name || authSession.username;
+  document.getElementById('navUserAvatar').textContent = (authSession.name||'P').charAt(0).toUpperCase();
+  document.getElementById('navUserRole').textContent = 'Parent / Guardian';
+  document.getElementById('dashParentName').textContent = authSession.name || authSession.username;
+
+  parentInfo = {
+    id: authSession.parentId || authSession.username,
+    name: authSession.name || authSession.username,
+    phone: authSession.phone || '',
+    email: authSession.email || '',
+    address: authSession.address || ''
+  };
+
+  // Load children linked to this parent
+  await loadChildren();
+
+  if(children.length === 0){
+    document.getElementById('dashSubtitle').textContent = 'No children linked. Please contact the school administration.';
+    showToast('⚠️ No linked children found','warning');
+  } else {
+    activeChildId = children[0].studentId;
+    document.getElementById('dashSubtitle').textContent = children.length + ' children linked to your account';
+  }
+
+  // Set dates
+  document.getElementById('abDate').value = today();
+  document.getElementById('exDate').value = today();
+
+  // Load all data
+  await Promise.all([
+    loadNotifications(),
+    loadMessages(),
+    loadAnnouncements(),
+    loadCalendar(),
+    loadDocuments(),
+    loadConsentForms(),
+    loadFeedback(),
+    loadEarlyExitHistory(),
+    loadAbsenceRequests()
+  ]);
+
+  renderChildSelector();
+  await refreshDashboard();
+
+  // Auto-check for new notifications every 60s
+  setInterval(function(){
+    loadNotifications();
+    loadMessages();
+  }, 60000);
+}
+
+/* =========================================================
+   CHILDREN
+   ========================================================= */
+async function loadChildren(){
+  try{
+    var r = await api({action:'getParentChildren', school: getActiveSchool(), parentId: parentInfo.id});
+    children = r?.data?.children || [];
+  } catch(e){
+    // Fallback to local
+    children = JSON.parse(localStorage.getItem('parentChildren_'+parentInfo.id)||'[]');
+  }
+  // For each child, load class + photo + basic info
+  for(var i=0;i<children.length;i++){
+    var c = children[i];
+    c.photo = c.photo || localStorage.getItem('studentPhoto_'+c.studentId) || '';
+  }
+}
+function getActiveChild(){
+  return children.filter(function(c){ return c.studentId === activeChildId; })[0];
+}
+function renderChildSelector(){
+  var html = '';
+  if(children.length === 0){
+    html = '<p style="color:#999;text-align:center;padding:20px">No children linked.</p>';
+  } else {
+    children.forEach(function(c){
+      var active = c.studentId === activeChildId ? 'active' : '';
+      html += '<div class="child-chip '+active+'" onclick="selectChild(\''+escapeHtml(c.studentId)+'\')">'+
+        '<div class="cc-avatar">'+(c.photo && !lowDataMode ? '<img src="'+c.photo+'" />' : escapeHtml((c.studentName||'?').charAt(0)))+'</div>'+
+        '<div>'+escapeHtml(c.studentName)+'<div style="font-size:10px;opacity:.8">'+escapeHtml(c.class||'')+'</div></div>'+
+      '</div>';
+    });
+  }
+  document.getElementById('childSelector').innerHTML = html;
+  ['feesChildSelector','receiptsChildSelector','resultsChildSelector','rcChildSelector','attChildSelector','asChildSelector','ttChildSelector','hnChildSelector','exChildSelector','tpChildSelector','csChildSelector'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.innerHTML = html;
+  });
+  // Populate feedback child select
+  var fb = document.getElementById('fbChild');
+  if(fb){
+    fb.innerHTML = '<option value="">—</option>' + children.map(function(c){
+      return '<option value="'+escapeHtml(c.studentId)+'">'+escapeHtml(c.studentName)+'</option>';
+    }).join('');
+  }
+}
+function selectChild(id){
+  activeChildId = id;
+  renderChildSelector();
+  refreshDashboard();
+  // Reload current tab
+  if(currentTab !== 'dashboard') switchTab(currentTab);
+}
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+async function refreshDashboard(){
+  if(children.length === 0) return;
+  var c = getActiveChild();
+  if(!c) return;
+
+  // Load child summary (fees, attendance, avg)
+  var fees = await getChildFees(c.studentId);
+  var att = await getChildAttendance(c.studentId);
+  var res = await getChildResults(c.studentId);
+
+  // Dashboard child card
+  document.getElementById('dashChildCard').innerHTML =
+    '<div class="child-card">'+
+      '<div class="cc-header">'+
+        '<div class="cc-photo">'+(c.photo && !lowDataMode?'<img src="'+c.photo+'" />':escapeHtml((c.studentName||'?').charAt(0)))+'</div>'+
+        '<div class="cc-info">'+
+          '<div class="cc-name">'+escapeHtml(c.studentName)+'</div>'+
+          '<div class="cc-class">'+escapeHtml(c.studentId)+' · '+escapeHtml(c.class||'')+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="cc-stats">'+
+        '<div class="cc-stat"><div class="cs-value '+(fees.balance > 0 ? 'danger':'')+'">'+(fees.balance > 0 ? 'UGX '+Math.round(fees.balance/1000)+'K':'Clear')+'</div><div class="cs-label">Fees</div></div>'+
+        '<div class="cc-stat"><div class="cs-value">'+att.rate+'%</div><div class="cs-label">Attendance</div></div>'+
+        '<div class="cc-stat"><div class="cs-value">'+res.average.toFixed(0)+'%</div><div class="cs-label">Average</div></div>'+
+      '</div>'+
+    '</div>';
+
+  // Overall stats
+  var totals = {children: children.length, attSum:0, avgSum:0, feeSum:0};
+  for(var i=0;i<children.length;i++){
+    var f = await getChildFees(children[i].studentId);
+    var a = await getChildAttendance(children[i].studentId);
+    var r2 = await getChildResults(children[i].studentId);
+    totals.attSum += a.rate;
+    totals.avgSum += r2.average;
+    totals.feeSum += f.balance;
+  }
+  document.getElementById('dsChildrenCount').textContent = totals.children;
+  document.getElementById('dsAttendance').textContent = Math.round(totals.attSum/Math.max(1,totals.children)) + '%';
+  document.getElementById('dsAvgScore').textContent = Math.round(totals.avgSum/Math.max(1,totals.children)) + '%';
+  document.getElementById('dsFeesBalance').textContent = 'UGX ' + Math.round(totals.feeSum/1000) + 'K';
+
+  // Emergency banner
+  await renderEmergencyBanner();
+  // Latest announcements
+  await loadDashboardAnnouncements();
+}
+
+async function renderEmergencyBanner(){
+  try{
+    var r = await api({action:'getParentNotifications', school: getActiveSchool(), parentId: parentInfo.id, category:'emergency'});
+    var list = (r?.data?.notifications || []).filter(function(n){ return !n.read; });
+    if(list.length === 0){
+      document.getElementById('emergencyBanner').innerHTML = '';
+      return;
+    }
+    var latest = list[list.length-1];
+    document.getElementById('emergencyBanner').innerHTML =
+      '<div class="info-box urgent">'+
+        '<div class="info-title">🚨 URGENT NOTICE</div>'+
+        '<div class="info-text">'+escapeHtml(latest.body||'')+'</div>'+
+        '<div style="font-size:11px;margin-top:6px;opacity:.9">'+shortTime(latest.timestamp)+'</div>'+
+      '</div>';
+  } catch(e){ document.getElementById('emergencyBanner').innerHTML = ''; }
+}
+
+async function loadDashboardAnnouncements(){
+  try{
+    var r = await api({action:'getAnnouncements', school: getActiveSchool()});
+    var list = (r?.data?.announcements || []).slice(-3).reverse();
+    var c = document.getElementById('dashAnnouncements');
+    if(list.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No announcements.</p>'; return; }
+    c.innerHTML = list.map(function(a){
+      var cls = a.priority === 'high' ? 'danger' : a.priority === 'medium' ? 'warning' : 'success';
+      return '<div class="info-box '+cls+'"><div class="info-title">'+escapeHtml(a.title||'')+'</div><div class="info-text">'+escapeHtml((a.body||'').substring(0,120))+(a.body && a.body.length > 120?'...':'')+'</div><div style="font-size:10px;color:#666;margin-top:4px">'+escapeHtml(shortTime(a.timestamp))+'</div></div>';
+    }).join('');
+  } catch(e){}
+}
+
+/* =========================================================
+   FEES
+   ========================================================= */
+async function getChildFees(studentId){
+  try{
+    var r = await api({action:'getStudentFeeAccount', school: getActiveSchool(), studentId: studentId});
+    var acc = r?.data?.account;
+    if(acc) return {expected:parseFloat(acc.expected)||0, paid:parseFloat(acc.paid)||0, balance:parseFloat(acc.balance)||0};
+  } catch(e){}
+  // Fallback: derive from fee structures + payments
+  var recs = [];
+  try{
+    var rr = await api({action:'getFeeRecords', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    recs = (rr?.data?.records || []).filter(function(x){ return x.studentId === studentId; });
+  } catch(e){}
+  var paid = recs.reduce(function(s,x){ return s+(parseFloat(x.amount)||0); },0);
+  return {expected:0, paid:paid, balance:0};
+}
+async function loadFeesTab(){
+  if(!activeChildId) return;
+  var c = getActiveChild();
+  document.getElementById('feesChildLabel').textContent = 'Fees for ' + c.studentName + ' (' + c.class + ')';
+
+  var fees = await getChildFees(c.studentId);
+  document.getElementById('feesSummary').innerHTML =
+    '<div class="stats-grid">'+
+      '<div class="stat-card"><div class="stat-number">UGX '+((fees.expected||0)/1000).toFixed(0)+'K</div><div class="stat-label">Term Fees</div></div>'+
+      '<div class="stat-card success"><div class="stat-number">UGX '+((fees.paid||0)/1000).toFixed(0)+'K</div><div class="stat-label">Paid</div></div>'+
+      '<div class="stat-card '+(fees.balance > 0 ? 'danger':'success')+'"><div class="stat-number">UGX '+((fees.balance||0)/1000).toFixed(0)+'K</div><div class="stat-label">Balance</div></div>'+
+    '</div>';
+
+  // Payment history
+  try{
+    var r = await api({action:'getFeeRecords', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.records || []).filter(function(x){ return x.studentId === c.studentId; }).slice().reverse();
+    document.getElementById('feesHistoryBody').innerHTML = list.length ? list.map(function(p){
+      return '<tr><td>'+escapeHtml(p.date||'')+'</td><td>'+escapeHtml(p.id||'')+'</td><td class="amount credit">'+fmtUGX(p.amount)+'</td><td>'+escapeHtml(p.method||'')+'</td><td>'+escapeHtml(p.term||'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No payment records yet.</td></tr>';
+  } catch(e){}
+}
+function selectPayMethod(m){
+  selectedPayMethod = m;
+  document.querySelectorAll('.pay-method').forEach(function(el){
+    el.classList.toggle('active', el.getAttribute('data-method') === m);
+  });
+  document.getElementById('paymentForm').style.display = 'block';
+}
+async function initiatePayment(){
+  if(!selectedPayMethod){ showToast('Select payment method','warning'); return; }
+  var amt = parseFloat(document.getElementById('payAmount').value);
+  var phone = document.getElementById('payPhone').value.trim();
+  if(!amt || amt <= 0){ showToast('Enter amount','warning'); return; }
+  if(!phone){ showToast('Enter phone/account number','warning'); return; }
+
+  var c = getActiveChild();
+  var ok = await confirmAction('Confirm Payment', 'Pay '+fmtUGX(amt)+' for '+c.studentName+'?', 'Proceed','💳');
+  if(!ok) return;
+
+  var payment = {
+    id: genId('PAY'),
+    parentId: parentInfo.id,
+    studentId: c.studentId,
+    studentName: c.studentName,
+    amount: amt,
+    phone: phone,
+    method: selectedPayMethod,
+    note: document.getElementById('payNote').value,
+    status: 'pending',
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+
+  try{
+    var r = await api({action:'initiatePayment', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), payment: JSON.stringify(payment)});
+    await audit('INITIATE_PAYMENT','payment',payment.id,'Initiated '+fmtUGX(amt)+' via '+selectedPayMethod);
+    if(r && r.data && r.data.redirectUrl){
+      window.location.href = r.data.redirectUrl;
+    } else {
+      showToast('✅ Payment request submitted. Complete on your phone.', 'success');
+      openInfoModal(
+        '<div class="info-box success"><div class="info-title">Payment Initiated</div><div class="info-text">Reference: '+escapeHtml(payment.id)+'<br>Amount: '+fmtUGX(amt)+'<br>Method: '+escapeHtml(selectedPayMethod)+'<br>Phone: '+escapeHtml(phone)+'</div></div>'+
+        '<p style="font-size:13px;text-align:center;color:#555">You will receive a prompt on your phone. Complete the payment with your PIN to confirm. This page will update once confirmed.</p>',
+        'Payment Processing');
+    }
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+
+/* =========================================================
+   RECEIPTS
+   ========================================================= */
+async function loadReceipts(){
+  if(!activeChildId) return;
+  var c = getActiveChild();
+  var from = document.getElementById('recFrom').value;
+  var to = document.getElementById('recTo').value;
+  try{
+    var r = await api({action:'getFeeRecords', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var list = (r?.data?.records || []).filter(function(x){ return x.studentId === c.studentId; });
+    if(from) list = list.filter(function(x){ return x.date >= from; });
+    if(to) list = list.filter(function(x){ return x.date <= to; });
+    list = list.reverse();
+    document.getElementById('receiptsBody').innerHTML = list.length ? list.map(function(p){
+      return '<tr><td>'+escapeHtml(p.date||'')+'</td><td>'+escapeHtml(p.id||'')+'</td><td class="amount credit">'+fmtUGX(p.amount)+'</td><td>'+escapeHtml(p.method||'')+'</td><td><button class="btn btn-info btn-sm" onclick="viewReceipt(\''+escapeHtml(p.id)+'\')">👁️</button></td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No receipts.</td></tr>';
+  } catch(e){}
+}
+async function viewReceipt(id){
+  var c = getActiveChild();
+  try{
+    var r = await api({action:'getFeeRecords', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool()});
+    var rec = (r?.data?.records || []).filter(function(x){ return x.id === id; })[0];
+    if(!rec){ showToast('Receipt not found','error'); return; }
+    var settings = JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
+    var badgeUrl = localStorage.getItem('reportCardBadge') || '';
+    var html =
+      '<div style="text-align:center;border-bottom:2px solid var(--family);padding-bottom:10px;margin-bottom:10px">'+
+        (badgeUrl && !lowDataMode?'<img src="'+badgeUrl+'" style="height:50px" />':'')+
+        '<div style="font-size:20px;font-weight:700;color:var(--family)">'+escapeHtml(settings.schoolName||getActiveSchool())+'</div>'+
+        '<div style="font-size:11px;color:#555">'+escapeHtml(settings.schoolPhone||'')+'</div>'+
+      '</div>'+
+      '<div style="background:var(--family);color:#fff;text-align:center;padding:6px;font-weight:700;letter-spacing:2px;font-size:13px;margin-bottom:10px">OFFICIAL RECEIPT</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">'+
+        '<div><strong>Receipt No:</strong><br>'+escapeHtml(rec.id)+'</div>'+
+        '<div><strong>Date:</strong><br>'+escapeHtml(rec.date)+'</div>'+
+        '<div><strong>Student:</strong><br>'+escapeHtml(rec.studentName||c.studentName)+'</div>'+
+        '<div><strong>Admission No:</strong><br>'+escapeHtml(rec.studentId)+'</div>'+
+        '<div><strong>Class:</strong><br>'+escapeHtml(rec.class||c.class)+'</div>'+
+        '<div><strong>Method:</strong><br>'+escapeHtml(rec.method||'')+'</div>'+
+      '</div>'+
+      '<div style="background:var(--family-light);padding:12px;border-radius:8px;margin:12px 0;text-align:center">'+
+        '<div style="font-size:11px;text-transform:uppercase;color:#555">Amount Paid</div>'+
+        '<div style="font-size:24px;font-weight:700;color:var(--family)">'+fmtUGX(rec.amount)+'</div>'+
+      '</div>';
+    openInfoModal(html, 'Receipt', '<button class="btn btn-info" onclick="printReceipt(\''+escapeHtml(rec.id)+'\')">🖨️ Print</button><button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function printReceipt(id){
+  var html = document.getElementById('infoModalBody').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>Receipt</title><style>body{font-family:Arial;padding:20px;max-width:500px;margin:0 auto}</style></head><body>'+html+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 300);
+}
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+async function getChildResults(studentId, term, year){
+  term = term || (document.getElementById('resTerm')?.value || 'III');
+  year = year || (document.getElementById('resYear')?.value || '2026');
+  var c = children.filter(function(x){ return x.studentId === studentId; })[0];
+  if(!c) return {subjects:[], average:0};
+  var sheetId = getClassSheetId(c.class);
+  if(!sheetId) return {subjects:[], average:0};
+  try{
+    var r = await api({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: c.class});
+    var s = (r?.data?.students || []).filter(function(x){ return x.studentId === studentId; })[0];
+    if(!s || !s.scores) return {subjects:[], average:0};
+    var subjects = [];
+    var totalAvg = 0;
+    Object.keys(s.scores).forEach(function(subj){
+      var sc = s.scores[subj] || {};
+      var aoi = parseFloat(sc.aoi)||0, eot = parseFloat(sc.eot)||0;
+      var pct = ((aoi/20)*100 + (eot/80)*100)/2;
+      if(isNaN(pct)) pct = 0;
+      subjects.push({subject: subj, aoi:aoi, eot:eot, total:aoi+eot, percent:pct, grade:gradeFor(pct)});
+      totalAvg += pct;
+    });
+    return {subjects: subjects, average: subjects.length ? totalAvg/subjects.length : 0};
+  } catch(e){ return {subjects:[], average:0}; }
+}
+function gradeFor(pct){
+  if(pct>=80) return 'A';
+  if(pct>=70) return 'B';
+  if(pct>=60) return 'C';
+  if(pct>=50) return 'D';
+  if(pct>=40) return 'E';
+  return 'F';
+}
+async function loadResults(){
+  if(!activeChildId) return;
+  var c = getActiveChild();
+  var res = await getChildResults(c.studentId);
+  document.getElementById('resultsSummary').innerHTML =
+    '<div class="stats-grid">'+
+      '<div class="stat-card success"><div class="stat-number">'+res.average.toFixed(1)+'%</div><div class="stat-label">Average</div></div>'+
+      '<div class="stat-card info"><div class="stat-number">'+gradeFor(res.average)+'</div><div class="stat-label">Overall Grade</div></div>'+
+      '<div class="stat-card"><div class="stat-number">'+res.subjects.length+'</div><div class="stat-label">Subjects</div></div>'+
+    '</div>';
+  document.getElementById('resultsBody').innerHTML = res.subjects.length ? res.subjects.map(function(s){
+    return '<tr><td>'+escapeHtml(s.subject)+'</td><td>'+s.aoi+'</td><td>'+s.eot+'</td><td>'+s.total+'</td><td><strong>'+s.grade+'</strong></td><td>'+escapeHtml(descriptorFromGrade(s.grade))+'</td></tr>';
+  }).join('') : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No results released for this term yet.</td></tr>';
+
+  // Chart
+  if(chartInstances.res) chartInstances.res.destroy();
+  if(res.subjects.length > 0){
+    var ctx = document.getElementById('resultsChart').getContext('2d');
+    chartInstances.res = new Chart(ctx, {
+      type:'bar',
+      data:{ labels: res.subjects.map(function(s){ return s.subject; }), datasets: [{ label:'Score %', data: res.subjects.map(function(s){ return s.percent.toFixed(1); }), backgroundColor:'rgba(26,138,74,0.75)' }] },
+      options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false}
+    });
+  }
+}
+function descriptorFromGrade(g){
+  return {'A':'EXCEPTIONAL','B':'OUTSTANDING','C':'SATISFACTORY','D':'BASIC','E':'ELEMENTARY','F':'ELEMENTARY'}[g] || '';
+}
+
+/* =========================================================
+   REPORT CARDS
+   ========================================================= */
+async function loadReportCards(){
+  if(!activeChildId) return;
+  var c = getActiveChild();
+  try{
+    var r = await api({action:'getReportCards', school: getActiveSchool(), studentId: c.studentId});
+    var list = (r?.data?.reportCards || []).reverse();
+    var c2 = document.getElementById('reportCardsList');
+    if(list.length === 0){ c2.innerHTML = '<div class="info-box"><div class="info-text">No report cards released yet.</div></div>'; return; }
+    c2.innerHTML = list.map(function(rc){
+      return '<div class="child-card"><div class="cc-header"><div class="cc-info"><div class="cc-name">'+escapeHtml(rc.term)+' '+escapeHtml(rc.year)+' Report Card</div><div class="cc-class">Released '+escapeHtml(rc.releasedAt||'')+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-info btn-sm" onclick="viewReportCard(\''+escapeHtml(rc.id)+'\')">👁️ View</button><button class="btn btn-secondary btn-sm" onclick="printReportCard(\''+escapeHtml(rc.id)+'\')">🖨️</button></div></div></div>';
+    }).join('');
+  } catch(e){}
+}
+function viewReportCard(id){
+  showToast('📄 Report card viewer coming soon','info');
+}
+function printReportCard(id){
+  showToast('🖨️ Printing...','info');
+}
+
+/* =========================================================
+   ATTENDANCE
+   ========================================================= */
+async function getChildAttendance(studentId){
+  try{
+    var r = await api({action:'getGateAttendance', school: getActiveSchool()});
+    var list = (r?.data?.attendance || []).filter(function(x){ return x.studentId === studentId; });
+    var present = list.filter(function(x){ return x.status === 'present'; }).length;
+    var absent = list.filter(function(x){ return x.status === 'absent'; }).length;
+    var late = list.filter(function(x){ return x.status === 'late'; }).length;
+    var total = present + absent + late;
+    return {present:present, absent:absent, late:late, total:total, rate: total>0?Math.round((present/total)*100):100, list:list};
+  } catch(e){ return {present:0, absent:0, late:0, total:0, rate:0, list:[]}; }
+}
+async function loadAttendanceTab(){
+  if(!activeChildId) return;
+  var att = await getChildAttendance(activeChildId);
+  document.getElementById('attStats').innerHTML =
+    '<div class="stat-card success"><div class="stat-number">'+att.present+'</div><div class="stat-label">Present</div></div>'+
+    '<div class="stat-card danger"><div class="stat-number">'+att.absent+'</div><div class="stat-label">Absent</div></div>'+
+    '<div class="stat-card warning"><div class="stat-number">'+att.late+'</div><div class="stat-label">Late</div></div>'+
+    '<div class="stat-card info"><div class="stat-number">'+att.rate+'%</div><div class="stat-label">Attendance</div></div>';
+  loadAttendanceDetails();
+}
+async function loadAttendanceDetails(){
+  if(!activeChildId) return;
+  var att = await getChildAttendance(activeChildId);
+  var from = document.getElementById('attFrom').value;
+  var to = document.getElementById('attTo').value;
+  var list = att.list.slice().reverse();
+  if(from) list = list.filter(function(x){ return x.date >= from; });
+  if(to) list = list.filter(function(x){ return x.date <= to; });
+  document.getElementById('attendanceBody').innerHTML = list.length ? list.map(function(a){
+    return '<tr><td>'+escapeHtml(a.date)+'</td><td><span class="badge badge-'+a.status+'">'+escapeHtml(a.status)+'</span></td><td>'+escapeHtml(a.note||'')+'</td></tr>';
+  }).join('') : '<tr><td colspan="3" style="text-align:center;color:#999;padding:20px">No records.</td></tr>';
+}
+async function submitAbsenceRequest(){
+  if(!activeChildId){ showToast('Select a child','warning'); return; }
+  var date = document.getElementById('abDate').value;
+  var reason = document.getElementById('abReason').value.trim();
+  if(!date || !reason){ showToast('Fill date and reason','warning'); return; }
+  var c = getActiveChild();
+  var req = {
+    id: genId('AB'),
+    studentId: c.studentId,
+    studentName: c.studentName,
+    parentId: parentInfo.id,
+    date: date,
+    expectedReturn: document.getElementById('abReturn').value,
+    reason: reason,
+    status: 'pending',
+    submittedAt: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveAbsenceRequest', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), request: JSON.stringify(req)});
+  await audit('ABSENCE_REQUEST','absence',req.id,date);
+  showToast('✅ Request submitted','success');
+  document.getElementById('abReason').value = '';
+  loadAbsenceRequests();
+}
+async function loadAbsenceRequests(){
+  if(!activeChildId) return;
+  try{
+    var r = await api({action:'getAbsenceRequests', school: getActiveSchool(), parentId: parentInfo.id, studentId: activeChildId});
+    var list = (r?.data?.requests || []).reverse();
+    document.getElementById('absenceRequestsBody').innerHTML = list.length ? list.map(function(req){
+      return '<tr><td>'+escapeHtml(req.date)+'</td><td>'+escapeHtml(req.reason)+'</td><td><span class="badge badge-'+(req.status||'pending')+'">'+escapeHtml(req.status||'pending')+'</span></td></tr>';
+    }).join('') : '<tr><td colspan="3" style="text-align:center;color:#999;padding:20px">No requests yet.</td></tr>';
+  } catch(e){}
+}
+
+/* =========================================================
+   ASSIGNMENTS
+   ========================================================= */
+async function loadAssignments(){
+  if(!activeChildId) return;
+  var c = getActiveChild();
+  var sheetId = getClassSheetId(c.class);
+  if(!sheetId){
+    document.getElementById('assignmentsBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Class data not available.</td></tr>';
+    return;
+  }
+  try{
+    var r = await api({action:'getAssignments', school: getActiveSchool()});
+    var list = (r?.data?.assignments || []).filter(function(a){ return a.className === c.class; }).reverse();
+    document.getElementById('assignmentsBody').innerHTML = list.length ? list.map(function(a){
+      return '<tr><td>'+escapeHtml(a.subject||'')+'</td><td>'+escapeHtml(a.title||'')+'</td><td>'+escapeHtml((a.createdAt||'').substring(0,10))+'</td><td>'+escapeHtml((a.deadline||'').substring(0,10))+'</td><td><span class="badge badge-pending">Issued</span></td><td>—</td></tr>';
+    }).join('') : '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No assignments.</td></tr>';
+  } catch(e){}
+}
+
+/* =========================================================
+   TIMETABLE
+   ========================================================= */
+async function loadTimetable(){
+  if(!activeChildId) return;
+  var c = getActiveChild();
+  var key = 'timetable_'+getActiveSchool()+'_'+c.class+'_III_2026';
+  var tt = JSON.parse(localStorage.getItem(key)||'{}');
+  var days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  var periods = ['08:00 - 08:40','08:40 - 09:20','09:20 - 10:00','10:20 - 11:00','11:00 - 11:40','11:40 - 12:20','14:00 - 14:40','14:40 - 15:20'];
+  var html = '<div class="table-wrap"><table class="timetable-grid"><thead><tr><th>Time</th>';
+  days.forEach(function(d){ html += '<th>'+d.substr(0,3)+'</th>'; });
+  html += '</tr></thead><tbody>';
+  periods.forEach(function(p){
+    html += '<tr><td style="font-weight:700;background:var(--family-light);color:var(--family-dark);font-size:10px">'+p+'</td>';
+    days.forEach(function(d){
+      var entry = tt[d+'|'+p];
+      if(entry){
+        html += '<td><div class="tt-subject">'+escapeHtml(entry.subject||'')+'</div><div class="tt-teacher">'+escapeHtml(entry.teacher||'')+'</div>'+(entry.room?'<div class="tt-room">'+escapeHtml(entry.room)+'</div>':'')+'</td>';
+      } else {
+        html += '<td style="background:#f8f9fa;color:#ccc">—</td>';
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('timetableDisplay').innerHTML = html;
+}
+
+/* =========================================================
+   CALENDAR
+   ========================================================= */
+async function loadCalendar(){
+  var month = document.getElementById('calMonth').value;
+  var year = document.getElementById('calYear').value;
+  try{
+    var r = await api({action:'getSchoolEvents', school: getActiveSchool()});
+    var list = (r?.data?.events || []).filter(function(e){
+      var d = new Date(e.date);
+      return (d.getMonth()+1) === parseInt(month) && d.getFullYear() === parseInt(year);
+    }).sort(function(a,b){ return a.date.localeCompare(b.date); });
+    var c = document.getElementById('calendarDisplay');
+    if(list.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No events this month.</p>'; return; }
+    c.innerHTML = list.map(function(e){
+      var d = new Date(e.date);
+      var day = d.getDate();
+      var mon = d.toLocaleString('en',{month:'short'}).toUpperCase();
+      return '<div class="event-item"><div class="ev-date">'+day+'<br><span style="font-size:10px">'+mon+'</span></div><div class="ev-details"><div class="ev-title">'+escapeHtml(e.title||'')+'</div><div class="ev-desc">'+escapeHtml(e.description||'')+'</div><div class="ev-cat">'+escapeHtml(e.category||'event')+'</div></div></div>';
+    }).join('');
+  } catch(e){}
+}
+
+/* =========================================================
+   ANNOUNCEMENTS
+   ========================================================= */
+async function loadAnnouncements(){
+  try{
+    var r = await api({action:'getAnnouncements', school: getActiveSchool()});
+    var list = (r?.data?.announcements || []).reverse();
+    var c = document.getElementById('announcementsList');
+    if(list.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No announcements.</p>'; return; }
+    c.innerHTML = list.map(function(a){
+      var cls = a.priority === 'high' ? 'danger' : a.priority === 'medium' ? 'warning' : 'success';
+      return '<div class="info-box '+cls+'"><div class="info-title">'+escapeHtml(a.title||'')+'</div><div class="info-text">'+escapeHtml(a.body||'')+'</div><div style="font-size:10px;color:#666;margin-top:4px">'+escapeHtml(shortTime(a.timestamp))+'</div></div>';
+    }).join('');
+  } catch(e){}
+}
+
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+function showMsgSub(sub){
+  document.querySelectorAll('#tabMessages .tab-strip button').forEach(function(b,i){
+    b.classList.toggle('active', (i===0&&sub==='inbox')||(i===1&&sub==='compose')||(i===2&&sub==='sent'));
+  });
+  document.getElementById('msgSubInbox').style.display = sub==='inbox'?'block':'none';
+  document.getElementById('msgSubCompose').style.display = sub==='compose'?'block':'none';
+  document.getElementById('msgSubSent').style.display = sub==='sent'?'block':'none';
+}
+async function loadMessages(){
+  try{
+    var r = await api({action:'getParentMessages', school: getActiveSchool(), parentId: parentInfo.id});
+    var list = r?.data?.messages || [];
+    allMessages.inbox = list.filter(function(m){ return m.to === parentInfo.id; });
+    allMessages.sent = list.filter(function(m){ return m.from === parentInfo.id; });
+    unreadMsgCount = allMessages.inbox.filter(function(m){ return !m.read; }).length;
+    updateMsgBadge();
+    renderInbox();
+    renderSent();
+    populateRecipients();
+  } catch(e){}
+}
+function renderInbox(){
+  var c = document.getElementById('inboxList');
+  if(allMessages.inbox.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No messages.</p>'; return; }
+  c.innerHTML = allMessages.inbox.slice().reverse().map(function(m){
+    return '<div class="msg-item '+(m.read?'':'unread')+'" data-search="'+escapeHtml((m.subject+' '+m.body+' '+m.fromName).toLowerCase())+'" onclick="openMessage(\''+escapeHtml(m.id)+'\')"><div class="msg-from">From: '+escapeHtml(m.fromName||m.from)+'</div><div class="msg-subject">'+escapeHtml(m.subject||'(no subject)')+'</div><div class="msg-preview">'+escapeHtml(m.body||'')+'</div><div class="msg-time">'+escapeHtml(shortTime(m.timestamp))+'</div></div>';
+  }).join('');
+}
+function renderSent(){
+  var c = document.getElementById('sentList');
+  if(allMessages.sent.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No sent messages.</p>'; return; }
+  c.innerHTML = allMessages.sent.slice().reverse().map(function(m){
+    return '<div class="msg-item"><div class="msg-from">To: '+escapeHtml(m.to)+'</div><div class="msg-subject">'+escapeHtml(m.subject||'')+'</div><div class="msg-preview">'+escapeHtml(m.body||'')+'</div><div class="msg-time">'+escapeHtml(shortTime(m.timestamp))+'</div></div>';
+  }).join('');
+}
+function openMessage(id){
+  var m = allMessages.inbox.filter(function(x){ return x.id===id; })[0];
+  if(!m) return;
+  m.read = true;
+  updateMsgBadge();
+  var html = '<div class="info-box"><div class="info-title">'+escapeHtml(m.subject||'')+'</div><div class="info-text">From: '+escapeHtml(m.fromName||m.from)+' · '+escapeHtml(shortTime(m.timestamp))+'</div></div><p style="font-size:14px;white-space:pre-wrap;line-height:1.6">'+escapeHtml(m.body||'')+'</p>';
+  openInfoModal(html, 'Message');
+}
+function filterMessages(){
+  var q = document.getElementById('msgSearch').value.toLowerCase();
+  document.querySelectorAll('#inboxList .msg-item').forEach(function(m){
+    var s = m.getAttribute('data-search')||'';
+    m.style.display = (!q || s.indexOf(q)!==-1)?'':'none';
+  });
+}
+async function populateRecipients(){
+  try{
+    var r = await api({action:'getParentContacts', school: getActiveSchool(), parentId: parentInfo.id});
+    var list = r?.data?.contacts || [];
+    document.getElementById('msgTo').innerHTML = '<option value="">Select recipient…</option>' + list.map(function(c){
+      return '<option value="'+escapeHtml(c.id)+'">'+escapeHtml(c.name)+' ('+escapeHtml(c.role)+')</option>';
+    }).join('');
+  } catch(e){
+    // Fallback options
+    document.getElementById('msgTo').innerHTML = '<option value="">Select…</option><option value="class-teacher">Class Teacher</option><option value="headteacher">Headteacher</option><option value="bursar">Bursar</option><option value="nurse">School Nurse</option>';
+  }
+}
+async function sendParentMessage(){
+  var to = document.getElementById('msgTo').value;
+  var subject = document.getElementById('msgSubject').value.trim();
+  var body = document.getElementById('msgBody').value.trim();
+  if(!to || !subject || !body){ showToast('Fill all fields','warning'); return; }
+  var msg = {
+    id: genId('MSG'),
+    from: parentInfo.id,
+    fromName: parentInfo.name,
+    to: to,
+    subject: subject,
+    body: body,
+    read: false,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveParentMessage', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), message: JSON.stringify(msg)});
+  await audit('SEND_MESSAGE','message',msg.id,to+': '+subject);
+  showToast('✅ Message sent','success');
+  document.getElementById('msgSubject').value = '';
+  document.getElementById('msgBody').value = '';
+  loadMessages();
+}
+function updateMsgBadge(){
+  var b1 = document.getElementById('msgBadge');
+  var b2 = document.getElementById('bnMsgBadge');
+  if(unreadMsgCount > 0){
+    if(b1){ b1.style.display='inline-block'; b1.textContent = unreadMsgCount; }
+    if(b2){ b2.style.display='inline-block'; b2.textContent = unreadMsgCount; }
+  } else {
+    if(b1) b1.style.display='none';
+    if(b2) b2.style.display='none';
+  }
+}
+
+/* =========================================================
+   HEALTH NOTICES
+   ========================================================= */
+async function loadHealthNotices(){
+  if(!activeChildId) return;
+  try{
+    var r = await api({action:'getParentHealthNotices', school: getActiveSchool(), parentId: parentInfo.id, studentId: activeChildId});
+    var list = (r?.data?.notices || []).reverse();
+    var c = document.getElementById('healthNoticesList');
+    if(list.length === 0){ c.innerHTML = '<div class="info-box success"><div class="info-text">No health notices for this child.</div></div>'; return; }
+    c.innerHTML = list.map(function(n){
+      var cls = n.type === 'critical' ? 'danger' : n.type === 'referral' ? 'warning' : 'info';
+      return '<div class="info-box '+cls+'"><div class="info-title">'+escapeHtml(n.title||'Health Notice')+'</div><div class="info-text">'+escapeHtml(n.message||'')+'</div><div style="font-size:10px;color:#666;margin-top:4px">'+escapeHtml(shortTime(n.timestamp))+'</div></div>';
+    }).join('');
+  } catch(e){}
+}
+
+/* =========================================================
+   EARLY EXIT
+   ========================================================= */
+async function submitEarlyExitRequest(){
+  if(!activeChildId){ showToast('Select a child','warning'); return; }
+  var date = document.getElementById('exDate').value;
+  var time = document.getElementById('exTime').value;
+  var reason = document.getElementById('exReason').value.trim();
+  var collector = document.getElementById('exCollector').value.trim();
+  var phone = document.getElementById('exPhone').value.trim();
+  if(!date || !time || !reason || !collector || !phone){ showToast('Fill all required fields','warning'); return; }
+  var c = getActiveChild();
+  var req = {
+    id: genId('EX'),
+    studentId: c.studentId,
+    studentName: c.studentName,
+    class: c.class,
+    parentId: parentInfo.id,
+    parentName: parentInfo.name,
+    date: date,
+    requestedTime: time,
+    reason: reason,
+    collector: collector,
+    collectorPhone: phone,
+    notes: document.getElementById('exNotes').value,
+    status: 'pending',
+    submittedAt: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveEarlyExitRequest', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), request: JSON.stringify(req)});
+  await audit('EARLY_EXIT_REQUEST','early_exit',req.id,c.studentName+' on '+date);
+  showToast('✅ Request submitted','success');
+  ['exReason','exCollector','exPhone','exNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+  loadEarlyExitHistory();
+}
+async function loadEarlyExitHistory(){
+  if(!activeChildId) return;
+  try{
+    var r = await api({action:'getEarlyExitRequests', school: getActiveSchool(), parentId: parentInfo.id, studentId: activeChildId});
+    var list = (r?.data?.requests || []).reverse();
+    document.getElementById('earlyExitHistoryBody').innerHTML = list.length ? list.map(function(req){
+      var cls = req.status==='approved'?'approved':req.status==='rejected'?'cancelled':req.status==='completed'?'paid':'pending';
+      return '<tr><td>'+escapeHtml(req.date)+'</td><td>'+escapeHtml(req.requestedTime)+'</td><td>'+escapeHtml(req.reason||'')+'</td><td><span class="badge badge-'+cls+'">'+escapeHtml(req.status||'pending')+'</span></td><td>'+(req.status==='pending'?'<button class="btn btn-secondary btn-sm" onclick="cancelExitRequest(\''+escapeHtml(req.id)+'\')">Cancel</button>':'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No requests yet.</td></tr>';
+  } catch(e){}
+}
+async function cancelExitRequest(id){
+  var ok = await confirmAction('Cancel Request','Cancel this early exit request?','Cancel','✖');
+  if(!ok) return;
+  await api({action:'cancelEarlyExit', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), id: id});
+  audit('CANCEL_EXIT_REQUEST','early_exit',id,'Cancelled');
+  loadEarlyExitHistory();
+  showToast('✅ Cancelled','info');
+}
+
+/* =========================================================
+   TRANSPORT
+   ========================================================= */
+async function loadTransport(){
+  if(!activeChildId) return;
+  var c = getActiveChild();
+  try{
+    var r = await api({action:'getTransportForStudent', school: getActiveSchool(), studentId: c.studentId});
+    var t = r?.data?.transport;
+    if(!t){
+      document.getElementById('transportInfo').innerHTML = '<div class="info-box"><div class="info-text">Your child is not registered for school transport.</div></div>';
+      return;
+    }
+    document.getElementById('transportInfo').innerHTML =
+      '<div class="child-card">'+
+        '<div class="cc-header"><div class="cc-info"><div class="cc-name">🚌 '+escapeHtml(t.busNumber||'Bus')+'</div><div class="cc-class">'+escapeHtml(t.route||'')+'</div></div></div>'+
+        '<div style="font-size:13px;color:#555;margin-top:8px;line-height:1.6">'+
+          '<div><strong>Pick-up:</strong> '+escapeHtml(t.pickupPoint||'—')+'</div>'+
+          '<div><strong>Drop-off:</strong> '+escapeHtml(t.dropoffPoint||'—')+'</div>'+
+          '<div><strong>Driver:</strong> '+escapeHtml(t.driverName||'—')+'</div>'+
+        '</div>'+
+      '</div>';
+  } catch(e){}
+}
+
+/* =========================================================
+   CONSENT FORMS
+   ========================================================= */
+async function loadConsentForms(){
+  if(!activeChildId) return;
+  try{
+    var r = await api({action:'getConsentForms', school: getActiveSchool(), parentId: parentInfo.id, studentId: activeChildId});
+    var list = r?.data?.forms || [];
+    var c = document.getElementById('consentFormsList');
+    if(list.length === 0){ c.innerHTML = '<div class="info-box"><div class="info-text">No consent forms pending.</div></div>'; return; }
+    c.innerHTML = list.map(function(f){
+      var status = f.response || 'pending';
+      var cls = status === 'accepted' ? 'success' : status === 'declined' ? 'danger' : 'warning';
+      return '<div class="info-box '+cls+'"><div class="info-title">'+escapeHtml(f.title||'')+'</div><div class="info-text">'+escapeHtml(f.description||'')+'</div><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+(status==='pending'?'<button class="btn btn-success btn-sm" onclick="respondConsent(\''+escapeHtml(f.id)+'\',\'accepted\')">✅ Accept</button><button class="btn btn-danger btn-sm" onclick="respondConsent(\''+escapeHtml(f.id)+'\',\'declined\')">❌ Decline</button>':'<strong>Response: '+escapeHtml(status)+'</strong>')+'</div></div>';
+    }).join('');
+  } catch(e){}
+}
+async function respondConsent(id, response){
+  var ok = await confirmAction('Confirm Response','Mark as '+response+'?','Confirm','📋');
+  if(!ok) return;
+  var r = {id: genId('CR'), formId: id, parentId: parentInfo.id, studentId: activeChildId, response: response, timestamp: nowIso(), school: getActiveSchool()};
+  await api({action:'submitConsentResponse', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), response: JSON.stringify(r)});
+  await audit('CONSENT_'+response.toUpperCase(),'consent',id,response);
+  showToast('✅ Response recorded','success');
+  loadConsentForms();
+}
+
+/* =========================================================
+   DOCUMENTS
+   ========================================================= */
+async function loadDocuments(){
+  try{
+    var r = await api({action:'getSchoolDocuments', school: getActiveSchool()});
+    var list = r?.data?.documents || [];
+    var c = document.getElementById('documentsList');
+    if(list.length === 0){ c.innerHTML = '<div class="info-box"><div class="info-text">No documents available.</div></div>'; return; }
+    c.innerHTML = list.map(function(d){
+      return '<div class="event-item"><div class="ev-date" style="background:var(--surface-3);color:var(--family)">📄</div><div class="ev-details"><div class="ev-title">'+escapeHtml(d.title||'')+'</div><div class="ev-desc">'+escapeHtml(d.category||'')+'</div><div style="margin-top:6px"><a href="'+(d.url||'#')+'" target="_blank" class="btn btn-info btn-sm">📥 Download</a></div></div></div>';
+    }).join('');
+  } catch(e){}
+}
+
+/* =========================================================
+   FEEDBACK
+   ========================================================= */
+async function submitFeedback(){
+  var cat = document.getElementById('fbCategory').value;
+  var subject = document.getElementById('fbSubject').value.trim();
+  var message = document.getElementById('fbMessage').value.trim();
+  if(!subject || !message){ showToast('Fill subject and message','warning'); return; }
+  var fb = {
+    id: genId('FB'),
+    parentId: parentInfo.id,
+    parentName: parentInfo.name,
+    category: cat,
+    priority: document.getElementById('fbPriority').value,
+    subject: subject,
+    message: message,
+    childId: document.getElementById('fbChild').value,
+    status: 'submitted',
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveParentFeedback', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), feedback: JSON.stringify(fb)});
+  await audit('SUBMIT_FEEDBACK','feedback',fb.id,cat+': '+subject);
+  showToast('✅ Submitted','success');
+  ['fbSubject','fbMessage'].forEach(function(id){ document.getElementById(id).value=''; });
+  loadFeedback();
+}
+async function loadFeedback(){
+  try{
+    var r = await api({action:'getParentFeedback', school: getActiveSchool(), parentId: parentInfo.id});
+    var list = (r?.data?.feedback || []).reverse();
+    var c = document.getElementById('feedbackHistory');
+    if(list.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No submissions yet.</p>'; return; }
+    c.innerHTML = list.map(function(fb){
+      var cls = fb.status==='resolved'?'success':fb.status==='responded'?'info':fb.status==='review'?'warning':'pending';
+      return '<div class="info-box '+cls+'"><div class="info-title">'+escapeHtml(fb.subject||'')+'</div><div class="info-text">'+escapeHtml(fb.message||'')+'</div><div style="font-size:11px;margin-top:6px"><span class="badge badge-'+cls+'">'+escapeHtml(fb.status||'submitted')+'</span> · '+escapeHtml(shortTime(fb.timestamp))+'</div></div>';
+    }).join('');
+  } catch(e){}
+}
+
+/* =========================================================
+   NOTIFICATIONS
+   ========================================================= */
+async function loadNotifications(){
+  try{
+    var r = await api({action:'getParentNotifications', school: getActiveSchool(), parentId: parentInfo.id});
+    notificationsCache = (r?.data?.notifications || []).reverse();
+    unreadNotifCount = notificationsCache.filter(function(n){ return !n.read; }).length;
+    updateNotifBadge();
+    renderNotifications();
+  } catch(e){}
+}
+function renderNotifications(){
+  var c = document.getElementById('notificationsList');
+  var filtered = notificationsCache;
+  if(currentNotifFilter !== 'all'){
+    filtered = filtered.filter(function(n){ return n.category === currentNotifFilter; });
+  }
+  if(filtered.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No notifications.</p>'; return; }
+  c.innerHTML = filtered.map(function(n){
+    return '<div class="notif-item cat-'+(n.category||'info')+' '+(n.read?'':'unread')+'"><div class="notif-title">'+escapeHtml(n.title||'')+'</div><div class="notif-body">'+escapeHtml(n.body||'')+'</div><div class="notif-time">'+escapeHtml(shortTime(n.timestamp))+'</div></div>';
+  }).join('');
+}
+function filterNotifs(cat){
+  currentNotifFilter = cat;
+  document.querySelectorAll('#tabNotifications .tab-strip button').forEach(function(b){
+    b.classList.toggle('active', b.textContent.trim().toLowerCase().indexOf(cat.toLowerCase()) !== -1 || (cat==='all' && b.textContent.trim()==='All'));
+  });
+  renderNotifications();
+}
+async function markAllRead(){
+  await api({action:'markAllParentNotificationsRead', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), parentId: parentInfo.id});
+  notificationsCache.forEach(function(n){ n.read = true; });
+  unreadNotifCount = 0;
+  updateNotifBadge();
+  renderNotifications();
+  showToast('✅ Marked all as read','success');
+}
+function updateNotifBadge(){
+  var b1 = document.getElementById('notifBadge');
+  var b2 = document.getElementById('bnNotifBadge');
+  if(unreadNotifCount > 0){
+    if(b1){ b1.style.display='inline-block'; b1.textContent = unreadNotifCount; }
+    if(b2){ b2.style.display='inline-block'; b2.textContent = unreadNotifCount; }
+  } else {
+    if(b1) b1.style.display='none';
+    if(b2) b2.style.display='none';
+  }
+}
+
+/* =========================================================
+   PROFILE & SETTINGS
+   ========================================================= */
+function loadProfile(){
+  document.getElementById('pfName').value = parentInfo.name;
+  document.getElementById('pfId').value = parentInfo.id;
+  document.getElementById('pfPhone').value = parentInfo.phone;
+  document.getElementById('pfEmail').value = parentInfo.email;
+  document.getElementById('pfAddress').value = parentInfo.address;
+  document.getElementById('profileInitial').textContent = parentInfo.name.charAt(0).toUpperCase();
+
+  // Linked children
+  var c = document.getElementById('linkedChildrenList');
+  if(children.length === 0){ c.innerHTML = '<div class="info-box warning"><div class="info-text">No children linked.</div></div>'; return; }
+  c.innerHTML = children.map(function(ch){
+    return '<div class="child-card"><div class="cc-header"><div class="cc-photo">'+escapeHtml((ch.studentName||'?').charAt(0))+'</div><div class="cc-info"><div class="cc-name">'+escapeHtml(ch.studentName)+'</div><div class="cc-class">'+escapeHtml(ch.studentId)+' · '+escapeHtml(ch.class||'')+'</div></div></div></div>';
+  }).join('');
+}
+async function saveProfile(){
+  var updates = {
+    phone: document.getElementById('pfPhone').value,
+    email: document.getElementById('pfEmail').value,
+    address: document.getElementById('pfAddress').value
+  };
+  try{
+    var r = await api({action:'updateParentProfile', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), parentId: parentInfo.id, updates: JSON.stringify(updates)});
+    parentInfo.phone = updates.phone;
+    parentInfo.email = updates.email;
+    parentInfo.address = updates.address;
+    await audit('UPDATE_PROFILE','parent',parentInfo.id,'Updated contact info');
+    showToast('✅ Profile saved','success');
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function loadSettings(){
+  var key = 'parentSettings_'+authSession.username;
+  var s = JSON.parse(localStorage.getItem(key)||'{}');
+  document.getElementById('setNotifFees').checked = s.notifFees !== false;
+  document.getElementById('setNotifAtt').checked = s.notifAtt !== false;
+  document.getElementById('setNotifAcademic').checked = s.notifAcademic !== false;
+  document.getElementById('setNotifHealth').checked = s.notifHealth !== false;
+  document.getElementById('setNotifGate').checked = s.notifGate !== false;
+  document.getElementById('setNotifEmergency').checked = s.notifEmergency !== false;
+  document.getElementById('setLowData').checked = lowDataMode;
+}
+function saveSettings(){
+  var s = {
+    notifFees: document.getElementById('setNotifFees').checked,
+    notifAtt: document.getElementById('setNotifAtt').checked,
+    notifAcademic: document.getElementById('setNotifAcademic').checked,
+    notifHealth: document.getElementById('setNotifHealth').checked,
+    notifGate: document.getElementById('setNotifGate').checked,
+    notifEmergency: document.getElementById('setNotifEmergency').checked
+  };
+  localStorage.setItem('parentSettings_'+authSession.username, JSON.stringify(s));
+  showToast('✅ Settings saved','success');
+}
+function toggleLowData(){
+  lowDataMode = document.getElementById('setLowData').checked;
+  localStorage.setItem('lowDataMode_'+authSession.username, lowDataMode?'1':'0');
+  document.getElementById('lowDataBadge').style.display = lowDataMode?'inline-block':'none';
+  showToast(lowDataMode?'📶 Low data mode ON':'📶 Low data mode OFF','info');
+  refreshDashboard();
+}
+
+/* =========================================================
+   TAB SWITCHING
+   ========================================================= */
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.form-section').forEach(function(el){ el.classList.remove('active'); });
+  var map = {
+    dashboard:'tabDashboard', children:'tabChildren', fees:'tabFees', receipts:'tabReceipts',
+    results:'tabResults', reportcards:'tabReportcards', attendance:'tabAttendance',
+    assignments:'tabAssignments', timetable:'tabTimetable', calendar:'tabCalendar',
+    announcements:'tabAnnouncements', messages:'tabMessages', healthnotices:'tabHealthnotices',
+    earlyexit:'tabEarlyexit', transport:'tabTransport', consent:'tabConsent',
+    documents:'tabDocuments', feedback:'tabFeedback', notifications:'tabNotifications',
+    profile:'tabProfile', settings:'tabSettings'
+  };
+  var el = document.getElementById(map[tab]);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.querySelectorAll('.bn-item').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.getElementById('navbarMenu').classList.remove('open');
+  window.scrollTo(0,0);
+
+  if(tab==='dashboard') refreshDashboard();
+  if(tab==='children') renderChildrenList();
+  if(tab==='fees') loadFeesTab();
+  if(tab==='receipts') loadReceipts();
+  if(tab==='results') loadResults();
+  if(tab==='reportcards') loadReportCards();
+  if(tab==='attendance') loadAttendanceTab();
+  if(tab==='assignments') loadAssignments();
+  if(tab==='timetable') loadTimetable();
+  if(tab==='calendar') loadCalendar();
+  if(tab==='announcements') loadAnnouncements();
+  if(tab==='messages') loadMessages();
+  if(tab==='healthnotices') loadHealthNotices();
+  if(tab==='earlyexit') loadEarlyExitHistory();
+  if(tab==='transport') loadTransport();
+  if(tab==='consent') loadConsentForms();
+  if(tab==='documents') loadDocuments();
+  if(tab==='feedback') loadFeedback();
+  if(tab==='notifications') loadNotifications();
+  if(tab==='profile') loadProfile();
+  if(tab==='settings') loadSettings();
+}
+function renderChildrenList(){
+  var c = document.getElementById('childrenList');
+  if(children.length === 0){ c.innerHTML = '<div class="info-box warning"><div class="info-text">No children linked. Contact the school administration.</div></div>'; return; }
+  c.innerHTML = children.map(function(ch){
+    return '<div class="child-card"><div class="cc-header"><div class="cc-photo">'+(ch.photo&&!lowDataMode?'<img src="'+ch.photo+'" />':escapeHtml((ch.studentName||'?').charAt(0)))+'</div><div class="cc-info"><div class="cc-name">'+escapeHtml(ch.studentName)+'</div><div class="cc-class">'+escapeHtml(ch.studentId)+' · '+escapeHtml(ch.class||'')+'</div></div></div><div class="btn-group"><button class="btn btn-primary" onclick="selectChildAndNavigate(\''+escapeHtml(ch.studentId)+'\',\'results\')">📊 Results</button><button class="btn btn-info" onclick="selectChildAndNavigate(\''+escapeHtml(ch.studentId)+'\',\'fees\')">💰 Fees</button></div></div>';
+  }).join('');
+}
+function selectChildAndNavigate(id, tab){
+  selectChild(id);
+  switchTab(tab);
+}
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+function appLogout(){
+  if(!confirm('Log out?')) return;
+  sessionStorage.removeItem('authSession');
+  window.location.href = 'index.html';
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', initParent);
+</script>
+</body>
+</html>
