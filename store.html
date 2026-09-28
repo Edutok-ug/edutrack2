@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#e85d04" />
+<title>📦 School Store — EduTrack Pro</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg1:#0f0c29;--bg2:#302b63;--bg3:#24243e;
+  --primary:#302b63;--accent:#fcdc04;
+  --store:#e85d04;--store-dark:#dc2f02;--store-light:#fff3e0;
+  --success:#1a8a4a;--danger:#c1121f;--warning:#e85d04;--info:#004085;
+  --surface:#fff;--surface-2:#f8f9fa;--surface-3:#fff8f0;
+  --text:#1a1a2e;--text-2:#555;--text-3:#888;--border:#e0e0e0;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.06);
+  --shadow-md:0 4px 15px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.15);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));min-height:100vh;padding:10px;color:var(--text)}
+@media(min-width:768px){body{padding:20px}}
+
+.navbar{background:rgba(255,255,255,.98);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:1000;border-bottom:3px solid var(--store)}
+.navbar-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--store);text-decoration:none;font-family:Georgia,serif}
+.navbar-brand .brand-text{background:linear-gradient(135deg,var(--store-dark),var(--store));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.navbar-toggle{display:none;background:none;border:none;font-size:22px;color:var(--store);cursor:pointer;padding:6px}
+@media(max-width:900px){.navbar-toggle{display:block}}
+.navbar-menu{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+@media(max-width:900px){
+  .navbar-menu{display:none;width:100%;flex-direction:column;align-items:stretch;padding:10px 0;border-top:1px solid var(--border);margin-top:10px;max-height:70vh;overflow-y:auto}
+  .navbar-menu.open{display:flex}
+}
+.nav-link{padding:9px 13px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px;white-space:nowrap;text-align:left}
+.nav-link:hover{background:rgba(232,93,4,.08);color:var(--store)}
+.nav-link.active{background:linear-gradient(135deg,var(--store-dark),var(--store));color:#fff}
+.nav-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:20px;background:var(--store-light);border:1px solid var(--store)}
+.nav-user .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--store);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.nav-user .user-info{font-size:11px;line-height:1.2}
+.nav-user .user-info .user-name{font-weight:600}
+.nav-user .user-info .user-role{font-size:9px;color:var(--text-3)}
+
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0;z-index:900;box-shadow:0 -4px 15px rgba(0,0,0,.08)}
+.bottom-nav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:none;background:none;font-size:10px;color:var(--text-3);cursor:pointer;font-weight:600;position:relative}
+.bottom-nav .bn-item.active{color:var(--store)}
+.bottom-nav .bn-item i{font-size:18px}
+.bottom-nav .bn-item .bn-badge{position:absolute;top:2px;right:calc(50% - 16px);background:#c1121f;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
+@media(max-width:900px){.bottom-nav{display:flex}body{padding-bottom:70px}}
+
+.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.97);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:18px 15px 24px;box-shadow:0 20px 60px rgba(0,0,0,.4);min-height:80vh;position:relative}
+@media(min-width:768px){.container{padding:22px 28px 32px}}
+.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,var(--accent) 33%,var(--accent) 66%,var(--store) 66%,var(--store) 100%)}
+
+.form-section{display:none;animation:fadeIn .25s ease;padding-top:8px}
+.form-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:20px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.section-desc{color:var(--text-3);font-size:13px;margin-bottom:16px}
+
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-weight:600;color:var(--text-2);font-size:13px;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:#fafafa;font-family:inherit;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--store);outline:none;box-shadow:0 0 0 3px rgba(232,93,4,.15);background:#fff}
+.form-group input:disabled{background:#f0f0f0;color:#333;font-weight:600}
+.form-row-2{display:grid;grid-template-columns:1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.form-row-2{grid-template-columns:1fr 1fr}.form-row-3{grid-template-columns:1fr 1fr 1fr}}
+
+.btn{padding:14px 22px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:50px;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--store-dark),var(--store));color:#fff}
+.btn-success{background:linear-gradient(135deg,var(--success),#2d6a4f);color:#fff}
+.btn-danger{background:linear-gradient(135deg,var(--danger),#780000);color:#fff}
+.btn-warning{background:linear-gradient(135deg,var(--warning),#dc2f02);color:#fff}
+.btn-info{background:linear-gradient(135deg,var(--info),#0069d9);color:#fff}
+.btn-secondary{background:#e2e8f0;color:#333}
+.btn-sm{padding:8px 14px;font-size:12px;min-height:36px}
+.btn-block{width:100%}
+.btn-lg{min-height:60px;font-size:17px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+@media(min-width:640px){.action-grid{grid-template-columns:repeat(4,1fr)}}
+.action-btn{background:#fff;border:2px solid var(--border);border-radius:var(--radius-md);padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-weight:700;color:var(--text);font-size:13px;text-align:center;min-height:110px;transition:.15s;box-shadow:var(--shadow-sm)}
+.action-btn:active{transform:scale(.96)}
+.action-btn .ai{font-size:32px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:#fff;border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;text-align:center}
+.stat-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--store)}
+.stat-card.success::before{background:var(--success)}
+.stat-card.danger::before{background:var(--danger)}
+.stat-card.warning::before{background:var(--warning)}
+.stat-card.info::before{background:var(--info)}
+.stat-card .stat-icon{font-size:22px}
+.stat-card .stat-number{font-size:22px;font-weight:700;color:var(--text);margin:4px 0;line-height:1.1}
+.stat-card .stat-label{font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-md);background:#fff;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:10px 0}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+table.data-table th{background:linear-gradient(135deg,var(--store-dark),var(--store));color:#fff;padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;position:sticky;top:0;z-index:2}
+table.data-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+table.data-table tr:last-child td{border-bottom:none}
+table.data-table tr:hover td{background:var(--surface-2)}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-pending,.badge-low{background:#fff3cd;color:#856404}
+.badge-approved,.badge-info{background:#cce5ff;color:#004085}
+.badge-paid,.badge-ok,.badge-active,.badge-returned{background:#d4edda;color:#155724}
+.badge-cancelled,.badge-out,.badge-expired,.badge-overdue{background:#f8d7da;color:#721c24}
+.badge-issued,.badge-partial{background:#ffe5d0;color:#8a4a0f}
+.badge-expiring{background:#fff3cd;color:#856404}
+.badge-rejected{background:#f8d7da;color:#721c24}
+
+.search-bar{position:relative;margin:10px 0}
+.search-bar input{width:100%;padding:14px 14px 14px 44px;border:2px solid var(--border);border-radius:10px;font-size:16px;background:#fafafa}
+.search-bar input:focus{border-color:var(--store);outline:none;background:#fff}
+.search-bar::before{content:'🔍';position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.6}
+
+.item-card{background:#fff;border:2px solid var(--border);border-radius:var(--radius-md);padding:12px;margin-bottom:8px;cursor:pointer;display:flex;gap:12px;align-items:center;transition:.15s}
+.item-card:hover{border-color:var(--store);background:var(--store-light)}
+.item-card .ic-icon{width:52px;height:52px;border-radius:10px;background:var(--store-light);color:var(--store);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.item-card .ic-info{flex:1;min-width:0}
+.item-card .ic-name{font-weight:700;color:var(--text);font-size:14px}
+.item-card .ic-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+.item-card .ic-qty{text-align:right;font-weight:700;font-size:16px;color:var(--store)}
+.item-card .ic-qty.low{color:var(--warning)}
+.item-card .ic-qty.out{color:var(--danger)}
+.item-card .ic-qty .ic-unit{font-size:10px;color:var(--text-3);font-weight:400;display:block}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:center;justify-content:center;padding:15px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-box h3{text-align:center;color:var(--text);margin-bottom:10px;font-size:18px}
+.modal-box .modal-icon{font-size:44px;text-align:center;display:block;margin-bottom:8px}
+.modal-box p{text-align:center;color:var(--text-2);margin-bottom:18px;font-size:14px}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+.toast-notification{position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;color:#fff;font-weight:600;z-index:99999;opacity:0;transform:translateY(-20px);transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center}
+@media(min-width:640px){.toast-notification{left:auto;max-width:400px;text-align:left;transform:translateX(120%)}}
+.toast-notification.show{opacity:1;transform:translateY(0)}
+@media(min-width:640px){.toast-notification.show{transform:translateX(0)}}
+.toast-notification.success{background:linear-gradient(135deg,var(--success),#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,var(--danger),#780000)}
+.toast-notification.info{background:linear-gradient(135deg,var(--store-dark),var(--store))}
+.toast-notification.warning{background:linear-gradient(135deg,var(--warning),#dc2f02)}
+
+.info-box{background:var(--surface-3);border-left:4px solid var(--store);padding:12px 15px;border-radius:8px;margin:12px 0}
+.info-box.warning{background:#fff3cd;border-left-color:var(--warning)}
+.info-box.success{background:#d4edda;border-left-color:var(--success)}
+.info-box.danger{background:#f8d7da;border-left-color:var(--danger)}
+.info-box .info-title{font-weight:700;color:var(--store);font-size:13px;margin-bottom:3px}
+.info-box .info-text{color:var(--text-2);font-size:12px;line-height:1.5}
+
+.tab-strip{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:12px;margin:12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-strip button{flex:1;padding:9px 12px;border:none;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:none;color:#666;white-space:nowrap;min-width:90px}
+.tab-strip button.active{background:linear-gradient(135deg,var(--store-dark),var(--store));color:#fff}
+
+.chart-container{background:#fff;border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:14px 0}
+.chart-container h4{font-size:14px;color:var(--store);margin-bottom:10px}
+.chart-container canvas{max-height:260px;max-width:100%}
+
+.spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid var(--store);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;z-index:9998}
+.loading-overlay.active{display:flex}
+
+.sync-badge{position:fixed;bottom:80px;right:16px;background:var(--warning);color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;z-index:800;box-shadow:var(--shadow-lg);cursor:pointer}
+.sync-badge.hidden{display:none}
+
+.store-banner{background:linear-gradient(135deg,var(--store),var(--store-dark));color:#fff;padding:14px;border-radius:var(--radius-md);margin-bottom:14px;text-align:center}
+.store-banner .sb-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:.9}
+.store-banner .sb-info{font-size:16px;font-weight:700;margin-top:4px}
+.store-banner .sb-time{font-size:13px;opacity:.9;margin-top:4px}
+
+.stock-progress{background:#f0f0f0;border-radius:20px;height:8px;overflow:hidden;margin:4px 0}
+.stock-progress .sp-fill{height:100%;transition:width .3s;background:var(--success)}
+.stock-progress .sp-fill.warning{background:var(--warning)}
+.stock-progress .sp-fill.danger{background:var(--danger)}
+
+.scanner-container{position:relative;background:#000;border-radius:12px;overflow:hidden;min-height:280px;margin:14px 0}
+.scanner-container #qr-reader{width:100%;min-height:280px}
+.scanner-status{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;z-index:5}
+
+@media print{
+  .navbar,.bottom-nav,.btn,.no-print,.footer{display:none!important}
+  body{background:#fff!important;padding:0}
+  .container{box-shadow:none!important}
+  @page{size:A4;margin:10mm}
+}
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+<div class="sync-badge hidden" id="syncBadge" onclick="syncOfflineQueue()">☁️ <span id="syncCount">0</span> unsynced</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <span class="modal-icon" id="confirmIcon">⚠️</span>
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancel</button>
+      <button class="btn btn-primary" id="confirmYesBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0;text-align:left" id="infoModalTitle">Details</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeInfoModal()">✖</button>
+    </div>
+    <div id="infoModalBody"></div>
+    <div class="modal-actions" style="margin-top:14px" id="infoModalActions"></div>
+  </div>
+</div>
+
+<!-- SCANNER MODAL -->
+<div class="modal-overlay" id="scannerModal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="margin:0">Scan Item QR</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closeScanner()">✖</button>
+    </div>
+    <div class="scanner-container">
+      <div id="qr-reader"></div>
+      <div class="scanner-status" id="scannerStatus">📷 Point camera at item QR code</div>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn btn-secondary btn-sm" onclick="switchCamera()">🔄 Switch</button>
+    </div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a href="store.html" class="navbar-brand"><span style="font-size:26px">📦</span><span class="brand-text">EduTrack Store</span></a>
+  <button class="navbar-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+  <div class="navbar-menu" id="navbarMenu">
+    <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+    <button class="nav-link" data-tab="inventory" onclick="switchTab('inventory')"><i class="fas fa-boxes"></i> Inventory</button>
+    <button class="nav-link" data-tab="receive" onclick="switchTab('receive')"><i class="fas fa-truck-loading"></i> Receive</button>
+    <button class="nav-link" data-tab="issue" onclick="switchTab('issue')"><i class="fas fa-share-square"></i> Issue</button>
+    <button class="nav-link" data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-clipboard-list"></i> Requests <span id="reqBadge" style="display:none;background:#c1121f;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    <button class="nav-link" data-tab="grn" onclick="switchTab('grn')"><i class="fas fa-file-receipt"></i> GRN</button>
+    <button class="nav-link" data-tab="issues" onclick="switchTab('issues')"><i class="fas fa-file-export"></i> Issue Notes</button>
+    <button class="nav-link" data-tab="transfers" onclick="switchTab('transfers')"><i class="fas fa-exchange-alt"></i> Transfers</button>
+    <button class="nav-link" data-tab="stocktake" onclick="switchTab('stocktake')"><i class="fas fa-clipboard-check"></i> Stocktake</button>
+    <button class="nav-link" data-tab="lowstock" onclick="switchTab('lowstock')"><i class="fas fa-exclamation-triangle"></i> Low Stock</button>
+    <button class="nav-link" data-tab="expiry" onclick="switchTab('expiry')"><i class="fas fa-hourglass-half"></i> Expiry</button>
+    <button class="nav-link" data-tab="food" onclick="switchTab('food')"><i class="fas fa-utensils"></i> Food</button>
+    <button class="nav-link" data-tab="lab" onclick="switchTab('lab')"><i class="fas fa-flask"></i> Lab</button>
+    <button class="nav-link" data-tab="uniform" onclick="switchTab('uniform')"><i class="fas fa-tshirt"></i> Uniform</button>
+    <button class="nav-link" data-tab="assets" onclick="switchTab('assets')"><i class="fas fa-desktop"></i> Assets</button>
+    <button class="nav-link" data-tab="returnable" onclick="switchTab('returnable')"><i class="fas fa-undo"></i> Returnable</button>
+    <button class="nav-link" data-tab="suppliers" onclick="switchTab('suppliers')"><i class="fas fa-truck"></i> Suppliers</button>
+    <button class="nav-link" data-tab="purchases" onclick="switchTab('purchases')"><i class="fas fa-shopping-cart"></i> Purchase Req</button>
+    <button class="nav-link" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-alt"></i> Reports</button>
+    <button class="nav-link" data-tab="handover" onclick="switchTab('handover')"><i class="fas fa-exchange-alt"></i> Handover</button>
+    <button class="nav-link" data-tab="notifications" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Alerts <span id="notifBadge" style="display:none;background:#c1121f;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">0</span></button>
+    <button class="nav-link" data-tab="profile" onclick="switchTab('profile')"><i class="fas fa-user"></i> Profile</button>
+    <div class="nav-user">
+      <div class="user-avatar" id="navUserAvatar">S</div>
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Loading…</div>
+        <div class="user-role" id="navUserRole">Storekeeper</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="appLogout()" style="padding:8px 14px;font-size:12px"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</nav>
+
+<div class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="bn-item" data-tab="scan" onclick="openScanner()"><i class="fas fa-qrcode"></i><span>Scan</span></button>
+  <button class="bn-item" data-tab="receive" onclick="switchTab('receive')"><i class="fas fa-truck-loading"></i><span>Receive</span></button>
+  <button class="bn-item" data-tab="issue" onclick="switchTab('issue')"><i class="fas fa-share-square"></i><span>Issue</span></button>
+  <button class="bn-item" data-tab="inventory" onclick="switchTab('inventory')"><i class="fas fa-boxes"></i><span>Stock</span></button>
+</div>
+
+<div class="container">
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="tabDashboard" class="form-section active">
+    <h2 class="section-title"><i class="fas fa-home" style="color:var(--store)"></i> Store Dashboard</h2>
+
+    <div class="store-banner">
+      <div class="sb-title">ON DUTY</div>
+      <div class="sb-info" id="storeInfo">—</div>
+      <div class="sb-time" id="storeTime">—</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-number" id="dsTotalItems">0</div><div class="stat-label">Total Items</div></div>
+      <div class="stat-card info"><div class="stat-icon">🔢</div><div class="stat-number" id="dsTotalQty">0</div><div class="stat-label">Total Quantity</div></div>
+      <div class="stat-card warning"><div class="stat-icon">⚠️</div><div class="stat-number" id="dsLowStock">0</div><div class="stat-label">Low Stock</div></div>
+      <div class="stat-card danger"><div class="stat-icon">❌</div><div class="stat-number" id="dsOutOfStock">0</div><div class="stat-label">Out of Stock</div></div>
+      <div class="stat-card warning"><div class="stat-icon">⏳</div><div class="stat-number" id="dsExpiring">0</div><div class="stat-label">Expiring Soon</div></div>
+      <div class="stat-card success"><div class="stat-icon">📥</div><div class="stat-number" id="dsReceivedToday">0</div><div class="stat-label">Received Today</div></div>
+      <div class="stat-card info"><div class="stat-icon">📤</div><div class="stat-number" id="dsIssuedToday">0</div><div class="stat-label">Issued Today</div></div>
+      <div class="stat-card warning"><div class="stat-icon">📋</div><div class="stat-number" id="dsPendingReq">0</div><div class="stat-label">Pending Requests</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number" id="dsStockValue">0</div><div class="stat-label">Stock Value (UGX)</div></div>
+    </div>
+
+    <h4 style="margin:16px 0 8px;color:var(--store)">⚡ Quick Actions</h4>
+    <div class="action-grid">
+      <button class="action-btn" onclick="switchTab('receive')"><div class="ai">📥</div>Receive Stock</button>
+      <button class="action-btn" onclick="switchTab('issue')"><div class="ai">📤</div>Issue Stock</button>
+      <button class="action-btn" onclick="switchTab('requests')"><div class="ai">📋</div>Requests</button>
+      <button class="action-btn" onclick="switchTab('inventory')"><div class="ai">📦</div>Inventory</button>
+      <button class="action-btn" onclick="switchTab('lowstock')"><div class="ai">⚠️</div>Low Stock</button>
+      <button class="action-btn" onclick="switchTab('expiry')"><div class="ai">⏳</div>Expiring</button>
+      <button class="action-btn" onclick="switchTab('stocktake')"><div class="ai">✅</div>Stocktake</button>
+      <button class="action-btn" onclick="openScanner()"><div class="ai">📷</div>Scan QR</button>
+    </div>
+
+    <div class="chart-container"><h4>📊 Stock Movements (Last 7 Days)</h4><canvas id="movementChart"></canvas></div>
+    <div class="chart-container"><h4>📦 Stock by Category</h4><canvas id="categoryChart"></canvas></div>
+
+    <h4 style="margin:16px 0 8px;color:var(--store)">🔔 Recent Movements</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Time</th><th>Item</th><th>Type</th><th>Qty</th><th>By</th></tr></thead>
+      <tbody id="recentMovementsBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ============ INVENTORY ============ -->
+  <div id="tabInventory" class="form-section">
+    <h2 class="section-title"><i class="fas fa-boxes" style="color:var(--store)"></i> Inventory</h2>
+    <p class="section-desc">All items in the store.</p>
+
+    <div class="search-bar"><input type="text" id="invSearch" placeholder="Search by name, ID, category or supplier…" onkeyup="filterInventory()" /></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Category</label><select id="invCategoryFilter" onchange="filterInventory()"><option value="">All Categories</option></select></div>
+      <div class="form-group"><label>Status</label>
+        <select id="invStatusFilter" onchange="filterInventory()">
+          <option value="">All</option>
+          <option value="ok">In Stock</option>
+          <option value="low">Low Stock</option>
+          <option value="out">Out of Stock</option>
+          <option value="expired">Expired</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-info" onclick="openScanner()">📷 Scan QR</button>
+      <button class="btn btn-success" onclick="openAddItemModal()">➕ Add New Item</button>
+    </div>
+
+    <div id="inventoryList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ RECEIVE STOCK ============ -->
+  <div id="tabReceive" class="form-section">
+    <h2 class="section-title"><i class="fas fa-truck-loading" style="color:var(--success)"></i> Receive Stock</h2>
+    <p class="section-desc">Record goods received into the store.</p>
+
+    <div class="form-group"><label>Select Item *</label>
+      <select id="rcvItem" onchange="rcvOnItemChange()"><option value="">Select item…</option></select>
+      <div style="font-size:11px;color:#888;margin-top:4px"><a href="#" onclick="openAddItemModal();return false;">➕ Add new item if not listed</a></div>
+    </div>
+
+    <div id="rcvItemInfo"></div>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Quantity Received *</label><input type="number" id="rcvQty" min="0.01" step="0.01" /></div>
+      <div class="form-group"><label>Unit</label><input type="text" id="rcvUnit" disabled /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Supplier *</label><input type="text" id="rcvSupplier" /></div>
+      <div class="form-group"><label>Purchase/Order Reference</label><input type="text" id="rcvRef" placeholder="e.g., PO-2026-0085" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Delivery Note No.</label><input type="text" id="rcvDeliveryNote" /></div>
+      <div class="form-group"><label>Invoice No.</label><input type="text" id="rcvInvoice" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Batch No.</label><input type="text" id="rcvBatch" /></div>
+      <div class="form-group"><label>Expiry Date</label><input type="date" id="rcvExpiry" /></div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group"><label>Purchase Price (UGX)</label><input type="number" id="rcvPrice" min="0" step="100" /></div>
+      <div class="form-group"><label>Date Received *</label><input type="date" id="rcvDate" /></div>
+      <div class="form-group"><label>Person Delivering</label><input type="text" id="rcvDeliverer" /></div>
+    </div>
+    <div class="form-group"><label>Condition/Notes</label><textarea id="rcvNotes" rows="2"></textarea></div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="resetReceiveForm()">✖ Reset</button>
+      <button class="btn btn-success btn-lg" onclick="submitReceiveStock()">📥 RECEIVE STOCK</button>
+    </div>
+  </div>
+
+  <!-- ============ ISSUE STOCK ============ -->
+  <div id="tabIssue" class="form-section">
+    <h2 class="section-title"><i class="fas fa-share-square" style="color:var(--info)"></i> Issue Stock</h2>
+    <p class="section-desc">Issue items to staff, departments or students.</p>
+
+    <div class="tab-strip">
+      <button class="active" onclick="showIssueSub('direct')">➡️ Direct Issue</button>
+      <button onclick="showIssueSub('request')">📋 From Request</button>
+    </div>
+
+    <div id="issueSubDirect">
+      <div class="form-group"><label>Select Item *</label>
+        <select id="issItem" onchange="issOnItemChange()"><option value="">Select item…</option></select>
+      </div>
+
+      <div id="issItemInfo"></div>
+
+      <div class="form-row-2">
+        <div class="form-group"><label>Quantity to Issue *</label><input type="number" id="issQty" min="0.01" step="0.01" /></div>
+        <div class="form-group"><label>Unit</label><input type="text" id="issUnit" disabled /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Requester Name *</label><input type="text" id="issRequester" /></div>
+        <div class="form-group"><label>Department *</label>
+          <select id="issDept">
+            <option value="">Select…</option>
+            <option>Administration</option><option>Teaching</option><option>Science/Laboratory</option>
+            <option>Library</option><option>Kitchen</option><option>Boarding</option>
+            <option>Maintenance</option><option>Sports</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Purpose</label><input type="text" id="issPurpose" /></div>
+        <div class="form-group"><label>Authorized By *</label><input type="text" id="issAuthBy" placeholder="Name of approver" /></div>
+      </div>
+      <div class="form-group"><label>Date *</label><input type="date" id="issDate" /></div>
+
+      <div class="info-box warning">
+        <div class="info-title">⚠️ Authorization</div>
+        <div class="info-text">Only issue items authorized by a responsible person. Record their name in the field above. This will be logged in the audit trail.</div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetIssueForm()">✖ Reset</button>
+        <button class="btn btn-info btn-lg" onclick="submitIssueStock()">📤 ISSUE STOCK</button>
+      </div>
+    </div>
+
+    <div id="issueSubRequest" style="display:none">
+      <div class="form-group"><label>Select Approved Request *</label>
+        <select id="issRequestSelect"><option value="">Loading approved requests…</option></select>
+      </div>
+      <div id="issRequestDetails"></div>
+    </div>
+  </div>
+
+  <!-- ============ REQUESTS ============ -->
+  <div id="tabRequests" class="form-section">
+    <h2 class="section-title"><i class="fas fa-clipboard-list" style="color:var(--store)"></i> Stock Requests</h2>
+    <p class="section-desc">Requests from departments, teachers and staff.</p>
+
+    <div class="tab-strip">
+      <button class="active" onclick="loadRequests('pending')">⏳ Pending</button>
+      <button onclick="loadRequests('approved')">✅ Approved</button>
+      <button onclick="loadRequests('issued')">📤 Issued</button>
+      <button onclick="loadRequests('all')">📋 All</button>
+    </div>
+
+    <button class="btn btn-info btn-block" onclick="openNewRequestModal()">➕ Create Request</button>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Requester</th><th>Department</th><th>Items</th><th>Status</th><th></th></tr></thead>
+      <tbody id="requestsBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ GRN ============ -->
+  <div id="tabGrn" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-receipt" style="color:var(--store)"></i> Goods Received Notes</h2>
+    <p class="section-desc">All goods received documents.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>From</label><input type="date" id="grnFrom" onchange="loadGRNs()" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="grnTo" onchange="loadGRNs()" /></div>
+    </div>
+    <button class="btn btn-info btn-block" onclick="loadGRNs()">🔄 Load GRNs</button>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>GRN No.</th><th>Supplier</th><th>Items</th><th></th></tr></thead>
+      <tbody id="grnBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ ISSUE NOTES ============ -->
+  <div id="tabIssues" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-export" style="color:var(--store)"></i> Stock Issue Notes</h2>
+    <p class="section-desc">All stock issue documents.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>From</label><input type="date" id="isnFrom" onchange="loadIssueNotes()" /></div>
+      <div class="form-group"><label>To</label><input type="date" id="isnTo" onchange="loadIssueNotes()" /></div>
+    </div>
+    <button class="btn btn-info btn-block" onclick="loadIssueNotes()">🔄 Load Issue Notes</button>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Issue No.</th><th>Requester</th><th>Dept</th><th>Items</th><th></th></tr></thead>
+      <tbody id="issuesBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ TRANSFERS ============ -->
+  <div id="tabTransfers" class="form-section">
+    <h2 class="section-title"><i class="fas fa-exchange-alt" style="color:var(--store)"></i> Stock Transfers</h2>
+    <p class="section-desc">Transfer stock between stores or departments.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Item *</label><select id="tfItem"><option value="">Select…</option></select></div>
+      <div class="form-group"><label>Quantity *</label><input type="number" id="tfQty" min="0.01" step="0.01" /></div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group"><label>From Store/Dept *</label>
+        <select id="tfFrom">
+          <option>Main Store</option><option>Food Store</option><option>Laboratory Store</option>
+          <option>Uniform Store</option><option>Boarding Store</option><option>Sports Store</option>
+        </select>
+      </div>
+      <div class="form-group"><label>To Store/Dept *</label>
+        <select id="tfTo">
+          <option>Main Store</option><option>Food Store</option><option>Laboratory Store</option>
+          <option>Uniform Store</option><option>Boarding Store</option><option>Sports Store</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Reason *</label><input type="text" id="tfReason" /></div>
+    <div class="form-row-2">
+      <div class="form-group"><label>Date *</label><input type="date" id="tfDate" /></div>
+      <div class="form-group"><label>Authorized By *</label><input type="text" id="tfAuth" /></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="submitTransfer()">🔄 Submit Transfer</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--store)">📋 Recent Transfers</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Item</th><th>From</th><th>To</th><th>Qty</th></tr></thead>
+      <tbody id="transfersBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ STOCKTAKE ============ -->
+  <div id="tabStocktake" class="form-section">
+    <h2 class="section-title"><i class="fas fa-clipboard-check" style="color:var(--store)"></i> Stocktake</h2>
+    <p class="section-desc">Physical count and reconciliation.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Stocktake Type</label>
+        <select id="stType">
+          <option value="daily">Daily Count</option>
+          <option value="weekly">Weekly Check</option>
+          <option value="monthly">Monthly Stocktake</option>
+          <option value="termly">Termly Stocktake</option>
+          <option value="annual">Annual Stocktake</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Date</label><input type="date" id="stDate" /></div>
+    </div>
+
+    <button class="btn btn-info btn-block" onclick="startStocktake()">▶️ Start Stocktake</button>
+
+    <div id="stocktakeForm" style="display:none;margin-top:14px">
+      <div class="info-box">
+        <div class="info-title">📋 Enter Physical Counts</div>
+        <div class="info-text">System quantity is shown for reference. Enter the actual physical count for each item.</div>
+      </div>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Item</th><th>System</th><th>Physical</th><th>Difference</th></tr></thead>
+        <tbody id="stocktakeBody"></tbody>
+      </table></div>
+      <div class="btn-group" style="margin-top:12px">
+        <button class="btn btn-secondary" onclick="cancelStocktake()">✖ Cancel</button>
+        <button class="btn btn-success" onclick="submitStocktake()">💾 Submit Stocktake</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LOW STOCK ============ -->
+  <div id="tabLowstock" class="form-section">
+    <h2 class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> Low Stock</h2>
+    <p class="section-desc">Items at or below minimum stock level.</p>
+    <div id="lowStockList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ EXPIRY ============ -->
+  <div id="tabExpiry" class="form-section">
+    <h2 class="section-title"><i class="fas fa-hourglass-half" style="color:var(--warning)"></i> Expiry Management</h2>
+    <p class="section-desc">Track items approaching expiration.</p>
+
+    <div class="tab-strip">
+      <button class="active" onclick="filterExpiry('all')">All</button>
+      <button onclick="filterExpiry('expired')">🔴 Expired</button>
+      <button onclick="filterExpiry('30')">🟠 30 days</button>
+      <button onclick="filterExpiry('60')">🟡 60 days</button>
+      <button onclick="filterExpiry('90')">🟢 90 days</button>
+    </div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Item</th><th>Batch</th><th>Expiry</th><th>Days Left</th><th>Qty</th></tr></thead>
+      <tbody id="expiryBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ FOOD STORE ============ -->
+  <div id="tabFood" class="form-section">
+    <h2 class="section-title"><i class="fas fa-utensils" style="color:var(--store)"></i> Food Store</h2>
+    <p class="section-desc">Food items inventory and daily kitchen issues.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="fdTotalItems">0</div><div class="stat-label">Food Items</div></div>
+      <div class="stat-card success"><div class="stat-number" id="fdValue">0</div><div class="stat-label">Value (UGX)</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="fdLow">0</div><div class="stat-label">Low Stock</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="fdExpiring">0</div><div class="stat-label">Expiring Soon</div></div>
+    </div>
+
+    <button class="btn btn-info btn-block" onclick="openFoodIssueModal()">🍚 Issue to Kitchen</button>
+
+    <h4 style="margin:16px 0 8px;color:var(--store)">📋 Food Items</h4>
+    <div id="foodList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ LAB STORE ============ -->
+  <div id="tabLab" class="form-section">
+    <h2 class="section-title"><i class="fas fa-flask" style="color:var(--store)"></i> Laboratory Store</h2>
+    <p class="section-desc">Laboratory equipment, glassware, chemicals and consumables.</p>
+
+    <div class="info-box warning">
+      <div class="info-title">⚠️ Safety</div>
+      <div class="info-text">Record safety notes and storage locations for all chemical and reagent items. Only authorized staff may access hazardous materials.</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="lbTotalItems">0</div><div class="stat-label">Items</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="lbLow">0</div><div class="stat-label">Low Stock</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="lbExpiring">0</div><div class="stat-label">Expiring</div></div>
+      <div class="stat-card info"><div class="stat-number" id="lbHazard">0</div><div class="stat-label">Hazardous</div></div>
+    </div>
+
+    <div id="labList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ UNIFORM STORE ============ -->
+  <div id="tabUniform" class="form-section">
+    <h2 class="section-title"><i class="fas fa-tshirt" style="color:var(--store)"></i> Uniform Store</h2>
+    <p class="section-desc">School uniform inventory by size and type.</p>
+
+    <button class="btn btn-info btn-block" onclick="openUniformIssueModal()">👕 Issue Uniform to Student</button>
+
+    <div id="uniformList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ ASSETS ============ -->
+  <div id="tabAssets" class="form-section">
+    <h2 class="section-title"><i class="fas fa-desktop" style="color:var(--store)"></i> School Assets</h2>
+    <p class="section-desc">Track equipment, furniture and other fixed assets.</p>
+
+    <button class="btn btn-success btn-block" onclick="openAddAssetModal()">➕ Register Asset</button>
+
+    <div class="search-bar"><input type="text" id="assetSearch" placeholder="Search by name, ID, serial or location…" onkeyup="filterAssets()" /></div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Asset ID</th><th>Name</th><th>Location</th><th>Assigned</th><th>Status</th><th></th></tr></thead>
+      <tbody id="assetsBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ RETURNABLE ============ -->
+  <div id="tabReturnable" class="form-section">
+    <h2 class="section-title"><i class="fas fa-undo" style="color:var(--store)"></i> Returnable Items</h2>
+    <p class="section-desc">Sports equipment, tools, projectors, and other returnable items.</p>
+
+    <button class="btn btn-success btn-block" onclick="openIssueReturnableModal()">📤 Issue Returnable Item</button>
+
+    <div class="tab-strip">
+      <button class="active" onclick="filterReturnable('issued')">📤 Out</button>
+      <button onclick="filterReturnable('overdue')">⏰ Overdue</button>
+      <button onclick="filterReturnable('returned')">✅ Returned</button>
+      <button onclick="filterReturnable('all')">📋 All</button>
+    </div>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Item</th><th>Borrower</th><th>Issued</th><th>Expected</th><th>Status</th><th></th></tr></thead>
+      <tbody id="returnableBody"><tr><td colspan="6" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ SUPPLIERS ============ -->
+  <div id="tabSuppliers" class="form-section">
+    <h2 class="section-title"><i class="fas fa-truck" style="color:var(--store)"></i> Suppliers</h2>
+    <p class="section-desc">Suppliers linked to inventory items. Financial details managed by Bursar.</p>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Supplier</th><th>Contact</th><th>Items Supplied</th><th>Last Delivery</th><th></th></tr></thead>
+      <tbody id="suppliersBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ PURCHASE REQUESTS ============ -->
+  <div id="tabPurchases" class="form-section">
+    <h2 class="section-title"><i class="fas fa-shopping-cart" style="color:var(--store)"></i> Purchase Requests</h2>
+    <p class="section-desc">Request new stock for low-stock or out-of-stock items.</p>
+
+    <button class="btn btn-info btn-block" onclick="openNewPurchaseRequestModal()">➕ New Purchase Request</button>
+
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Items</th><th>Est. Cost</th><th>Status</th><th></th></tr></thead>
+      <tbody id="purchasesBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ REPORTS ============ -->
+  <div id="tabReports" class="form-section">
+    <h2 class="section-title"><i class="fas fa-file-alt" style="color:var(--store)"></i> Store Reports</h2>
+    <p class="section-desc">Generate printable/downloadable reports.</p>
+
+    <div class="form-row-2">
+      <div class="form-group"><label>Report Type *</label>
+        <select id="rpType">
+          <option value="inventory">Current Inventory</option>
+          <option value="valuation">Stock Valuation</option>
+          <option value="movements">Stock Movement</option>
+          <option value="received">Goods Received</option>
+          <option value="issued">Goods Issued</option>
+          <option value="requests">Department Requests</option>
+          <option value="lowstock">Low Stock Report</option>
+          <option value="expiry">Expiry Report</option>
+          <option value="food">Food Stock Report</option>
+          <option value="uniform">Uniform Report</option>
+          <option value="lab">Laboratory Stock Report</option>
+          <option value="assets">Asset Register</option>
+          <option value="returnable">Returnable Items</option>
+          <option value="lost">Lost/Damaged Items</option>
+          <option value="stocktake">Stocktake Report</option>
+          <option value="adjustments">Stock Adjustment Report</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Period</label>
+        <select id="rpPeriod"><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="term">This Term</option><option value="all">All Time</option></select>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-info" onclick="generateReport()">📊 Generate</button>
+      <button class="btn btn-secondary" onclick="printCurrentReport()">🖨️ Print</button>
+    </div>
+
+    <div id="reportOutput" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ============ HANDOVER ============ -->
+  <div id="tabHandover" class="form-section">
+    <h2 class="section-title"><i class="fas fa-exchange-alt" style="color:var(--store)"></i> Store Handover</h2>
+    <p class="section-desc">Shift/term handover with stock status.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="hoItems">0</div><div class="stat-label">Total Items</div></div>
+      <div class="stat-card warning"><div class="stat-number" id="hoRequests">0</div><div class="stat-label">Pending Requests</div></div>
+      <div class="stat-card info"><div class="stat-number" id="hoDeliveries">0</div><div class="stat-label">Pending Deliveries</div></div>
+      <div class="stat-card danger"><div class="stat-number" id="hoDamage">0</div><div class="stat-label">Damaged/Lost</div></div>
+    </div>
+
+    <div class="form-group"><label>Handover Notes *</label><textarea id="hoNotes" rows="5" placeholder="Important notes for the incoming storekeeper…"></textarea></div>
+    <button class="btn btn-success btn-block btn-lg" onclick="submitHandover()">📋 Submit Handover</button>
+
+    <h4 style="margin:20px 0 8px;color:var(--store)">📋 Recent Handovers</h4>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Storekeeper</th><th>Items</th><th>Requests</th><th></th></tr></thead>
+      <tbody id="handoversBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:20px">Loading…</td></tr>
+    </table></div>
+  </div>
+
+  <!-- ============ NOTIFICATIONS ============ -->
+  <div id="tabNotifications" class="form-section">
+    <h2 class="section-title"><i class="fas fa-bell" style="color:var(--store)"></i> Notifications</h2>
+    <div id="notificationsList"><p style="color:#999;text-align:center;padding:20px">Loading…</p></div>
+  </div>
+
+  <!-- ============ PROFILE ============ -->
+  <div id="tabProfile" class="form-section">
+    <h2 class="section-title"><i class="fas fa-user" style="color:var(--store)"></i> Storekeeper Profile</h2>
+
+    <div class="store-banner">
+      <div class="sb-title">STOREKEEPER</div>
+      <div class="sb-info" id="pfName">Loading…</div>
+      <div class="sb-time" id="pfStaff">—</div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-title">📌 Details</div>
+      <div class="info-text" id="pfDetails"></div>
+    </div>
+
+    <div class="info-box warning">
+      <div class="info-title">🔒 Permissions</div>
+      <div class="info-text">You can view inventory, receive stock, issue stock, create requests, conduct stocktakes and generate reports. Purchases, payments and financial records are managed by the Bursar.</div>
+    </div>
+
+    <button class="btn btn-danger btn-block" onclick="appLogout()">🚪 Logout</button>
+  </div>
+
+  <div class="footer" style="text-align:center;padding:20px 0 10px;border-top:2px solid var(--border);margin-top:30px">
+    <div style="font-size:16px;font-weight:700;color:var(--store)">📦 EduTrack Store Module</div>
+    <div style="font-size:12px;color:var(--text-3)">Powered by <strong>His Grace Technologies</strong></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   EduTrack — School Store Module
+   ========================================================= */
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+
+var UNITS = ['Pieces','Boxes','Cartons','Kilograms','Litres','Packets','Bottles','Bags','Reams','Sets','Bundles','Other'];
+var STORES = ['Main Store','Food Store','Laboratory Store','Uniform Store','Boarding Store','Sports Store'];
+var DEFAULT_CATEGORIES = [
+  {name:'Teaching Materials', icon:'📚'},
+  {name:'Books', icon:'📖'},
+  {name:'Laboratory', icon:'🔬'},
+  {name:'Office', icon:'📄'},
+  {name:'Boarding', icon:'🛏️'},
+  {name:'Kitchen/Food', icon:'🍲'},
+  {name:'Cleaning', icon:'🧹'},
+  {name:'Uniforms', icon:'👕'},
+  {name:'Maintenance', icon:'🔧'}
+];
+
+/* ========== STATE ========== */
+var authSession = null;
+var storekeeperInfo = null;
+var currentTab = 'dashboard';
+var html5QrScanner = null;
+var inventoryCache = [];
+var movementsCache = [];
+var requestsCache = [];
+var grnCache = [];
+var issuesCache = [];
+var transfersCache = [];
+var assetsCache = [];
+var returnableCache = [];
+var suppliersCache = [];
+var purchaseRequestsCache = [];
+var handoversCache = [];
+var notificationsCache = [];
+var offlineQueue = [];
+var currentExpiryFilter = 'all';
+var currentReturnableFilter = 'issued';
+var currentRequestFilter = 'pending';
+var stocktakeInProgress = null;
+var chartInstances = {};
+var selectedItem = null;
+
+/* ========== UTILITIES ========== */
+function today(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function nowIso(){ return new Date().toISOString(); }
+function nowTime(){ return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+function genId(prefix){ return (prefix||'ID')+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.floor(Math.random()*1000); }
+function escapeHtml(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function fmtUGX(v){ return 'UGX ' + (parseFloat(v)||0).toLocaleString(); }
+function getActiveSchool(){ return authSession ? authSession.school : ''; }
+function shortTime(ts){ try{ var d=new Date(ts); return d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ts; } }
+
+function showToast(msg, type){
+  type = type||'info';
+  var t = document.createElement('div');
+  t.className = 'toast-notification '+type;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 20);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 400); }, 3500);
+}
+function showLoading(v){ document.getElementById('loadingOverlay').classList.toggle('active', v); }
+function toggleMobileMenu(){ document.getElementById('navbarMenu').classList.toggle('open'); }
+
+var _confirmResolve = null;
+function confirmAction(title, msg, yesLabel, icon){
+  return new Promise(function(resolve){
+    _confirmResolve = resolve;
+    document.getElementById('confirmIcon').textContent = icon||'⚠️';
+    document.getElementById('confirmTitle').textContent = title||'Confirm';
+    document.getElementById('confirmMessage').textContent = msg||'Are you sure?';
+    document.getElementById('confirmYesBtn').textContent = yesLabel||'Yes';
+    document.getElementById('confirmYesBtn').onclick = function(){ closeConfirm(true); };
+    document.getElementById('confirmModal').classList.add('active');
+  });
+}
+function closeConfirm(yes){
+  document.getElementById('confirmModal').classList.remove('active');
+  if(_confirmResolve){ _confirmResolve(yes); _confirmResolve = null; }
+}
+function openInfoModal(html, title, actions){
+  document.getElementById('infoModalTitle').textContent = title||'Details';
+  document.getElementById('infoModalBody').innerHTML = html;
+  document.getElementById('infoModalActions').innerHTML = actions || '<button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>';
+  document.getElementById('infoModal').classList.add('active');
+}
+function closeInfoModal(){ document.getElementById('infoModal').classList.remove('active'); }
+
+/* ========== API ========== */
+async function api(params){
+  if(APPS_SCRIPT_URL.indexOf('YOUR_DEPLOYMENT_ID_HERE')!==-1) throw new Error('Update APPS_SCRIPT_URL');
+  var parts=[];
+  for(var k in params) if(params.hasOwnProperty(k) && params[k]!=null){
+    parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+  }
+  try{
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+      body: parts.join('&'),
+      signal: AbortSignal.timeout(20000)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  } catch(e){
+    console.warn('[api offline]', e.message);
+    return {success:false, offline:true};
+  }
+}
+
+/* ========== AUDIT ========== */
+async function audit(action, recordType, recordId, details){
+  var entry = {
+    timestamp: nowIso(),
+    user: authSession?.username || 'unknown',
+    userName: authSession?.name || '',
+    role: 'storekeeper',
+    action: action,
+    recordType: recordType,
+    recordId: recordId||'',
+    details: details||'',
+    device: navigator.userAgent.substring(0,80),
+    school: getActiveSchool()
+  };
+  await api({action:'logStoreAudit', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), entry: JSON.stringify(entry)});
+  var local = JSON.parse(localStorage.getItem('store_audit_'+getActiveSchool())||'[]');
+  local.push(entry);
+  if(local.length > 2000) local = local.slice(-1500);
+  localStorage.setItem('store_audit_'+getActiveSchool(), JSON.stringify(local));
+}
+
+/* ========== OFFLINE QUEUE ========== */
+function queueOffline(action, payload){
+  offlineQueue.push({id:genId('Q'), action:action, payload:payload, timestamp:nowIso()});
+  localStorage.setItem('store_queue_'+getActiveSchool(), JSON.stringify(offlineQueue));
+  updateSyncBadge();
+}
+function loadOfflineQueue(){
+  try{ offlineQueue = JSON.parse(localStorage.getItem('store_queue_'+getActiveSchool())||'[]'); } catch(e){ offlineQueue = []; }
+  updateSyncBadge();
+}
+function updateSyncBadge(){
+  var badge = document.getElementById('syncBadge');
+  var count = document.getElementById('syncCount');
+  if(offlineQueue.length > 0){ badge.classList.remove('hidden'); count.textContent = offlineQueue.length; }
+  else badge.classList.add('hidden');
+}
+async function syncOfflineQueue(){
+  if(offlineQueue.length === 0){ showToast('✅ All synced','success'); return; }
+  showLoading(true);
+  var remaining = [];
+  for(var i=0;i<offlineQueue.length;i++){
+    var item = offlineQueue[i];
+    try{
+      var params = Object.assign({}, item.payload);
+      params.action = item.action;
+      var r = await api(params);
+      if(r && (r.success || r.data)) continue;
+      remaining.push(item);
+    } catch(e){ remaining.push(item); }
+  }
+  offlineQueue = remaining;
+  localStorage.setItem('store_queue_'+getActiveSchool(), JSON.stringify(offlineQueue));
+  updateSyncBadge();
+  showLoading(false);
+  if(offlineQueue.length === 0) showToast('✅ All synced','success');
+  else showToast('⚠️ '+offlineQueue.length+' still pending','warning');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function initStore(){
+  authSession = JSON.parse(sessionStorage.getItem('authSession')||'null');
+  if(!authSession){ window.location.href='index.html'; return; }
+  if(['storekeeper','admin','superadmin'].indexOf(authSession.role) === -1){
+    alert('🔒 Access denied.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  document.getElementById('navUserName').textContent = authSession.name || authSession.username;
+  document.getElementById('navUserAvatar').textContent = (authSession.name||'S').charAt(0).toUpperCase();
+  document.getElementById('navUserRole').textContent = 'Storekeeper';
+
+  storekeeperInfo = {
+    staffId: authSession.staffId || authSession.username,
+    name: authSession.name || authSession.username,
+    store: authSession.store || 'Main School Store'
+  };
+
+  document.getElementById('storeInfo').textContent = storekeeperInfo.name + ' · ' + storekeeperInfo.staffId + ' · ' + storekeeperInfo.store;
+  document.getElementById('storeTime').textContent = today() + ' · ' + nowTime();
+
+  // Set dates
+  ['rcvDate','issDate','tfDate','stDate'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = today();
+  });
+
+  loadOfflineQueue();
+  await loadAllData();
+  updateDashboard();
+  updateProfile();
+  populateDropdowns();
+
+  // Auto-refresh time + sync
+  setInterval(function(){ document.getElementById('storeTime').textContent = today() + ' · ' + nowTime(); }, 30000);
+  setInterval(function(){ if(offlineQueue.length && navigator.onLine) syncOfflineQueue(); }, 60000);
+}
+
+async function loadAllData(){
+  showLoading(true);
+  try{
+    var [inv, mv, reqs, grn, issues, tf, assets, ret, sup, pr, ho, notif] = await Promise.all([
+      api({action:'getInventoryItems', school: getActiveSchool()}),
+      api({action:'getStockMovements', school: getActiveSchool()}),
+      api({action:'getStockRequests', school: getActiveSchool()}),
+      api({action:'getGRNs', school: getActiveSchool()}),
+      api({action:'getIssueNotes', school: getActiveSchool()}),
+      api({action:'getStockTransfers', school: getActiveSchool()}),
+      api({action:'getAssets', school: getActiveSchool()}),
+      api({action:'getReturnableItems', school: getActiveSchool()}),
+      api({action:'getSuppliers', school: getActiveSchool()}),
+      api({action:'getPurchaseRequests', school: getActiveSchool()}),
+      api({action:'getStoreHandovers', school: getActiveSchool()}),
+      api({action:'getStoreNotifications', school: getActiveSchool()})
+    ]);
+    inventoryCache = inv?.data?.items || [];
+    movementsCache = (mv?.data?.movements || []).slice().reverse();
+    requestsCache = (reqs?.data?.requests || []).slice().reverse();
+    grnCache = (grn?.data?.grns || []).slice().reverse();
+    issuesCache = (issues?.data?.issues || []).slice().reverse();
+    transfersCache = (tf?.data?.transfers || []).slice().reverse();
+    assetsCache = assets?.data?.assets || [];
+    returnableCache = (ret?.data?.items || []).slice().reverse();
+    suppliersCache = sup?.data?.suppliers || [];
+    purchaseRequestsCache = (pr?.data?.requests || []).slice().reverse();
+    handoversCache = (ho?.data?.handovers || []).slice().reverse();
+    notificationsCache = notif?.data?.notifications || [];
+  } catch(e){ console.warn(e); }
+  finally { showLoading(false); }
+
+  renderInventory();
+  renderRecentMovements();
+  renderRequests();
+  renderGRNs();
+  renderIssueNotes();
+  renderTransfers();
+  renderAssets();
+  renderReturnable();
+  renderSuppliers();
+  renderPurchaseRequests();
+  renderHandovers();
+  renderNotifications();
+  renderLowStock();
+  renderExpiry();
+  renderFoodList();
+  renderLabList();
+  renderUniformList();
+}
+
+function populateDropdowns(){
+  // Item selectors
+  var options = inventoryCache.map(function(i){
+    return '<option value="'+escapeHtml(i.id)+'">'+escapeHtml(i.name)+' ('+escapeHtml(i.unit||'')+') — '+i.quantity+'</option>';
+  }).join('');
+  ['rcvItem','issItem','tfItem'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.innerHTML = '<option value="">Select item…</option>' + options;
+  });
+
+  // Category filter
+  var cats = [...new Set(inventoryCache.map(function(i){ return i.category; }).filter(Boolean))];
+  var catSel = document.getElementById('invCategoryFilter');
+  catSel.innerHTML = '<option value="">All Categories</option>' + cats.map(function(c){ return '<option>'+escapeHtml(c)+'</option>'; }).join('');
+}
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+function updateDashboard(){
+  var totalItems = inventoryCache.length;
+  var totalQty = inventoryCache.reduce(function(s,i){ return s+(parseFloat(i.quantity)||0); }, 0);
+  var lowCount = inventoryCache.filter(function(i){ return (parseFloat(i.quantity)||0) > 0 && (parseFloat(i.quantity)||0) <= (parseFloat(i.minimumLevel)||0); }).length;
+  var outCount = inventoryCache.filter(function(i){ return (parseFloat(i.quantity)||0) <= 0; }).length;
+  var expCount = inventoryCache.filter(function(i){ return i.expiryDate && daysUntil(i.expiryDate) <= 30 && daysUntil(i.expiryDate) >= 0; }).length;
+  var todayStr = today();
+  var recToday = movementsCache.filter(function(m){ return m.date === todayStr && m.type === 'receive'; }).length;
+  var issToday = movementsCache.filter(function(m){ return m.date === todayStr && m.type === 'issue'; }).length;
+  var pendingReq = requestsCache.filter(function(r){ return r.status === 'pending'; }).length;
+  var totalValue = inventoryCache.reduce(function(s,i){ return s + (parseFloat(i.quantity)||0)*(parseFloat(i.purchasePrice)||0); }, 0);
+
+  document.getElementById('dsTotalItems').textContent = totalItems;
+  document.getElementById('dsTotalQty').textContent = Math.round(totalQty).toLocaleString();
+  document.getElementById('dsLowStock').textContent = lowCount;
+  document.getElementById('dsOutOfStock').textContent = outCount;
+  document.getElementById('dsExpiring').textContent = expCount;
+  document.getElementById('dsReceivedToday').textContent = recToday;
+  document.getElementById('dsIssuedToday').textContent = issToday;
+  document.getElementById('dsPendingReq').textContent = pendingReq;
+  document.getElementById('dsStockValue').textContent = Math.round(totalValue/1000) + 'K';
+
+  // Request badge
+  var badge = document.getElementById('reqBadge');
+  if(pendingReq > 0){ badge.style.display='inline-block'; badge.textContent = pendingReq; }
+  else badge.style.display = 'none';
+
+  drawMovementChart();
+  drawCategoryChart();
+}
+function daysUntil(dateStr){
+  try{
+    var d = new Date(dateStr); var n = new Date();
+    return Math.ceil((d-n)/(86400000));
+  } catch(e){ return 999; }
+}
+function drawMovementChart(){
+  var ctx = document.getElementById('movementChart');
+  if(!ctx) return;
+  if(chartInstances.mv) chartInstances.mv.destroy();
+  var labels = [], received = [], issued = [];
+  for(var i=6;i>=0;i--){
+    var d = new Date(); d.setDate(d.getDate()-i);
+    var ds = d.toISOString().split('T')[0];
+    labels.push(ds.slice(5));
+    var dayRec = movementsCache.filter(function(m){ return m.date===ds && m.type==='receive'; }).reduce(function(s,m){ return s+(parseFloat(m.quantity)||0); },0);
+    var dayIss = movementsCache.filter(function(m){ return m.date===ds && m.type==='issue'; }).reduce(function(s,m){ return s+(parseFloat(m.quantity)||0); },0);
+    received.push(dayRec);
+    issued.push(dayIss);
+  }
+  chartInstances.mv = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: labels, datasets: [
+      {label:'Received', data: received, backgroundColor:'rgba(26,138,74,0.75)'},
+      {label:'Issued', data: issued, backgroundColor:'rgba(232,93,4,0.75)'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}
+  });
+}
+function drawCategoryChart(){
+  var ctx = document.getElementById('categoryChart');
+  if(!ctx) return;
+  if(chartInstances.cat) chartInstances.cat.destroy();
+  var byCat = {};
+  inventoryCache.forEach(function(i){ byCat[i.category||'Uncategorized'] = (byCat[i.category||'Uncategorized']||0)+(parseFloat(i.quantity)||0); });
+  chartInstances.cat = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels: Object.keys(byCat), datasets: [{ data: Object.values(byCat), backgroundColor:['#e85d04','#c1121f','#e85d04','#198754','#0dcaf0','#004085','#6f42c1','#20c997','#fd7e14'] }] },
+    options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}
+  });
+}
+function renderRecentMovements(){
+  var body = document.getElementById('recentMovementsBody');
+  if(movementsCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No movements yet.</td></tr>'; return; }
+  body.innerHTML = movementsCache.slice(0,15).map(function(m){
+    return '<tr><td>'+escapeHtml(m.date+' '+(m.time||''))+'</td><td>'+escapeHtml(m.itemName||'')+'</td><td><span class="badge badge-'+(m.type==='receive'?'paid':'issued')+'">'+escapeHtml(m.type)+'</span></td><td>'+escapeHtml(m.quantity)+'</td><td>'+escapeHtml(m.user||'')+'</td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   INVENTORY
+   ========================================================= */
+function renderInventory(){
+  var c = document.getElementById('inventoryList');
+  if(inventoryCache.length === 0){ c.innerHTML = '<div class="info-box warning"><div class="info-text">No items yet. Click "Add New Item" to start.</div></div>'; return; }
+  var filtered = inventoryCache;
+  var q = (document.getElementById('invSearch')?.value||'').toLowerCase();
+  var cat = document.getElementById('invCategoryFilter')?.value;
+  var status = document.getElementById('invStatusFilter')?.value;
+  if(q) filtered = filtered.filter(function(i){
+    return (i.name||'').toLowerCase().indexOf(q)!==-1 || (i.id||'').toLowerCase().indexOf(q)!==-1 || (i.category||'').toLowerCase().indexOf(q)!==-1 || (i.supplier||'').toLowerCase().indexOf(q)!==-1;
+  });
+  if(cat) filtered = filtered.filter(function(i){ return i.category === cat; });
+  if(status){
+    filtered = filtered.filter(function(i){
+      var qty = parseFloat(i.quantity)||0;
+      var min = parseFloat(i.minimumLevel)||0;
+      if(status==='ok') return qty > min;
+      if(status==='low') return qty > 0 && qty <= min;
+      if(status==='out') return qty <= 0;
+      if(status==='expired') return i.expiryDate && daysUntil(i.expiryDate) < 0;
+      return true;
+    });
+  }
+  if(filtered.length === 0){ c.innerHTML = '<div class="info-box"><div class="info-text">No items match the filter.</div></div>'; return; }
+  c.innerHTML = filtered.map(function(i){
+    var qty = parseFloat(i.quantity)||0;
+    var min = parseFloat(i.minimumLevel)||0;
+    var cls = qty <= 0 ? 'out' : qty <= min ? 'low' : '';
+    return '<div class="item-card" data-search="'+escapeHtml((i.name+' '+(i.id||'')+' '+(i.category||'')).toLowerCase())+'" onclick="viewItem(\''+escapeHtml(i.id)+'\')"><div class="ic-icon">'+(getCatIcon(i.category))+'</div><div class="ic-info"><div class="ic-name">'+escapeHtml(i.name)+'</div><div class="ic-meta">'+escapeHtml(i.category||'—')+' · '+escapeHtml(i.id)+'</div><div class="stock-progress"><div class="sp-fill '+(cls==='low'?'warning':cls==='out'?'danger':'')+'" style="width:'+(min>0?Math.min(100, (qty/min)*100):100)+'%"></div></div></div><div class="ic-qty '+cls+'">'+qty+'<span class="ic-unit">'+escapeHtml(i.unit||'')+'</span></div></div>';
+  }).join('');
+}
+function getCatIcon(cat){
+  if(!cat) return '📦';
+  var found = DEFAULT_CATEGORIES.filter(function(c){ return c.name === cat; })[0];
+  return found ? found.icon : '📦';
+}
+function filterInventory(){ renderInventory(); }
+function openAddItemModal(){
+  var html =
+    '<div class="form-row-2"><div class="form-group"><label>Item Name *</label><input type="text" id="newName" /></div>'+
+    '<div class="form-group"><label>Category *</label><select id="newCat"><option value="">Select…</option>'+DEFAULT_CATEGORIES.map(function(c){ return '<option>'+escapeHtml(c.name)+'</option>'; }).join('')+'</select></div></div>'+
+    '<div class="form-group"><label>Description</label><textarea id="newDesc" rows="2"></textarea></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Unit *</label><select id="newUnit"><option value="">Select…</option>'+UNITS.map(function(u){ return '<option>'+u+'</option>'; }).join('')+'</select></div>'+
+    '<div class="form-group"><label>Opening Quantity *</label><input type="number" id="newQty" value="0" min="0" step="0.01" /></div></div>'+
+    '<div class="form-row-3"><div class="form-group"><label>Minimum Level</label><input type="number" id="newMin" value="5" min="0" /></div>'+
+    '<div class="form-group"><label>Maximum Level</label><input type="number" id="newMax" value="100" min="0" /></div>'+
+    '<div class="form-group"><label>Purchase Price (UGX)</label><input type="number" id="newPrice" value="0" min="0" step="100" /></div></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Location</label><input type="text" id="newLoc" placeholder="e.g., Shelf A-3" /></div>'+
+    '<div class="form-group"><label>Supplier</label><input type="text" id="newSup" /></div></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Batch Number</label><input type="text" id="newBatch" /></div>'+
+    '<div class="form-group"><label>Expiry Date</label><input type="date" id="newExpiry" /></div></div>'+
+    '<div class="form-group"><label>Safety Notes (for chemicals/reagents)</label><textarea id="newSafety" rows="2"></textarea></div>';
+  openInfoModal(html, 'Add New Item', '<button class="btn btn-secondary" onclick="closeInfoModal()">Cancel</button><button class="btn btn-success" onclick="saveNewItem()">💾 Add Item</button>');
+}
+async function saveNewItem(){
+  var name = document.getElementById('newName').value.trim();
+  var cat = document.getElementById('newCat').value;
+  var unit = document.getElementById('newUnit').value;
+  if(!name || !cat || !unit){ showToast('Fill required fields','warning'); return; }
+  var item = {
+    id: genId('ITM'),
+    name: name,
+    category: cat,
+    description: document.getElementById('newDesc').value,
+    unit: unit,
+    quantity: parseFloat(document.getElementById('newQty').value)||0,
+    minimumLevel: parseFloat(document.getElementById('newMin').value)||5,
+    maximumLevel: parseFloat(document.getElementById('newMax').value)||100,
+    purchasePrice: parseFloat(document.getElementById('newPrice').value)||0,
+    location: document.getElementById('newLoc').value,
+    supplier: document.getElementById('newSup').value,
+    batch: document.getElementById('newBatch').value,
+    expiryDate: document.getElementById('newExpiry').value,
+    safetyNotes: document.getElementById('newSafety').value,
+    store: storekeeperInfo.store,
+    createdAt: nowIso(),
+    createdBy: authSession.username,
+    school: getActiveSchool()
+  };
+  try{
+    var r = await api({action:'saveInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+    if(r.offline) queueOffline('saveInventoryItem', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+    await audit('ADD_ITEM','inventory',item.id,item.name+' ('+item.unit+')');
+    // Record opening stock movement
+    if(item.quantity > 0){
+      var mv = {
+        id: genId('MV'),
+        itemId: item.id, itemName: item.name,
+        type: 'opening', quantity: item.quantity,
+        balanceAfter: item.quantity,
+        date: today(), time: nowTime(),
+        user: authSession.username, note: 'Opening stock',
+        school: getActiveSchool()
+      };
+      await api({action:'saveStockMovement', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), movement: JSON.stringify(mv)});
+      movementsCache.unshift(mv);
+    }
+    inventoryCache.push(item);
+    showToast('✅ Item added','success');
+    closeInfoModal();
+    renderInventory();
+    populateDropdowns();
+    updateDashboard();
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function viewItem(id){
+  var item = inventoryCache.filter(function(i){ return i.id === id; })[0];
+  if(!item) return;
+  var moves = movementsCache.filter(function(m){ return m.itemId === id; }).slice(0,10);
+  var html =
+    '<div class="info-box"><div class="info-title">'+(getCatIcon(item.category))+' '+escapeHtml(item.name)+'</div>'+
+    '<div class="info-text">'+escapeHtml(item.category||'')+' · '+escapeHtml(item.id)+' · '+escapeHtml(item.unit||'')+'</div></div>'+
+    '<div class="stats-grid">'+
+      '<div class="stat-card"><div class="stat-number">'+item.quantity+'</div><div class="stat-label">Current Stock</div></div>'+
+      '<div class="stat-card info"><div class="stat-number">'+item.minimumLevel+'</div><div class="stat-label">Min Level</div></div>'+
+      '<div class="stat-card"><div class="stat-number">'+fmtUGX((parseFloat(item.quantity)||0)*(parseFloat(item.purchasePrice)||0))+'</div><div class="stat-label">Stock Value</div></div>'+
+    '</div>'+
+    '<h4 style="margin:10px 0 4px">Details</h4><div style="font-size:12px;line-height:1.7">'+
+      '<div><strong>Location:</strong> '+escapeHtml(item.location||'—')+'</div>'+
+      '<div><strong>Supplier:</strong> '+escapeHtml(item.supplier||'—')+'</div>'+
+      '<div><strong>Batch:</strong> '+escapeHtml(item.batch||'—')+'</div>'+
+      '<div><strong>Expiry:</strong> '+escapeHtml(item.expiryDate||'—')+'</div>'+
+      (item.safetyNotes?'<div><strong>Safety:</strong> '+escapeHtml(item.safetyNotes)+'</div>':'')+
+    '</div>'+
+    '<h4 style="margin:14px 0 4px">Recent Movements</h4>'+
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Type</th><th>Qty</th><th>Balance</th></tr></thead><tbody>'+
+    (moves.length ? moves.map(function(m){
+      return '<tr><td>'+escapeHtml(m.date)+'</td><td>'+escapeHtml(m.type)+'</td><td>'+escapeHtml(m.quantity)+'</td><td>'+escapeHtml(m.balanceAfter||'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="4" style="text-align:center;color:#999">No movements.</td></tr>')+
+    '</tbody></table></div>';
+  openInfoModal(html, 'Item Details', '<button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>');
+}
+
+/* =========================================================
+   RECEIVE STOCK
+   ========================================================= */
+function rcvOnItemChange(){
+  var id = document.getElementById('rcvItem').value;
+  var item = inventoryCache.filter(function(i){ return i.id === id; })[0];
+  if(!item){ document.getElementById('rcvItemInfo').innerHTML = ''; return; }
+  document.getElementById('rcvUnit').value = item.unit || '';
+  document.getElementById('rcvItemInfo').innerHTML =
+    '<div class="info-box"><div class="info-title">'+escapeHtml(item.name)+'</div>'+
+    '<div class="info-text">Current stock: <strong>'+item.quantity+' '+escapeHtml(item.unit||'')+'</strong> · Min: '+item.minimumLevel+'</div></div>';
+  if(item.supplier) document.getElementById('rcvSupplier').value = item.supplier;
+}
+async function submitReceiveStock(){
+  var id = document.getElementById('rcvItem').value;
+  var qty = parseFloat(document.getElementById('rcvQty').value);
+  var supplier = document.getElementById('rcvSupplier').value.trim();
+  if(!id || !qty || qty <= 0){ showToast('Select item and enter quantity','warning'); return; }
+  if(!supplier){ showToast('Enter supplier','warning'); return; }
+  var item = inventoryCache.filter(function(i){ return i.id === id; })[0];
+  if(!item){ showToast('Item not found','error'); return; }
+
+  var grnNo = 'GRN-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000+1000));
+  var newQty = (parseFloat(item.quantity)||0) + qty;
+
+  var receive = {
+    id: genId('RCV'),
+    grnNo: grnNo,
+    itemId: id,
+    itemName: item.name,
+    quantity: qty,
+    unit: item.unit,
+    supplier: supplier,
+    reference: document.getElementById('rcvRef').value,
+    deliveryNote: document.getElementById('rcvDeliveryNote').value,
+    invoice: document.getElementById('rcvInvoice').value,
+    batch: document.getElementById('rcvBatch').value || item.batch,
+    expiryDate: document.getElementById('rcvExpiry').value || item.expiryDate,
+    purchasePrice: parseFloat(document.getElementById('rcvPrice').value) || item.purchasePrice,
+    date: document.getElementById('rcvDate').value,
+    time: nowTime(),
+    deliverer: document.getElementById('rcvDeliverer').value,
+    notes: document.getElementById('rcvNotes').value,
+    storekeeper: authSession.username,
+    store: storekeeperInfo.store,
+    previousQty: item.quantity,
+    newQty: newQty,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+
+  var ok = await confirmAction('Receive Stock', 'Add '+qty+' '+item.unit+' of '+item.name+'?', 'Receive','📥');
+  if(!ok) return;
+
+  try{
+    // Save receipt
+    var r = await api({action:'saveStockReceipt', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), receipt: JSON.stringify(receive)});
+    if(r.offline) queueOffline('saveStockReceipt', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), receipt: JSON.stringify(receive)});
+    // Update item quantity
+    item.quantity = newQty;
+    if(receive.purchasePrice) item.purchasePrice = receive.purchasePrice;
+    if(receive.batch) item.batch = receive.batch;
+    if(receive.expiryDate) item.expiryDate = receive.expiryDate;
+    await api({action:'updateInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+    // Record movement
+    var mv = {
+      id: genId('MV'), itemId: id, itemName: item.name, type: 'receive',
+      quantity: qty, balanceAfter: newQty, reference: grnNo, date: receive.date, time: receive.time,
+      user: authSession.username, school: getActiveSchool()
+    };
+    await api({action:'saveStockMovement', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), movement: JSON.stringify(mv)});
+    movementsCache.unshift(mv);
+    await audit('RECEIVE_STOCK','receive',receive.id,qty+' '+item.unit+' of '+item.name+' from '+supplier);
+    showToast('✅ Stock received — '+grnNo,'success');
+    resetReceiveForm();
+    renderInventory();
+    renderRecentMovements();
+    updateDashboard();
+    // Show GRN
+    showGRN(receive);
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function resetReceiveForm(){
+  ['rcvQty','rcvRef','rcvDeliveryNote','rcvInvoice','rcvBatch','rcvExpiry','rcvPrice','rcvDeliverer','rcvNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('rcvItem').value = '';
+  document.getElementById('rcvItemInfo').innerHTML = '';
+}
+function showGRN(receive){
+  var settings = JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
+  var html =
+    '<div style="text-align:center;border-bottom:2px solid var(--store);padding-bottom:10px;margin-bottom:10px">'+
+      '<div style="font-size:20px;font-weight:700;color:var(--store)">'+escapeHtml(settings.schoolName||getActiveSchool())+'</div>'+
+      '<div style="font-size:11px;color:#555">'+escapeHtml(settings.schoolPhone||'')+'</div>'+
+    '</div>'+
+    '<div style="background:var(--store);color:#fff;text-align:center;padding:6px;font-weight:700;letter-spacing:2px;font-size:13px;margin-bottom:10px">GOODS RECEIVED NOTE</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">'+
+      '<div><strong>GRN No:</strong><br>'+escapeHtml(receive.grnNo)+'</div>'+
+      '<div><strong>Date:</strong><br>'+escapeHtml(receive.date)+'</div>'+
+      '<div><strong>Supplier:</strong><br>'+escapeHtml(receive.supplier)+'</div>'+
+      '<div><strong>Delivery Note:</strong><br>'+escapeHtml(receive.deliveryNote||'—')+'</div>'+
+    '</div>'+
+    '<h4 style="margin:14px 0 6px">Items Received</h4>'+
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Batch</th><th>Expiry</th></tr></thead><tbody>'+
+      '<tr><td>'+escapeHtml(receive.itemName)+'</td><td>'+receive.quantity+'</td><td>'+escapeHtml(receive.unit)+'</td><td>'+escapeHtml(receive.batch||'—')+'</td><td>'+escapeHtml(receive.expiryDate||'—')+'</td></tr>'+
+    '</tbody></table></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;font-size:11px">'+
+      '<div><strong>Storekeeper:</strong><br>'+escapeHtml(storekeeperInfo.name)+'</div>'+
+      '<div><strong>Authorized By:</strong><br>______________________</div>'+
+    '</div>';
+  openInfoModal(html, 'GRN — '+receive.grnNo, '<button class="btn btn-info" onclick="printCurrentModal()">🖨️ Print</button><button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>');
+}
+function printCurrentModal(){
+  var html = document.getElementById('infoModalBody').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>Document</title><style>body{font-family:Arial;padding:20px;max-width:600px;margin:0 auto}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{border:1px solid #999;padding:6px;font-size:12px}th{background:#e85d04;color:#fff}</style></head><body>'+html+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 400);
+}
+
+/* =========================================================
+   ISSUE STOCK
+   ========================================================= */
+function showIssueSub(sub){
+  document.querySelectorAll('#tabIssue .tab-strip button').forEach(function(b,i){
+    b.classList.toggle('active', (i===0&&sub==='direct')||(i===1&&sub==='request'));
+  });
+  document.getElementById('issueSubDirect').style.display = sub==='direct'?'block':'none';
+  document.getElementById('issueSubRequest').style.display = sub==='request'?'block':'none';
+  if(sub==='request') loadApprovedRequests();
+}
+function issOnItemChange(){
+  var id = document.getElementById('issItem').value;
+  var item = inventoryCache.filter(function(i){ return i.id === id; })[0];
+  if(!item){ document.getElementById('issItemInfo').innerHTML = ''; return; }
+  document.getElementById('issUnit').value = item.unit || '';
+  document.getElementById('issItemInfo').innerHTML =
+    '<div class="info-box"><div class="info-title">'+escapeHtml(item.name)+'</div>'+
+    '<div class="info-text">Available: <strong>'+item.quantity+' '+escapeHtml(item.unit||'')+'</strong></div></div>';
+}
+async function submitIssueStock(){
+  var id = document.getElementById('issItem').value;
+  var qty = parseFloat(document.getElementById('issQty').value);
+  var requester = document.getElementById('issRequester').value.trim();
+  var dept = document.getElementById('issDept').value;
+  var authBy = document.getElementById('issAuthBy').value.trim();
+  if(!id || !qty || qty <= 0){ showToast('Select item and quantity','warning'); return; }
+  if(!requester || !dept || !authBy){ showToast('Fill requester, department and authorizer','warning'); return; }
+  var item = inventoryCache.filter(function(i){ return i.id === id; })[0];
+  if(!item){ showToast('Item not found','error'); return; }
+  if(qty > (parseFloat(item.quantity)||0)){ showToast('❌ Insufficient stock','error'); return; }
+  if(item.expiryDate && daysUntil(item.expiryDate) < 0){ showToast('❌ Cannot issue expired item','error'); return; }
+
+  var issueNo = 'ISS-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000+1000));
+  var newQty = (parseFloat(item.quantity)||0) - qty;
+
+  var issue = {
+    id: genId('ISS'),
+    issueNo: issueNo,
+    itemId: id,
+    itemName: item.name,
+    quantity: qty,
+    unit: item.unit,
+    requester: requester,
+    department: dept,
+    purpose: document.getElementById('issPurpose').value,
+    authorizedBy: authBy,
+    date: document.getElementById('issDate').value,
+    time: nowTime(),
+    storekeeper: authSession.username,
+    store: storekeeperInfo.store,
+    previousQty: item.quantity,
+    newQty: newQty,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+
+  var ok = await confirmAction('Issue Stock', 'Issue '+qty+' '+item.unit+' of '+item.name+' to '+requester+'?', 'Issue','📤');
+  if(!ok) return;
+
+  try{
+    var r = await api({action:'saveStockIssue', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), issue: JSON.stringify(issue)});
+    if(r.offline) queueOffline('saveStockIssue', {sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), issue: JSON.stringify(issue)});
+    item.quantity = newQty;
+    await api({action:'updateInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+    var mv = {
+      id: genId('MV'), itemId: id, itemName: item.name, type: 'issue',
+      quantity: qty, balanceAfter: newQty, reference: issueNo, date: issue.date, time: issue.time,
+      user: authSession.username, school: getActiveSchool()
+    };
+    await api({action:'saveStockMovement', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), movement: JSON.stringify(mv)});
+    movementsCache.unshift(mv);
+    issuesCache.unshift(issue);
+    await audit('ISSUE_STOCK','issue',issue.id,qty+' '+item.unit+' of '+item.name+' to '+requester+' ('+dept+')');
+    showToast('✅ Stock issued — '+issueNo,'success');
+    resetIssueForm();
+    renderInventory();
+    renderRecentMovements();
+    renderIssueNotes();
+    updateDashboard();
+    showIssueNote(issue);
+  } catch(e){ showToast('❌ '+e.message,'error'); }
+}
+function resetIssueForm(){
+  ['issQty','issRequester','issPurpose','issAuthBy'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('issItem').value = '';
+  document.getElementById('issItemInfo').innerHTML = '';
+}
+function showIssueNote(issue){
+  var html =
+    '<div style="background:var(--store);color:#fff;text-align:center;padding:6px;font-weight:700;letter-spacing:2px;font-size:13px;margin-bottom:10px">STOCK ISSUE VOUCHER</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">'+
+      '<div><strong>Issue No:</strong><br>'+escapeHtml(issue.issueNo)+'</div>'+
+      '<div><strong>Date:</strong><br>'+escapeHtml(issue.date)+' '+escapeHtml(issue.time)+'</div>'+
+      '<div><strong>Requester:</strong><br>'+escapeHtml(issue.requester)+'</div>'+
+      '<div><strong>Department:</strong><br>'+escapeHtml(issue.department)+'</div>'+
+      '<div><strong>Purpose:</strong><br>'+escapeHtml(issue.purpose||'—')+'</div>'+
+      '<div><strong>Authorized By:</strong><br>'+escapeHtml(issue.authorizedBy)+'</div>'+
+    '</div>'+
+    '<div class="table-wrap" style="margin-top:14px"><table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th>Unit</th></tr></thead><tbody>'+
+      '<tr><td>'+escapeHtml(issue.itemName)+'</td><td>'+issue.quantity+'</td><td>'+escapeHtml(issue.unit)+'</td></tr>'+
+    '</tbody></table></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;font-size:11px">'+
+      '<div><strong>Issued By:</strong><br>'+escapeHtml(storekeeperInfo.name)+'</div>'+
+      '<div><strong>Received By:</strong><br>______________________</div>'+
+    '</div>';
+  openInfoModal(html, 'Stock Issue — '+issue.issueNo, '<button class="btn btn-info" onclick="printCurrentModal()">🖨️ Print</button><button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>');
+}
+async function loadApprovedRequests(){
+  try{
+    var r = await api({action:'getStockRequests', school: getActiveSchool(), status:'approved'});
+    var list = r?.data?.requests || [];
+    var sel = document.getElementById('issRequestSelect');
+    if(list.length === 0){ sel.innerHTML = '<option value="">No approved requests</option>'; return; }
+    sel.innerHTML = '<option value="">Select…</option>' + list.map(function(req){
+      return '<option value="'+escapeHtml(req.id)+'">'+escapeHtml(req.id)+' — '+escapeHtml(req.requester)+' ('+escapeHtml(req.department)+')</option>';
+    }).join('');
+    sel.onchange = function(){ showRequestForIssue(this.value); };
+  } catch(e){}
+}
+function showRequestForIssue(id){
+  var req = requestsCache.filter(function(r){ return r.id===id; })[0];
+  if(!req){ document.getElementById('issRequestDetails').innerHTML = ''; return; }
+  var items = req.items || [];
+  document.getElementById('issRequestDetails').innerHTML =
+    '<div class="info-box"><div class="info-title">'+escapeHtml(req.requester)+' — '+escapeHtml(req.department)+'</div><div class="info-text">'+items.length+' items requested</div></div>'+
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Requested</th><th>Approved</th><th>Issue</th></tr></thead><tbody>'+
+    items.map(function(it, idx){
+      return '<tr><td>'+escapeHtml(it.itemName)+'</td><td>'+it.quantity+'</td><td>'+it.approvedQty+'</td><td><input type="number" id="req_'+idx+'" value="'+it.approvedQty+'" min="0" max="'+it.approvedQty+'" style="width:70px;padding:4px;border:1px solid #ddd;border-radius:4px" /></td></tr>';
+    }).join('')+
+    '</tbody></table></div>'+
+    '<button class="btn btn-info btn-block" onclick="fulfillRequest(\''+escapeHtml(req.id)+'\')">📤 Fulfill Request</button>';
+}
+async function fulfillRequest(requestId){
+  var req = requestsCache.filter(function(r){ return r.id===requestId; })[0];
+  if(!req) return;
+  var items = req.items || [];
+  var issueNo = 'ISS-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000+1000));
+  var anyIssued = false;
+  for(var i=0;i<items.length;i++){
+    var it = items[i];
+    var qtyToIssue = parseFloat(document.getElementById('req_'+i).value) || 0;
+    if(qtyToIssue <= 0) continue;
+    var inventoryItem = inventoryCache.filter(function(x){ return x.id === it.itemId; })[0];
+    if(!inventoryItem) continue;
+    if(qtyToIssue > (parseFloat(inventoryItem.quantity)||0)){ showToast('❌ Insufficient stock for '+it.itemName,'error'); return; }
+    inventoryItem.quantity = (parseFloat(inventoryItem.quantity)||0) - qtyToIssue;
+    await api({action:'updateInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(inventoryItem)});
+    var mv = {
+      id: genId('MV'), itemId: it.itemId, itemName: it.itemName, type: 'issue',
+      quantity: qtyToIssue, balanceAfter: inventoryItem.quantity, reference: issueNo,
+      date: today(), time: nowTime(), user: authSession.username, school: getActiveSchool()
+    };
+    await api({action:'saveStockMovement', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), movement: JSON.stringify(mv)});
+    movementsCache.unshift(mv);
+    anyIssued = true;
+  }
+  if(!anyIssued){ showToast('Nothing to issue','warning'); return; }
+  // Update request status
+  req.status = 'issued';
+  req.issueNo = issueNo;
+  req.issuedAt = nowIso();
+  await api({action:'updateStockRequest', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), request: JSON.stringify(req)});
+  await audit('FULFILL_REQUEST','request',requestId,'Issued items for request '+requestId);
+  showToast('✅ Request fulfilled — '+issueNo,'success');
+  loadAllData();
+}
+async function loadIssueNotes(){
+  var from = document.getElementById('isnFrom').value;
+  var to = document.getElementById('isnTo').value;
+  renderIssueNotes(from, to);
+}
+function renderIssueNotes(from, to){
+  var list = issuesCache;
+  if(from) list = list.filter(function(x){ return x.date >= from; });
+  if(to) list = list.filter(function(x){ return x.date <= to; });
+  var body = document.getElementById('issuesBody');
+  if(list.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No issue notes.</td></tr>'; return; }
+  body.innerHTML = list.slice(0,50).map(function(i){
+    return '<tr><td>'+escapeHtml(i.date)+'</td><td>'+escapeHtml(i.issueNo)+'</td><td>'+escapeHtml(i.requester)+'</td><td>'+escapeHtml(i.department||'')+'</td><td>'+escapeHtml(i.itemName)+' × '+i.quantity+'</td><td><button class="btn btn-info btn-sm" onclick="viewIssueNote(\''+escapeHtml(i.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewIssueNote(id){
+  var i = issuesCache.filter(function(x){ return x.id===id; })[0];
+  if(!i) return;
+  showIssueNote(i);
+}
+
+/* =========================================================
+   REQUESTS
+   ========================================================= */
+async function loadRequests(status){
+  currentRequestFilter = status;
+  renderRequests();
+}
+function renderRequests(){
+  var list = requestsCache;
+  if(currentRequestFilter !== 'all') list = list.filter(function(r){ return r.status === currentRequestFilter; });
+  var body = document.getElementById('requestsBody');
+  if(list.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No requests.</td></tr>'; return; }
+  body.innerHTML = list.map(function(req){
+    var items = req.items || [];
+    var cls = req.status==='pending'?'pending':req.status==='approved'?'approved':req.status==='issued'?'paid':'cancelled';
+    return '<tr><td>'+escapeHtml((req.createdAt||'').substring(0,10))+'</td><td>'+escapeHtml(req.requester)+'</td><td>'+escapeHtml(req.department)+'</td><td>'+items.length+'</td><td><span class="badge badge-'+cls+'">'+escapeHtml(req.status)+'</span></td><td><button class="btn btn-info btn-sm" onclick="viewRequest(\''+escapeHtml(req.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function openNewRequestModal(){
+  var html =
+    '<div class="form-row-2"><div class="form-group"><label>Requester Name *</label><input type="text" id="newReqRequester" /></div>'+
+    '<div class="form-group"><label>Department *</label><select id="newReqDept"><option value="">Select…</option><option>Administration</option><option>Teaching</option><option>Science/Laboratory</option><option>Library</option><option>Kitchen</option><option>Boarding</option><option>Maintenance</option><option>Sports</option><option>Other</option></select></div></div>'+
+    '<div class="form-group"><label>Purpose / Justification *</label><textarea id="newReqPurpose" rows="2"></textarea></div>'+
+    '<h4 style="margin:10px 0;font-size:14px;color:var(--store)">Items Requested</h4>'+
+    '<div id="reqItemsContainer"></div>'+
+    '<button class="btn btn-secondary btn-sm" onclick="addRequestItemRow()">➕ Add Item</button>';
+  openInfoModal(html, 'New Request', '<button class="btn btn-secondary" onclick="closeInfoModal()">Cancel</button><button class="btn btn-success" onclick="saveNewRequest()">📤 Submit</button>');
+  addRequestItemRow();
+}
+function addRequestItemRow(){
+  var c = document.getElementById('reqItemsContainer');
+  var options = inventoryCache.map(function(i){ return '<option value="'+escapeHtml(i.id)+'">'+escapeHtml(i.name)+' ('+i.quantity+' '+escapeHtml(i.unit||'')+')</option>'; }).join('');
+  var row = document.createElement('div');
+  row.className = 'req-item-row';
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr auto;gap:6px;margin-bottom:6px';
+  row.innerHTML = '<select class="req-item-id" style="padding:8px;border:2px solid #ddd;border-radius:6px"><option value="">Select item…</option>'+options+'</select>'+
+    '<input type="number" class="req-item-qty" placeholder="Qty" min="1" style="padding:8px;border:2px solid #ddd;border-radius:6px" />'+
+    '<button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">✕</button>';
+  c.appendChild(row);
+}
+async function saveNewRequest(){
+  var requester = document.getElementById('newReqRequester').value.trim();
+  var dept = document.getElementById('newReqDept').value;
+  var purpose = document.getElementById('newReqPurpose').value.trim();
+  if(!requester || !dept || !purpose){ showToast('Fill required fields','warning'); return; }
+  var items = [];
+  document.querySelectorAll('.req-item-row').forEach(function(row){
+    var id = row.querySelector('.req-item-id').value;
+    var qty = parseFloat(row.querySelector('.req-item-qty').value) || 0;
+    if(id && qty > 0){
+      var inv = inventoryCache.filter(function(x){ return x.id === id; })[0];
+      items.push({itemId: id, itemName: inv?inv.name:id, unit: inv?inv.unit:'', quantity: qty, approvedQty: 0});
+    }
+  });
+  if(items.length === 0){ showToast('Add at least one item','warning'); return; }
+  var req = {
+    id: genId('REQ'),
+    requester: requester,
+    department: dept,
+    purpose: purpose,
+    items: items,
+    status: 'pending',
+    createdAt: nowIso(),
+    createdBy: authSession.username,
+    school: getActiveSchool()
+  };
+  await api({action:'saveStockRequest', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), request: JSON.stringify(req)});
+  await audit('CREATE_REQUEST','request',req.id,requester+' — '+dept);
+  showToast('✅ Request submitted','success');
+  requestsCache.unshift(req);
+  closeInfoModal();
+  renderRequests();
+}
+function viewRequest(id){
+  var req = requestsCache.filter(function(r){ return r.id===id; })[0];
+  if(!req) return;
+  var items = req.items || [];
+  var html =
+    '<div class="info-box"><div class="info-title">'+escapeHtml(req.requester)+'</div>'+
+    '<div class="info-text">'+escapeHtml(req.department)+' · '+escapeHtml(req.status)+'</div></div>'+
+    '<p style="font-size:13px"><strong>Purpose:</strong> '+escapeHtml(req.purpose||'—')+'</p>'+
+    '<div class="table-wrap" style="margin-top:10px"><table class="data-table"><thead><tr><th>Item</th><th>Requested</th><th>Approved</th></tr></thead><tbody>'+
+    items.map(function(it){ return '<tr><td>'+escapeHtml(it.itemName)+'</td><td>'+it.quantity+'</td><td>'+(it.approvedQty||'—')+'</td></tr>'; }).join('')+
+    '</tbody></table></div>';
+  var actions = '<button class="btn btn-secondary" onclick="closeInfoModal()">Close</button>';
+  if(req.status === 'pending' && canApprove()){
+    actions = '<button class="btn btn-danger" onclick="rejectRequest(\''+escapeHtml(req.id)+'\')">❌ Reject</button>'+
+              '<button class="btn btn-success" onclick="approveRequest(\''+escapeHtml(req.id)+'\')">✅ Approve</button>';
+  } else if(req.status === 'approved'){
+    actions = '<button class="btn btn-info" onclick="closeInfoModal();switchTab(\'issue\');showIssueSub(\'request\')">📤 Fulfill</button>';
+  }
+  openInfoModal(html, 'Request ' + req.id, actions);
+}
+function canApprove(){
+  return ['admin','superadmin','storekeeper'].indexOf(authSession.role) !== -1;
+}
+async function approveRequest(id){
+  var req = requestsCache.filter(function(r){ return r.id===id; })[0];
+  if(!req) return;
+  req.status = 'approved';
+  req.approvedBy = authSession.username;
+  req.approvedAt = nowIso();
+  req.items.forEach(function(it){ if(!it.approvedQty) it.approvedQty = it.quantity; });
+  await api({action:'updateStockRequest', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), request: JSON.stringify(req)});
+  await audit('APPROVE_REQUEST','request',id,'Approved');
+  showToast('✅ Approved','success');
+  closeInfoModal();
+  renderRequests();
+}
+async function rejectRequest(id){
+  var req = requestsCache.filter(function(r){ return r.id===id; })[0];
+  if(!req) return;
+  var reason = prompt('Reason for rejection:');
+  if(!reason) return;
+  req.status = 'rejected';
+  req.rejectedBy = authSession.username;
+  req.rejectedReason = reason;
+  await api({action:'updateStockRequest', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), request: JSON.stringify(req)});
+  await audit('REJECT_REQUEST','request',id,reason);
+  showToast('❌ Rejected','info');
+  closeInfoModal();
+  renderRequests();
+}
+
+/* =========================================================
+   GRN LIST
+   ========================================================= */
+function loadGRNs(){
+  var from = document.getElementById('grnFrom').value;
+  var to = document.getElementById('grnTo').value;
+  renderGRNs(from, to);
+}
+function renderGRNs(from, to){
+  var list = grnCache;
+  if(from) list = list.filter(function(x){ return x.date >= from; });
+  if(to) list = list.filter(function(x){ return x.date <= to; });
+  var body = document.getElementById('grnBody');
+  if(list.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No GRNs.</td></tr>'; return; }
+  body.innerHTML = list.slice(0,50).map(function(g){
+    return '<tr><td>'+escapeHtml(g.date)+'</td><td>'+escapeHtml(g.grnNo)+'</td><td>'+escapeHtml(g.supplier)+'</td><td>'+escapeHtml(g.itemName)+' × '+g.quantity+'</td><td><button class="btn btn-info btn-sm" onclick="viewGRN(\''+escapeHtml(g.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewGRN(id){
+  var g = grnCache.filter(function(x){ return x.id===id; })[0];
+  if(g) showGRN(g);
+}
+
+/* =========================================================
+   TRANSFERS
+   ========================================================= */
+async function submitTransfer(){
+  var id = document.getElementById('tfItem').value;
+  var qty = parseFloat(document.getElementById('tfQty').value);
+  var reason = document.getElementById('tfReason').value.trim();
+  var auth = document.getElementById('tfAuth').value.trim();
+  if(!id || !qty || !reason || !auth){ showToast('Fill all fields','warning'); return; }
+  var item = inventoryCache.filter(function(i){ return i.id===id; })[0];
+  if(!item){ showToast('Item not found','error'); return; }
+  if(qty > (parseFloat(item.quantity)||0)){ showToast('❌ Insufficient stock','error'); return; }
+  var t = {
+    id: genId('TF'),
+    itemId: id, itemName: item.name, quantity: qty, unit: item.unit,
+    from: document.getElementById('tfFrom').value,
+    to: document.getElementById('tfTo').value,
+    reason: reason, authorizedBy: auth,
+    date: document.getElementById('tfDate').value, time: nowTime(),
+    storekeeper: authSession.username,
+    timestamp: nowIso(), school: getActiveSchool()
+  };
+  if(t.from === t.to){ showToast('Source and destination must differ','warning'); return; }
+  item.quantity = (parseFloat(item.quantity)||0) - qty;
+  await api({action:'saveStockTransfer', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), transfer: JSON.stringify(t)});
+  await api({action:'updateInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(item)});
+  await audit('TRANSFER','transfer',t.id,qty+' '+item.unit+' of '+item.name+' from '+t.from+' to '+t.to);
+  showToast('✅ Transfer recorded','success');
+  transfersCache.unshift(t);
+  ['tfQty','tfReason','tfAuth'].forEach(function(i){ document.getElementById(i).value=''; });
+  renderTransfers();
+  renderInventory();
+}
+function renderTransfers(){
+  var body = document.getElementById('transfersBody');
+  if(transfersCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No transfers.</td></tr>'; return; }
+  body.innerHTML = transfersCache.slice(0,30).map(function(t){
+    return '<tr><td>'+escapeHtml(t.date)+'</td><td>'+escapeHtml(t.itemName)+' × '+t.quantity+'</td><td>'+escapeHtml(t.from)+'</td><td>'+escapeHtml(t.to)+'</td><td>'+escapeHtml(t.quantity)+'</td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   STOCKTAKE
+   ========================================================= */
+function startStocktake(){
+  stocktakeInProgress = {type:document.getElementById('stType').value, date:document.getElementById('stDate').value, items:[]};
+  var html = inventoryCache.map(function(i){
+    stocktakeInProgress.items.push({id:i.id, name:i.name, systemQty: i.quantity, physicalQty: null});
+    return '<tr><td>'+escapeHtml(i.name)+'</td><td>'+i.quantity+'</td><td><input type="number" step="0.01" value="'+i.quantity+'" onchange="updateStocktakeCount(\''+escapeHtml(i.id)+'\', this.value)" style="width:80px;padding:4px;border:1px solid #ddd;border-radius:4px" /></td><td id="st_diff_'+i.id+'">0</td></tr>';
+  }).join('');
+  document.getElementById('stocktakeBody').innerHTML = html;
+  document.getElementById('stocktakeForm').style.display = 'block';
+}
+function updateStocktakeCount(id, val){
+  var it = stocktakeInProgress.items.filter(function(x){ return x.id===id; })[0];
+  if(!it) return;
+  it.physicalQty = parseFloat(val);
+  var diff = it.physicalQty - it.systemQty;
+  var el = document.getElementById('st_diff_'+id);
+  el.textContent = diff > 0 ? '+'+diff : diff;
+  el.style.color = diff === 0 ? '#888' : diff > 0 ? '#1a8a4a' : '#c1121f';
+  el.style.fontWeight = '700';
+}
+function cancelStocktake(){
+  stocktakeInProgress = null;
+  document.getElementById('stocktakeForm').style.display = 'none';
+}
+async function submitStocktake(){
+  if(!stocktakeInProgress) return;
+  var hasDiff = stocktakeInProgress.items.some(function(i){ return i.physicalQty !== null && i.physicalQty !== i.systemQty; });
+  if(hasDiff){
+    var ok = await confirmAction('Stocktake Adjustments', 'Some items have differences. Continue and record adjustments?','Submit','📊');
+    if(!ok) return;
+  }
+  var st = {
+    id: genId('STK'),
+    type: stocktakeInProgress.type,
+    date: stocktakeInProgress.date,
+    items: stocktakeInProgress.items,
+    storekeeper: authSession.username,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveStocktake', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), stocktake: JSON.stringify(st)});
+  // Apply adjustments
+  stocktakeInProgress.items.forEach(async function(it){
+    if(it.physicalQty === null || it.physicalQty === it.systemQty) return;
+    var inv = inventoryCache.filter(function(x){ return x.id===it.id; })[0];
+    if(!inv) return;
+    var diff = it.physicalQty - it.systemQty;
+    inv.quantity = it.physicalQty;
+    await api({action:'updateInventoryItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(inv)});
+    var mv = {
+      id: genId('MV'), itemId: it.id, itemName: it.name, type: 'adjustment',
+      quantity: diff, balanceAfter: it.physicalQty, reference: st.id,
+      note: 'Stocktake adjustment', date: st.date, time: nowTime(),
+      user: authSession.username, school: getActiveSchool()
+    };
+    await api({action:'saveStockMovement', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), movement: JSON.stringify(mv)});
+    movementsCache.unshift(mv);
+  });
+  await audit('STOCKTAKE','stocktake',st.id,stocktakeInProgress.type+' stocktake on '+stocktakeInProgress.items.length+' items');
+  showToast('✅ Stocktake submitted','success');
+  cancelStocktake();
+  renderInventory();
+  renderRecentMovements();
+  updateDashboard();
+}
+
+/* =========================================================
+   LOW STOCK
+   ========================================================= */
+function renderLowStock(){
+  var c = document.getElementById('lowStockList');
+  var lowItems = inventoryCache.filter(function(i){
+    var q = parseFloat(i.quantity)||0;
+    var m = parseFloat(i.minimumLevel)||0;
+    return q <= m;
+  });
+  if(lowItems.length === 0){ c.innerHTML = '<div class="info-box success"><div class="info-text">✅ All items are above minimum stock level.</div></div>'; return; }
+  c.innerHTML = lowItems.map(function(i){
+    var qty = parseFloat(i.quantity)||0;
+    var min = parseFloat(i.minimumLevel)||0;
+    return '<div class="item-card"><div class="ic-icon">⚠️</div><div class="ic-info"><div class="ic-name">'+escapeHtml(i.name)+'</div><div class="ic-meta">Min: '+min+' · Current: '+qty+'</div></div><div class="ic-qty '+(qty<=0?'out':'low')+'">'+qty+'</div></div>';
+  }).join('');
+}
+
+/* =========================================================
+   EXPIRY
+   ========================================================= */
+function filterExpiry(filter){
+  currentExpiryFilter = filter;
+  document.querySelectorAll('#tabExpiry .tab-strip button').forEach(function(b){
+    b.classList.toggle('active', b.textContent.toLowerCase().indexOf(filter==='30'?'30':filter==='60'?'60':filter==='90'?'90':filter==='expired'?'expired':'all')!==-1);
+  });
+  renderExpiry();
+}
+function renderExpiry(){
+  var items = inventoryCache.filter(function(i){ return i.expiryDate; });
+  if(currentExpiryFilter === 'expired') items = items.filter(function(i){ return daysUntil(i.expiryDate) < 0; });
+  else if(currentExpiryFilter === '30') items = items.filter(function(i){ var d = daysUntil(i.expiryDate); return d >= 0 && d <= 30; });
+  else if(currentExpiryFilter === '60') items = items.filter(function(i){ var d = daysUntil(i.expiryDate); return d >= 0 && d <= 60; });
+  else if(currentExpiryFilter === '90') items = items.filter(function(i){ var d = daysUntil(i.expiryDate); return d >= 0 && d <= 90; });
+  items.sort(function(a,b){ return a.expiryDate.localeCompare(b.expiryDate); });
+  var body = document.getElementById('expiryBody');
+  if(items.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No items.</td></tr>'; return; }
+  body.innerHTML = items.map(function(i){
+    var days = daysUntil(i.expiryDate);
+    var cls = days < 0 ? 'expired' : days <= 30 ? 'expiring' : 'ok';
+    var label = days < 0 ? 'EXPIRED' : days + ' days';
+    return '<tr><td>'+escapeHtml(i.name)+'</td><td>'+escapeHtml(i.batch||'—')+'</td><td>'+escapeHtml(i.expiryDate)+'</td><td><span class="badge badge-'+cls+'">'+label+'</span></td><td>'+i.quantity+'</td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   FOOD / LAB / UNIFORM
+   ========================================================= */
+function renderFoodList(){
+  var items = inventoryCache.filter(function(i){ return i.category === 'Kitchen/Food' || i.store === 'Food Store'; });
+  document.getElementById('fdTotalItems').textContent = items.length;
+  document.getElementById('fdValue').textContent = Math.round(items.reduce(function(s,i){ return s+(parseFloat(i.quantity)||0)*(parseFloat(i.purchasePrice)||0); },0)/1000)+'K';
+  document.getElementById('fdLow').textContent = items.filter(function(i){ return (parseFloat(i.quantity)||0) <= (parseFloat(i.minimumLevel)||0); }).length;
+  document.getElementById('fdExpiring').textContent = items.filter(function(i){ return i.expiryDate && daysUntil(i.expiryDate) <= 30 && daysUntil(i.expiryDate) >= 0; }).length;
+  var c = document.getElementById('foodList');
+  c.innerHTML = items.length ? items.map(function(i){
+    return '<div class="item-card" onclick="viewItem(\''+escapeHtml(i.id)+'\')"><div class="ic-icon">🍲</div><div class="ic-info"><div class="ic-name">'+escapeHtml(i.name)+'</div><div class="ic-meta">'+(i.expiryDate?'Expires '+i.expiryDate:'')+'</div></div><div class="ic-qty">'+i.quantity+'<span class="ic-unit">'+escapeHtml(i.unit||'')+'</span></div></div>';
+  }).join('') : '<div class="info-box"><div class="info-text">No food items recorded yet. Add items with category "Kitchen/Food".</div></div>';
+}
+function renderLabList(){
+  var items = inventoryCache.filter(function(i){ return i.category === 'Laboratory' || i.store === 'Laboratory Store'; });
+  document.getElementById('lbTotalItems').textContent = items.length;
+  document.getElementById('lbLow').textContent = items.filter(function(i){ return (parseFloat(i.quantity)||0) <= (parseFloat(i.minimumLevel)||0); }).length;
+  document.getElementById('lbExpiring').textContent = items.filter(function(i){ return i.expiryDate && daysUntil(i.expiryDate) <= 30 && daysUntil(i.expiryDate) >= 0; }).length;
+  document.getElementById('lbHazard').textContent = items.filter(function(i){ return i.safetyNotes; }).length;
+  var c = document.getElementById('labList');
+  c.innerHTML = items.length ? items.map(function(i){
+    return '<div class="item-card" onclick="viewItem(\''+escapeHtml(i.id)+'\')"><div class="ic-icon">🔬</div><div class="ic-info"><div class="ic-name">'+escapeHtml(i.name)+'</div><div class="ic-meta">'+(i.safetyNotes?'⚠️ Has safety notes':'')+'</div></div><div class="ic-qty">'+i.quantity+'<span class="ic-unit">'+escapeHtml(i.unit||'')+'</span></div></div>';
+  }).join('') : '<div class="info-box"><div class="info-text">No laboratory items recorded yet.</div></div>';
+}
+function renderUniformList(){
+  var items = inventoryCache.filter(function(i){ return i.category === 'Uniforms' || i.store === 'Uniform Store'; });
+  var c = document.getElementById('uniformList');
+  c.innerHTML = items.length ? items.map(function(i){
+    return '<div class="item-card" onclick="viewItem(\''+escapeHtml(i.id)+'\')"><div class="ic-icon">👕</div><div class="ic-info"><div class="ic-name">'+escapeHtml(i.name)+'</div><div class="ic-meta">'+escapeHtml(i.description||'')+'</div></div><div class="ic-qty">'+i.quantity+'</div></div>';
+  }).join('') : '<div class="info-box"><div class="info-text">No uniform items recorded yet.</div></div>';
+}
+function openFoodIssueModal(){
+  openInfoModal(
+    '<div class="info-box"><div class="info-title">🍚 Issue Food to Kitchen</div><div class="info-text">Select food items and quantities to issue to the kitchen.</div></div>'+
+    '<div class="form-group"><label>Item</label><select id="foodIssItem"><option value="">Select…</option>'+inventoryCache.filter(function(i){ return i.category === 'Kitchen/Food'; }).map(function(i){ return '<option value="'+escapeHtml(i.id)+'">'+escapeHtml(i.name)+' ('+i.quantity+' '+escapeHtml(i.unit||'')+')</option>'; }).join('')+'</select></div>'+
+    '<div class="form-group"><label>Quantity</label><input type="number" id="foodIssQty" min="0.01" step="0.01" /></div>'+
+    '<div class="form-group"><label>Received By (Kitchen)</label><input type="text" id="foodIssReceivedBy" /></div>',
+    'Issue to Kitchen',
+    '<button class="btn btn-secondary" onclick="closeInfoModal()">Cancel</button><button class="btn btn-success" onclick="submitFoodIssue()">📤 Issue</button>');
+}
+async function submitFoodIssue(){
+  var id = document.getElementById('foodIssItem').value;
+  var qty = parseFloat(document.getElementById('foodIssQty').value);
+  var receivedBy = document.getElementById('foodIssReceivedBy').value.trim();
+  if(!id || !qty || !receivedBy){ showToast('Fill all fields','warning'); return; }
+  var item = inventoryCache.filter(function(i){ return i.id===id; })[0];
+  if(!item || qty > item.quantity){ showToast('❌ Insufficient stock','error'); return; }
+  // Reuse the issue logic
+  document.getElementById('issItem').value = id;
+  document.getElementById('issQty').value = qty;
+  document.getElementById('issRequester').value = receivedBy;
+  document.getElementById('issDept').value = 'Kitchen';
+  document.getElementById('issAuthBy').value = receivedBy;
+  closeInfoModal();
+  switchTab('issue');
+  setTimeout(function(){ submitIssueStock(); }, 100);
+}
+function openUniformIssueModal(){
+  openInfoModal(
+    '<div class="info-box"><div class="info-title">👕 Issue Uniform to Student</div><div class="info-text">Select uniform items and the student receiving them.</div></div>'+
+    '<div class="form-group"><label>Uniform Item</label><select id="uniIssItem"><option value="">Select…</option>'+inventoryCache.filter(function(i){ return i.category === 'Uniforms'; }).map(function(i){ return '<option value="'+escapeHtml(i.id)+'">'+escapeHtml(i.name)+' ('+i.quantity+')</option>'; }).join('')+'</select></div>'+
+    '<div class="form-group"><label>Student Name</label><input type="text" id="uniIssStudent" /></div>'+
+    '<div class="form-group"><label>Admission No.</label><input type="text" id="uniIssAdm" /></div>'+
+    '<div class="form-group"><label>Quantity</label><input type="number" id="uniIssQty" value="1" min="1" /></div>',
+    'Issue Uniform',
+    '<button class="btn btn-secondary" onclick="closeInfoModal()">Cancel</button><button class="btn btn-success" onclick="submitUniformIssue()">📤 Issue</button>');
+}
+async function submitUniformIssue(){
+  var id = document.getElementById('uniIssItem').value;
+  var student = document.getElementById('uniIssStudent').value.trim();
+  var adm = document.getElementById('uniIssAdm').value.trim();
+  var qty = parseFloat(document.getElementById('uniIssQty').value);
+  if(!id || !student || !qty){ showToast('Fill all fields','warning'); return; }
+  var item = inventoryCache.filter(function(i){ return i.id===id; })[0];
+  if(!item || qty > item.quantity){ showToast('❌ Insufficient stock','error'); return; }
+  document.getElementById('issItem').value = id;
+  document.getElementById('issQty').value = qty;
+  document.getElementById('issRequester').value = student + (adm ? ' ('+adm+')' : '');
+  document.getElementById('issDept').value = 'Boarding';
+  document.getElementById('issAuthBy').value = authSession.username;
+  closeInfoModal();
+  switchTab('issue');
+  setTimeout(function(){ submitIssueStock(); }, 100);
+}
+
+/* =========================================================
+   ASSETS
+   ========================================================= */
+function openAddAssetModal(){
+  var html =
+    '<div class="form-row-2"><div class="form-group"><label>Asset Name *</label><input type="text" id="asName" /></div>'+
+    '<div class="form-group"><label>Category</label><select id="asCat"><option>Electronics</option><option>Furniture</option><option>Laboratory</option><option>Sports</option><option>Transport</option><option>Other</option></select></div></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Serial Number</label><input type="text" id="asSerial" /></div>'+
+    '<div class="form-group"><label>Location</label><input type="text" id="asLocation" /></div></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Purchase Date</label><input type="date" id="asDate" /></div>'+
+    '<div class="form-group"><label>Purchase Cost (UGX)</label><input type="number" id="asCost" min="0" step="1000" /></div></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Department</label><input type="text" id="asDept" /></div>'+
+    '<div class="form-group"><label>Assigned To</label><input type="text" id="asAssigned" /></div></div>'+
+    '<div class="form-group"><label>Condition</label><select id="asCondition"><option>New</option><option>Good</option><option>Fair</option><option>Poor</option><option>Damaged</option></select></div>';
+  openInfoModal(html, 'Register Asset', '<button class="btn btn-secondary" onclick="closeInfoModal()">Cancel</button><button class="btn btn-success" onclick="saveAsset()">💾 Register</button>');
+}
+async function saveAsset(){
+  var name = document.getElementById('asName').value.trim();
+  if(!name){ showToast('Enter asset name','warning'); return; }
+  var a = {
+    id: genId('AST'),
+    name: name,
+    category: document.getElementById('asCat').value,
+    serial: document.getElementById('asSerial').value,
+    location: document.getElementById('asLocation').value,
+    purchaseDate: document.getElementById('asDate').value,
+    purchaseCost: parseFloat(document.getElementById('asCost').value)||0,
+    department: document.getElementById('asDept').value,
+    assignedTo: document.getElementById('asAssigned').value,
+    condition: document.getElementById('asCondition').value,
+    status: 'active',
+    storekeeper: authSession.username,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveAsset', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), asset: JSON.stringify(a)});
+  await audit('ADD_ASSET','asset',a.id,name);
+  assetsCache.push(a);
+  showToast('✅ Asset registered','success');
+  closeInfoModal();
+  renderAssets();
+}
+function renderAssets(){
+  var body = document.getElementById('assetsBody');
+  if(assetsCache.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No assets registered.</td></tr>'; return; }
+  body.innerHTML = assetsCache.map(function(a){
+    return '<tr data-search="'+escapeHtml((a.name+' '+(a.serial||'')+' '+(a.location||'')).toLowerCase())+'"><td>'+escapeHtml(a.id)+'</td><td>'+escapeHtml(a.name)+'</td><td>'+escapeHtml(a.location||'')+'</td><td>'+escapeHtml(a.assignedTo||'—')+'</td><td><span class="badge badge-active">'+escapeHtml(a.condition||'Good')+'</span></td><td><button class="btn btn-info btn-sm" onclick="viewAsset(\''+escapeHtml(a.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function filterAssets(){
+  var q = document.getElementById('assetSearch').value.toLowerCase();
+  document.querySelectorAll('#assetsBody tr').forEach(function(tr){
+    var s = tr.getAttribute('data-search')||'';
+    tr.style.display = (!q || s.indexOf(q)!==-1)?'':'none';
+  });
+}
+function viewAsset(id){
+  var a = assetsCache.filter(function(x){ return x.id===id; })[0];
+  if(!a) return;
+  var html = '<div class="info-box"><div class="info-title">'+escapeHtml(a.name)+'</div><div class="info-text">'+escapeHtml(a.category||'')+' · '+escapeHtml(a.id)+'</div></div>'+
+    '<div style="font-size:13px;line-height:1.7">'+
+    '<div><strong>Serial:</strong> '+escapeHtml(a.serial||'—')+'</div>'+
+    '<div><strong>Location:</strong> '+escapeHtml(a.location||'—')+'</div>'+
+    '<div><strong>Department:</strong> '+escapeHtml(a.department||'—')+'</div>'+
+    '<div><strong>Assigned To:</strong> '+escapeHtml(a.assignedTo||'—')+'</div>'+
+    '<div><strong>Condition:</strong> '+escapeHtml(a.condition||'—')+'</div>'+
+    '<div><strong>Purchase Date:</strong> '+escapeHtml(a.purchaseDate||'—')+'</div>'+
+    '<div><strong>Purchase Cost:</strong> '+fmtUGX(a.purchaseCost)+'</div>'+
+    '</div>';
+  openInfoModal(html, 'Asset Details');
+}
+
+/* =========================================================
+   RETURNABLE
+   ========================================================= */
+function openIssueReturnableModal(){
+  var html =
+    '<div class="form-group"><label>Item *</label><input type="text" id="retItem" placeholder="e.g., Football, Projector" /></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Borrower *</label><input type="text" id="retBorrower" /></div>'+
+    '<div class="form-group"><label>Department</label><input type="text" id="retDept" /></div></div>'+
+    '<div class="form-row-2"><div class="form-group"><label>Quantity</label><input type="number" id="retQty" value="1" min="1" /></div>'+
+    '<div class="form-group"><label>Expected Return Date *</label><input type="date" id="retExpReturn" /></div></div>'+
+    '<div class="form-group"><label>Condition on Issue</label><input type="text" id="retCondition" placeholder="e.g., Good" /></div>';
+  openInfoModal(html, 'Issue Returnable Item', '<button class="btn btn-secondary" onclick="closeInfoModal()">Cancel</button><button class="btn btn-success" onclick="saveReturnable()">📤 Issue</button>');
+}
+async function saveReturnable(){
+  var item = document.getElementById('retItem').value.trim();
+  var borrower = document.getElementById('retBorrower').value.trim();
+  var expReturn = document.getElementById('retExpReturn').value;
+  if(!item || !borrower || !expReturn){ showToast('Fill required fields','warning'); return; }
+  var r = {
+    id: genId('RET'),
+    item: item,
+    quantity: parseFloat(document.getElementById('retQty').value)||1,
+    borrower: borrower,
+    department: document.getElementById('retDept').value,
+    condition: document.getElementById('retCondition').value,
+    issuedDate: today(),
+    expectedReturn: expReturn,
+    actualReturn: null,
+    status: 'issued',
+    storekeeper: authSession.username,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveReturnableItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(r)});
+  await audit('ISSUE_RETURNABLE','returnable',r.id,item+' to '+borrower);
+  returnableCache.unshift(r);
+  showToast('✅ Item issued','success');
+  closeInfoModal();
+  renderReturnable();
+}
+function filterReturnable(filter){
+  currentReturnableFilter = filter;
+  document.querySelectorAll('#tabReturnable .tab-strip button').forEach(function(b){
+    var text = b.textContent.toLowerCase();
+    b.classList.toggle('active', text.indexOf(filter)!==-1 || (filter==='all' && text.indexOf('all')!==-1));
+  });
+  renderReturnable();
+}
+function renderReturnable(){
+  var list = returnableCache;
+  if(currentReturnableFilter === 'issued') list = list.filter(function(r){ return r.status === 'issued'; });
+  else if(currentReturnableFilter === 'overdue') list = list.filter(function(r){ return r.status === 'issued' && r.expectedReturn < today(); });
+  else if(currentReturnableFilter === 'returned') list = list.filter(function(r){ return r.status === 'returned'; });
+  var body = document.getElementById('returnableBody');
+  if(list.length === 0){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:20px">No items.</td></tr>'; return; }
+  body.innerHTML = list.map(function(r){
+    var cls = r.status === 'returned' ? 'returned' : (r.expectedReturn < today() ? 'overdue' : 'issued');
+    return '<tr><td>'+escapeHtml(r.item)+' × '+r.quantity+'</td><td>'+escapeHtml(r.borrower)+'</td><td>'+escapeHtml(r.issuedDate)+'</td><td>'+escapeHtml(r.expectedReturn)+'</td><td><span class="badge badge-'+cls+'">'+escapeHtml(r.status)+'</span></td><td>'+(r.status==='issued'?'<button class="btn btn-info btn-sm" onclick="markReturned(\''+escapeHtml(r.id)+'\')">↩️ Return</button>':'')+'</td></tr>';
+  }).join('');
+}
+async function markReturned(id){
+  var r = returnableCache.filter(function(x){ return x.id===id; })[0];
+  if(!r) return;
+  r.status = 'returned';
+  r.actualReturn = today();
+  await api({action:'updateReturnableItem', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), item: JSON.stringify(r)});
+  await audit('RETURN_ITEM','returnable',id,r.item+' returned by '+r.borrower);
+  showToast('✅ Marked returned','success');
+  renderReturnable();
+}
+
+/* =========================================================
+   SUPPLIERS
+   ========================================================= */
+function renderSuppliers(){
+  var body = document.getElementById('suppliersBody');
+  var sup = {};
+  inventoryCache.forEach(function(i){
+    if(!i.supplier) return;
+    sup[i.supplier] = sup[i.supplier] || {name:i.supplier, items:0, lastDelivery:''};
+    sup[i.supplier].items++;
+    if(i.createdAt && i.createdAt > sup[i.supplier].lastDelivery) sup[i.supplier].lastDelivery = i.createdAt.substring(0,10);
+  });
+  var list = Object.values(sup);
+  if(list.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No suppliers linked to inventory items.</td></tr>'; return; }
+  body.innerHTML = list.map(function(s){
+    return '<tr><td>'+escapeHtml(s.name)+'</td><td>—</td><td>'+s.items+' items</td><td>'+escapeHtml(s.lastDelivery)+'</td><td>—</td></tr>';
+  }).join('');
+}
+
+/* =========================================================
+   PURCHASE REQUESTS
+   ========================================================= */
+function openNewPurchaseRequestModal(){
+  var lowItems = inventoryCache.filter(function(i){ return (parseFloat(i.quantity)||0) <= (parseFloat(i.minimumLevel)||0); });
+  var html = '<div class="info-box warning"><div class="info-title">⚠️ Note</div><div class="info-text">Purchase requests must be approved by the Bursar/Administrator before ordering.</div></div>'+
+    '<div class="form-group"><label>Justification *</label><textarea id="prJust" rows="2"></textarea></div>'+
+    '<h4 style="margin:10px 0;font-size:14px;color:var(--store)">Items to Purchase</h4>'+
+    '<div id="prItemsContainer"></div>'+
+    '<button class="btn btn-secondary btn-sm" onclick="addPurchaseItemRow()">➕ Add Item</button>'+
+    '<div style="margin-top:10px"><button class="btn btn-info btn-sm" onclick="autoFillLowStockPR()">📋 Auto-fill from Low Stock</button></div>';
+  openInfoModal(html, 'New Purchase Request', '<button class="btn btn-secondary" onclick="closeInfoModal()">Cancel</button><button class="btn btn-success" onclick="savePurchaseRequest()">📤 Submit</button>');
+  addPurchaseItemRow();
+}
+function addPurchaseItemRow(){
+  var c = document.getElementById('prItemsContainer');
+  var row = document.createElement('div');
+  row.className = 'pr-item-row';
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin-bottom:6px';
+  row.innerHTML = '<input type="text" class="pr-name" placeholder="Item name" style="padding:8px;border:2px solid #ddd;border-radius:6px" />'+
+    '<input type="number" class="pr-qty" placeholder="Qty" min="1" style="padding:8px;border:2px solid #ddd;border-radius:6px" />'+
+    '<input type="number" class="pr-cost" placeholder="Unit cost" min="0" step="100" style="padding:8px;border:2px solid #ddd;border-radius:6px" />'+
+    '<button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">✕</button>';
+  c.appendChild(row);
+}
+function autoFillLowStockPR(){
+  document.getElementById('prItemsContainer').innerHTML = '';
+  var lowItems = inventoryCache.filter(function(i){ return (parseFloat(i.quantity)||0) <= (parseFloat(i.minimumLevel)||0); });
+  lowItems.forEach(function(i){
+    addPurchaseItemRow();
+    var rows = document.querySelectorAll('.pr-item-row');
+    var last = rows[rows.length-1];
+    last.querySelector('.pr-name').value = i.name;
+    last.querySelector('.pr-qty').value = Math.max(1, (parseFloat(i.maximumLevel)||100) - (parseFloat(i.quantity)||0));
+    last.querySelector('.pr-cost').value = i.purchasePrice || 0;
+  });
+  document.getElementById('prJust').value = 'Auto-generated purchase request for '+lowItems.length+' low-stock items';
+}
+async function savePurchaseRequest(){
+  var just = document.getElementById('prJust').value.trim();
+  if(!just){ showToast('Enter justification','warning'); return; }
+  var items = [];
+  document.querySelectorAll('.pr-item-row').forEach(function(row){
+    var name = row.querySelector('.pr-name').value.trim();
+    var qty = parseFloat(row.querySelector('.pr-qty').value) || 0;
+    var cost = parseFloat(row.querySelector('.pr-cost').value) || 0;
+    if(name && qty > 0) items.push({name:name, quantity:qty, unitCost:cost, total:qty*cost});
+  });
+  if(items.length === 0){ showToast('Add at least one item','warning'); return; }
+  var pr = {
+    id: genId('PR'),
+    justification: just,
+    items: items,
+    totalCost: items.reduce(function(s,i){ return s+i.total; },0),
+    status: 'pending',
+    requestedBy: authSession.username,
+    requestedByName: authSession.name || authSession.username,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'savePurchaseRequest', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), request: JSON.stringify(pr)});
+  await audit('CREATE_PURCHASE_REQUEST','purchase',pr.id,items.length+' items, total '+fmtUGX(pr.totalCost));
+  purchaseRequestsCache.unshift(pr);
+  showToast('✅ Purchase request submitted','success');
+  closeInfoModal();
+  renderPurchaseRequests();
+}
+function renderPurchaseRequests(){
+  var body = document.getElementById('purchasesBody');
+  if(purchaseRequestsCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No purchase requests.</td></tr>'; return; }
+  body.innerHTML = purchaseRequestsCache.map(function(pr){
+    var cls = pr.status==='pending'?'pending':pr.status==='approved'?'approved':pr.status==='rejected'?'rejected':'paid';
+    return '<tr><td>'+escapeHtml((pr.timestamp||'').substring(0,10))+'</td><td>'+pr.items.length+'</td><td class="amount">'+fmtUGX(pr.totalCost)+'</td><td><span class="badge badge-'+cls+'">'+escapeHtml(pr.status)+'</span></td><td><button class="btn btn-info btn-sm" onclick="viewPurchaseRequest(\''+escapeHtml(pr.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewPurchaseRequest(id){
+  var pr = purchaseRequestsCache.filter(function(x){ return x.id===id; })[0];
+  if(!pr) return;
+  var html =
+    '<div class="info-box"><div class="info-title">Purchase Request</div><div class="info-text">Requested by '+escapeHtml(pr.requestedByName||'')+' · Status: '+escapeHtml(pr.status)+'</div></div>'+
+    '<p style="font-size:13px"><strong>Justification:</strong> '+escapeHtml(pr.justification||'')+'</p>'+
+    '<div class="table-wrap" style="margin-top:10px"><table class="data-table"><thead><tr><th>Item</th><th>Qty</th><th>Unit Cost</th><th>Total</th></tr></thead><tbody>'+
+    (pr.items||[]).map(function(it){ return '<tr><td>'+escapeHtml(it.name)+'</td><td>'+it.quantity+'</td><td>'+fmtUGX(it.unitCost)+'</td><td>'+fmtUGX(it.total)+'</td></tr>'; }).join('')+
+    '</tbody></table></div>'+
+    '<div style="text-align:right;margin-top:10px;font-size:16px;font-weight:700;color:var(--store)">Total: '+fmtUGX(pr.totalCost)+'</div>';
+  openInfoModal(html, 'Purchase Request');
+}
+
+/* =========================================================
+   HANDOVER
+   ========================================================= */
+async function submitHandover(){
+  var notes = document.getElementById('hoNotes').value.trim();
+  if(!notes){ showToast('Enter handover notes','warning'); return; }
+  var h = {
+    id: genId('HO'),
+    storekeeper: authSession.username,
+    storekeeperName: authSession.name || authSession.username,
+    store: storekeeperInfo.store,
+    date: today(),
+    time: nowTime(),
+    totalItems: inventoryCache.length,
+    pendingRequests: requestsCache.filter(function(r){ return r.status==='pending'; }).length,
+    pendingDeliveries: 0,
+    damagedLost: inventoryCache.filter(function(i){ return (parseFloat(i.quantity)||0) <= 0 && i.minimumLevel > 0; }).length,
+    notes: notes,
+    timestamp: nowIso(),
+    school: getActiveSchool()
+  };
+  await api({action:'saveStoreHandover', sheetId: ACCOUNTS_SHEET_ID, school: getActiveSchool(), handover: JSON.stringify(h)});
+  await audit('STORE_HANDOVER','handover',h.id,'Handover submitted');
+  handoversCache.unshift(h);
+  showToast('✅ Handover submitted','success');
+  document.getElementById('hoNotes').value = '';
+  renderHandovers();
+}
+function renderHandovers(){
+  var body = document.getElementById('handoversBody');
+  if(handoversCache.length === 0){ body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No handovers.</td></tr>'; return; }
+  body.innerHTML = handoversCache.slice(0,20).map(function(h){
+    return '<tr><td>'+escapeHtml(h.date)+'</td><td>'+escapeHtml(h.storekeeperName||'')+'</td><td>'+escapeHtml(h.totalItems||0)+'</td><td>'+escapeHtml(h.pendingRequests||0)+'</td><td><button class="btn btn-info btn-sm" onclick="viewHandover(\''+escapeHtml(h.id)+'\')">👁️</button></td></tr>';
+  }).join('');
+}
+function viewHandover(id){
+  var h = handoversCache.filter(function(x){ return x.id===id; })[0];
+  if(!h) return;
+  openInfoModal(
+    '<div class="info-box"><div class="info-title">'+escapeHtml(h.date)+' '+escapeHtml(h.time||'')+'</div><div class="info-text">Handover by '+escapeHtml(h.storekeeperName||'')+'</div></div>'+
+    '<p style="font-size:13px"><strong>Total items:</strong> '+h.totalItems+' · <strong>Pending requests:</strong> '+h.pendingRequests+' · <strong>Damaged/Lost:</strong> '+h.damagedLost+'</p>'+
+    '<h4 style="margin:10px 0 4px">Notes</h4><p style="font-size:13px;white-space:pre-wrap">'+escapeHtml(h.notes||'')+'</p>',
+    'Handover');
+}
+
+/* =========================================================
+   NOTIFICATIONS
+   ========================================================= */
+function renderNotifications(){
+  var c = document.getElementById('notificationsList');
+  if(notificationsCache.length === 0){ c.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No notifications.</p>'; return; }
+  var unread = notificationsCache.filter(function(n){ return !n.read; }).length;
+  var badge = document.getElementById('notifBadge');
+  if(unread > 0){ badge.style.display='inline-block'; badge.textContent = unread; }
+  else badge.style.display = 'none';
+  c.innerHTML = notificationsCache.map(function(n){
+    return '<div class="info-box '+(n.priority==='high'?'danger':'')+'"><div class="info-title">'+escapeHtml(n.title||'')+'</div><div class="info-text">'+escapeHtml(n.body||'')+'</div><div style="font-size:10px;color:#888;margin-top:4px">'+escapeHtml(shortTime(n.timestamp))+'</div></div>';
+  }).join('');
+}
+
+/* =========================================================
+   REPORTS
+   ========================================================= */
+function generateReport(){
+  var type = document.getElementById('rpType').value;
+  var period = document.getElementById('rpPeriod').value;
+  var out = document.getElementById('reportOutput');
+  var from, to = today();
+  if(period==='today') from = today();
+  else if(period==='week'){ var d=new Date(); d.setDate(d.getDate()-7); from = d.toISOString().split('T')[0]; }
+  else if(period==='month'){ var d2=new Date(); d2.setDate(1); from = d2.toISOString().split('T')[0]; }
+  else if(period==='term'){ from = '2026-01-01'; }
+  else from = '1970-01-01';
+
+  var html = '<h3 style="color:var(--store);margin-bottom:10px">'+escapeHtml(type.charAt(0).toUpperCase()+type.slice(1))+' Report</h3>';
+  html += '<p style="font-size:12px;color:#666;margin-bottom:10px">Period: '+from+' to '+to+'</p>';
+
+  if(type==='inventory'){
+    html += renderTable(inventoryCache, ['id','name','category','quantity','unit','minimumLevel','location'], ['ID','Name','Category','Qty','Unit','Min','Location']);
+  } else if(type==='valuation'){
+    var totalVal = inventoryCache.reduce(function(s,i){ return s+(parseFloat(i.quantity)||0)*(parseFloat(i.purchasePrice)||0); },0);
+    html += '<div class="info-box"><div class="info-title">Total Stock Value</div><div class="info-text" style="font-size:24px;font-weight:700;color:var(--store)">'+fmtUGX(totalVal)+'</div></div>';
+    html += renderTable(inventoryCache, ['name','quantity','unit','purchasePrice'], ['Name','Qty','Unit','Unit Price']);
+  } else if(type==='movements'){
+    var list = movementsCache.filter(function(m){ return m.date >= from && m.date <= to; });
+    html += renderTable(list, ['date','itemName','type','quantity','balanceAfter','user'], ['Date','Item','Type','Qty','Balance','User']);
+  } else if(type==='received'){
+    var list = grnCache.filter(function(g){ return g.date >= from && g.date <= to; });
+    html += renderTable(list, ['date','grnNo','supplier','itemName','quantity'], ['Date','GRN','Supplier','Item','Qty']);
+  } else if(type==='issued'){
+    var list = issuesCache.filter(function(i){ return i.date >= from && i.date <= to; });
+    html += renderTable(list, ['date','issueNo','requester','department','itemName','quantity'], ['Date','Issue','Requester','Dept','Item','Qty']);
+  } else if(type==='lowstock'){
+    var list = inventoryCache.filter(function(i){ return (parseFloat(i.quantity)||0) <= (parseFloat(i.minimumLevel)||0); });
+    html += renderTable(list, ['id','name','quantity','minimumLevel','supplier'], ['ID','Item','Qty','Min','Supplier']);
+  } else if(type==='expiry'){
+    var list = inventoryCache.filter(function(i){ return i.expiryDate; }).sort(function(a,b){ return a.expiryDate.localeCompare(b.expiryDate); });
+    html += renderTable(list, ['name','batch','expiryDate','quantity'], ['Item','Batch','Expiry','Qty']);
+  } else if(type==='food'){
+    var list = inventoryCache.filter(function(i){ return i.category === 'Kitchen/Food'; });
+    html += renderTable(list, ['name','quantity','unit','expiryDate'], ['Item','Qty','Unit','Expiry']);
+  } else if(type==='uniform'){
+    var list = inventoryCache.filter(function(i){ return i.category === 'Uniforms'; });
+    html += renderTable(list, ['name','description','quantity'], ['Item','Description','Qty']);
+  } else if(type==='lab'){
+    var list = inventoryCache.filter(function(i){ return i.category === 'Laboratory'; });
+    html += renderTable(list, ['name','quantity','unit','location','expiryDate'], ['Item','Qty','Unit','Location','Expiry']);
+  } else if(type==='assets'){
+    html += renderTable(assetsCache, ['id','name','category','location','assignedTo','condition'], ['ID','Name','Category','Location','Assigned','Condition']);
+  } else if(type==='returnable'){
+    html += renderTable(returnableCache, ['item','borrower','issuedDate','expectedReturn','status'], ['Item','Borrower','Issued','Expected','Status']);
+  } else if(type==='requests'){
+    var list = requestsCache.filter(function(r){ return (r.createdAt||'').substring(0,10) >= from; });
+    html += renderTable(list, ['id','requester','department','status'], ['ID','Requester','Dept','Status']);
+  } else if(type==='adjustments'){
+    var list = movementsCache.filter(function(m){ return m.type === 'adjustment' && m.date >= from; });
+    html += renderTable(list, ['date','itemName','quantity','reference','user'], ['Date','Item','Adj','Reference','User']);
+  } else {
+    html += '<p>Report type not implemented in this view.</p>';
+  }
+  out.innerHTML = html;
+}
+function renderTable(list, keys, headers){
+  if(list.length === 0) return '<div class="info-box"><div class="info-text">No records.</div></div>';
+  var h = '<div class="table-wrap"><table class="data-table"><thead><tr>';
+  headers.forEach(function(hd){ h += '<th>'+escapeHtml(hd)+'</th>'; });
+  h += '</tr></thead><tbody>';
+  list.slice(0,500).forEach(function(item){
+    h += '<tr>';
+    keys.forEach(function(k){ h += '<td>'+escapeHtml(item[k]!=null?item[k]:'')+'</td>'; });
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+function printCurrentReport(){
+  var html = document.getElementById('reportOutput').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>Report</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse;margin:10px 0}th,td{border:1px solid #999;padding:6px;font-size:11px}th{background:#e85d04;color:#fff}</style></head><body>'+html+'</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.focus(); win.print(); }, 400);
+}
+
+/* =========================================================
+   QR SCANNER
+   ========================================================= */
+function openScanner(){
+  document.getElementById('scannerModal').classList.add('active');
+  setTimeout(startQrScanner, 300);
+}
+function startQrScanner(){
+  if(typeof Html5Qrcode === 'undefined') return;
+  html5QrScanner = new Html5Qrcode('qr-reader');
+  html5QrScanner.start(
+    {facingMode:'environment'},
+    {fps:10, qrbox:{width:250,height:250}},
+    function(text){
+      // QR format: "ITEM:ITM-XXX" or just the item ID
+      var parts = text.split(':');
+      var id = parts[1] || parts[0];
+      closeScanner();
+      var item = inventoryCache.filter(function(i){ return i.id === id; })[0];
+      if(item){
+        switchTab('inventory');
+        setTimeout(function(){ viewItem(id); }, 200);
+      } else {
+        showToast('❌ Item not found: '+id,'error');
+      }
+    },
+    function(){}
+  ).catch(function(err){ console.warn(err); });
+}
+function closeScanner(){
+  document.getElementById('scannerModal').classList.remove('active');
+  if(html5QrScanner){ html5QrScanner.stop().then(function(){ html5QrScanner.clear(); html5QrScanner = null; }).catch(function(){}); }
+}
+function switchCamera(){
+  if(html5QrScanner){
+    html5QrScanner.stop().then(function(){ closeScanner(); setTimeout(openScanner, 300); }).catch(function(){});
+  }
+}
+
+/* =========================================================
+   TAB SWITCHING
+   ========================================================= */
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.form-section').forEach(function(el){ el.classList.remove('active'); });
+  var map = {
+    dashboard:'tabDashboard', inventory:'tabInventory', receive:'tabReceive', issue:'tabIssue',
+    requests:'tabRequests', grn:'tabGrn', issues:'tabIssues', transfers:'tabTransfers',
+    stocktake:'tabStocktake', lowstock:'tabLowstock', expiry:'tabExpiry', food:'tabFood',
+    lab:'tabLab', uniform:'tabUniform', assets:'tabAssets', returnable:'tabReturnable',
+    suppliers:'tabSuppliers', purchases:'tabPurchases', reports:'tabReports',
+    handover:'tabHandover', notifications:'tabNotifications', profile:'tabProfile'
+  };
+  var el = document.getElementById(map[tab]);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.querySelectorAll('.bn-item').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+  });
+  document.getElementById('navbarMenu').classList.remove('open');
+  window.scrollTo(0,0);
+
+  if(tab==='dashboard') updateDashboard();
+  if(tab==='inventory') { populateDropdowns(); renderInventory(); }
+  if(tab==='receive') populateDropdowns();
+  if(tab==='issue') populateDropdowns();
+  if(tab==='requests') renderRequests();
+  if(tab==='grn') renderGRNs();
+  if(tab==='issues') renderIssueNotes();
+  if(tab==='transfers') { populateDropdowns(); renderTransfers(); }
+  if(tab==='lowstock') renderLowStock();
+  if(tab==='expiry') renderExpiry();
+  if(tab==='food') renderFoodList();
+  if(tab==='lab') renderLabList();
+  if(tab==='uniform') renderUniformList();
+  if(tab==='assets') renderAssets();
+  if(tab==='returnable') renderReturnable();
+  if(tab==='suppliers') renderSuppliers();
+  if(tab==='purchases') renderPurchaseRequests();
+  if(tab==='handover') {
+    document.getElementById('hoItems').textContent = inventoryCache.length;
+    document.getElementById('hoRequests').textContent = requestsCache.filter(function(r){ return r.status==='pending'; }).length;
+    document.getElementById('hoDeliveries').textContent = 0;
+    document.getElementById('hoDamage').textContent = inventoryCache.filter(function(i){ return (parseFloat(i.quantity)||0) <= 0 && i.minimumLevel > 0; }).length;
+    renderHandovers();
+  }
+  if(tab==='notifications') renderNotifications();
+  if(tab==='profile') updateProfile();
+}
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+function updateProfile(){
+  document.getElementById('pfName').textContent = storekeeperInfo.name;
+  document.getElementById('pfStaff').textContent = storekeeperInfo.staffId + ' · ' + storekeeperInfo.store;
+  document.getElementById('pfDetails').innerHTML =
+    '<strong>Staff ID:</strong> ' + escapeHtml(storekeeperInfo.staffId) + '<br>'+
+    '<strong>Store:</strong> ' + escapeHtml(storekeeperInfo.store) + '<br>'+
+    '<strong>Date:</strong> ' + today() + '<br>'+
+    '<strong>Role:</strong> Storekeeper';
+}
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+function appLogout(){
+  if(!confirm('Log out?')) return;
+  closeScanner();
+  sessionStorage.removeItem('authSession');
+  window.location.href = 'index.html';
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', initStore);
+</script>
+</body>
+</html>
