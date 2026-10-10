@@ -865,14 +865,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v6.0 — Complete JavaScript
-   Fixes: photo by name, AOI/EOT independent, A-Level points,
-   days attended, per-subject tabs, mini report A-Level P1 only,
-   auto-switch A/O level on class select, PDF class lists,
-   full registration info on class lists
+   EduTrack Pro Admin v7.0 — Complete JavaScript
    ============================================================ */
 
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyRrTDdfiN_GizwzSfBHpCEB9uYv1YKfRtUesSKnlYIwBnfv8jEwcNQKsXK-OuTglp0Mg/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','Entrepreneurship':'541','Computer Studies':'462','Luganda':'345','Kiswahili':'336','Agriculture':'531'};
@@ -916,7 +912,6 @@ function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
 function isOLevelClass(cls){return OLEVEL_CLASSES.indexOf(cls)!==-1;}
 function isALevelClass(cls){return ALEVEL_CLASSES.indexOf(cls)!==-1;}
 
-/* ============ PHOTO MATCHING (BY NAME ONLY) ============ */
 function getRegisteredFaces(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.storageKey)||'[]');}catch(e){return[];}}
 function saveRegisteredFaces(r){localStorage.setItem(FACE_CONFIG.storageKey,JSON.stringify(r));}
 function getAttendanceRecords(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.attendanceKey)||'[]');}catch(e){return[];}}
@@ -924,16 +919,14 @@ function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey
 
 function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
 
-/* Look up photo BY STUDENT NAME only — ignores ID completely */
+/* PHOTO BY NAME ONLY */
 function getStudentPhoto(studentId,name){
   if(!name)return '';
   var target=normalizeNameKey(name);
   if(!target)return '';
-  // Direct key
   var key=String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
   var direct=localStorage.getItem('studentPhoto_name_'+key);
   if(direct)return direct;
-  // Scan all name keys
   for(var i=0;i<localStorage.length;i++){
     var k=localStorage.key(i);
     if(k&&k.startsWith('studentPhoto_name_')){
@@ -968,30 +961,16 @@ function gradeFromPercentage(pct,level){
   if(pct>=a)return 'A';if(pct>=b)return 'B';if(pct>=c)return 'C';if(pct>=d)return 'D';if(pct>=e)return 'E';return 'F';
 }
 function generateAutoComment(pct,isALevel){
-  if(isALevel){
-    if(pct>=80)return 'Excellent performance. Keep up the outstanding work.';
-    if(pct>=70)return 'Very good performance. Continue working hard.';
-    if(pct>=60)return 'Good performance. Aim higher next term.';
-    if(pct>=50)return 'Satisfactory performance. More effort needed.';
-    if(pct>=35)return 'Fair performance. Needs significant improvement.';
-    return 'Below expectations. Requires serious attention.';
-  } else {
-    if(pct>=80)return 'EXCEPTIONAL';
-    if(pct>=70)return 'OUTSTANDING';
-    if(pct>=50)return 'SATISFACTORY';
-    if(pct>=40)return 'BASIC';
-    return 'ELEMENTARY';
-  }
+  if(isALevel){if(pct>=80)return 'Excellent performance. Keep up the outstanding work.';if(pct>=70)return 'Very good performance. Continue working hard.';if(pct>=60)return 'Good performance. Aim higher next term.';if(pct>=50)return 'Satisfactory performance. More effort needed.';if(pct>=35)return 'Fair performance. Needs significant improvement.';return 'Below expectations. Requires serious attention.';}
+  else{if(pct>=80)return 'EXCEPTIONAL';if(pct>=70)return 'OUTSTANDING';if(pct>=50)return 'SATISFACTORY';if(pct>=40)return 'BASIC';return 'ELEMENTARY';}
 }
 
-/* ============ BRANDING ============ */
 function getSchoolBranding(){
   var school=getActiveSchool();
   var s={};try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
   return{name:s.schoolName||school||'School',motto:s.schoolMotto||'Empowering Education',address:s.schoolAddress||'',phone:s.schoolPhone||'',email:s.schoolEmail||'',badge:localStorage.getItem('reportCardBadge')||'',signature:localStorage.getItem('headTeacherSignature')||'',termStartDate:s.termStartDate||'',termEndDate:s.termEndDate||''};
 }
 
-/* ============ QR ============ */
 function qrToImage(el){if(!el)return '';var c=el.querySelector('canvas');if(c){try{return c.toDataURL('image/png');}catch(e){return '';}}var i=el.querySelector('img');if(i&&i.src)return i.src;return '';}
 function materializeQRCodes(root){
   if(!root)return;
@@ -1245,7 +1224,7 @@ function enforceMax(inputEl,maxVal){
     inputEl.value=maxVal;
     inputEl.style.borderColor='#c1121f';
     inputEl.style.background='#fff5f5';
-    showToast('Max '+maxVal+' exceeded. Value capped.','warning');
+    showToast('Maximum score for this field is '+maxVal+'. Value capped.','warning');
     setTimeout(function(){inputEl.style.borderColor='';inputEl.style.background='';},1500);
   }
   if(v<0){inputEl.value=0;}
@@ -1255,29 +1234,23 @@ function convertScore(raw,rawMax,targetOutOf){if(!rawMax||rawMax<=0)return 0;ret
 function computeOLevelRow(s){
   var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
   var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
-  var examSel=document.getElementById('examSelectionOLevel')?.value||'both';
   var aoi=parseFloat(s.score1)||0;
   var eot=parseFloat(s.score2)||0;
   var aoiC=convertScore(aoi,aoiMax,20);
   var eotC=convertScore(eot,eotMax,80);
-  var total=0,avg=0;
-  if(examSel==='aoi'){total=aoiC;avg=(aoiC/20)*100;}
-  else if(examSel==='eot'){total=eotC;avg=(eotC/80)*100;}
-  else{total=aoiC+eotC;avg=((aoiC/20)*100+(eotC/80)*100)/2;}
+  var total=aoiC+eotC;
+  var avg=((aoiC/20)*100+(eotC/80)*100)/2;
+  if(isNaN(avg))avg=0;
   return{aoiRaw:aoi,aoiConverted:aoiC,eotRaw:eot,eotConverted:eotC,total:total,avg:avg};
 }
 function computeALevelRow(s){
   var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
   var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
-  var paperSel=document.getElementById('paperSelectionALevel')?.value||'both';
   var p1Raw=parseFloat(s.score1)||0;
   var p2Raw=parseFloat(s.score2)||0;
   var p1=(p1Raw/p1Max)*100;
   var p2=(p2Raw/p2Max)*100;
-  var avg=0;
-  if(paperSel==='paper1')avg=p1;
-  else if(paperSel==='paper2')avg=p2;
-  else avg=(p1+p2)/2;
+  var avg=(p1+p2)/2;
   return{p1:p1,p2:p2,p1Raw:p1Raw,p2Raw:p2Raw,avg:avg};
 }
 
@@ -1313,7 +1286,6 @@ function updateScore(i){
 }
 function filterScoreRows(){renderScoreTable();}
 
-/* Auto-switches A/O level when class is selected */
 function updateScoreEntryMode(){
   var cls=document.getElementById('scoreClassSelect')?.value;
   var isO=isOLevelClass(cls),isA=isALevelClass(cls);
@@ -1368,18 +1340,9 @@ function updateOLevelExamDisplay(){
   var examSel=document.getElementById('examSelectionOLevel')?.value||'both';
   var aoiC=document.getElementById('aoiMaxContainer');
   var eotC=document.getElementById('eotMaxContainer');
-  if(examSel==='aoi'){
-    if(aoiC)aoiC.style.display='block';
-    if(eotC)eotC.style.display='none';
-  } else if(examSel==='eot'){
-    if(aoiC)aoiC.style.display='none';
-    if(eotC)eotC.style.display='block';
-    var eotMaxEl=document.getElementById('eotMax');
-    if(eotMaxEl&&(!eotMaxEl.value||eotMaxEl.value==='20'))eotMaxEl.value='80';
-  } else {
-    if(aoiC)aoiC.style.display='block';
-    if(eotC)eotC.style.display='block';
-  }
+  if(examSel==='aoi'){if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='none';}
+  else if(examSel==='eot'){if(aoiC)aoiC.style.display='none';if(eotC)eotC.style.display='block';}
+  else{if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='block';}
   updateScoreEntryModeHeaders();
   loadStudents();
 }
@@ -1391,6 +1354,7 @@ function updateScoreClassInfo(){
   if(lvl)lvl.textContent=level;
 }
 
+/* POST SCORES — INDEPENDENT AOI/EOT or P1/P2 */
 async function postScores(e){
   e.preventDefault();
   var cls=document.getElementById('scoreClassSelect')?.value;
@@ -1401,56 +1365,48 @@ async function postScores(e){
   if(!initials){showStatus('Teacher initials required.','error');return;}
 
   var scores=[];var has=false;
+
   scoreRows.forEach(function(s){
-    var s1=parseFloat(s.score1)||0;
-    var s2=parseFloat(s.score2)||0;
-    if(s1===0&&s2===0)return;
+    var raw1=s.score1;
+    var raw2=s.score2;
+    var n1=parseFloat(raw1);
+    var n2=parseFloat(raw2);
+    var hasS1 = !isNaN(n1) && raw1 !== '' && raw1 !== null && raw1 !== undefined;
+    var hasS2 = !isNaN(n2) && raw2 !== '' && raw2 !== null && raw2 !== undefined;
+
+    if(!hasS1 && !hasS2) return;
     has=true;
-    var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
+
+    var entry={ studentId:s.studentId, studentName:s.studentName, teacherInitials:initials };
+
     if(currentScoreLevel==='olevel'){
       var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
       var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
-      var examSel=document.getElementById('examSelectionOLevel')?.value||'both';
-      var computed=computeOLevelRow(s);
-      entry.examSelection=examSel;
-      entry.aoiMax=20; // standardized
-      entry.eotMax=80;
-      // Only send columns that were selected
-      if(examSel==='aoi'||examSel==='both'){
-        entry.aoi=Math.round(computed.aoiConverted*10)/10;
-      }
-      if(examSel==='eot'||examSel==='both'){
-        entry.eot=Math.round(computed.eotConverted*10)/10;
-      }
-      // Average based on available
-      var a=entry.aoi||0;
-      var b=entry.eot||0;
-      if(examSel==='aoi')entry.average=(a/20)*100;
-      else if(examSel==='eot')entry.average=(b/80)*100;
-      else entry.average=((a/20)*100+(b/80)*100)/2;
-      entry.grade=gradeFromPercentage(entry.average,'olevel');
+      if(hasS1){ entry.aoi = Math.round((n1/aoiMax)*20*10)/10; entry.aoiMax = 20; }
+      if(hasS2){ entry.eot = Math.round((n2/eotMax)*80*10)/10; entry.eotMax = 80; }
     } else {
       var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
       var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
-      var paperSel=document.getElementById('paperSelectionALevel')?.value||'both';
-      var computed2=computeALevelRow(s);
-      entry.paper1Max=100; // standardized to /100
-      entry.paper2Max=100;
-      entry.paperSelection=paperSel;
+      if(hasS1){ entry.paper1 = Math.round((n1/p1Max)*100*10)/10; entry.paper1Max = 100; }
+      if(hasS2){ entry.paper2 = Math.round((n2/p2Max)*100*10)/10; entry.paper2Max = 100; }
       entry.weight=parseFloat(document.getElementById('subjectWeightALevel')?.value)||3;
-      if(paperSel==='paper1'||paperSel==='both')entry.paper1=Math.round(computed2.p1*10)/10;
-      if(paperSel==='paper2'||paperSel==='both')entry.paper2=Math.round(computed2.p2*10)/10;
-      entry.average=Math.round(computed2.avg*10)/10;
-      entry.grade=gradeFromPercentage(computed2.avg,'alevel');
-      entry.points=gradeToPoints(entry.grade);
     }
     scores.push(entry);
   });
+
   if(!has){showStatus('Enter at least one score.','error');return;}
+
   var btn=document.getElementById('scoreSubmitBtn');
   if(btn){btn.disabled=true;btn.textContent='Posting...';}
   try{
-    var r=await callAppsScript({action:'postScoresOnly',sheetId:sheetId,subject:subj,scores:JSON.stringify(scores),scoreType:currentScoreLevel==='olevel'?(document.getElementById('examSelectionOLevel')?.value||'BOTH'):'BOTH',paperSelection:currentScoreLevel==='alevel'?(document.getElementById('paperSelectionALevel')?.value||'both'):'',level:currentScoreLevel,timestamp:new Date().toISOString()});
+    var r=await callAppsScript({
+      action:'postScoresOnly',
+      sheetId:sheetId,
+      subject:subj,
+      scores:JSON.stringify(scores),
+      level:currentScoreLevel,
+      timestamp:new Date().toISOString()
+    });
     if(btn){btn.disabled=false;btn.textContent='Post Scores';}
     if(r.success){
       document.getElementById('scoreSuccess').style.display='block';
@@ -1568,21 +1524,28 @@ function renderExpenses(){var c=document.getElementById('expensesContainer');if(
 function updateExpenseSummary(){var t=0,today=getTodayDate(),td=0;expenseRecords.forEach(function(e){t+=e.amount||0;if(e.date===today)td+=e.amount||0;});var el;el=document.getElementById('totalExpenses');if(el)el.textContent='UGX '+t.toLocaleString();el=document.getElementById('expensesToday');if(el)el.textContent='UGX '+td.toLocaleString();}
 function resetExpenseForm(){['expenseDesc','expenseAmount','expenseNarration'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});var c=document.getElementById('expenseCategory');if(c)c.value='stationery';var d=document.getElementById('expenseDate');if(d)d.value=getTodayDate();showStatus('','');}
 
-/* ============ REPORT HELPERS ============ */
+/* ============ REPORTS ============ */
 function updateReportClassInfo(){var cls=document.getElementById('reportClassSelect')?.value;var info=document.getElementById('reportClassInfo');if(info)info.textContent=cls||'Select a class';}
 async function searchStudent(){var cls=document.getElementById('reportClassSelect')?.value,q=document.getElementById('searchInput')?.value?.trim();if(!cls||!q){showToast('Select class + enter search','warning');return;}await fetchReportData(q);}
 
-/* Fetches students + attendance days */
 async function fetchReportData(search){
   var cls=document.getElementById('reportClassSelect')?.value,sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
   try{
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
-    // Also fetch attendance days
+    // Fetch attendance days — prefer module sheet from settings
     var daysData={};
     try{
-      var ar=await callAppsScript({action:'getAttendanceDays',sheetId:sheetId,className:cls});
+      var settings=JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
+      var attSheetId=extractSheetIdFromUrl(settings.attendanceSheet||'');
+      var ar=await callAppsScript({
+        action:'getAttendanceDays',
+        sheetId:sheetId,
+        className:cls,
+        school:getActiveSchool(),
+        attendanceSheetId:attSheetId
+      });
       if(ar.success&&ar.data)daysData=ar.data.days||{};
     }catch(e){}
     students.forEach(function(s){ s.daysAttended = daysData[s.studentId] || {present:0,absent:0,late:0,leave:0,total:0}; });
@@ -1598,7 +1561,8 @@ function renderReportResults(students){
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var h='';
   students.forEach(function(stu){
-    var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort(),rows='',totalPctSum=0,count=0,totalPoints=0;
+    var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort(),rows='';
+    var totalPctSum=0,count=0,totalPointsSum=0;
     var isALevel=isALevelClass(cls);
     var headers=isALevel
       ?'<th style="padding:6px;border:1px solid #fff">Code Subject</th><th style="padding:6px;border:1px solid #fff">Paper 1</th><th style="padding:6px;border:1px solid #fff">Paper 2</th><th style="padding:6px;border:1px solid #fff">Average</th><th style="padding:6px;border:1px solid #fff">Grade</th><th style="padding:6px;border:1px solid #fff">Points</th><th style="padding:6px;border:1px solid #fff">Weight</th><th style="padding:6px;border:1px solid #fff">Level of Achievement</th>'
@@ -1611,7 +1575,7 @@ function renderReportResults(students){
         var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;
         var p2=typeof sv==='object'?(parseFloat(sv.paper2)||0):0;
         var weight=typeof sv==='object'?(parseFloat(sv.weight)||3):3;
-        var avg=((p1+p2)/2);
+        var avg=(p1+p2)/2;
         var grade=gradeFromPercentage(avg,'alevel');
         var points=gradeToPoints(grade);
         var desc=generateAutoComment(avg,true);
@@ -1624,12 +1588,10 @@ function renderReportResults(students){
           '<td style="padding:6px;border:1px solid #666;text-align:center">'+weight+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+desc+'</td></tr>';
         totalPctSum+=avg;count++;
-        // Points sum weighted by weight
-        totalPoints += points * weight;
+        totalPointsSum += points; // sum of points column
       } else {
         var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;
         var eot=typeof sv==='object'?(parseFloat(sv.eot)||0):0;
-        // TOTAL (%) = average of (AOI/20)*100 and (EOT/80)*100
         var totalPct=((aoi/20)*100+(eot/80)*100)/2;
         if(isNaN(totalPct))totalPct=0;
         var grade=gradeFromPercentage(totalPct,'olevel');
@@ -1642,36 +1604,35 @@ function renderReportResults(students){
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+desc+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+init+'</td></tr>';
-        // Sum the TOTAL (%) column ONLY
         totalPctSum += totalPct;
         count++;
       }
     });
-    var overall=count>0?(isALevel?(totalPctSum/count):(totalPctSum)):0;
-    var overallGrade=gradeFromPercentage(isALevel?totalPctSum/count:totalPctSum/count,isALevel?'alevel':'olevel');
-    var overallComment=generateAutoComment(isALevel?totalPctSum/count:totalPctSum/count,isALevel);
+    var overallAvg = count>0 ? totalPctSum/count : 0;
+    var overallGrade=gradeFromPercentage(overallAvg,isALevel?'alevel':'olevel');
+    var overallComment=generateAutoComment(overallAvg,isALevel);
     var studentPhoto=getStudentPhoto(stu.studentId,stu.studentName);
     var photoHtml=studentPhoto?'<img src="'+studentPhoto+'" style="width:80px;height:100px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:80px;height:100px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;text-align:center">PHOTO</div>';
-    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:cls,term:term,year:year,avg:isALevel?(totalPctSum/count).toFixed(1):totalPctSum.toFixed(1),grade:overallGrade});
+    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:cls,term:term,year:year,avg:overallAvg.toFixed(1),grade:overallGrade});
     var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px" />':'<span style="font-size:11px;color:#999;">....................</span>';
     var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:30px" />':'<span style="font-size:11px;color:#999;">....................</span>';
-    var avgDisplay=isALevel?(totalPctSum/count):totalPctSum;
-    var teacherComment=overallComment+'. '+(avgDisplay>=70?'Excellent effort. Keep it up!':avgDisplay>=50?'Good work. Aim higher next term.':avgDisplay>=40?'Fair. More effort needed.':'Needs serious improvement.');
-    var headComment=overallComment+'. '+(avgDisplay>=70?'You are on the right track.':avgDisplay>=50?'Satisfactory performance.':avgDisplay>=40?'Improvement is possible.':'Parents should monitor closely.')+' — '+branding.name+' wishes you the best.';
+    var teacherComment=overallComment+'. '+(overallAvg>=70?'Excellent effort. Keep it up!':overallAvg>=50?'Good work. Aim higher next term.':overallAvg>=40?'Fair. More effort needed.':'Needs serious improvement.');
+    var headComment=overallComment+'. '+(overallAvg>=70?'You are on the right track.':overallAvg>=50?'Satisfactory performance.':overallAvg>=40?'Improvement is possible.':'Parents should monitor closely.')+' — '+branding.name+' wishes you the best.';
 
     var daysAttended=stu.daysAttended||{present:0,absent:0,late:0,leave:0,total:0};
 
     var footerHtml='';
     if(isALevel){
-      // A-Level: Points sum (weighted), NO division, NO grade scale
+      // A-Level: Points = sum of points column, no division, no grade scale
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f0f4ff">'+
-        '<div style="padding:8px;border-right:1px solid #666">Total Points: <b>'+totalPoints+'</b></div>'+
-        '<div style="padding:8px;border-right:1px solid #666">Average: <b>'+(totalPctSum/count).toFixed(1)+'</b></div>'+
+        '<div style="padding:8px;border-right:1px solid #666">Total Points: <b>'+totalPointsSum+'</b></div>'+
+        '<div style="padding:8px;border-right:1px solid #666">Average: <b>'+overallAvg.toFixed(1)+'</b></div>'+
         '<div style="padding:8px">Grade: <b>'+overallGrade+'</b></div></div>';
     } else {
-      // O-Level: Total Marks = SUM of TOTAL (%) column
-      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa">'+
-        '<div style="padding:8px;border-right:1px solid #666">Total Marks (sum of TOTAL %): <b>'+totalPctSum.toFixed(1)+'</b></div>'+
+      // O-Level: Total Score = sum of TOTAL (%) column; add Average Score
+      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa">'+
+        '<div style="padding:8px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div>'+
+        '<div style="padding:8px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div>'+
         '<div style="padding:8px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div>'+
         '<div style="margin-top:10px;border:1px solid #666;font-size:10px;text-align:center;padding:6px;background:#f8f9fa">'+
           '<b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)'+
@@ -1734,8 +1695,8 @@ function selectAllReports(){document.querySelectorAll('#reportResults .report-se
 function clearReportSelection(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=false;var c=cb.closest('.generated-document');if(c)c.classList.remove('selected');});updatePrintSelectionBar();}
 function refreshReportToolbar(){setTimeout(updatePrintSelectionBar,0);}
 
-/* ============ PDF DOWNLOADS ============ */
-function _buildPdfWrap(htmlContent, isMini){
+/* ============ PDF ============ */
+function _buildPdfWrap(htmlContent){
   var wrap=document.createElement('div');
   wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
   wrap.innerHTML=htmlContent;
@@ -1752,53 +1713,11 @@ function _runPdf(wrap,filename){
   showToast('Generating PDF...','info');
   html2pdf().set({margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
 }
-function downloadSingleReportPDF(btn){
-  var card=btn.closest('.generated-document');if(!card)return;
-  materializeQRCodes(card);
-  var clone=card.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var branding=getSchoolBranding();
-  var wrap=_buildPdfWrap(clone.outerHTML,false);
-  _runPdf(wrap,branding.name+'-Report-'+getTodayDate()+'.pdf');
-}
-function downloadReportsPDF(){
-  var container=document.getElementById('reportResults');
-  if(!container||!container.innerHTML.trim()){showToast('Load reports first.','warning');return;}
-  materializeQRCodes(container);
-  var clone=container.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var branding=getSchoolBranding();
-  var wrap=_buildPdfWrap(clone.innerHTML,false);
-  _runPdf(wrap,branding.name+'-Reports-'+getTodayDate()+'.pdf');
-}
-function downloadSelectedReportsPDF(){
-  var selected=document.querySelectorAll('#reportResults .report-select-cb:checked');
-  if(selected.length===0){showToast('No reports selected.','warning');return;}
-  var cards='';
-  selected.forEach(function(cb){var c=cb.closest('.generated-document');if(!c)return;materializeQRCodes(c);var clone=c.cloneNode(true);clone.querySelectorAll('.report-print-btn, .report-select-cb').forEach(function(el){el.remove();});cards+=clone.outerHTML;});
-  var branding=getSchoolBranding();
-  var wrap=_buildPdfWrap(cards,false);
-  _runPdf(wrap,branding.name+'-Selected-'+getTodayDate()+'.pdf');
-}
-function downloadMiniReportsPDF(){
-  var container=document.getElementById('miniResults');
-  if(!container||!container.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}
-  materializeQRCodes(container);
-  var clone=container.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var branding=getSchoolBranding();
-  var wrap=_buildPdfWrap(clone.innerHTML,true);
-  _runPdf(wrap,branding.name+'-Mini-Reports-'+getTodayDate()+'.pdf');
-}
-function downloadSingleMiniPDF(btn){
-  var card=btn.closest('.mini-report-card');if(!card)return;
-  materializeQRCodes(card);
-  var clone=card.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var branding=getSchoolBranding();
-  var wrap=_buildPdfWrap(clone.outerHTML,true);
-  _runPdf(wrap,branding.name+'-Mini-'+getTodayDate()+'.pdf');
-}
+function downloadSingleReportPDF(btn){var card=btn.closest('.generated-document');if(!card)return;materializeQRCodes(card);var clone=card.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var branding=getSchoolBranding();var wrap=_buildPdfWrap(clone.outerHTML);_runPdf(wrap,branding.name+'-Report-'+getTodayDate()+'.pdf');}
+function downloadReportsPDF(){var container=document.getElementById('reportResults');if(!container||!container.innerHTML.trim()){showToast('Load reports first.','warning');return;}materializeQRCodes(container);var clone=container.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var branding=getSchoolBranding();var wrap=_buildPdfWrap(clone.innerHTML);_runPdf(wrap,branding.name+'-Reports-'+getTodayDate()+'.pdf');}
+function downloadSelectedReportsPDF(){var selected=document.querySelectorAll('#reportResults .report-select-cb:checked');if(selected.length===0){showToast('No reports selected.','warning');return;}var cards='';selected.forEach(function(cb){var c=cb.closest('.generated-document');if(!c)return;materializeQRCodes(c);var clone=c.cloneNode(true);clone.querySelectorAll('.report-print-btn, .report-select-cb').forEach(function(el){el.remove();});cards+=clone.outerHTML;});var branding=getSchoolBranding();var wrap=_buildPdfWrap(cards);_runPdf(wrap,branding.name+'-Selected-'+getTodayDate()+'.pdf');}
+function downloadMiniReportsPDF(){var container=document.getElementById('miniResults');if(!container||!container.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}materializeQRCodes(container);var clone=container.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var branding=getSchoolBranding();var wrap=_buildPdfWrap(clone.innerHTML);_runPdf(wrap,branding.name+'-Mini-Reports-'+getTodayDate()+'.pdf');}
+function downloadSingleMiniPDF(btn){var card=btn.closest('.mini-report-card');if(!card)return;materializeQRCodes(card);var clone=card.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var branding=getSchoolBranding();var wrap=_buildPdfWrap(clone.outerHTML);_runPdf(wrap,branding.name+'-Mini-'+getTodayDate()+'.pdf');}
 
 /* ============ MINI REPORTS ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
@@ -1822,17 +1741,20 @@ function renderMiniReports(){
     var subjects=Object.keys(s.scores||{});
     var subjRows='';
     var isALevel=isALevelClass(s.class);
+    var totalPointsMini=0;
     if(subjects.length===0){subjRows='<div style="text-align:center;color:#999;padding:8px">No scores</div>';}
     else{
       subjects.forEach(function(sub){
         var sv=s.scores[sub];
         if(isALevel){
-          // A-LEVEL MINI: show ONLY Paper 1
+          // A-Level mini: Paper 1 + Points
           var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;
           var grade=gradeFromPercentage(p1,'alevel');
-          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">Paper 1: '+p1.toFixed(1)+' <b>'+grade+'</b></span></div>';
+          var points=gradeToPoints(grade);
+          totalPointsMini += points;
+          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">Paper 1: '+p1.toFixed(1)+' <b>'+grade+'</b> · '+points+'pts</span></div>';
         } else {
-          // O-LEVEL MINI: show AOI only
+          // O-Level mini: AOI only
           var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;
           var aoiPct=Math.round((aoi/20)*100);
           var grade=gradeFromPercentage(aoiPct,'olevel');
@@ -1852,6 +1774,7 @@ function renderMiniReports(){
     var studentPhoto=getStudentPhoto(s.studentId,s.studentName);
     var photo=studentPhoto?'<img src="'+studentPhoto+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:overallGrade});
+    var pointsRow = isALevel ? '<span>Points: '+totalPointsMini+'</span>' : '';
     h+='<div class="mini-report-card" style="position:relative">'+
       '<input type="checkbox" class="report-select-cb" onclick="toggleMiniReportSelection(this)" />'+
       '<button class="report-print-btn" onclick="downloadSingleMiniPDF(this)">Download PDF</button>'+
@@ -1860,7 +1783,7 @@ function renderMiniReports(){
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
       '<div class="student-meta"><span>ID: '+escapeHtml(s.studentId||'')+'</span><span>Class: '+escapeHtml(s.class||'')+'</span><span>Stream: '+escapeHtml(s.stream||'—')+'</span><span>Term: '+escapeHtml(term)+'</span></div>'+
       subjRows+
-      '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span><span>Grade: '+(overallGrade||'---')+'</span></div>'+
+      '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span>'+pointsRow+'<span>Grade: '+(overallGrade||'---')+'</span></div>'+
       status+
       '<div style="text-align:center;margin-top:8px"><div data-qr="'+escapeHtml(qrText)+'" style="display:inline-block"></div></div>'+
     '</div>';
@@ -1891,7 +1814,6 @@ async function generateDocument(){
       '</div>';
     var tableHtml='';
     if(type==='classlist'){
-      // Full registration info
       tableHtml='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>SEX</th><th>STREAM</th><th>RESIDENCE</th><th>PARENT NAME</th><th>PARENT PHONE</th><th>PARENT EMAIL</th></tr></thead><tbody>';
       students.forEach(function(s,i){
         var photo=getStudentPhoto(s.studentId,s.studentName);
@@ -1911,142 +1833,28 @@ async function generateDocument(){
     }
     var fullHtml=headerHtml+tableHtml;
     document.getElementById('documentPreview').innerHTML='<div class="generated-document">'+fullHtml+'</div>';
-    // Store for download
     window.__lastGeneratedDoc = fullHtml;
   }catch(e){showToast(e.message,'error');}
 }
-function downloadDocumentPDF(){
-  var html=window.__lastGeneratedDoc;
-  if(!html){showToast('Generate a document first.','warning');return;}
-  var b=getSchoolBranding();
-  var wrap=document.createElement('div');
-  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  wrap.innerHTML='<div class="generated-document">'+html+'</div>';
-  wrap.querySelectorAll('.generated-document').forEach(function(el){
-    el.style.cssText='width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px';
-  });
-  _runPdf(wrap,b.name+'-Doc-'+getTodayDate()+'.pdf');
-}
-function downloadDocument(){
-  var html=window.__lastGeneratedDoc;
-  if(!html){showToast('Generate a document first.','warning');return;}
-  downloadDocumentPDF();
-}
-function printDocument(){
-  var html=window.__lastGeneratedDoc;
-  if(!html){showToast('Generate a document first.','warning');return;}
-  var b=getSchoolBranding();
-  var w=window.open('','_blank');
-  w.document.write('<html><head><title>Document</title><style>@page{size:A4;margin:10mm}body{margin:0;padding:0;background:#fff;font-family:Arial}.generated-document{width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px}table{width:100%;border-collapse:collapse;font-size:10px}img{max-width:100%}</style></head><body><div class="generated-document">'+html+'</div></body></html>');
-  w.document.close();
-  setTimeout(function(){w.print();},400);
-}
+function downloadDocument(){var html=window.__lastGeneratedDoc;if(!html){showToast('Generate a document first.','warning');return;}var b=getSchoolBranding();var wrap=document.createElement('div');wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';wrap.innerHTML='<div class="generated-document">'+html+'</div>';wrap.querySelectorAll('.generated-document').forEach(function(el){el.style.cssText='width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px';});_runPdf(wrap,b.name+'-Doc-'+getTodayDate()+'.pdf');}
+function printDocument(){var html=window.__lastGeneratedDoc;if(!html){showToast('Generate a document first.','warning');return;}var w=window.open('','_blank');w.document.write('<html><head><title>Document</title><style>@page{size:A4;margin:10mm}body{margin:0;padding:0;background:#fff;font-family:Arial}.generated-document{width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px}table{width:100%;border-collapse:collapse;font-size:10px}img{max-width:100%}</style></head><body><div class="generated-document">'+html+'</div></body></html>');w.document.close();setTimeout(function(){w.print();},400);}
 
-/* ============ TIMETABLE ============ */
-function loadTimetable(){
-  var cls=document.getElementById('ttClassSelect')?.value;
-  var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';
-  var display=document.getElementById('timetableDisplay');
-  if(!cls){display.innerHTML='<p style="color:#999;text-align:center;padding:20px">Select a class.</p>';return;}
-  var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;
-  var tt=JSON.parse(localStorage.getItem(key)||'{}');
-  var days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var periods=['08:00 - 08:40','08:40 - 09:20','09:20 - 10:00','10:00 - 10:20 (Break)','10:20 - 11:00','11:00 - 11:40','11:40 - 12:20','12:20 - 13:00','13:00 - 14:00 (Lunch)','14:00 - 14:40','14:40 - 15:20','15:20 - 16:00'];
-  var html='<table class="timetable-grid"><thead><tr><th>Period</th>';
-  days.forEach(function(d){html+='<th>'+d+'</th>';});
-  html+='</tr></thead><tbody>';
-  periods.forEach(function(p){
-    html+='<tr><td style="font-weight:600;background:#f0f4ff;color:#302b63;font-size:11px">'+p+'</td>';
-    days.forEach(function(d){
-      var k=d+'|'+p;var entry=tt[k];
-      if(entry){html+='<td><div class="period-subject">'+escapeHtml(entry.subject)+'</div><div class="period-teacher">'+escapeHtml(entry.teacher||'')+'</div><div class="period-room">'+escapeHtml(entry.room||'')+'</div></td>';}
-      else if(p.indexOf('Break')!==-1||p.indexOf('Lunch')!==-1){html+='<td style="background:#fff3cd">'+p.split(' ')[0]+'</td>';}
-      else{html+='<td class="empty">—</td>';}
-    });
-    html+='</tr>';
-  });
-  html+='</tbody></table>';
-  display.innerHTML=html;
-}
-function addTimetablePeriod(){
-  var cls=document.getElementById('ttClassSelect')?.value;if(!cls){showToast('Select a class.','warning');return;}
-  var day=document.getElementById('ttDay')?.value,period=document.getElementById('ttPeriod')?.value;
-  var subject=document.getElementById('ttSubject')?.value?.trim(),teacher=document.getElementById('ttTeacher')?.value?.trim(),room=document.getElementById('ttRoom')?.value?.trim();
-  if(!subject){showToast('Enter a subject.','warning');return;}
-  var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';
-  var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;
-  var tt=JSON.parse(localStorage.getItem(key)||'{}');
-  tt[day+'|'+period]={subject:subject,teacher:teacher,room:room};
-  localStorage.setItem(key,JSON.stringify(tt));
-  showToast('Period added!','success');
-  loadTimetable();
-}
+/* ============ TIMETABLE / PROGRAM / NOTICES ============ */
+function loadTimetable(){var cls=document.getElementById('ttClassSelect')?.value;var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';var display=document.getElementById('timetableDisplay');if(!cls){display.innerHTML='<p style="color:#999;text-align:center;padding:20px">Select a class.</p>';return;}var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;var tt=JSON.parse(localStorage.getItem(key)||'{}');var days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];var periods=['08:00 - 08:40','08:40 - 09:20','09:20 - 10:00','10:00 - 10:20 (Break)','10:20 - 11:00','11:00 - 11:40','11:40 - 12:20','12:20 - 13:00','13:00 - 14:00 (Lunch)','14:00 - 14:40','14:40 - 15:20','15:20 - 16:00'];var html='<table class="timetable-grid"><thead><tr><th>Period</th>';days.forEach(function(d){html+='<th>'+d+'</th>';});html+='</tr></thead><tbody>';periods.forEach(function(p){html+='<tr><td style="font-weight:600;background:#f0f4ff;color:#302b63;font-size:11px">'+p+'</td>';days.forEach(function(d){var k=d+'|'+p;var entry=tt[k];if(entry){html+='<td><div class="period-subject">'+escapeHtml(entry.subject)+'</div><div class="period-teacher">'+escapeHtml(entry.teacher||'')+'</div><div class="period-room">'+escapeHtml(entry.room||'')+'</div></td>';}else if(p.indexOf('Break')!==-1||p.indexOf('Lunch')!==-1){html+='<td style="background:#fff3cd">'+p.split(' ')[0]+'</td>';}else{html+='<td class="empty">—</td>';}});html+='</tr>';});html+='</tbody></table>';display.innerHTML=html;}
+function addTimetablePeriod(){var cls=document.getElementById('ttClassSelect')?.value;if(!cls){showToast('Select a class.','warning');return;}var day=document.getElementById('ttDay')?.value,period=document.getElementById('ttPeriod')?.value,subject=document.getElementById('ttSubject')?.value?.trim(),teacher=document.getElementById('ttTeacher')?.value?.trim(),room=document.getElementById('ttRoom')?.value?.trim();if(!subject){showToast('Enter a subject.','warning');return;}var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;var tt=JSON.parse(localStorage.getItem(key)||'{}');tt[day+'|'+period]={subject:subject,teacher:teacher,room:room};localStorage.setItem(key,JSON.stringify(tt));showToast('Period added!','success');loadTimetable();}
 function clearTimetable(){var cls=document.getElementById('ttClassSelect')?.value;if(!cls)return;if(!confirm('Clear timetable for '+cls+'?'))return;var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';localStorage.removeItem('timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year);showToast('Cleared','info');loadTimetable();}
 
-/* ============ PROGRAM ============ */
-function addProgramItem(){
-  var date=document.getElementById('progDate')?.value,title=document.getElementById('progTitle')?.value?.trim();
-  var cat=document.getElementById('progCategory')?.value,desc=document.getElementById('progDesc')?.value?.trim();
-  if(!date||!title){showToast('Fill date and title.','warning');return;}
-  var school=getActiveSchool();
-  var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');
-  var program=JSON.parse(localStorage.getItem(key)||'[]');
-  program.push({id:Date.now(),date:date,title:title,category:cat,description:desc});
-  program.sort(function(a,b){return a.date.localeCompare(b.date);});
-  localStorage.setItem(key,JSON.stringify(program));
-  showToast('Added!','success');
-  loadProgram();
-}
-function loadProgram(){
-  var school=getActiveSchool();
-  var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');
-  var program=JSON.parse(localStorage.getItem(key)||'[]');
-  var c=document.getElementById('programDisplay');
-  if(program.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No program items.</p>';return;}
-  var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Event</th><th>Description</th><th>Action</th></tr></thead><tbody>';
-  program.forEach(function(p){h+='<tr><td>'+escapeHtml(p.date)+'</td><td><strong>'+escapeHtml(p.title)+'</strong></td><td>'+escapeHtml(p.description||'')+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteProgramItem('+p.id+')">Delete</button></td></tr>';});
-  h+='</tbody></table>';
-  c.innerHTML=h;
-}
+function addProgramItem(){var date=document.getElementById('progDate')?.value,title=document.getElementById('progTitle')?.value?.trim(),cat=document.getElementById('progCategory')?.value,desc=document.getElementById('progDesc')?.value?.trim();if(!date||!title){showToast('Fill date and title.','warning');return;}var school=getActiveSchool();var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');var program=JSON.parse(localStorage.getItem(key)||'[]');program.push({id:Date.now(),date:date,title:title,category:cat,description:desc});program.sort(function(a,b){return a.date.localeCompare(b.date);});localStorage.setItem(key,JSON.stringify(program));showToast('Added!','success');loadProgram();}
+function loadProgram(){var school=getActiveSchool();var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');var program=JSON.parse(localStorage.getItem(key)||'[]');var c=document.getElementById('programDisplay');if(program.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No program items.</p>';return;}var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Event</th><th>Description</th><th>Action</th></tr></thead><tbody>';program.forEach(function(p){h+='<tr><td>'+escapeHtml(p.date)+'</td><td><strong>'+escapeHtml(p.title)+'</strong></td><td>'+escapeHtml(p.description||'')+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteProgramItem('+p.id+')">Delete</button></td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
 function deleteProgramItem(id){var school=getActiveSchool();var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');var program=JSON.parse(localStorage.getItem(key)||'[]').filter(function(p){return p.id!==id;});localStorage.setItem(key,JSON.stringify(program));loadProgram();}
 
-/* ============ NOTICES ============ */
-function postNotice(){
-  var title=document.getElementById('noticeTitle')?.value?.trim(),body=document.getElementById('noticeBody')?.value?.trim();
-  var priority=document.getElementById('noticePriority')?.value,target=document.getElementById('noticeTarget')?.value;
-  var expiry=document.getElementById('noticeExpiry')?.value,date=document.getElementById('noticeDate')?.value||getTodayDate();
-  if(!title||!body){showToast('Fill title and body.','warning');return;}
-  var school=getActiveSchool();
-  var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');
-  notices.push({id:Date.now(),title:title,body:body,priority:priority,target:target,expiry:expiry,date:date,postedBy:authSession?.name||'Admin'});
-  localStorage.setItem('notices_'+school,JSON.stringify(notices));
-  showToast('Posted!','success');
-  document.getElementById('noticeTitle').value='';
-  document.getElementById('noticeBody').value='';
-  loadNotices();
-}
-function loadNotices(){
-  var school=getActiveSchool();
-  var c=document.getElementById('noticesDisplay');if(!c)return;
-  var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');
-  if(notices.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No notices.</p>';return;}
-  var sorted=notices.slice().reverse();
-  var h='';
-  sorted.forEach(function(n){h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div style="display:flex;justify-content:space-between"><div class="notice-title">'+escapeHtml(n.title)+'</div><button class="btn btn-danger btn-sm" onclick="deleteNotice('+n.id+')">Delete</button></div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml(n.body)+'</div></div>';});
-  c.innerHTML=h;
-}
+function postNotice(){var title=document.getElementById('noticeTitle')?.value?.trim(),body=document.getElementById('noticeBody')?.value?.trim(),priority=document.getElementById('noticePriority')?.value,target=document.getElementById('noticeTarget')?.value,expiry=document.getElementById('noticeExpiry')?.value,date=document.getElementById('noticeDate')?.value||getTodayDate();if(!title||!body){showToast('Fill title and body.','warning');return;}var school=getActiveSchool();var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');notices.push({id:Date.now(),title:title,body:body,priority:priority,target:target,expiry:expiry,date:date,postedBy:authSession?.name||'Admin'});localStorage.setItem('notices_'+school,JSON.stringify(notices));showToast('Posted!','success');document.getElementById('noticeTitle').value='';document.getElementById('noticeBody').value='';loadNotices();}
+function loadNotices(){var school=getActiveSchool();var c=document.getElementById('noticesDisplay');if(!c)return;var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');if(notices.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No notices.</p>';return;}var sorted=notices.slice().reverse();var h='';sorted.forEach(function(n){h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div style="display:flex;justify-content:space-between"><div class="notice-title">'+escapeHtml(n.title)+'</div><button class="btn btn-danger btn-sm" onclick="deleteNotice('+n.id+')">Delete</button></div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml(n.body)+'</div></div>';});c.innerHTML=h;}
 function deleteNotice(id){var school=getActiveSchool();var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]').filter(function(n){return n.id!==id;});localStorage.setItem('notices_'+school,JSON.stringify(notices));loadNotices();}
 
-/* ============ CLASS SELECTORS ============ */
-function loadClassSelectors(){
-  ['regClassSelect','scoreClassSelect','miniClassSelect','reportClassSelect','docClassSelect','ttClassSelect'].forEach(function(id){
-    var s=document.getElementById(id);if(!s)return;
-    s.innerHTML='<option value="">Select a Class</option>';
-    CLASSES.forEach(function(cls){var o=document.createElement('option');o.value=cls;o.textContent=cls+(isOLevelClass(cls)?' (O-Level)':isALevelClass(cls)?' (A-Level)':'');s.appendChild(o);});
-  });
-}
+/* ============ CLASS SELECTORS / CHAT / SETTINGS ============ */
+function loadClassSelectors(){['regClassSelect','scoreClassSelect','miniClassSelect','reportClassSelect','docClassSelect','ttClassSelect'].forEach(function(id){var s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">Select a Class</option>';CLASSES.forEach(function(cls){var o=document.createElement('option');o.value=cls;o.textContent=cls+(isOLevelClass(cls)?' (O-Level)':isALevelClass(cls)?' (A-Level)':'');s.appendChild(o);});});}
 
-/* ============ CHAT ============ */
 async function loadChatUsers(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getChatUsers',school:school});chatUsers=r.data?.users||[];renderChatUsers();}catch(e){}}
 function renderChatUsers(){var c=document.getElementById('chatUserList');if(!c)return;var me=authSession?.username||'';var h='';chatUsers.forEach(function(u){if(u.username===me)return;h+='<div class="chat-user" onclick="selectChatUser(\''+escapeHtml(u.username).replace(/'/g,"\\'")+'\')"><div class="avatar">'+escapeHtml((u.name||'?').charAt(0))+'</div><div><b>'+escapeHtml(u.name)+'</b><div style="font-size:11px;color:#888">'+escapeHtml(u.role||'')+'</div></div></div>';});c.innerHTML=h||'<p style="color:#999;font-size:13px;padding:10px">No other users.</p>';}
 function selectChatUser(u){currentChatUser=u;document.getElementById('chatHeader').textContent='Chat with '+u;loadChatMessages();}
@@ -2054,7 +1862,6 @@ async function sendMessage(){var msg=document.getElementById('chatInput').value.
 async function loadChatMessages(){if(!currentChatUser)return;try{var r=await callAppsScript({action:'getChatMessages',school:getActiveSchool(),user1:authSession.username,user2:currentChatUser});var msgs=r.data?.messages||[];document.getElementById('messagesArea').innerHTML=msgs.map(function(m){var sent=m.from===authSession.username;return '<div class="message '+(sent?'sent':'received')+'">'+escapeHtml(m.message)+'</div>';}).join('')||'<p style="text-align:center;color:#999;padding:20px">No messages.</p>';}catch(e){}}
 function startChatPolling(){if(chatPollInterval)clearInterval(chatPollInterval);chatPollInterval=setInterval(function(){if(currentChatUser)loadChatMessages();},5000);}
 
-/* ============ SETTINGS ============ */
 function loadSettings(){
   var school=getActiveSchool();if(!school)return;
   var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');schoolSettings=s;
@@ -2097,7 +1904,6 @@ function clearSettingsBadge(){localStorage.removeItem('reportCardBadge');if(docu
 function clearSignature(){localStorage.removeItem('headTeacherSignature');if(document.getElementById('signaturePreview'))document.getElementById('signaturePreview').innerHTML='<span style="font-size:11px;color:#999;text-align:center">Upload<br/>Signature</span>';showToast('Removed','info');}
 function getCurrentLocation(){if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(pos){document.getElementById('settingsLatitude').value=pos.coords.latitude.toFixed(6);document.getElementById('settingsLongitude').value=pos.coords.longitude.toFixed(6);showToast('Captured!','success');},function(){showToast('Failed','error');},{enableHighAccuracy:true,timeout:10000});}}
 
-/* ============ SYSTEM ============ */
 async function testBackendConnection(){
   var badge=document.getElementById('connStatusBadge'),out=document.getElementById('sysToolsOutput');
   if(badge){badge.className='conn-badge checking';badge.textContent='Checking...';}
@@ -2112,24 +1918,8 @@ function downloadSystemBackup(){
   showToast('Backup downloaded','success');
 }
 
-/* ============ USER ACCOUNTS ============ */
-function toggleTeacherAssignments(){
-  var r=document.getElementById('newUserRole')?.value;
-  var t=document.getElementById('teacherAssignmentSection'),p=document.getElementById('parentChildSection');
-  if(t)t.style.display=r==='teacher'?'block':'none';
-  if(p)p.style.display=r==='parent'?'block':'none';
-  if(r==='parent')loadParentChildSelect();
-}
-async function loadParentChildSelect(){
-  var s=document.getElementById('parentChildSelect');
-  var school=getActiveSchool();
-  if(!school||!s)return;
-  s.innerHTML='<option value="">Select student</option>';
-  for(var i=0;i<CLASSES.length;i++){
-    var sheetId=getClassSheetId(CLASSES[i]);if(!sheetId)continue;
-    try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});(r.data?.students||[]).forEach(function(x){var o=document.createElement('option');o.value=x.studentId;o.textContent=x.studentName+' ('+x.studentId+') - '+CLASSES[i];s.appendChild(o);});}catch(e){}
-  }
-}
+function toggleTeacherAssignments(){var r=document.getElementById('newUserRole')?.value;var t=document.getElementById('teacherAssignmentSection'),p=document.getElementById('parentChildSection');if(t)t.style.display=r==='teacher'?'block':'none';if(p)p.style.display=r==='parent'?'block':'none';if(r==='parent')loadParentChildSelect();}
+async function loadParentChildSelect(){var s=document.getElementById('parentChildSelect');var school=getActiveSchool();if(!school||!s)return;s.innerHTML='<option value="">Select student</option>';for(var i=0;i<CLASSES.length;i++){var sheetId=getClassSheetId(CLASSES[i]);if(!sheetId)continue;try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});(r.data?.students||[]).forEach(function(x){var o=document.createElement('option');o.value=x.studentId;o.textContent=x.studentName+' ('+x.studentId+') - '+CLASSES[i];s.appendChild(o);});}catch(e){}}}
 async function createUserAccount(){
   var school=getActiveSchool(),name=document.getElementById('newUserName')?.value?.trim();
   var username=document.getElementById('newUserUsername')?.value?.trim();
@@ -2163,13 +1953,7 @@ async function loadUserAccounts(){
 }
 async function deleteAccount(username){if(!confirm('Delete '+username+'?'))return;try{var r=await callAppsScript({action:'deleteAccount',school:getActiveSchool(),username:username});if(r.success){showToast('Deleted!','success');loadUserAccounts();}}catch(e){}}
 
-/* ============ CLASS TEACHER SIGNATURES ============ */
-function uploadClassTeacherSig(cls,event){
-  var file=event.target.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){localStorage.setItem('classTeacherSig_'+cls,e.target.result);document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain" />';showToast('Signature saved for '+cls,'success');};
-  reader.readAsDataURL(file);
-}
+function uploadClassTeacherSig(cls,event){var file=event.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){localStorage.setItem('classTeacherSig_'+cls,e.target.result);document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain" />';showToast('Signature saved for '+cls,'success');};reader.readAsDataURL(file);}
 
 /* ============ INIT ============ */
 document.addEventListener('DOMContentLoaded',function(){
