@@ -91,8 +91,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .status-message.error{display:block;background:#f8d7da;color:#721c24;border-color:var(--danger)}
 .status-message.info{display:block;background:#d1ecf1;color:#0c5460;border-color:var(--info)}
 .status-message.warning{display:block;background:#fff3cd;color:#856404;border-color:var(--warning)}
-.spinner{border:4px solid #f3f3f3;border-top:4px solid var(--primary);border-radius:50%;width:45px;height:45px;animation:spin 1s linear infinite;margin:0 auto}
-@keyframes spin{100%{transform:rotate(360deg)}}
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
 @media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr);gap:12px}}
 @media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
@@ -133,7 +131,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .ledger-table thead,.ledger-table tbody,.score-table thead,.score-table tbody{display:table;width:100%}
 .camera-container{position:relative;overflow:hidden;background:#1a1a2e;border-radius:16px;padding:0;margin:15px 0;max-width:520px;margin-left:auto;margin-right:auto}
 .camera-container video{width:100%;display:block;border-radius:12px;background:#000;object-fit:cover;min-height:280px;transform:scaleX(-1)}
-.camera-container .face-box{position:absolute;border:3px solid #00ff88;border-radius:12px;pointer-events:none;display:none}
 .camera-container .detection-status{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:10px 24px;border-radius:25px;font-size:14px;font-weight:600;pointer-events:none;display:none;z-index:10;text-align:center;min-width:200px}
 .camera-container .detection-status.active{display:block}
 .camera-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;padding:10px;background:var(--surface-2);border-radius:12px;border:1px solid var(--border)}
@@ -196,6 +193,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 #printSelectionBar .psb-count{background:#c1121f;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:700}
 #printSelectionBar button{border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
 #printSelectionBar .psb-btn-print{background:linear-gradient(135deg,#2d6a4f,#1a8a4a);color:#fff}
+#printSelectionBar .psb-btn-print:disabled{opacity:.45;cursor:not-allowed}
 #printSelectionBar .psb-btn-selectall,#printSelectionBar .psb-btn-clear{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
 .mini-report-card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 10px 25px rgba(0,0,0,.15);border:2px solid #1a3b5c;position:relative;overflow:hidden;color:#333;margin-bottom:20px;max-width:520px;margin-left:auto;margin-right:auto}
 .mini-report-card .card-header{text-align:center;margin-bottom:12px}
@@ -210,10 +208,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mini-report-card .average-row{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:6px;margin-bottom:10px;padding:0 4px;border-top:1px solid #e0e0e0;padding-top:8px}
 .mini-report-card .status-bar{background:#e2e8f0;border-radius:20px;padding:7px 14px;text-align:center;font-size:13px;font-weight:700;color:#1a3b5c;margin-bottom:12px}
 .mini-report-card .status-bar.outstanding{background:#dbeafe;color:#1e3a8a}
+.mini-report-card .status-bar.no-data{background:#e2e8f0;color:#4b5563}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
 @media print{.generated-document,.mini-report-card{break-inside:avoid;page-break-after:always;box-shadow:none!important;border:1px solid #000!important}.no-print,.btn,.navbar,.bottom-nav,.report-print-btn,.report-select-cb{display:none!important}body{background:#fff!important;padding:0!important}.container{box-shadow:none!important;padding:0!important}@page{size:A4;margin:10mm}}
 </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -290,7 +288,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="font-size:12px;color:var(--text-2);margin-top:2px" id="dashboardStudentCount">👨‍🎓 Total Students: 0</div>
     </div>
   </div>
-
   <h4 style="margin:14px 0 8px;color:var(--primary);font-size:14px">📈 Core Statistics</h4>
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-icon">👨‍🎓</div><div class="stat-number" id="statTotalStudents">0</div><div class="stat-label">Total Students</div></div>
@@ -300,7 +297,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div class="stat-card warning"><div class="stat-icon">💳</div><div class="stat-number" id="statExpensesToday">0</div><div class="stat-label">Expenses Today</div></div>
     <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number" id="statExpectedFees">0</div><div class="stat-label">Expected Fees</div></div>
   </div>
-
   <h4 style="margin:18px 0 8px;color:var(--danger);font-size:14px">🏥 Nurse Summary (Today)</h4>
   <div class="stats-grid">
     <div class="stat-card info"><div class="stat-icon">🩺</div><div class="stat-number" id="statClinicVisits">0</div><div class="stat-label">Clinic Visits</div></div>
@@ -308,7 +304,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div class="stat-card success"><div class="stat-icon">✅</div><div class="stat-number" id="statDischarged">0</div><div class="stat-label">Discharged</div></div>
     <div class="stat-card danger"><div class="stat-icon">🚨</div><div class="stat-number" id="statCritical">0</div><div class="stat-label">Critically Ill</div></div>
   </div>
-
   <h4 style="margin:18px 0 8px;color:var(--warning);font-size:14px">📦 Stores Summary</h4>
   <div class="form-row-2">
     <div class="chart-container"><h4>🍲 Food Items Usage</h4><canvas id="storesBarChart"></canvas></div>
@@ -318,15 +313,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div class="info-title" style="color:#856404">⚠️ Out of Stock Items</div>
     <div class="info-text" id="outOfStockList">Loading…</div>
   </div>
-
   <div class="form-row-2">
     <div class="chart-container"><h4>📊 Fees Collected per Class</h4><canvas id="feesChart"></canvas></div>
     <div class="chart-container"><h4>📊 Attendance Overview</h4><canvas id="attendanceChart"></canvas></div>
   </div>
-
   <h4 style="margin:18px 0 8px;color:var(--primary);font-size:14px">📚 Classes & Student Counts</h4>
   <div class="class-cards" id="classCardsContainer"><div style="text-align:center;padding:20px;color:var(--text-3)">Loading class data…</div></div>
-
   <h4 style="margin:18px 0 8px;color:var(--primary);font-size:14px">📢 Latest Notices</h4>
   <div id="dashboardNotices" style="max-height:300px;overflow-y:auto"></div>
 </div>
@@ -381,7 +373,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <!-- SCORES -->
 <div id="tabScores" class="form-section">
   <h2 class="section-title"><i class="fas fa-edit" style="color:var(--primary)"></i> Post Subject Scores</h2>
-  <div class="info-box"><div class="info-title">📌 Score Conversion</div><div class="info-text">AOI scores are automatically converted to <strong>/20</strong>. EOT scores are converted to <strong>/80</strong>. Enter raw marks with your own maximums — the system converts and posts the standardized values.</div></div>
+  <div class="info-box"><div class="info-title">📌 Score Conversion</div><div class="info-text">AOI scores are converted to <strong>/20</strong>. EOT scores are converted to <strong>/80</strong>. A-Level papers are converted to <strong>/100</strong>. Each subject gets its own tab in the class sheet.</div></div>
   <div style="display:flex;gap:6px;margin-bottom:15px;background:var(--surface-2);padding:5px;border-radius:12px">
     <button type="button" id="levelOLevel" onclick="setScoreLevel('olevel')" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">📘 O-Level</button>
     <button type="button" id="levelALevel" onclick="setScoreLevel('alevel')" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">📗 A-Level</button>
@@ -434,14 +426,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
         </div>
       </div>
       <div class="form-row-3">
-        <div class="form-group"><label>Weight</label><select id="subjectWeightALevel"><option value="1">1 (Subsidiary)</option><option value="2">2</option><option value="3" selected>3 (Principal)</option></select></div>
         <div class="form-group" id="paper1MaxContainer"><label>Paper 1 Max: <input type="number" id="paper1Max" value="100" min="1" style="width:80px;padding:6px;border:2px solid var(--border);border-radius:6px" onchange="renderScoreTable()" /></label></div>
         <div class="form-group" id="paper2MaxContainer"><label>Paper 2 Max: <input type="number" id="paper2Max" value="100" min="1" style="width:80px;padding:6px;border:2px solid var(--border);border-radius:6px" onchange="renderScoreTable()" /></label></div>
+        <div class="form-group"></div>
       </div>
     </div>
     <div class="form-group"><input type="text" id="scoreSearchInput" placeholder="🔍 Search by ID or Name…" onkeyup="filterScoreRows()" /></div>
     <div class="table-wrap"><table class="score-table">
-      <thead><tr><th>ID</th><th>Name</th><th id="score1Header">AOI (20)</th><th id="score2Header">EOT (80)</th><th id="averageHeader">Total</th></tr></thead>
+      <thead><tr><th>ID</th><th>Name</th><th id="score1Header">AOI</th><th id="score2Header">EOT</th><th id="averageHeader">Average %</th></tr></thead>
       <tbody id="scoreTableBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr></tbody>
     </table></div>
     <div class="btn-group" style="margin-top:15px">
@@ -470,7 +462,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div id="attModeFace">
     <div class="camera-container" id="cameraContainer">
       <video id="videoFeed" autoplay playsinline></video>
-      <div class="face-box" id="faceBox"></div>
       <div class="detection-status" id="detectionStatus">🔍 Waiting…</div>
     </div>
     <div class="camera-controls">
@@ -614,8 +605,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button type="button" class="psb-btn-selectall" onclick="selectAllReports()">✅ Select All</button>
       <button type="button" class="psb-btn-clear" onclick="clearReportSelection()">✖️ Clear</button>
-      <button type="button" class="psb-btn-print" id="psbPrintBtn" onclick="printSelectedReports()" disabled>🖨️ Print Selected</button>
-      <button type="button" class="psb-btn-print" onclick="downloadSelectedReportsPDF()">📥 Download Selected PDF</button>
+      <button type="button" class="psb-btn-print" id="psbPrintBtn" onclick="downloadSelectedReportsPDF()" disabled>📥 Download Selected PDF</button>
     </div>
   </div>
   <div id="reportResults"></div>
@@ -639,7 +629,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div class="form-row-3">
     <div class="form-group"><label>Class *</label><select id="docClassSelect" onchange="updateDocClassInfo()"><option value="">Select</option></select></div>
     <div class="form-group"><label>Subject</label><select id="docSubjectSelect"><option value="">All Subjects</option><option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Geography</option><option>History</option><option>CRE</option><option>Computer Studies</option><option>Luganda</option><option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option></select></div>
-    <div class="form-group"><label>Type</label><select id="docTypeSelect"><option value="classlist">📋 Class List</option><option value="scoresheet">📊 Score Sheet</option></select></div>
+    <div class="form-group"><label>Type</label><select id="docTypeSelect"><option value="classlist">📋 Class Register</option><option value="scoresheet">📊 Score Sheet</option></select></div>
   </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0">
     <button class="btn btn-success" onclick="generateDocument()">📄 Generate</button>
@@ -726,7 +716,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <!-- SETTINGS -->
 <div id="tabSettings" class="form-section">
   <h2 class="section-title"><i class="fas fa-cog" style="color:var(--primary)"></i> Settings</h2>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">🏫 School Details</h4>
     <div class="form-row-2">
@@ -740,7 +729,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="form-group"><label>Year</label><select id="settingsYear"><option>2025</option><option selected>2026</option><option>2027</option></select></div>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">🖼️ School Badge</h4>
     <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
@@ -749,7 +737,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <button class="btn btn-warning btn-sm" onclick="clearSettingsBadge()">🗑️</button>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">✍️ Head Teacher's Signature</h4>
     <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
@@ -758,12 +745,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <button class="btn btn-warning btn-sm" onclick="clearSignature()">🗑️</button>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">✍️ Class Teacher Signatures</h4>
     <div id="classTeacherSignatures" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)"></div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">🔗 Module Google Sheet Links</h4>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
@@ -774,7 +759,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">🏥 Nurse</label><input type="text" id="settingsNurseSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">💰 Fees</h4>
     <div class="form-row-2">
@@ -782,7 +766,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="form-group"><label>Currency</label><input type="text" id="settingsCurrency" value="UGX" disabled /></div>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📅 Term Calendar</h4>
     <div class="form-row-2">
@@ -792,7 +775,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="form-group"><label>Next Term End</label><input type="date" id="nextTermEnd" /></div>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📊 Grade Thresholds</h4>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
@@ -808,7 +790,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="text-align:center"><label style="font-size:11px">A-E</label><input type="number" id="gradeEALevel" value="0" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📚 Class Google Sheets</h4>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
@@ -820,7 +801,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px">S.6</label><input type="text" id="classS6" placeholder="Google Sheet URL" onchange="validateClassLink('S.6')" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /><span style="font-size:11px" id="statusS6">⏳ Not configured</span></div>
     </div>
   </div>
-
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">👤 User Accounts</h4>
     <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);margin-bottom:15px">
@@ -842,12 +822,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     </div>
     <div id="userAccountsList"><p style="color:#999;font-size:13px">Loading…</p></div>
   </div>
-
   <div style="margin-top:14px">
     <button class="btn btn-success" onclick="saveAllSettings()">💾 Save All</button>
     <button class="btn btn-secondary" onclick="loadSettings()">📂 Reload</button>
   </div>
-
   <div class="sysadmin-panel">
     <h4>🛠️ System Tools <span id="connStatusBadge" class="conn-badge checking">⏳ Checking…</span></h4>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
@@ -869,7 +847,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
    EduTrack Pro Admin v12.0 — Complete JavaScript
    ============================================================ */
 
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbymIVNoK383FnHNarc6yQUvnyx8rVrb55fyl8A_Dlh703yfPCIYWVPqhmBej8cfR-FtFg/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwH_oiTWwnI7A8F2BivufPImBicA6m4X5xIBafjGAgsYkywv2wXtIUWu8m2kDs9fcdkmw/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','Entrepreneurship':'541','Computer Studies':'462','Luganda':'345','Kiswahili':'336','Agriculture':'531'};
@@ -884,7 +862,7 @@ var authSession=null,currentChatUser=null,chatPollInterval=null,detectionInterva
 var faceState={modelsLoaded:false,modelsLoading:false,faceDetected:false};
 var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
 
-/* ============ UTILS ============ */
+/* ============ UTILITIES ============ */
 function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function getCurrentTime(){return new Date().toLocaleTimeString();}
 function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -892,23 +870,60 @@ function subjectCodeFor(n){return SUBJECT_CODES[n]||'—';}
 function descriptorFromGrade(g){return{'A':'EXCEPTIONAL','B':'OUTSTANDING','C':'SATISFACTORY','D':'BASIC','E':'ELEMENTARY','F':'ELEMENTARY'}[g]||'ELEMENTARY';}
 function gradeToPoints(g){return{'A':6,'B':5,'C':4,'D':3,'E':2,'F':0}[g]||0;}
 
-function showToast(msg,type){type=type||'info';var c=document.getElementById('toastContainer');var t=document.createElement('div');t.className='toast-notification '+type;t.textContent=msg;c.appendChild(t);setTimeout(function(){t.classList.add('show');},100);setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove();},500);},4000);}
-function showStatus(msg,type){var m=document.getElementById('statusMessage');if(!m)return;if(!msg){m.style.display='none';return;}m.style.display='block';m.className='status-message '+(type||'info');m.textContent=msg;}
+function showToast(msg,type){
+  type=type||'info';
+  var c=document.getElementById('toastContainer');
+  var t=document.createElement('div');
+  t.className='toast-notification '+type;
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){t.classList.add('show');},100);
+  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove();},500);},4000);
+}
+function showStatus(msg,type){
+  var m=document.getElementById('statusMessage');
+  if(!m)return;
+  if(!msg){m.style.display='none';return;}
+  m.style.display='block';
+  m.className='status-message '+(type||'info');
+  m.textContent=msg;
+}
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');}
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 async function callAppsScript(params){
   var parts=[];
-  for(var k in params)if(params.hasOwnProperty(k)&&params[k]!=null)parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
-  var res=await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},body:parts.join('&'),signal:AbortSignal.timeout(30000)});
+  for(var k in params){
+    if(params.hasOwnProperty(k)&&params[k]!=null){
+      parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+    }
+  }
+  var res=await fetch(APPS_SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+    body:parts.join('&'),
+    signal:AbortSignal.timeout(30000)
+  });
   if(!res.ok)throw new Error('HTTP '+res.status);
   return await res.json();
 }
 
 /* ============ SCHOOL HELPERS ============ */
 function getActiveSchool(){return authSession?authSession.school:'';}
-function getClassLink(cls){try{var s=getActiveSchool();if(!s)return '';return localStorage.getItem('classLink_'+cls+'_'+s)||'';}catch(e){return '';}}
-function extractSheetIdFromUrl(url){if(!url)return '';var m=url.match(/\/d\/([a-zA-Z0-9-_]+)/);if(m)return m[1];if(/^[a-zA-Z0-9-_]{30,}$/.test(url))return url;return '';}
+function getClassLink(cls){
+  try{
+    var s=getActiveSchool();
+    if(!s)return '';
+    return localStorage.getItem('classLink_'+cls+'_'+s)||'';
+  }catch(e){return '';}
+}
+function extractSheetIdFromUrl(url){
+  if(!url)return '';
+  var m=url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if(m)return m[1];
+  if(/^[a-zA-Z0-9-_]{30,}$/.test(url))return url;
+  return '';
+}
 function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
 function isOLevelClass(cls){return OLEVEL_CLASSES.indexOf(cls)!==-1;}
 function isALevelClass(cls){return ALEVEL_CLASSES.indexOf(cls)!==-1;}
@@ -956,22 +971,68 @@ function getStudentPhoto(studentId,name){
 /* ============ GRADING ============ */
 function gradeFromPercentage(pct,level){
   var a,b,c,d,e;
-  if(level==='alevel'){a=parseFloat(document.getElementById('gradeAALevel')?.value)||80;b=parseFloat(document.getElementById('gradeBALevel')?.value)||70;c=parseFloat(document.getElementById('gradeCALevel')?.value)||50;d=parseFloat(document.getElementById('gradeDALevel')?.value)||35;e=parseFloat(document.getElementById('gradeEALevel')?.value)||0;}
-  else{a=parseFloat(document.getElementById('gradeA')?.value)||80;b=parseFloat(document.getElementById('gradeB')?.value)||70;c=parseFloat(document.getElementById('gradeC')?.value)||50;d=parseFloat(document.getElementById('gradeD')?.value)||40;e=parseFloat(document.getElementById('gradeE')?.value)||0;}
-  if(pct>=a)return 'A';if(pct>=b)return 'B';if(pct>=c)return 'C';if(pct>=d)return 'D';if(pct>=e)return 'E';return 'F';
+  if(level==='alevel'){
+    a=parseFloat(document.getElementById('gradeAALevel')?.value)||80;
+    b=parseFloat(document.getElementById('gradeBALevel')?.value)||70;
+    c=parseFloat(document.getElementById('gradeCALevel')?.value)||50;
+    d=parseFloat(document.getElementById('gradeDALevel')?.value)||35;
+    e=parseFloat(document.getElementById('gradeEALevel')?.value)||0;
+  }else{
+    a=parseFloat(document.getElementById('gradeA')?.value)||80;
+    b=parseFloat(document.getElementById('gradeB')?.value)||70;
+    c=parseFloat(document.getElementById('gradeC')?.value)||50;
+    d=parseFloat(document.getElementById('gradeD')?.value)||40;
+    e=parseFloat(document.getElementById('gradeE')?.value)||0;
+  }
+  if(pct>=a)return 'A';
+  if(pct>=b)return 'B';
+  if(pct>=c)return 'C';
+  if(pct>=d)return 'D';
+  if(pct>=e)return 'E';
+  return 'F';
 }
 function generateAutoComment(pct,isALevel){
-  if(isALevel){if(pct>=80)return 'Excellent performance.';if(pct>=70)return 'Very good performance.';if(pct>=60)return 'Good performance.';if(pct>=50)return 'Satisfactory performance.';if(pct>=35)return 'Fair performance.';return 'Below expectations.';}
-  else{if(pct>=80)return 'EXCEPTIONAL';if(pct>=70)return 'OUTSTANDING';if(pct>=50)return 'SATISFACTORY';if(pct>=40)return 'BASIC';return 'ELEMENTARY';}
+  if(isALevel){
+    if(pct>=80)return 'Excellent performance.';
+    if(pct>=70)return 'Very good performance.';
+    if(pct>=60)return 'Good performance.';
+    if(pct>=50)return 'Satisfactory performance.';
+    if(pct>=35)return 'Fair performance.';
+    return 'Below expectations.';
+  }else{
+    if(pct>=80)return 'EXCEPTIONAL';
+    if(pct>=70)return 'OUTSTANDING';
+    if(pct>=50)return 'SATISFACTORY';
+    if(pct>=40)return 'BASIC';
+    return 'ELEMENTARY';
+  }
 }
 
 function getSchoolBranding(){
   var school=getActiveSchool();
-  var s={};try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
-  return{name:s.schoolName||school||'School',motto:s.schoolMotto||'Empowering Education',address:s.schoolAddress||'',phone:s.schoolPhone||'',email:s.schoolEmail||'',badge:localStorage.getItem('reportCardBadge')||'',signature:localStorage.getItem('headTeacherSignature')||'',termStartDate:s.termStartDate||'',termEndDate:s.termEndDate||''};
+  var s={};
+  try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
+  return{
+    name:s.schoolName||school||'School',
+    motto:s.schoolMotto||'Empowering Education',
+    address:s.schoolAddress||'',
+    phone:s.schoolPhone||'',
+    email:s.schoolEmail||'',
+    badge:localStorage.getItem('reportCardBadge')||'',
+    signature:localStorage.getItem('headTeacherSignature')||'',
+    termStartDate:s.termStartDate||'',
+    termEndDate:s.termEndDate||''
+  };
 }
 
-function qrToImage(el){if(!el)return '';var c=el.querySelector('canvas');if(c){try{return c.toDataURL('image/png');}catch(e){return '';}}var i=el.querySelector('img');if(i&&i.src)return i.src;return '';}
+function qrToImage(el){
+  if(!el)return '';
+  var c=el.querySelector('canvas');
+  if(c){try{return c.toDataURL('image/png');}catch(e){return '';}}
+  var i=el.querySelector('img');
+  if(i&&i.src)return i.src;
+  return '';
+}
 function materializeQRCodes(root){
   if(!root)return;
   root.querySelectorAll('[data-qr]').forEach(function(el){
@@ -979,7 +1040,10 @@ function materializeQRCodes(root){
     var src=qrToImage(el);
     if(!src&&typeof QRCode!=='undefined'){
       el.innerHTML='';
-      try{new QRCode(el,{text:text,width:60,height:60,correctLevel:QRCode.CorrectLevel.H});src=qrToImage(el);}catch(e){}
+      try{
+        new QRCode(el,{text:text,width:60,height:60,correctLevel:QRCode.CorrectLevel.H});
+        src=qrToImage(el);
+      }catch(e){}
     }
     if(src){el.innerHTML='<img src="'+src+'" width="60" height="60" alt="QR" />';}
     else{el.innerHTML='<img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data='+encodeURIComponent(text)+'" width="60" height="60" alt="QR" />';}
@@ -989,13 +1053,19 @@ function materializeQRCodes(root){
 /* ============ NAVIGATION ============ */
 function toggleMobileMenu(){document.getElementById('navbarMenu').classList.toggle('open');}
 function toggleDropdown(btn){var p=btn?btn.closest('.nav-dropdown'):null;if(p)p.classList.toggle('active');}
-function appLogout(){sessionStorage.removeItem('authSession');stopCamera();stopFaceRegCamera();stopQRScanner();if(chatPollInterval)clearInterval(chatPollInterval);window.location.href='index.html';}
+function appLogout(){
+  sessionStorage.removeItem('authSession');
+  stopCamera();stopFaceRegCamera();stopQRScanner();
+  if(chatPollInterval)clearInterval(chatPollInterval);
+  window.location.href='index.html';
+}
 
 function switchTab(tab){
   document.querySelectorAll('.nav-link').forEach(function(el){el.classList.remove('active');});
   document.querySelectorAll('.form-section').forEach(function(el){el.classList.remove('active');});
   var map={dashboard:'tabDashboard',register:'tabRegister',scores:'tabScores',attendance:'tabAttendance',facereg:'tabFaceReg',fees:'tabFees',expenses:'tabExpenses',reports:'tabReports',mini:'tabMini',documents:'tabDocuments',timetable:'tabTimetable',program:'tabProgram',notices:'tabNotices',chat:'tabChat',settings:'tabSettings'};
-  var t=document.getElementById(map[tab]||'tabDashboard');if(t)t.classList.add('active');
+  var t=document.getElementById(map[tab]||'tabDashboard');
+  if(t)t.classList.add('active');
   document.querySelectorAll('.nav-link[data-tab="'+tab+'"]').forEach(function(b){b.classList.add('active');});
   document.querySelectorAll('.bn-item').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-tab')===tab);});
   if(tab==='dashboard'){updateDashboard();updateClassCards();initCharts();loadDashboardNotices();}
@@ -1012,27 +1082,227 @@ function switchTab(tab){
   if(tab==='chat'){loadChatUsers();if(!chatPollInterval)startChatPolling();}
   if(tab==='settings'){loadSettings();loadUserAccounts();testBackendConnection();}
   if(tab==='facereg'){displayRegisteredFaces();loadRegisteredFaces();}
-  var menu=document.getElementById('navbarMenu');if(menu)menu.classList.remove('open');
+  var menu=document.getElementById('navbarMenu');
+  if(menu)menu.classList.remove('open');
   window.scrollTo(0,0);
 }
 
 /* ============ DASHBOARD ============ */
-function updateDashboard(){updateStudentCount();updateClassCards();updateDashboardFinanceCards();updateDashboardAttendanceStats();fetchNurseSummary();fetchStoresSummary();updateExpectedFeesCard();}
-async function updateStudentCount(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getStudentCount',school:school});if(r.success&&r.data){var c=r.data.count||0;var s=document.getElementById('statTotalStudents');if(s)s.textContent=c;var d=document.getElementById('dashboardStudentCount');if(d)d.textContent='Total Students: '+c;}}catch(e){}}
-async function updateClassCards(){var school=getActiveSchool();if(!school)return;var c=document.getElementById('classCardsContainer');if(!c)return;try{var counts={};for(var i=0;i<CLASSES.length;i++){var cls=CLASSES[i];var sheetId=getClassSheetId(cls);if(sheetId){try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});counts[cls]=(r.success&&r.data)?(r.data.students||[]).length:0;}catch(e){counts[cls]=0;}}else counts[cls]=0;}var h='';for(var cl in counts){if(counts.hasOwnProperty(cl)){h+='<div class="class-card"><div class="class-name">'+cl+'</div><div class="class-count">'+counts[cl]+'</div><div class="class-label">Students</div></div>';}}c.innerHTML=h||'<p style="color:#999;text-align:center">No classes.</p>';}catch(e){}}
-async function updateDashboardFinanceCards(){var school=getActiveSchool();if(!school)return;try{var fr=await callAppsScript({action:'getFeeRecords',school:school});var records=(fr&&fr.success&&fr.data)?(fr.data.records||[]):[];var today=getTodayDate();var tf=records.filter(function(r){return r.date===today;}).reduce(function(s,r){return s+(r.amount||0);},0);var er=await callAppsScript({action:'getExpenses',school:school});var expRecords=(er&&er.success&&er.data)?(er.data.expenses||[]):[];var te=expRecords.filter(function(e){return e.date===today;}).reduce(function(s,e){return s+(e.amount||0);},0);var fe=document.getElementById('statFeesCollected');if(fe)fe.textContent='UGX '+tf.toLocaleString();var ee=document.getElementById('statExpensesToday');if(ee)ee.textContent='UGX '+te.toLocaleString();}catch(e){}}
-async function updateDashboardAttendanceStats(){var school=getActiveSchool();if(!school)return;var today=getTodayDate();var present=0,absent=0;try{for(var i=0;i<CLASSES.length;i++){var cls=CLASSES[i],sheetId=getClassSheetId(cls);if(!sheetId)continue;try{var mr=await callAppsScript({action:'getManualAttendance',sheetId:sheetId,school:school,className:cls,date:today});var recs=(mr&&mr.success&&mr.data)?(mr.data.records||[]):[];recs.forEach(function(r){if(r.status==='present')present++;else if(r.status==='absent')absent++;});}catch(e2){}}}catch(e){}var p=document.getElementById('statPresentToday');if(p)p.textContent=present;var a=document.getElementById('statAbsentToday');if(a)a.textContent=absent;if(attendanceChartInstance){attendanceChartInstance.data.datasets[0].data=[present,absent];attendanceChartInstance.update();}}
-async function fetchNurseSummary(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getNurseSummary',school:school});if(r.success&&r.data){var d=r.data;var e;e=document.getElementById('statClinicVisits');if(e)e.textContent=d.clinicVisits||0;e=document.getElementById('statSickBay');if(e)e.textContent=d.sickBay||0;e=document.getElementById('statDischarged');if(e)e.textContent=d.discharged||0;e=document.getElementById('statCritical');if(e)e.textContent=d.critical||0;}}catch(e){}}
-async function fetchStoresSummary(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getStoresSummary',school:school});if(r.success&&r.data){var d=r.data;var fd=d.foodUsage||[0,0,0,0,0,0,0,0,0,0];var fl=d.foodLabels||['Beans','Maize Flour','Cooking Oil','Onions','Tomatoes','Salt','Eggs','Rice','Posho','Milk'];if(storesBarChartInstance){storesBarChartInstance.data.labels=fl;storesBarChartInstance.data.datasets[0].data=fd;storesBarChartInstance.update();}if(storesStatusChartInstance){storesStatusChartInstance.data.datasets[0].data=[d.inStock||0,d.lowStock||0,d.outOfStock||0];storesStatusChartInstance.update();}var ol=document.getElementById('outOfStockList');if(ol){var items=d.outOfStockItems||[];ol.innerHTML=items.length>0?items.map(function(i){return '<span style="display:inline-block;background:#c1121f;color:#fff;padding:3px 10px;border-radius:12px;margin:2px;font-size:11px">'+escapeHtml(i)+'</span>';}).join(''):'<em>All items in stock</em>';}}}catch(e){}}
-function updateExpectedFeesCard(){var school=getActiveSchool();if(!school)return;var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');var el=document.getElementById('statExpectedFees');if(el)el.textContent='UGX '+((s.expectedFeesThisTerm||0)).toLocaleString();}
-async function loadDashboardNotices(){var c=document.getElementById('dashboardNotices');if(!c)return;try{var school=getActiveSchool();var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');if(notices.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:15px">No notices posted.</p>';return;}var recent=notices.slice(-3).reverse();var h='';recent.forEach(function(n){h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div class="notice-title">'+escapeHtml(n.title)+'</div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml((n.body||'').substring(0,120))+'</div></div>';});c.innerHTML=h;}catch(e){c.innerHTML='<p style="color:#999;text-align:center">Error loading notices.</p>';}}
-function initCharts(){try{if(typeof Chart==='undefined')return;if(feesChartInstance)feesChartInstance.destroy();if(attendanceChartInstance)attendanceChartInstance.destroy();if(storesBarChartInstance)storesBarChartInstance.destroy();if(storesStatusChartInstance)storesStatusChartInstance.destroy();var fc=document.getElementById('feesChart')?.getContext('2d');var ac=document.getElementById('attendanceChart')?.getContext('2d');var sbc=document.getElementById('storesBarChart')?.getContext('2d');var ssc=document.getElementById('storesStatusChart')?.getContext('2d');if(fc)feesChartInstance=new Chart(fc,{type:'bar',data:{labels:CLASSES,datasets:[{label:'Fees',data:[0,0,0,0,0,0],backgroundColor:'rgba(48,43,99,0.7)'}]},options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false}});if(ac)attendanceChartInstance=new Chart(ac,{type:'doughnut',data:{labels:['Present','Absent'],datasets:[{data:[0,0],backgroundColor:['#2d6a4f','#c1121f']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}});var F=['Beans','Maize Flour','Cooking Oil','Onions','Tomatoes','Salt','Eggs','Rice','Posho','Milk'];if(sbc)storesBarChartInstance=new Chart(sbc,{type:'bar',data:{labels:F,datasets:[{label:'Usage',data:F.map(function(){return 0;}),backgroundColor:'rgba(232,93,4,0.75)'}]},options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});if(ssc)storesStatusChartInstance=new Chart(ssc,{type:'doughnut',data:{labels:['In Stock','Low Stock','Out of Stock'],datasets:[{data:[0,0,0],backgroundColor:['#198754','#ffc107','#dc3545']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}});}catch(e){}}
+function updateDashboard(){
+  updateStudentCount();updateClassCards();updateDashboardFinanceCards();
+  updateDashboardAttendanceStats();fetchNurseSummary();fetchStoresSummary();updateExpectedFeesCard();
+  var school=getActiveSchool();
+  var st=localStorage.getItem('schoolSettings_'+school);
+  if(st){
+    try{
+      var s=JSON.parse(st);
+      var dn=document.getElementById('dashboardSchoolName');if(dn)dn.textContent=s.schoolName||school;
+      var dm=document.getElementById('dashboardMotto');if(dm)dm.textContent='"'+ (s.schoolMotto||'Empowering Education')+'"';
+    }catch(e){}
+  }
+  var badge=localStorage.getItem('reportCardBadge');
+  if(badge){
+    var bEl=document.getElementById('dashboardBadge');
+    if(bEl){bEl.src=badge;bEl.style.display='block';}
+    var pEl=document.getElementById('dashboardBadgePlaceholder');
+    if(pEl)pEl.style.display='none';
+  }
+}
+async function updateStudentCount(){
+  var school=getActiveSchool();if(!school)return;
+  try{
+    var r=await callAppsScript({action:'getStudentCount',school:school});
+    if(r.success&&r.data){
+      var c=r.data.count||0;
+      var s=document.getElementById('statTotalStudents');if(s)s.textContent=c;
+      var d=document.getElementById('dashboardStudentCount');if(d)d.textContent='Total Students: '+c;
+    }
+  }catch(e){}
+}
+async function updateClassCards(){
+  var school=getActiveSchool();if(!school)return;
+  var c=document.getElementById('classCardsContainer');if(!c)return;
+  try{
+    var counts={};
+    for(var i=0;i<CLASSES.length;i++){
+      var cls=CLASSES[i];
+      var sheetId=getClassSheetId(cls);
+      if(sheetId){
+        try{
+          var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});
+          counts[cls]=(r.success&&r.data)?(r.data.students||[]).length:0;
+        }catch(e){counts[cls]=0;}
+      }else counts[cls]=0;
+    }
+    var h='';
+    for(var cl in counts){
+      if(counts.hasOwnProperty(cl)){
+        h+='<div class="class-card"><div class="class-name">'+cl+'</div><div class="class-count">'+counts[cl]+'</div><div class="class-label">Students</div></div>';
+      }
+    }
+    c.innerHTML=h||'<p style="color:#999;text-align:center">No classes.</p>';
+  }catch(e){}
+}
+async function updateDashboardFinanceCards(){
+  var school=getActiveSchool();if(!school)return;
+  try{
+    var fr=await callAppsScript({action:'getFeeRecords',school:school});
+    var records=(fr&&fr.success&&fr.data)?(fr.data.records||[]):[];
+    var today=getTodayDate();
+    var tf=records.filter(function(r){return r.date===today;}).reduce(function(s,r){return s+(r.amount||0);},0);
+    var er=await callAppsScript({action:'getExpenses',school:school});
+    var expRecords=(er&&er.success&&er.data)?(er.data.expenses||[]):[];
+    var te=expRecords.filter(function(e){return e.date===today;}).reduce(function(s,e){return s+(e.amount||0);},0);
+    var fe=document.getElementById('statFeesCollected');if(fe)fe.textContent='UGX '+tf.toLocaleString();
+    var ee=document.getElementById('statExpensesToday');if(ee)ee.textContent='UGX '+te.toLocaleString();
+  }catch(e){}
+}
+async function updateDashboardAttendanceStats(){
+  var school=getActiveSchool();if(!school)return;
+  var today=getTodayDate();
+  var present=0,absent=0;
+  try{
+    for(var i=0;i<CLASSES.length;i++){
+      var cls=CLASSES[i],sheetId=getClassSheetId(cls);
+      if(!sheetId)continue;
+      try{
+        var mr=await callAppsScript({action:'getManualAttendance',sheetId:sheetId,school:school,className:cls,date:today});
+        var recs=(mr&&mr.success&&mr.data)?(mr.data.records||[]):[];
+        recs.forEach(function(r){
+          if(r.status==='present')present++;
+          else if(r.status==='absent')absent++;
+        });
+      }catch(e2){}
+    }
+  }catch(e){}
+  var p=document.getElementById('statPresentToday');if(p)p.textContent=present;
+  var a=document.getElementById('statAbsentToday');if(a)a.textContent=absent;
+  if(attendanceChartInstance){
+    attendanceChartInstance.data.datasets[0].data=[present,absent];
+    attendanceChartInstance.update();
+  }
+}
+async function fetchNurseSummary(){
+  var school=getActiveSchool();if(!school)return;
+  try{
+    var r=await callAppsScript({action:'getNurseSummary',school:school});
+    if(r.success&&r.data){
+      var d=r.data;var e;
+      e=document.getElementById('statClinicVisits');if(e)e.textContent=d.clinicVisits||0;
+      e=document.getElementById('statSickBay');if(e)e.textContent=d.sickBay||0;
+      e=document.getElementById('statDischarged');if(e)e.textContent=d.discharged||0;
+      e=document.getElementById('statCritical');if(e)e.textContent=d.critical||0;
+    }
+  }catch(e){}
+}
+async function fetchStoresSummary(){
+  var school=getActiveSchool();if(!school)return;
+  try{
+    var r=await callAppsScript({action:'getStoresSummary',school:school});
+    if(r.success&&r.data){
+      var d=r.data;
+      var fd=d.foodUsage||[0,0,0,0,0,0,0,0,0,0];
+      var fl=d.foodLabels||['Beans','Maize Flour','Cooking Oil','Onions','Tomatoes','Salt','Eggs','Rice','Posho','Milk'];
+      if(storesBarChartInstance){
+        storesBarChartInstance.data.labels=fl;
+        storesBarChartInstance.data.datasets[0].data=fd;
+        storesBarChartInstance.update();
+      }
+      if(storesStatusChartInstance){
+        storesStatusChartInstance.data.datasets[0].data=[d.inStock||0,d.lowStock||0,d.outOfStock||0];
+        storesStatusChartInstance.update();
+      }
+      var ol=document.getElementById('outOfStockList');
+      if(ol){
+        var items=d.outOfStockItems||[];
+        ol.innerHTML=items.length>0?items.map(function(i){return '<span style="display:inline-block;background:#c1121f;color:#fff;padding:3px 10px;border-radius:12px;margin:2px;font-size:11px">'+escapeHtml(i)+'</span>';}).join(''):'<em>All items in stock</em>';
+      }
+    }
+  }catch(e){}
+}
+function updateExpectedFeesCard(){
+  var school=getActiveSchool();if(!school)return;
+  var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
+  var el=document.getElementById('statExpectedFees');
+  if(el)el.textContent='UGX '+((s.expectedFeesThisTerm||0)).toLocaleString();
+}
+async function loadDashboardNotices(){
+  var c=document.getElementById('dashboardNotices');if(!c)return;
+  try{
+    var school=getActiveSchool();
+    var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');
+    if(notices.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:15px">No notices posted.</p>';return;}
+    var recent=notices.slice(-3).reverse();
+    var h='';
+    recent.forEach(function(n){
+      h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div class="notice-title">'+escapeHtml(n.title)+'</div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml((n.body||'').substring(0,120))+'</div></div>';
+    });
+    c.innerHTML=h;
+  }catch(e){c.innerHTML='<p style="color:#999;text-align:center">Error loading notices.</p>';}
+}
+function initCharts(){
+  try{
+    if(typeof Chart==='undefined')return;
+    if(feesChartInstance)feesChartInstance.destroy();
+    if(attendanceChartInstance)attendanceChartInstance.destroy();
+    if(storesBarChartInstance)storesBarChartInstance.destroy();
+    if(storesStatusChartInstance)storesStatusChartInstance.destroy();
+    var fc=document.getElementById('feesChart')?.getContext('2d');
+    var ac=document.getElementById('attendanceChart')?.getContext('2d');
+    var sbc=document.getElementById('storesBarChart')?.getContext('2d');
+    var ssc=document.getElementById('storesStatusChart')?.getContext('2d');
+    if(fc)feesChartInstance=new Chart(fc,{type:'bar',data:{labels:CLASSES,datasets:[{label:'Fees',data:[0,0,0,0,0,0],backgroundColor:'rgba(48,43,99,0.7)'}]},options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false}});
+    if(ac)attendanceChartInstance=new Chart(ac,{type:'doughnut',data:{labels:['Present','Absent'],datasets:[{data:[0,0],backgroundColor:['#2d6a4f','#c1121f']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}});
+    var F=['Beans','Maize Flour','Cooking Oil','Onions','Tomatoes','Salt','Eggs','Rice','Posho','Milk'];
+    if(sbc)storesBarChartInstance=new Chart(sbc,{type:'bar',data:{labels:F,datasets:[{label:'Usage',data:F.map(function(){return 0;}),backgroundColor:'rgba(232,93,4,0.75)'}]},options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+    if(ssc)storesStatusChartInstance=new Chart(ssc,{type:'doughnut',data:{labels:['In Stock','Low Stock','Out of Stock'],datasets:[{data:[0,0,0],backgroundColor:['#198754','#ffc107','#dc3545']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}},maintainAspectRatio:false}});
+  }catch(e){}
+}
 
 /* ============ REGISTER ============ */
-async function fetchNextStudentId(){var cls=document.getElementById('regClassSelect')?.value;var d=document.getElementById('regIdDisplay');if(!cls){if(d)d.textContent='Stu001';return;}var sheetId=getClassSheetId(cls);if(!sheetId){if(d)d.textContent='Stu001';return;}try{var r=await callAppsScript({action:'getNextStudentId',sheetId:sheetId,school:getActiveSchool()});if(r.success&&r.data&&d){d.textContent=r.data.nextId;if(!isManualId){var i=document.getElementById('regStudentId');if(i)i.value=r.data.nextId;}}}catch(e){}}
-function toggleManualId(){isManualId=document.getElementById('manualIdToggle')?.checked||false;var i=document.getElementById('regStudentId'),d=document.getElementById('regIdDisplay');if(isManualId){if(i){i.disabled=false;i.value='';i.focus();}}else if(i){i.disabled=true;i.value=d?d.textContent:'';}}
-function resetRegisterForm(){document.getElementById('registerForm').style.display='block';document.getElementById('regSuccess').style.display='none';['regStudentName','regParentName','regParentPhone','regParentEmail','regStudentPhoto','regStream'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});document.getElementById('regClassSelect').value='';document.getElementById('regSex').value='';document.getElementById('regResidence').value='';document.getElementById('manualIdToggle').checked=false;isManualId=false;document.getElementById('regStudentId').disabled=true;document.getElementById('regStudentId').value='';document.getElementById('regIdDisplay').textContent='Stu001';}
-function updateRegisterClassInfo(){var cls=document.getElementById('regClassSelect')?.value;var info=document.getElementById('regClassInfo');if(!cls){if(info)info.textContent='Select a class';return;}var sheetId=getClassSheetId(cls);var st=sheetId?'OK':'Not set';var level=isOLevelClass(cls)?'O-Level':isALevelClass(cls)?'A-Level':'';if(info)info.innerHTML='<strong>'+cls+'</strong> ('+level+') - Sheet: '+st;if(!isManualId)fetchNextStudentId();}
+async function fetchNextStudentId(){
+  var cls=document.getElementById('regClassSelect')?.value;
+  var d=document.getElementById('regIdDisplay');
+  if(!cls){if(d)d.textContent='Stu001';return;}
+  var sheetId=getClassSheetId(cls);
+  if(!sheetId){if(d)d.textContent='Stu001';return;}
+  try{
+    var r=await callAppsScript({action:'getNextStudentId',sheetId:sheetId,school:getActiveSchool()});
+    if(r.success&&r.data&&d){
+      d.textContent=r.data.nextId;
+      if(!isManualId){var i=document.getElementById('regStudentId');if(i)i.value=r.data.nextId;}
+    }
+  }catch(e){}
+}
+function toggleManualId(){
+  isManualId=document.getElementById('manualIdToggle')?.checked||false;
+  var i=document.getElementById('regStudentId'),d=document.getElementById('regIdDisplay');
+  if(isManualId){if(i){i.disabled=false;i.value='';i.focus();}}
+  else if(i){i.disabled=true;i.value=d?d.textContent:'';}
+}
+function resetRegisterForm(){
+  document.getElementById('registerForm').style.display='block';
+  document.getElementById('regSuccess').style.display='none';
+  ['regStudentName','regParentName','regParentPhone','regParentEmail','regStudentPhoto','regStream'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('regClassSelect').value='';
+  document.getElementById('regSex').value='';
+  document.getElementById('regResidence').value='';
+  document.getElementById('manualIdToggle').checked=false;
+  isManualId=false;
+  document.getElementById('regStudentId').disabled=true;
+  document.getElementById('regStudentId').value='';
+  document.getElementById('regIdDisplay').textContent='Stu001';
+}
+function updateRegisterClassInfo(){
+  var cls=document.getElementById('regClassSelect')?.value;
+  var info=document.getElementById('regClassInfo');
+  if(!cls){if(info)info.textContent='Select a class';return;}
+  var sheetId=getClassSheetId(cls);
+  var st=sheetId?'OK':'Not set';
+  var level=isOLevelClass(cls)?'O-Level':isALevelClass(cls)?'A-Level':'';
+  if(info)info.innerHTML='<strong>'+cls+'</strong> ('+level+') - Sheet: '+st;
+  if(!isManualId)fetchNextStudentId();
+}
 async function registerStudent(e){
   e.preventDefault();
   var school=getActiveSchool(),cls=document.getElementById('regClassSelect')?.value;
@@ -1046,10 +1316,12 @@ async function registerStudent(e){
   var pe=document.getElementById('regParentEmail')?.value?.trim()||'';
   var term=document.getElementById('regTerm')?.value||'III',year=document.getElementById('regYear')?.value||'2026';
   if(!school||!cls||!sn||!sex||!residence){showStatus('Fill all required fields.','error');return;}
-  var sheetId=getClassSheetId(cls);if(!sheetId){showStatus('Sheet not configured.','error');return;}
+  var sheetId=getClassSheetId(cls);
+  if(!sheetId){showStatus('Sheet not configured.','error');return;}
   var photoInput=document.getElementById('regStudentPhoto');
   if(photoInput&&photoInput.files[0]){
-    var file=photoInput.files[0];var reader=new FileReader();
+    var file=photoInput.files[0];
+    var reader=new FileReader();
     reader.onload=function(ev){
       var nk=String(sn).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
       localStorage.setItem('studentPhoto_name_'+nk,ev.target.result);
@@ -1059,31 +1331,53 @@ async function registerStudent(e){
     };
     reader.readAsDataURL(file);
   }
-  var btn=document.getElementById('regSubmitBtn');if(btn){btn.disabled=true;btn.textContent='Registering...';}
+  var btn=document.getElementById('regSubmitBtn');
+  if(btn){btn.disabled=true;btn.textContent='Registering...';}
   try{
     var r=await callAppsScript({action:'registerStudent',sheetId:sheetId,school:school,className:cls,studentId:sid,studentName:sn,parentName:pn,parentPhone:pp,parentEmail:pe,sex:sex,stream:stream,residence:residence,term:term,year:year});
     if(btn){btn.disabled=false;btn.textContent='Register';}
-    if(r.success){document.getElementById('regSuccess').style.display='block';document.getElementById('registerForm').style.display='none';document.getElementById('regSuccessId').textContent=sid;showToast('Registered!','success');updateStudentCount();updateClassCards();}
-    else showStatus(r.message,'error');
-  }catch(e){if(btn){btn.disabled=false;btn.textContent='Register';}showStatus(e.message,'error');}
+    if(r.success){
+      document.getElementById('regSuccess').style.display='block';
+      document.getElementById('registerForm').style.display='none';
+      document.getElementById('regSuccessId').textContent=sid;
+      showToast('Registered!','success');
+      updateStudentCount();updateClassCards();
+    }else showStatus(r.message,'error');
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Register';}
+    showStatus(e.message,'error');
+  }
 }
 
 /* ============ SCORES ============ */
 async function loadStudents(){
-  var cls=document.getElementById('scoreClassSelect')?.value,school=getActiveSchool(),tbody=document.getElementById('scoreTableBody');
+  var cls=document.getElementById('scoreClassSelect')?.value;
+  var school=getActiveSchool();
+  var tbody=document.getElementById('scoreTableBody');
   if(!cls){if(tbody)tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';return;}
   var sheetId=getClassSheetId(cls);
   if(!sheetId){if(tbody)tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Sheet not configured.</td></tr>';return;}
   try{
     var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});
-    if(r.success&&r.data){studentList=r.data.students||[];scoreRows=studentList.map(function(s){return Object.assign({},s,{score1:'',score2:''});});renderScoreTable();}
-    else if(tbody)tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">'+(r.message||'')+'</td></tr>';
-  }catch(e){if(tbody)tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">'+e.message+'</td></tr>';}
+    if(r.success&&r.data){
+      studentList=r.data.students||[];
+      scoreRows=studentList.map(function(s){return Object.assign({},s,{score1:'',score2:''});});
+      renderScoreTable();
+    }else if(tbody)tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">'+(r.message||'')+'</td></tr>';
+  }catch(e){
+    if(tbody)tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">'+e.message+'</td></tr>';
+  }
 }
 function enforceMax(inputEl,maxVal){
   var v=parseFloat(inputEl.value);
   if(isNaN(v))return;
-  if(v>maxVal){inputEl.value=maxVal;inputEl.style.borderColor='#c1121f';inputEl.style.background='#fff5f5';showToast('Maximum score for this field is '+maxVal+'.','warning');setTimeout(function(){inputEl.style.borderColor='';inputEl.style.background='';},1500);}
+  if(v>maxVal){
+    inputEl.value=maxVal;
+    inputEl.style.borderColor='#c1121f';
+    inputEl.style.background='#fff5f5';
+    showToast('Maximum score for this field is '+maxVal+'.','warning');
+    setTimeout(function(){inputEl.style.borderColor='';inputEl.style.background='';},1500);
+  }
   if(v<0)inputEl.value=0;
 }
 function renderScoreTable(){
@@ -1092,26 +1386,79 @@ function renderScoreTable(){
   var filtered=q?scoreRows.filter(function(s){return(s.studentId||'').toLowerCase().includes(q)||(s.studentName||'').toLowerCase().includes(q);}):scoreRows;
   if(filtered.length===0){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">No students.</td></tr>';return;}
   var max1=0,max2=0;
-  if(currentScoreLevel==='olevel'){max1=parseFloat(document.getElementById('aoiMax')?.value)||20;max2=parseFloat(document.getElementById('eotMax')?.value)||80;}
-  else{max1=parseFloat(document.getElementById('paper1Max')?.value)||100;max2=parseFloat(document.getElementById('paper2Max')?.value)||100;}
+  if(currentScoreLevel==='olevel'){
+    max1=parseFloat(document.getElementById('aoiMax')?.value)||20;
+    max2=parseFloat(document.getElementById('eotMax')?.value)||80;
+  }else{
+    max1=parseFloat(document.getElementById('paper1Max')?.value)||100;
+    max2=parseFloat(document.getElementById('paper2Max')?.value)||100;
+  }
   var h='';
   filtered.forEach(function(s){
-    var idx=scoreRows.indexOf(s);var s1=s.score1||'',s2=s.score2||'';
-    h+='<tr><td style="font-weight:600;font-size:12px">'+(s.studentId||'')+'</td><td>'+(s.studentName||'')+'</td>'+
+    var idx=scoreRows.indexOf(s);
+    var s1=s.score1||'',s2=s.score2||'';
+    h+='<tr>'+
+      '<td style="font-weight:600;font-size:12px">'+(s.studentId||'')+'</td>'+
+      '<td>'+(s.studentName||'')+'</td>'+
       '<td><input type="number" id="score1_'+idx+'" value="'+s1+'" min="0" max="'+max1+'" step="0.5" oninput="enforceMax(this,'+max1+')" onchange="updateScore('+idx+')" /></td>'+
       '<td><input type="number" id="score2_'+idx+'" value="'+s2+'" min="0" max="'+max2+'" step="0.5" oninput="enforceMax(this,'+max2+')" onchange="updateScore('+idx+')" /></td>'+
-      '<td style="font-weight:600;color:#302b63" id="avg_'+idx+'">—</td></tr>';
+      '<td style="font-weight:600;color:#302b63" id="avg_'+idx+'">—</td>'+
+    '</tr>';
   });
   tbody.innerHTML=h;
 }
-function updateScore(i){var n1=parseFloat(document.getElementById('score1_'+i)?.value)||0;var n2=parseFloat(document.getElementById('score2_'+i)?.value)||0;scoreRows[i].score1=n1;scoreRows[i].score2=n2;var e=document.getElementById('avg_'+i);if(e){var m1,m2;if(currentScoreLevel==='olevel'){m1=parseFloat(document.getElementById('aoiMax')?.value)||20;m2=parseFloat(document.getElementById('eotMax')?.value)||80;}else{m1=parseFloat(document.getElementById('paper1Max')?.value)||100;m2=parseFloat(document.getElementById('paper2Max')?.value)||100;}var avg=(((n1/m1)*100+(n2/m2)*100)/2).toFixed(1);e.textContent=avg+'%';}}
+function updateScore(i){
+  var n1=parseFloat(document.getElementById('score1_'+i)?.value)||0;
+  var n2=parseFloat(document.getElementById('score2_'+i)?.value)||0;
+  scoreRows[i].score1=n1;
+  scoreRows[i].score2=n2;
+  var e=document.getElementById('avg_'+i);
+  if(e){
+    var m1,m2;
+    if(currentScoreLevel==='olevel'){
+      m1=parseFloat(document.getElementById('aoiMax')?.value)||20;
+      m2=parseFloat(document.getElementById('eotMax')?.value)||80;
+    }else{
+      m1=parseFloat(document.getElementById('paper1Max')?.value)||100;
+      m2=parseFloat(document.getElementById('paper2Max')?.value)||100;
+    }
+    var avg=(((n1/m1)*100+(n2/m2)*100)/2).toFixed(1);
+    e.textContent=avg+'%';
+  }
+}
 function filterScoreRows(){renderScoreTable();}
-function updateScoreEntryMode(){var cls=document.getElementById('scoreClassSelect')?.value;var isO=isOLevelClass(cls),isA=isALevelClass(cls);var oe=document.getElementById('olevelScoreEntry'),ae=document.getElementById('alevelScoreEntry');if(isO){if(oe)oe.style.display='block';if(ae)ae.style.display='none';currentScoreLevel='olevel';}else if(isA){if(oe)oe.style.display='none';if(ae)ae.style.display='block';currentScoreLevel='alevel';}else{if(oe)oe.style.display='block';if(ae)ae.style.display='none';}setScoreLevel(currentScoreLevel);}
+function updateScoreEntryMode(){
+  var cls=document.getElementById('scoreClassSelect')?.value;
+  var isO=isOLevelClass(cls),isA=isALevelClass(cls);
+  var oe=document.getElementById('olevelScoreEntry'),ae=document.getElementById('alevelScoreEntry');
+  if(isO){
+    if(oe)oe.style.display='block';
+    if(ae)ae.style.display='none';
+    currentScoreLevel='olevel';
+  }else if(isA){
+    if(oe)oe.style.display='none';
+    if(ae)ae.style.display='block';
+    currentScoreLevel='alevel';
+  }else{
+    if(oe)oe.style.display='block';
+    if(ae)ae.style.display='none';
+  }
+  setScoreLevel(currentScoreLevel);
+}
 function setScoreLevel(level){
   currentScoreLevel=level;
   document.querySelectorAll('#levelOLevel, #levelALevel').forEach(function(el){el.style.background='none';el.style.color='#666';});
-  if(level==='olevel'){var b=document.getElementById('levelOLevel');if(b){b.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b.style.color='#fff';}var oe=document.getElementById('olevelScoreEntry');if(oe)oe.style.display='block';var ae=document.getElementById('alevelScoreEntry');if(ae)ae.style.display='none';}
-  else{var b2=document.getElementById('levelALevel');if(b2){b2.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b2.style.color='#fff';}var oe2=document.getElementById('olevelScoreEntry');if(oe2)oe2.style.display='none';var ae2=document.getElementById('alevelScoreEntry');if(ae2)ae2.style.display='block';}
+  if(level==='olevel'){
+    var b=document.getElementById('levelOLevel');
+    if(b){b.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b.style.color='#fff';}
+    var oe=document.getElementById('olevelScoreEntry');if(oe)oe.style.display='block';
+    var ae=document.getElementById('alevelScoreEntry');if(ae)ae.style.display='none';
+  }else{
+    var b2=document.getElementById('levelALevel');
+    if(b2){b2.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b2.style.color='#fff';}
+    var oe2=document.getElementById('olevelScoreEntry');if(oe2)oe2.style.display='none';
+    var ae2=document.getElementById('alevelScoreEntry');if(ae2)ae2.style.display='block';
+  }
   updateScoreEntryModeHeaders();
   loadStudents();
 }
@@ -1132,89 +1479,105 @@ function updateScoreEntryModeHeaders(){
   }
 }
 function updateALevelPaperDisplay(){updateScoreEntryModeHeaders();loadStudents();}
-function updateOLevelExamDisplay(){var ex=document.getElementById('examSelectionOLevel')?.value||'both';var aoiC=document.getElementById('aoiMaxContainer');var eotC=document.getElementById('eotMaxContainer');if(ex==='aoi'){if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='none';}else if(ex==='eot'){if(aoiC)aoiC.style.display='none';if(eotC)eotC.style.display='block';var em=document.getElementById('eotMax');if(em&&(!em.value||em.value==='20'))em.value='80';}else{if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='block';}updateScoreEntryModeHeaders();loadStudents();}
-function updateScoreClassInfo(){var cls=document.getElementById('scoreClassSelect')?.value,info=document.getElementById('scoreClassInfo'),lvl=document.getElementById('levelDisplay');if(!cls){if(info)info.textContent='Select a class';if(lvl)lvl.textContent='';return;}var level=isOLevelClass(cls)?'O-Level':isALevelClass(cls)?'A-Level':'';if(info)info.innerHTML='<strong>'+cls+'</strong>';if(lvl)lvl.textContent=level;}
+function updateOLevelExamDisplay(){
+  var ex=document.getElementById('examSelectionOLevel')?.value||'both';
+  var aoiC=document.getElementById('aoiMaxContainer');
+  var eotC=document.getElementById('eotMaxContainer');
+  if(ex==='aoi'){if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='none';}
+  else if(ex==='eot'){if(aoiC)aoiC.style.display='none';if(eotC)eotC.style.display='block';var em=document.getElementById('eotMax');if(em&&(!em.value||em.value==='20'))em.value='80';}
+  else{if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='block';}
+  updateScoreEntryModeHeaders();
+  loadStudents();
+}
+function updateScoreClassInfo(){
+  var cls=document.getElementById('scoreClassSelect')?.value;
+  var info=document.getElementById('scoreClassInfo'),lvl=document.getElementById('levelDisplay');
+  if(!cls){if(info)info.textContent='Select a class';if(lvl)lvl.textContent='';return;}
+  var level=isOLevelClass(cls)?'O-Level':isALevelClass(cls)?'A-Level':'';
+  if(info)info.innerHTML='<strong>'+cls+'</strong>';
+  if(lvl)lvl.textContent=level;
+}
 
 async function postScores(e){
   e.preventDefault();
-  showStatus('', '');
+  showStatus('','');
+  var cls=document.getElementById('scoreClassSelect')?.value;
+  var subj=document.getElementById('scoreSubjectOLevel')?.value||document.getElementById('scoreSubjectALevel')?.value;
+  var initials=document.getElementById('teacherInitialsOLevel')?.value||document.getElementById('teacherInitialsALevel')?.value||'';
+  var sheetId=getClassSheetId(cls);
 
-  var cls = document.getElementById('scoreClassSelect')?.value;
-  var subj = document.getElementById('scoreSubjectOLevel')?.value || document.getElementById('scoreSubjectALevel')?.value;
-  var initials = document.getElementById('teacherInitialsOLevel')?.value || document.getElementById('teacherInitialsALevel')?.value || '';
-  var sheetId = getClassSheetId(cls);
+  if(!cls){showStatus('❌ Please select a class.','error');showToast('Select a class.','error');return;}
+  if(!sheetId){showStatus('❌ Class sheet not configured. Go to Settings.','error');showToast('Sheet URL missing.','error');return;}
+  if(!subj){showStatus('❌ Please select a subject.','error');showToast('Select a subject.','error');return;}
+  if(!initials||!initials.trim()){showStatus('❌ Teacher initials required.','error');showToast('Enter your initials.','error');return;}
+  if(!scoreRows||scoreRows.length===0){showStatus('❌ No students loaded. Select a class again.','error');return;}
 
-  if(!cls){ showStatus('❌ Please select a class.', 'error'); showToast('Select a class.', 'error'); return; }
-  if(!sheetId){ showStatus('❌ Class sheet not configured. Go to Settings.', 'error'); showToast('Sheet URL missing.', 'error'); return; }
-  if(!subj){ showStatus('❌ Please select a subject.', 'error'); showToast('Select a subject.', 'error'); return; }
-  if(!initials || !initials.trim()){ showStatus('❌ Teacher initials required.', 'error'); showToast('Enter your initials.', 'error'); return; }
-  if(!scoreRows || scoreRows.length === 0){ showStatus('❌ No students loaded. Select a class again.', 'error'); return; }
+  var scores=[];
+  var has=false;
 
-  var scores = [];
-  var has = false;
-
-  if(currentScoreLevel === 'olevel'){
-    var aoiMax = parseFloat(document.getElementById('aoiMax')?.value) || 20;
-    var eotMax = parseFloat(document.getElementById('eotMax')?.value) || 80;
-
+  if(currentScoreLevel==='olevel'){
+    var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
+    var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
     scoreRows.forEach(function(s){
-      var rA = s.score1, rE = s.score2;
-      var nA = parseFloat(rA), nE = parseFloat(rE);
-      var hA = !isNaN(nA) && rA !== '' && rA !== null && rA !== undefined;
-      var hE = !isNaN(nE) && rE !== '' && rE !== null && rE !== undefined;
-      if(!hA && !hE) return;
-      has = true;
-
-      var entry = { studentId: s.studentId, studentName: s.studentName, teacherInitials: initials };
-      if(hA) entry.aoi = Math.round((nA / aoiMax) * 20 * 10) / 10;
-      if(hE) entry.eot = Math.round((nE / eotMax) * 80 * 10) / 10;
+      var rA=s.score1,rE=s.score2;
+      var nA=parseFloat(rA),nE=parseFloat(rE);
+      var hA=!isNaN(nA)&&rA!==''&&rA!==null&&rA!==undefined;
+      var hE=!isNaN(nE)&&rE!==''&&rE!==null&&rE!==undefined;
+      if(!hA&&!hE)return;
+      has=true;
+      var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
+      if(hA)entry.aoi=Math.round((nA/aoiMax)*20*10)/10;
+      if(hE)entry.eot=Math.round((nE/eotMax)*80*10)/10;
       scores.push(entry);
     });
-  } else {
-    var p1Max = parseFloat(document.getElementById('paper1Max')?.value) || 100;
-    var p2Max = parseFloat(document.getElementById('paper2Max')?.value) || 100;
-
+  }else{
+    var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
+    var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
     scoreRows.forEach(function(s){
-      var r1 = s.score1, r2 = s.score2;
-      var n1 = parseFloat(r1), n2 = parseFloat(r2);
-      var h1 = !isNaN(n1) && r1 !== '' && r1 !== null && r1 !== undefined;
-      var h2 = !isNaN(n2) && r2 !== '' && r2 !== null && r2 !== undefined;
-      if(!h1 && !h2) return;
-      has = true;
-
-      var entry = { studentId: s.studentId, studentName: s.studentName, teacherInitials: initials };
-      if(h1) entry.paper1 = Math.round((n1 / p1Max) * 100 * 10) / 10;
-      if(h2) entry.paper2 = Math.round((n2 / p2Max) * 100 * 10) / 10;
+      var r1=s.score1,r2=s.score2;
+      var n1=parseFloat(r1),n2=parseFloat(r2);
+      var h1=!isNaN(n1)&&r1!==''&&r1!==null&&r1!==undefined;
+      var h2=!isNaN(n2)&&r2!==''&&r2!==null&&r2!==undefined;
+      if(!h1&&!h2)return;
+      has=true;
+      var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
+      if(h1)entry.paper1=Math.round((n1/p1Max)*100*10)/10;
+      if(h2)entry.paper2=Math.round((n2/p2Max)*100*10)/10;
       scores.push(entry);
     });
   }
 
-  if(!has){ showStatus('❌ Enter at least one score before posting.', 'error'); showToast('No scores entered.', 'warning'); return; }
+  if(!has){showStatus('❌ Enter at least one score before posting.','error');showToast('No scores entered.','warning');return;}
 
-  var btn = document.getElementById('scoreSubmitBtn');
-  if(btn){ btn.disabled = true; btn.textContent = 'Posting...'; }
+  var btn=document.getElementById('scoreSubmitBtn');
+  if(btn){btn.disabled=true;btn.textContent='Posting...';}
 
   try{
-    var r = await callAppsScript({ action:'postScoresOnly', sheetId:sheetId, subject:subj, level:currentScoreLevel, scores:JSON.stringify(scores) });
-    if(btn){ btn.disabled = false; btn.textContent = 'Post Scores'; }
-
+    var r=await callAppsScript({action:'postScoresOnly',sheetId:sheetId,subject:subj,level:currentScoreLevel,scores:JSON.stringify(scores)});
+    if(btn){btn.disabled=false;btn.textContent='Post Scores';}
     if(r.success){
-      console.log('Posted:', r.data);
-      document.getElementById('scoreSuccess').style.display = 'block';
-      document.getElementById('scoresForm').style.display = 'none';
-      document.getElementById('scoreSuccessMsg').innerHTML = '📄 Tab: <strong>' + (r.data.tabName || subj) + '</strong><br>➕ Added: ' + (r.data.added || 0) + ' | 🔄 Updated: ' + (r.data.updated || 0);
-      showToast('✅ Posted to "' + (r.data.tabName || subj) + '"!', 'success');
-    } else {
-      showStatus('❌ ' + (r.message || 'Unknown'), 'error');
-      showToast('Failed: ' + (r.message || 'Unknown'), 'error');
+      console.log('Posted:',r.data);
+      document.getElementById('scoreSuccess').style.display='block';
+      document.getElementById('scoresForm').style.display='none';
+      document.getElementById('scoreSuccessMsg').innerHTML='📄 Tab: <strong>'+(r.data.tabName||subj)+'</strong><br>➕ Added: '+(r.data.added||0)+' | 🔄 Updated: '+(r.data.updated||0);
+      showToast('✅ Posted to "'+(r.data.tabName||subj)+'"!','success');
+    }else{
+      showStatus('❌ '+(r.message||'Unknown'),'error');
+      showToast('Failed: '+(r.message||'Unknown'),'error');
     }
   }catch(e){
-    if(btn){ btn.disabled = false; btn.textContent = 'Post Scores'; }
-    showStatus('❌ ' + e.message, 'error');
-    showToast('Error: ' + e.message, 'error');
+    if(btn){btn.disabled=false;btn.textContent='Post Scores';}
+    showStatus('❌ '+e.message,'error');
+    showToast('Error: '+e.message,'error');
   }
 }
-function resetScoresForm(){document.getElementById('scoresForm').style.display='block';document.getElementById('scoreSuccess').style.display='none';document.getElementById('scoreClassSelect').value='';document.getElementById('scoreTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';scoreRows=[];showStatus('','');}
+function resetScoresForm(){
+  document.getElementById('scoresForm').style.display='block';
+  document.getElementById('scoreSuccess').style.display='none';
+  document.getElementById('scoreClassSelect').value='';
+  document.getElementById('scoreTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';
+  scoreRows=[];showStatus('','');
+}
 
 /* ============ ATTENDANCE ============ */
 function switchAttendanceMode(mode){
@@ -1222,77 +1585,477 @@ function switchAttendanceMode(mode){
   var fp=document.getElementById('attModeFace'),qp=document.getElementById('attModeQR'),mp=document.getElementById('attModeManual');
   [fb,qb,mb].forEach(function(b){if(b){b.style.background='none';b.style.color='#666';}});
   [fp,qp,mp].forEach(function(p){if(p)p.style.display='none';});
-  if(mode==='face'){if(fb){fb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';fb.style.color='#fff';}if(fp)fp.style.display='block';if(qrScanInterval)stopQRScanner();}
-  else if(mode==='qr'){if(qb){qb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';qb.style.color='#fff';}if(qp)qp.style.display='block';if(isCameraRunning)stopCamera();}
-  else{if(mb){mb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';mb.style.color='#fff';}if(mp)mp.style.display='block';if(isCameraRunning)stopCamera();if(qrScanInterval)stopQRScanner();var d=document.getElementById('manualAttDate');if(d&&!d.value)d.value=getTodayDate();populateManualAttClassSelect();}
+  if(mode==='face'){
+    if(fb){fb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';fb.style.color='#fff';}
+    if(fp)fp.style.display='block';
+    if(qrScanInterval)stopQRScanner();
+  }else if(mode==='qr'){
+    if(qb){qb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';qb.style.color='#fff';}
+    if(qp)qp.style.display='block';
+    if(isCameraRunning)stopCamera();
+  }else{
+    if(mb){mb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';mb.style.color='#fff';}
+    if(mp)mp.style.display='block';
+    if(isCameraRunning)stopCamera();
+    if(qrScanInterval)stopQRScanner();
+    var d=document.getElementById('manualAttDate');
+    if(d&&!d.value)d.value=getTodayDate();
+    populateManualAttClassSelect();
+  }
 }
-function populateManualAttClassSelect(){var sel=document.getElementById('manualAttClassSelect');if(!sel||sel.options.length>1)return;sel.innerHTML='<option value="">Select a Class</option>';CLASSES.forEach(function(cls){var o=document.createElement('option');o.value=cls;o.textContent=cls;sel.appendChild(o);});}
-async function loadManualAttendanceStudents(){var cls=document.getElementById('manualAttClassSelect')?.value,school=getActiveSchool(),grid=document.getElementById('manualAttGrid');if(!grid)return;if(!cls){grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p>';return;}var sheetId=getClassSheetId(cls);if(!sheetId){grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">Sheet not configured.</p>';return;}grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Loading...</p>';manualAttClass=cls;try{var res=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});var students=res.data?.students||[];manualAttStudents=students.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:'present'};});manualAttFiltered=manualAttStudents.slice();renderManualAttGrid();}catch(e){grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">'+e.message+'</p>';}}
-function renderManualAttGrid(){var g=document.getElementById('manualAttGrid');if(!g)return;if(!manualAttFiltered||manualAttFiltered.length===0){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No students.</p>';return;}var h='';manualAttFiltered.forEach(function(s){var isP=s.status==='present';h+='<div class="attendance-check-item"><input type="checkbox" '+(isP?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\', this.checked)" /><label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label></div>';});g.innerHTML=h;}
+function populateManualAttClassSelect(){
+  var sel=document.getElementById('manualAttClassSelect');
+  if(!sel||sel.options.length>1)return;
+  sel.innerHTML='<option value="">Select a Class</option>';
+  CLASSES.forEach(function(cls){
+    var o=document.createElement('option');o.value=cls;o.textContent=cls;sel.appendChild(o);
+  });
+}
+async function loadManualAttendanceStudents(){
+  var cls=document.getElementById('manualAttClassSelect')?.value;
+  var school=getActiveSchool();
+  var grid=document.getElementById('manualAttGrid');
+  if(!grid)return;
+  if(!cls){grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p>';return;}
+  var sheetId=getClassSheetId(cls);
+  if(!sheetId){grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">Sheet not configured.</p>';return;}
+  grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Loading...</p>';
+  manualAttClass=cls;
+  try{
+    var res=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});
+    var students=res.data?.students||[];
+    manualAttStudents=students.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:'present'};});
+    manualAttFiltered=manualAttStudents.slice();
+    renderManualAttGrid();
+  }catch(e){
+    grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">'+e.message+'</p>';
+  }
+}
+function renderManualAttGrid(){
+  var g=document.getElementById('manualAttGrid');if(!g)return;
+  if(!manualAttFiltered||manualAttFiltered.length===0){
+    g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No students.</p>';
+    return;
+  }
+  var h='';
+  manualAttFiltered.forEach(function(s){
+    var isP=s.status==='present';
+    h+='<div class="attendance-check-item"><input type="checkbox" '+(isP?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\', this.checked)" /><label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label></div>';
+  });
+  g.innerHTML=h;
+}
 function toggleManualStudent(id,c){var s=manualAttStudents.find(function(x){return x.studentId===id;});if(s)s.status=c?'present':'absent';}
 function markAllManual(st){manualAttStudents.forEach(function(s){s.status=st;});renderManualAttGrid();}
 function resetManualAttendance(){manualAttStudents.forEach(function(s){s.status='present';});renderManualAttGrid();}
-function filterManualAttendance(){var q=(document.getElementById('manualAttSearch')?.value||'').toLowerCase().trim();manualAttFiltered=q?manualAttStudents.filter(function(s){return(s.studentId||'').toLowerCase().includes(q)||(s.studentName||'').toLowerCase().includes(q);}):manualAttStudents.slice();renderManualAttGrid();}
-async function saveManualAttendance(){if(!manualAttClass||manualAttStudents.length===0){showToast('Load students first.','warning');return;}var school=getActiveSchool(),sheetId=getClassSheetId(manualAttClass);var records=manualAttStudents.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:s.status,class:manualAttClass};});var btn=document.getElementById('manualAttSaveBtn');if(btn){btn.disabled=true;btn.textContent='Saving...';}try{var res=await callAppsScript({action:'saveManualAttendance',sheetId:sheetId,school:school,className:manualAttClass,date:document.getElementById('manualAttDate')?.value||getTodayDate(),term:document.getElementById('manualAttTerm')?.value||'III',year:document.getElementById('manualAttYear')?.value||'2026',records:JSON.stringify(records),markedBy:authSession.name||authSession.username,markedByRole:'admin'});if(btn){btn.disabled=false;btn.textContent='Save Attendance';}if(res.success)showToast('Attendance saved!','success');else showToast(res.message,'error');}catch(e){if(btn){btn.disabled=false;btn.textContent='Save Attendance';}showToast(e.message,'error');}}
+function filterManualAttendance(){
+  var q=(document.getElementById('manualAttSearch')?.value||'').toLowerCase().trim();
+  manualAttFiltered=q?manualAttStudents.filter(function(s){return(s.studentId||'').toLowerCase().includes(q)||(s.studentName||'').toLowerCase().includes(q);}):manualAttStudents.slice();
+  renderManualAttGrid();
+}
+async function saveManualAttendance(){
+  if(!manualAttClass||manualAttStudents.length===0){showToast('Load students first.','warning');return;}
+  var school=getActiveSchool(),sheetId=getClassSheetId(manualAttClass);
+  var records=manualAttStudents.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:s.status,class:manualAttClass};});
+  var btn=document.getElementById('manualAttSaveBtn');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    var res=await callAppsScript({action:'saveManualAttendance',sheetId:sheetId,school:school,className:manualAttClass,date:document.getElementById('manualAttDate')?.value||getTodayDate(),term:document.getElementById('manualAttTerm')?.value||'III',year:document.getElementById('manualAttYear')?.value||'2026',records:JSON.stringify(records),markedBy:authSession.name||authSession.username,markedByRole:'admin'});
+    if(btn){btn.disabled=false;btn.textContent='Save Attendance';}
+    if(res.success)showToast('Attendance saved!','success');
+    else showToast(res.message,'error');
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Save Attendance';}
+    showToast(e.message,'error');
+  }
+}
 
-/* ============ FACE ============ */
-async function loadFaceRecognitionModels(){if(faceState.modelsLoaded||faceState.modelsLoading)return faceState.modelsLoaded;faceState.modelsLoading=true;try{if(typeof faceapi==='undefined'){faceState.modelsLoading=false;return false;}var p=FACE_CONFIG.modelPath;await faceapi.nets.tinyFaceDetector.loadFromUri(p);await faceapi.nets.faceLandmark68Net.loadFromUri(p);await faceapi.nets.faceRecognitionNet.loadFromUri(p);FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});faceState.modelsLoaded=true;faceState.modelsLoading=false;return true;}catch(e){faceState.modelsLoading=false;return false;}}
-async function startCamera(){if(isCameraRunning)return;try{await loadFaceRecognitionModels();videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:cameraMode,width:{ideal:1280},height:{ideal:720}},audio:false});var v=document.getElementById('videoFeed');v.srcObject=videoStream;await v.play();isCameraRunning=true;var btn=document.getElementById('cameraToggleBtn');if(btn){btn.textContent='Stop';btn.className='btn btn-danger';}var st=document.getElementById('detectionStatus');if(st){st.textContent='Camera ready';st.style.display='block';st.className='detection-status active';}startFaceDetectionLoop();}catch(e){showToast(e.message,'error');}}
-function stopCamera(){if(videoStream){videoStream.getTracks().forEach(function(t){t.stop();});videoStream=null;}isCameraRunning=false;var v=document.getElementById('videoFeed');if(v)v.srcObject=null;var btn=document.getElementById('cameraToggleBtn');if(btn){btn.textContent='Start Camera';btn.className='btn btn-info';}var st=document.getElementById('detectionStatus');if(st)st.style.display='none';if(detectionInterval){clearInterval(detectionInterval);detectionInterval=null;}}
+/* ============ FACE RECOGNITION ============ */
+async function loadFaceRecognitionModels(){
+  if(faceState.modelsLoaded||faceState.modelsLoading)return faceState.modelsLoaded;
+  faceState.modelsLoading=true;
+  try{
+    if(typeof faceapi==='undefined'){faceState.modelsLoading=false;return false;}
+    var p=FACE_CONFIG.modelPath;
+    await faceapi.nets.tinyFaceDetector.loadFromUri(p);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(p);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(p);
+    FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});
+    faceState.modelsLoaded=true;
+    faceState.modelsLoading=false;
+    return true;
+  }catch(e){faceState.modelsLoading=false;return false;}
+}
+async function startCamera(){
+  if(isCameraRunning)return;
+  try{
+    await loadFaceRecognitionModels();
+    videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:cameraMode,width:{ideal:1280},height:{ideal:720}},audio:false});
+    var v=document.getElementById('videoFeed');
+    v.srcObject=videoStream;
+    await v.play();
+    isCameraRunning=true;
+    var btn=document.getElementById('cameraToggleBtn');
+    if(btn){btn.textContent='Stop';btn.className='btn btn-danger';}
+    var st=document.getElementById('detectionStatus');
+    if(st){st.textContent='Camera ready';st.style.display='block';st.className='detection-status active';}
+    startFaceDetectionLoop();
+  }catch(e){showToast(e.message,'error');}
+}
+function stopCamera(){
+  if(videoStream){videoStream.getTracks().forEach(function(t){t.stop();});videoStream=null;}
+  isCameraRunning=false;
+  var v=document.getElementById('videoFeed');if(v)v.srcObject=null;
+  var btn=document.getElementById('cameraToggleBtn');
+  if(btn){btn.textContent='Start Camera';btn.className='btn btn-info';}
+  var st=document.getElementById('detectionStatus');if(st)st.style.display='none';
+  if(detectionInterval){clearInterval(detectionInterval);detectionInterval=null;}
+}
 function switchCamera(){cameraMode=cameraMode==='user'?'environment':'user';if(isCameraRunning){stopCamera();setTimeout(startCamera,500);}else startCamera();}
 function startFaceDetectionLoop(){if(detectionInterval)clearInterval(detectionInterval);detectionInterval=setInterval(detectFace,500);}
-async function detectFace(){var v=document.getElementById('videoFeed'),st=document.getElementById('detectionStatus');if(!isCameraRunning||!v||v.videoWidth===0)return;if(!faceState.modelsLoaded)return;try{var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS);if(!det){if(st)st.textContent='Position your face';return;}if(st)st.textContent='Face detected - Press Capture';}catch(e){}}
-async function captureAndVerify(){if(!isCameraRunning||!faceState.modelsLoaded){showToast('Start camera first.','warning');return;}var v=document.getElementById('videoFeed');try{var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();if(!det){showToast('No face detected.','error');return;}var result=await verifyFace(det.descriptor);if(result)await markAttendance(result.id,result.name);else showToast('Face not recognized.','error');}catch(e){showToast(e.message,'error');}}
-function verifyFace(descriptor){return new Promise(function(resolve){var R=getRegisteredFaces();if(R.length===0){resolve(null);return;}var best=null,bd=999;for(var i=0;i<R.length;i++){var rec=R[i],D=rec.descriptors||[rec.descriptor];for(var j=0;j<D.length;j++){if(!D[j])continue;var st=new Float32Array(D[j]);if(st.length!==descriptor.length)continue;var d=calculateFaceDistance(descriptor,st);if(d<bd){bd=d;best={id:rec.id,name:rec.name,distance:d};}}}if(best&&best.distance<=FACE_CONFIG.recognitionThreshold)resolve(best);else resolve(null);});}
+async function detectFace(){
+  var v=document.getElementById('videoFeed'),st=document.getElementById('detectionStatus');
+  if(!isCameraRunning||!v||v.videoWidth===0)return;
+  if(!faceState.modelsLoaded)return;
+  try{
+    var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS);
+    if(!det){if(st)st.textContent='Position your face';return;}
+    if(st)st.textContent='Face detected - Press Capture';
+  }catch(e){}
+}
+async function captureAndVerify(){
+  if(!isCameraRunning||!faceState.modelsLoaded){showToast('Start camera first.','warning');return;}
+  var v=document.getElementById('videoFeed');
+  try{
+    var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();
+    if(!det){showToast('No face detected.','error');return;}
+    var result=await verifyFace(det.descriptor);
+    if(result)await markAttendance(result.id,result.name);
+    else showToast('Face not recognized.','error');
+  }catch(e){showToast(e.message,'error');}
+}
+function verifyFace(descriptor){
+  return new Promise(function(resolve){
+    var R=getRegisteredFaces();
+    if(R.length===0){resolve(null);return;}
+    var best=null,bd=999;
+    for(var i=0;i<R.length;i++){
+      var rec=R[i],D=rec.descriptors||[rec.descriptor];
+      for(var j=0;j<D.length;j++){
+        if(!D[j])continue;
+        var st=new Float32Array(D[j]);
+        if(st.length!==descriptor.length)continue;
+        var d=calculateFaceDistance(descriptor,st);
+        if(d<bd){bd=d;best={id:rec.id,name:rec.name,distance:d};}
+      }
+    }
+    if(best&&best.distance<=FACE_CONFIG.recognitionThreshold)resolve(best);
+    else resolve(null);
+  });
+}
 function calculateFaceDistance(d1,d2){var s=0,n=Math.min(d1.length,d2.length);for(var i=0;i<n;i++){var df=d1[i]-d2[i];s+=df*df;}return Math.sqrt(s);}
-async function markAttendance(id,name){var R=getAttendanceRecords(),t=getTodayDate(),tm=new Date().toLocaleTimeString();var a=R.some(function(r){return r.id===id&&r.date===t;});if(a){showToast(name+' already marked.','warning');return;}R.push({id:id,name:name,date:t,time:tm,method:'Face',timestamp:new Date().toISOString()});saveAttendanceRecords(R);try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:id,studentName:name,date:t,time:tm,method:'Face'});}catch(e){}showToast(name+' marked present!','success');}
-function saveRegisteredFace(id,name,descriptor,role){if(!descriptor||descriptor.length===0)return false;var nd=Array.from(descriptor);var R=getRegisteredFaces();var idx=-1;for(var i=0;i<R.length;i++)if(R[i].id===id){idx=i;break;}if(idx>=0){var rec=R[idx];if(!rec.descriptors)rec.descriptors=[rec.descriptor];rec.descriptors.push(nd);if(rec.descriptors.length>3)rec.descriptors.shift();rec.descriptor=rec.descriptors[0];rec.name=name;rec.role=role||rec.role;}else R.push({id:id,name:name,role:role||'student',descriptor:nd,descriptors:[nd],registeredAt:new Date().toISOString()});saveRegisteredFaces(R);displayRegisteredFaces();loadRegisteredFaces();return true;}
-function deleteRegisteredFace(id){var R=getRegisteredFaces().filter(function(r){return r.id!==id;});saveRegisteredFaces(R);displayRegisteredFaces();loadRegisteredFaces();}
-function displayRegisteredFaces(){var c=document.getElementById('registeredFacesList');if(!c)return;var R=getRegisteredFaces();if(R.length===0){c.innerHTML='<p style="color:#999;text-align:center">No faces registered.</p>';return;}var h='<table style="width:100%;font-size:13px;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px">ID</th><th style="text-align:left;padding:8px">Name</th><th>Action</th></tr></thead><tbody>';R.forEach(function(r){h+='<tr><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.id)+'</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.name)+'</td><td style="padding:8px"><button class="btn btn-danger btn-sm" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
-function loadRegisteredFaces(){var g=document.getElementById('registeredFacesGrid');if(!g)return;var R=getRegisteredFaces();if(R.length===0){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No faces registered yet</p>';return;}var h='';R.forEach(function(r){h+='<div class="face-registered-item"><div style="font-size:30px">👤</div><div class="face-name">'+escapeHtml(r.name)+'</div><div class="face-role">'+escapeHtml(r.role||'student')+' | '+escapeHtml(r.id)+'</div><button class="btn btn-danger btn-sm" style="margin-top:5px;padding:2px 8px;font-size:10px" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></div>';});g.innerHTML=h;}
-async function startFaceRegCamera(){if(isFaceRegRunning){stopFaceRegCamera();return;}try{faceRegStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});var v=document.getElementById('faceRegVideo');if(v){v.srcObject=faceRegStream;await v.play();}isFaceRegRunning=true;var s=document.getElementById('faceRegStatus');if(s){s.textContent='Camera running';s.style.display='block';}}catch(e){showToast(e.message,'error');}}
+async function markAttendance(id,name){
+  var R=getAttendanceRecords(),t=getTodayDate(),tm=new Date().toLocaleTimeString();
+  var a=R.some(function(r){return r.id===id&&r.date===t;});
+  if(a){showToast(name+' already marked.','warning');return;}
+  R.push({id:id,name:name,date:t,time:tm,method:'Face',timestamp:new Date().toISOString()});
+  saveAttendanceRecords(R);
+  try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:id,studentName:name,date:t,time:tm,method:'Face'});}catch(e){}
+  showToast(name+' marked present!','success');
+}
+function saveRegisteredFace(id,name,descriptor,role){
+  if(!descriptor||descriptor.length===0)return false;
+  var nd=Array.from(descriptor);
+  var R=getRegisteredFaces();
+  var idx=-1;
+  for(var i=0;i<R.length;i++)if(R[i].id===id){idx=i;break;}
+  if(idx>=0){
+    var rec=R[idx];
+    if(!rec.descriptors)rec.descriptors=[rec.descriptor];
+    rec.descriptors.push(nd);
+    if(rec.descriptors.length>3)rec.descriptors.shift();
+    rec.descriptor=rec.descriptors[0];
+    rec.name=name;
+    rec.role=role||rec.role;
+  }else{
+    R.push({id:id,name:name,role:role||'student',descriptor:nd,descriptors:[nd],registeredAt:new Date().toISOString()});
+  }
+  saveRegisteredFaces(R);
+  displayRegisteredFaces();loadRegisteredFaces();
+  return true;
+}
+function deleteRegisteredFace(id){
+  var R=getRegisteredFaces().filter(function(r){return r.id!==id;});
+  saveRegisteredFaces(R);displayRegisteredFaces();loadRegisteredFaces();
+}
+function displayRegisteredFaces(){
+  var c=document.getElementById('registeredFacesList');if(!c)return;
+  var R=getRegisteredFaces();
+  if(R.length===0){c.innerHTML='<p style="color:#999;text-align:center">No faces registered.</p>';return;}
+  var h='<table style="width:100%;font-size:13px;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px">ID</th><th style="text-align:left;padding:8px">Name</th><th>Action</th></tr></thead><tbody>';
+  R.forEach(function(r){
+    h+='<tr><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.id)+'</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.name)+'</td><td style="padding:8px"><button class="btn btn-danger btn-sm" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></td></tr>';
+  });
+  h+='</tbody></table>';c.innerHTML=h;
+}
+function loadRegisteredFaces(){
+  var g=document.getElementById('registeredFacesGrid');if(!g)return;
+  var R=getRegisteredFaces();
+  if(R.length===0){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No faces registered yet</p>';return;}
+  var h='';
+  R.forEach(function(r){
+    h+='<div class="face-registered-item"><div style="font-size:30px">👤</div><div class="face-name">'+escapeHtml(r.name)+'</div><div class="face-role">'+escapeHtml(r.role||'student')+' | '+escapeHtml(r.id)+'</div><button class="btn btn-danger btn-sm" style="margin-top:5px;padding:2px 8px;font-size:10px" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></div>';
+  });
+  g.innerHTML=h;
+}
+async function startFaceRegCamera(){
+  if(isFaceRegRunning){stopFaceRegCamera();return;}
+  try{
+    faceRegStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
+    var v=document.getElementById('faceRegVideo');
+    if(v){v.srcObject=faceRegStream;await v.play();}
+    isFaceRegRunning=true;
+    var s=document.getElementById('faceRegStatus');
+    if(s){s.textContent='Camera running';s.style.display='block';}
+  }catch(e){showToast(e.message,'error');}
+}
 function switchFaceRegCamera(){stopFaceRegCamera();setTimeout(startFaceRegCamera,500);}
-function stopFaceRegCamera(){if(faceRegStream){faceRegStream.getTracks().forEach(function(t){t.stop();});faceRegStream=null;}isFaceRegRunning=false;var v=document.getElementById('faceRegVideo');if(v)v.srcObject=null;var s=document.getElementById('faceRegStatus');if(s)s.style.display='none';}
-async function registerFaceFromTab(){var id=document.getElementById('regFaceId')?.value?.trim(),name=document.getElementById('regFaceName')?.value?.trim(),role=document.getElementById('regFaceRole')?.value||'student';if(!id||!name||!isFaceRegRunning){showToast('Fill fields + start camera.','warning');return;}if(!faceState.modelsLoaded)await loadFaceRecognitionModels();if(!FACE_DETECTION_OPTIONS)FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});var v=document.getElementById('faceRegVideo'),det=null;for(var i=0;i<3;i++){det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();if(det)break;await new Promise(function(r){setTimeout(r,300);});}if(!det){showToast('No face detected.','error');return;}if(saveRegisteredFace(id,name,det.descriptor,role)){showToast('Registered: '+name,'success');document.getElementById('regFaceId').value='';document.getElementById('regFaceName').value='';}}
+function stopFaceRegCamera(){
+  if(faceRegStream){faceRegStream.getTracks().forEach(function(t){t.stop();});faceRegStream=null;}
+  isFaceRegRunning=false;
+  var v=document.getElementById('faceRegVideo');if(v)v.srcObject=null;
+  var s=document.getElementById('faceRegStatus');if(s)s.style.display='none';
+}
+async function registerFaceFromTab(){
+  var id=document.getElementById('regFaceId')?.value?.trim();
+  var name=document.getElementById('regFaceName')?.value?.trim();
+  var role=document.getElementById('regFaceRole')?.value||'student';
+  if(!id||!name||!isFaceRegRunning){showToast('Fill fields + start camera.','warning');return;}
+  if(!faceState.modelsLoaded)await loadFaceRecognitionModels();
+  if(!FACE_DETECTION_OPTIONS)FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});
+  var v=document.getElementById('faceRegVideo'),det=null;
+  for(var i=0;i<3;i++){
+    det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();
+    if(det)break;
+    await new Promise(function(r){setTimeout(r,300);});
+  }
+  if(!det){showToast('No face detected.','error');return;}
+  if(saveRegisteredFace(id,name,det.descriptor,role)){
+    showToast('Registered: '+name,'success');
+    document.getElementById('regFaceId').value='';
+    document.getElementById('regFaceName').value='';
+  }
+}
 
-/* ============ QR ============ */
-async function startQRScanner(){try{qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}});var v=document.getElementById('qrVideo');v.srcObject=qrStream;await v.play();document.getElementById('qrToggleBtn').textContent='Stop Scanner';document.getElementById('qrToggleBtn').className='btn btn-danger';qrScanInterval=setInterval(scanQRCode,500);showToast('QR Scanner started','info');}catch(e){showToast(e.message,'error');}}
-function stopQRScanner(){if(qrScanInterval){clearInterval(qrScanInterval);qrScanInterval=null;}if(qrStream){qrStream.getTracks().forEach(function(t){t.stop();});qrStream=null;}var v=document.getElementById('qrVideo');if(v)v.srcObject=null;var btn=document.getElementById('qrToggleBtn');if(btn){btn.textContent='Start QR Scanner';btn.className='btn btn-info';}var r=document.getElementById('qrResult');if(r)r.classList.remove('active');}
+/* ============ QR SCANNER ============ */
+async function startQRScanner(){
+  try{
+    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}});
+    var v=document.getElementById('qrVideo');
+    v.srcObject=qrStream;
+    await v.play();
+    document.getElementById('qrToggleBtn').textContent='Stop Scanner';
+    document.getElementById('qrToggleBtn').className='btn btn-danger';
+    qrScanInterval=setInterval(scanQRCode,500);
+    showToast('QR Scanner started','info');
+  }catch(e){showToast(e.message,'error');}
+}
+function stopQRScanner(){
+  if(qrScanInterval){clearInterval(qrScanInterval);qrScanInterval=null;}
+  if(qrStream){qrStream.getTracks().forEach(function(t){t.stop();});qrStream=null;}
+  var v=document.getElementById('qrVideo');if(v)v.srcObject=null;
+  var btn=document.getElementById('qrToggleBtn');
+  if(btn){btn.textContent='Start QR Scanner';btn.className='btn btn-info';}
+  var r=document.getElementById('qrResult');if(r)r.classList.remove('active');
+}
 function switchQRCamera(){stopQRScanner();setTimeout(startQRScanner,500);}
-function scanQRCode(){var v=document.getElementById('qrVideo');if(!v||v.readyState!==v.HAVE_ENOUGH_DATA)return;if(Date.now()-qrLastScanTime<2000)return;var c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;var ctx=c.getContext('2d');ctx.drawImage(v,0,0,c.width,c.height);var img=ctx.getImageData(0,0,c.width,c.height);if(typeof jsQR!=='undefined'){var code=jsQR(img.data,img.width,img.height);if(code&&code.data){handleQRCode(code.data);qrLastScanTime=Date.now();}}}
-function handleQRCode(data){try{var parsed=JSON.parse(data);if(parsed.id&&parsed.name){document.getElementById('qrStudentName').textContent=parsed.name;document.getElementById('qrStudentId').textContent='ID: '+parsed.id;document.getElementById('qrResult').classList.add('active');document.getElementById('qrResult').dataset.studentId=parsed.id;document.getElementById('qrResult').dataset.studentName=parsed.name;setTimeout(function(){if(document.getElementById('qrResult').classList.contains('active'))markQRAttendance();},2000);}}catch(e){}}
-async function markQRAttendance(){var sid=document.getElementById('qrResult').dataset.studentId;var sn=document.getElementById('qrResult').dataset.studentName;if(!sid||!sn)return;var t=getTodayDate();var R=getAttendanceRecords();var a=R.some(function(r){return r.id===sid&&r.date===t;});if(a){showToast(sn+' already marked today','warning');document.getElementById('qrResult').classList.remove('active');return;}R.push({id:sid,name:sn,date:t,time:getCurrentTime(),method:'QR',timestamp:new Date().toISOString()});saveAttendanceRecords(R);try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:sid,studentName:sn,date:t,time:getCurrentTime(),method:'QR'});}catch(e){}showToast(sn+' marked present!','success');qrScanHistory.unshift({id:sid,name:sn,time:getCurrentTime(),date:t});renderQRScanHistory();document.getElementById('qrResult').classList.remove('active');}
-function renderQRScanHistory(){var c=document.getElementById('qrScanHistory');if(!c)return;if(qrScanHistory.length===0){c.innerHTML='<p style="color:#999;text-align:center">No scans yet.</p>';return;}var h='<table style="width:100%;font-size:12px;border-collapse:collapse">';qrScanHistory.slice(0,20).forEach(function(s){h+='<tr><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.name)+'</td><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.id)+'</td><td style="padding:4px;border-bottom:1px solid #eee;text-align:right">'+s.time+'</td></tr>';});h+='</table>';c.innerHTML=h;}
+function scanQRCode(){
+  var v=document.getElementById('qrVideo');
+  if(!v||v.readyState!==v.HAVE_ENOUGH_DATA)return;
+  if(Date.now()-qrLastScanTime<2000)return;
+  var c=document.createElement('canvas');
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  var ctx=c.getContext('2d');
+  ctx.drawImage(v,0,0,c.width,c.height);
+  var img=ctx.getImageData(0,0,c.width,c.height);
+  if(typeof jsQR!=='undefined'){
+    var code=jsQR(img.data,img.width,img.height);
+    if(code&&code.data){handleQRCode(code.data);qrLastScanTime=Date.now();}
+  }
+}
+function handleQRCode(data){
+  try{
+    var parsed=JSON.parse(data);
+    if(parsed.id&&parsed.name){
+      document.getElementById('qrStudentName').textContent=parsed.name;
+      document.getElementById('qrStudentId').textContent='ID: '+parsed.id;
+      document.getElementById('qrResult').classList.add('active');
+      document.getElementById('qrResult').dataset.studentId=parsed.id;
+      document.getElementById('qrResult').dataset.studentName=parsed.name;
+      setTimeout(function(){if(document.getElementById('qrResult').classList.contains('active'))markQRAttendance();},2000);
+    }
+  }catch(e){}
+}
+async function markQRAttendance(){
+  var sid=document.getElementById('qrResult').dataset.studentId;
+  var sn=document.getElementById('qrResult').dataset.studentName;
+  if(!sid||!sn)return;
+  var t=getTodayDate();
+  var R=getAttendanceRecords();
+  var a=R.some(function(r){return r.id===sid&&r.date===t;});
+  if(a){showToast(sn+' already marked today','warning');document.getElementById('qrResult').classList.remove('active');return;}
+  R.push({id:sid,name:sn,date:t,time:getCurrentTime(),method:'QR',timestamp:new Date().toISOString()});
+  saveAttendanceRecords(R);
+  try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:sid,studentName:sn,date:t,time:getCurrentTime(),method:'QR'});}catch(e){}
+  showToast(sn+' marked present!','success');
+  qrScanHistory.unshift({id:sid,name:sn,time:getCurrentTime(),date:t});
+  renderQRScanHistory();
+  document.getElementById('qrResult').classList.remove('active');
+}
+function renderQRScanHistory(){
+  var c=document.getElementById('qrScanHistory');if(!c)return;
+  if(qrScanHistory.length===0){c.innerHTML='<p style="color:#999;text-align:center">No scans yet.</p>';return;}
+  var h='<table style="width:100%;font-size:12px;border-collapse:collapse">';
+  qrScanHistory.slice(0,20).forEach(function(s){
+    h+='<tr><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.name)+'</td><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.id)+'</td><td style="padding:4px;border-bottom:1px solid #eee;text-align:right">'+s.time+'</td></tr>';
+  });
+  h+='</table>';c.innerHTML=h;
+}
 
 /* ============ FEES ============ */
-async function loadFeesStudents(){var sel=document.getElementById('feesStudentSelect');var school=getActiveSchool();if(!school||!sel)return;sel.innerHTML='<option value="">Select Student</option>';var all=[];for(var i=0;i<CLASSES.length;i++){var sid=getClassSheetId(CLASSES[i]);if(!sid)continue;try{var r=await callAppsScript({action:'getStudents',sheetId:sid,school:school,className:CLASSES[i]});(r.data?.students||[]).forEach(function(s){all.push(s);});}catch(e){}}all.forEach(function(s){var o=document.createElement('option');o.value=s.studentId;o.textContent=s.studentName+' ('+s.studentId+')';sel.appendChild(o);});}
-async function recordFeePayment(){var sid=document.getElementById('feesStudentSelect')?.value,amt=parseFloat(document.getElementById('feesAmount')?.value),m=document.getElementById('feesMethod')?.value,t=document.getElementById('feesTerm')?.value,y=document.getElementById('feesYear')?.value,n=document.getElementById('feesNarration')?.value,school=getActiveSchool();if(!sid||!amt||amt<=0||!school){showStatus('Fill required.','error');return;}var rec='RCP-'+Date.now().toString().slice(-8);document.getElementById('feesReceipt').value=rec;var record={id:rec,studentId:sid,amount:amt,method:m,term:t,year:y,date:getTodayDate(),time:getCurrentTime(),narration:n};try{var r=await callAppsScript({action:'saveFeeRecord',school:school,record:JSON.stringify(record)});if(r.success){showToast('Payment recorded! '+rec,'success');resetFeesForm();loadFeesData();}else showStatus(r.message,'error');}catch(e){showStatus(e.message,'error');}}
-async function loadFeesData(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getFeeRecords',school:school});if(r.success&&r.data){feesRecords=r.data.records||[];renderFeesRecords();updateFeesSummary();}}catch(e){}}
-function renderFeesRecords(){var c=document.getElementById('feesRecordsContainer');if(!c)return;var q=document.getElementById('feesSearch')?.value?.toLowerCase()||'';var f=q?feesRecords.filter(function(r){return(r.studentId||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q);}):feesRecords;if(f.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}var h='<table class="ledger-table"><thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>';f.forEach(function(r){h+='<tr><td>'+escapeHtml(r.id||'')+'</td><td>'+escapeHtml(r.studentId||'')+'</td><td class="credit">UGX '+(r.amount||0).toLocaleString()+'</td><td>'+escapeHtml(r.method||'')+'</td><td>'+escapeHtml(r.date||'')+'</td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
-function updateFeesSummary(){var total=0;feesRecords.forEach(function(r){total+=r.amount||0;});var e=document.getElementById('totalFeesCollected');if(e)e.textContent='UGX '+total.toLocaleString();}
-function resetFeesForm(){['feesStudentSelect','feesAmount','feesNarration','feesReceipt'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});var m=document.getElementById('feesMethod');if(m)m.value='cash';showStatus('','');}
+async function loadFeesStudents(){
+  var sel=document.getElementById('feesStudentSelect');
+  var school=getActiveSchool();
+  if(!school||!sel)return;
+  sel.innerHTML='<option value="">Select Student</option>';
+  var all=[];
+  for(var i=0;i<CLASSES.length;i++){
+    var sid=getClassSheetId(CLASSES[i]);if(!sid)continue;
+    try{
+      var r=await callAppsScript({action:'getStudents',sheetId:sid,school:school,className:CLASSES[i]});
+      (r.data?.students||[]).forEach(function(s){all.push(s);});
+    }catch(e){}
+  }
+  all.forEach(function(s){
+    var o=document.createElement('option');
+    o.value=s.studentId;o.textContent=s.studentName+' ('+s.studentId+')';
+    sel.appendChild(o);
+  });
+}
+async function recordFeePayment(){
+  var sid=document.getElementById('feesStudentSelect')?.value;
+  var amt=parseFloat(document.getElementById('feesAmount')?.value);
+  var m=document.getElementById('feesMethod')?.value;
+  var t=document.getElementById('feesTerm')?.value;
+  var y=document.getElementById('feesYear')?.value;
+  var n=document.getElementById('feesNarration')?.value;
+  var school=getActiveSchool();
+  if(!sid||!amt||amt<=0||!school){showStatus('Fill required.','error');return;}
+  var rec='RCP-'+Date.now().toString().slice(-8);
+  document.getElementById('feesReceipt').value=rec;
+  var record={id:rec,studentId:sid,amount:amt,method:m,term:t,year:y,date:getTodayDate(),time:getCurrentTime(),narration:n};
+  try{
+    var r=await callAppsScript({action:'saveFeeRecord',school:school,record:JSON.stringify(record)});
+    if(r.success){showToast('Payment recorded! '+rec,'success');resetFeesForm();loadFeesData();}
+    else showStatus(r.message,'error');
+  }catch(e){showStatus(e.message,'error');}
+}
+async function loadFeesData(){
+  var school=getActiveSchool();if(!school)return;
+  try{
+    var r=await callAppsScript({action:'getFeeRecords',school:school});
+    if(r.success&&r.data){feesRecords=r.data.records||[];renderFeesRecords();updateFeesSummary();}
+  }catch(e){}
+}
+function renderFeesRecords(){
+  var c=document.getElementById('feesRecordsContainer');if(!c)return;
+  var q=document.getElementById('feesSearch')?.value?.toLowerCase()||'';
+  var f=q?feesRecords.filter(function(r){return(r.studentId||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q);}):feesRecords;
+  if(f.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}
+  var h='<table class="ledger-table"><thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>';
+  f.forEach(function(r){
+    h+='<tr><td>'+escapeHtml(r.id||'')+'</td><td>'+escapeHtml(r.studentId||'')+'</td><td class="credit">UGX '+(r.amount||0).toLocaleString()+'</td><td>'+escapeHtml(r.method||'')+'</td><td>'+escapeHtml(r.date||'')+'</td></tr>';
+  });
+  h+='</tbody></table>';c.innerHTML=h;
+}
+function updateFeesSummary(){
+  var total=0;feesRecords.forEach(function(r){total+=r.amount||0;});
+  var e=document.getElementById('totalFeesCollected');
+  if(e)e.textContent='UGX '+total.toLocaleString();
+}
+function resetFeesForm(){
+  ['feesStudentSelect','feesAmount','feesNarration','feesReceipt'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  var m=document.getElementById('feesMethod');if(m)m.value='cash';
+  showStatus('','');
+}
 function filterFeesRecords(){renderFeesRecords();}
 
 /* ============ EXPENSES ============ */
-async function recordExpense(){var d=document.getElementById('expenseDesc')?.value?.trim(),a=parseFloat(document.getElementById('expenseAmount')?.value),cat=document.getElementById('expenseCategory')?.value,date=document.getElementById('expenseDate')?.value||getTodayDate(),n=document.getElementById('expenseNarration')?.value||'',school=getActiveSchool();if(!d||!a||a<=0||!school){showStatus('Fill required.','error');return;}var exp={id:'EXP-'+Date.now().toString().slice(-8),description:d,amount:a,category:cat,date:date,time:getCurrentTime(),narration:n};try{var r=await callAppsScript({action:'saveExpense',school:school,expense:JSON.stringify(exp)});if(r.success){showToast('Expense recorded!','success');resetExpenseForm();loadExpenses();}else showStatus(r.message,'error');}catch(e){showStatus(e.message,'error');}}
-async function loadExpenses(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getExpenses',school:school});if(r.success&&r.data){expenseRecords=r.data.expenses||[];renderExpenses();updateExpenseSummary();}}catch(e){}}
-function renderExpenses(){var c=document.getElementById('expensesContainer');if(!c)return;if(expenseRecords.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>';expenseRecords.forEach(function(e){h+='<tr><td>'+escapeHtml(e.date||'')+'</td><td>'+escapeHtml(e.description||'')+'</td><td class="debit">UGX '+(e.amount||0).toLocaleString()+'</td><td>'+escapeHtml(e.category||'')+'</td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
-function updateExpenseSummary(){var t=0,today=getTodayDate(),td=0;expenseRecords.forEach(function(e){t+=e.amount||0;if(e.date===today)td+=e.amount||0;});var el;el=document.getElementById('totalExpenses');if(el)el.textContent='UGX '+t.toLocaleString();el=document.getElementById('expensesToday');if(el)el.textContent='UGX '+td.toLocaleString();}
-function resetExpenseForm(){['expenseDesc','expenseAmount','expenseNarration'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});var c=document.getElementById('expenseCategory');if(c)c.value='stationery';var d=document.getElementById('expenseDate');if(d)d.value=getTodayDate();showStatus('','');}
+async function recordExpense(){
+  var d=document.getElementById('expenseDesc')?.value?.trim();
+  var a=parseFloat(document.getElementById('expenseAmount')?.value);
+  var cat=document.getElementById('expenseCategory')?.value;
+  var date=document.getElementById('expenseDate')?.value||getTodayDate();
+  var n=document.getElementById('expenseNarration')?.value||'';
+  var school=getActiveSchool();
+  if(!d||!a||a<=0||!school){showStatus('Fill required.','error');return;}
+  var exp={id:'EXP-'+Date.now().toString().slice(-8),description:d,amount:a,category:cat,date:date,time:getCurrentTime(),narration:n};
+  try{
+    var r=await callAppsScript({action:'saveExpense',school:school,expense:JSON.stringify(exp)});
+    if(r.success){showToast('Expense recorded!','success');resetExpenseForm();loadExpenses();}
+    else showStatus(r.message,'error');
+  }catch(e){showStatus(e.message,'error');}
+}
+async function loadExpenses(){
+  var school=getActiveSchool();if(!school)return;
+  try{
+    var r=await callAppsScript({action:'getExpenses',school:school});
+    if(r.success&&r.data){expenseRecords=r.data.expenses||[];renderExpenses();updateExpenseSummary();}
+  }catch(e){}
+}
+function renderExpenses(){
+  var c=document.getElementById('expensesContainer');if(!c)return;
+  if(expenseRecords.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}
+  var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>';
+  expenseRecords.forEach(function(e){
+    h+='<tr><td>'+escapeHtml(e.date||'')+'</td><td>'+escapeHtml(e.description||'')+'</td><td class="debit">UGX '+(e.amount||0).toLocaleString()+'</td><td>'+escapeHtml(e.category||'')+'</td></tr>';
+  });
+  h+='</tbody></table>';c.innerHTML=h;
+}
+function updateExpenseSummary(){
+  var t=0,today=getTodayDate(),td=0;
+  expenseRecords.forEach(function(e){t+=e.amount||0;if(e.date===today)td+=e.amount||0;});
+  var el;
+  el=document.getElementById('totalExpenses');if(el)el.textContent='UGX '+t.toLocaleString();
+  el=document.getElementById('expensesToday');if(el)el.textContent='UGX '+td.toLocaleString();
+}
+function resetExpenseForm(){
+  ['expenseDesc','expenseAmount','expenseNarration'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  var c=document.getElementById('expenseCategory');if(c)c.value='stationery';
+  var d=document.getElementById('expenseDate');if(d)d.value=getTodayDate();
+  showStatus('','');
+}
 
 /* ============ REPORTS ============ */
-function updateReportClassInfo(){var cls=document.getElementById('reportClassSelect')?.value;var info=document.getElementById('reportClassInfo');if(info)info.textContent=cls||'Select a class';}
-async function searchStudent(){var cls=document.getElementById('reportClassSelect')?.value,q=document.getElementById('searchInput')?.value?.trim();if(!cls||!q){showToast('Select class + enter search','warning');return;}await fetchReportData(q);}
-
+function updateReportClassInfo(){
+  var cls=document.getElementById('reportClassSelect')?.value;
+  var info=document.getElementById('reportClassInfo');
+  if(info)info.textContent=cls||'Select a class';
+}
+async function searchStudent(){
+  var cls=document.getElementById('reportClassSelect')?.value;
+  var q=document.getElementById('searchInput')?.value?.trim();
+  if(!cls||!q){showToast('Select class + enter search','warning');return;}
+  await fetchReportData(q);
+}
 async function fetchReportData(search){
-  var cls=document.getElementById('reportClassSelect')?.value,sheetId=getClassSheetId(cls);
+  var cls=document.getElementById('reportClassSelect')?.value;
+  var sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
   try{
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
     console.log('Loaded',students.length,'students');
     if(r.data.tabsRead)console.log('Tabs read:',r.data.tabsRead);
-
     var daysData={};
     try{
       var settings=JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
@@ -1301,11 +2064,15 @@ async function fetchReportData(search){
       if(ar.success&&ar.data)daysData=ar.data.days||{};
     }catch(e){}
     students.forEach(function(s){s.daysAttended=daysData[s.studentId]||{present:0,absent:0,late:0,leave:0,total:0};});
-    if(search){var q=search.toLowerCase();students=students.filter(function(st){return(st.studentId||'').toLowerCase().includes(q)||(st.studentName||'').toLowerCase().includes(q);});}
+    if(search){
+      var q=search.toLowerCase();
+      students=students.filter(function(st){return(st.studentId||'').toLowerCase().includes(q)||(st.studentName||'').toLowerCase().includes(q);});
+    }
     renderReportResults(students);
-  }catch(e){document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';}
+  }catch(e){
+    document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';
+  }
 }
-
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -1316,25 +2083,31 @@ function renderReportResults(students){
     var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort();
     var rows='',totalPctSum=0,count=0,totalPointsSum=0;
     var isALevel=isALevelClass(cls);
-
     var headers=isALevel
       ?'<th style="padding:6px;border:1px solid #fff">Subject</th><th style="padding:6px;border:1px solid #fff">Paper 1</th><th style="padding:6px;border:1px solid #fff">Paper 2</th><th style="padding:6px;border:1px solid #fff">Average</th><th style="padding:6px;border:1px solid #fff">Grade</th><th style="padding:6px;border:1px solid #fff">Points</th><th style="padding:6px;border:1px solid #fff">Comment</th>'
       :'<th style="padding:6px;border:1px solid #c1121f">Code</th><th style="padding:6px;border:1px solid #c1121f">Subject</th><th style="padding:6px;border:1px solid #c1121f">AOI (20)</th><th style="padding:6px;border:1px solid #c1121f">EOT (80)</th><th style="padding:6px;border:1px solid #c1121f">TOTAL (%)</th><th style="padding:6px;border:1px solid #c1121f">Grade</th><th style="padding:6px;border:1px solid #c1121f">Comment</th><th style="padding:6px;border:1px solid #c1121f">Initial</th>';
     var bg=isALevel?'#1a3b5c':'#c1121f';
 
     subjects.forEach(function(subj){
-      var sv=scores[subj]||{};var code=subjectCodeFor(subj);
+      var sv=scores[subj]||{};
+      var code=subjectCodeFor(subj);
       var init=sv.teacherInitials||'—';
       if(isALevel){
-        var p1=parseFloat(sv.paper1)||0;var p2=parseFloat(sv.paper2)||0;
-        var avg=(p1+p2)/2;var grade=gradeFromPercentage(avg,'alevel');
-        var pts=gradeToPoints(grade);var desc=generateAutoComment(avg,true);
+        var p1=parseFloat(sv.paper1)||0;
+        var p2=parseFloat(sv.paper2)||0;
+        var avg=(p1+p2)/2;
+        var grade=gradeFromPercentage(avg,'alevel');
+        var pts=gradeToPoints(grade);
+        var desc=generateAutoComment(avg,true);
         rows+='<tr><td style="padding:6px;border:1px solid #666">'+code+' '+subj+'</td><td style="padding:6px;border:1px solid #666;text-align:center">'+p1.toFixed(1)+'</td><td style="padding:6px;border:1px solid #666;text-align:center">'+p2.toFixed(1)+'</td><td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+avg.toFixed(1)+'</td><td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td><td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+pts+'</td><td style="padding:6px;border:1px solid #666;font-size:10px">'+desc+' <em style="float:right">'+init+'</em></td></tr>';
         totalPctSum+=avg;count++;totalPointsSum+=pts;
       }else{
-        var aoi=parseFloat(sv.aoi)||0;var eot=parseFloat(sv.eot)||0;
-        var tp=((aoi/20)*100+(eot/80)*100)/2;if(isNaN(tp))tp=0;
-        var grade=gradeFromPercentage(tp,'olevel');var desc=generateAutoComment(tp,false);
+        var aoi=parseFloat(sv.aoi)||0;
+        var eot=parseFloat(sv.eot)||0;
+        var tp=((aoi/20)*100+(eot/80)*100)/2;
+        if(isNaN(tp))tp=0;
+        var grade=gradeFromPercentage(tp,'olevel');
+        var desc=generateAutoComment(tp,false);
         rows+='<tr><td style="padding:6px;border:1px solid #666;text-align:center;font-size:11px">'+code+'</td><td style="padding:6px;border:1px solid #666;font-weight:600;font-size:11px">'+subj.toUpperCase()+'</td><td style="padding:6px;border:1px solid #666;text-align:center">'+(aoi||'—')+'</td><td style="padding:6px;border:1px solid #666;text-align:center">'+(eot||'—')+'</td><td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f">'+tp.toFixed(1)+'</td><td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td><td style="padding:6px;border:1px solid #666;font-size:10px">'+desc+'</td><td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+init+'</td></tr>';
         totalPctSum+=tp;count++;
       }
@@ -1349,14 +2122,12 @@ function renderReportResults(students){
     var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px" />':'....................';
     var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:30px" />':'....................';
     var days=stu.daysAttended||{present:0,absent:0,late:0,leave:0,total:0};
-
     var footerHtml;
     if(isALevel){
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f0f4ff"><div style="padding:8px;border-right:1px solid #666">Total Points: <b>'+totalPointsSum+'</b></div><div style="padding:8px;border-right:1px solid #666">Average: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:8px">Grade: <b>'+overallGrade+'</b></div></div>';
     }else{
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa"><div style="padding:8px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div><div style="padding:8px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:8px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div><div style="margin-top:10px;border:1px solid #666;font-size:10px;text-align:center;padding:6px;background:#f8f9fa"><b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)</div>';
     }
-
     h+='<div class="generated-document" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:20px">'+
       '<div style="position:relative;z-index:1;padding:20px">'+
         '<input type="checkbox" class="report-select-cb" onclick="toggleReportSelection(this)" />'+
@@ -1404,10 +2175,18 @@ function renderReportResults(students){
   });
   c.innerHTML=h;
   materializeQRCodes(c);
-  setTimeout(function(){var total=document.querySelectorAll('#reportResults .report-select-cb').length;var bar=document.getElementById('printSelectionBar');if(bar)bar.classList.toggle('active',total>0);},50);
+  setTimeout(function(){
+    var total=document.querySelectorAll('#reportResults .report-select-cb').length;
+    var bar=document.getElementById('printSelectionBar');
+    if(bar)bar.classList.toggle('active',total>0);
+  },50);
 }
 function toggleReportSelection(cb){var c=cb.closest('.generated-document');if(c)c.classList.toggle('selected',cb.checked);updatePrintSelectionBar();}
-function updatePrintSelectionBar(){var count=document.querySelectorAll('#reportResults .report-select-cb:checked').length;var ce=document.getElementById('psbCount');if(ce)ce.textContent=count;var pb=document.getElementById('psbPrintBtn');if(pb)pb.disabled=count===0;}
+function updatePrintSelectionBar(){
+  var count=document.querySelectorAll('#reportResults .report-select-cb:checked').length;
+  var ce=document.getElementById('psbCount');if(ce)ce.textContent=count;
+  var pb=document.getElementById('psbPrintBtn');if(pb)pb.disabled=count===0;
+}
 function selectAllReports(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=true;var c=cb.closest('.generated-document');if(c)c.classList.add('selected');});updatePrintSelectionBar();}
 function clearReportSelection(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=false;var c=cb.closest('.generated-document');if(c)c.classList.remove('selected');});updatePrintSelectionBar();}
 
@@ -1425,16 +2204,51 @@ function _runPdf(wrap,filename){
   showToast('Generating PDF...','info');
   html2pdf().set({margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
 }
-function downloadSingleReportPDF(btn){var card=btn.closest('.generated-document');if(!card)return;materializeQRCodes(card);var clone=card.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var b=getSchoolBranding();var w=_buildPdfWrap(clone.outerHTML);_runPdf(w,b.name+'-Report-'+getTodayDate()+'.pdf');}
-function downloadReportsPDF(){var c=document.getElementById('reportResults');if(!c||!c.innerHTML.trim()){showToast('Load reports first.','warning');return;}materializeQRCodes(c);var clone=c.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var b=getSchoolBranding();var w=_buildPdfWrap(clone.innerHTML);_runPdf(w,b.name+'-Reports-'+getTodayDate()+'.pdf');}
-function downloadSelectedReportsPDF(){var sel=document.querySelectorAll('#reportResults .report-select-cb:checked');if(sel.length===0){showToast('No reports selected.','warning');return;}var cards='';sel.forEach(function(cb){var c=cb.closest('.generated-document');if(!c)return;materializeQRCodes(c);var clone=c.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});cards+=clone.outerHTML;});var b=getSchoolBranding();var w=_buildPdfWrap(cards);_runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');}
+function downloadSingleReportPDF(btn){
+  var card=btn.closest('.generated-document');if(!card)return;
+  materializeQRCodes(card);
+  var clone=card.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.outerHTML);
+  _runPdf(w,b.name+'-Report-'+getTodayDate()+'.pdf');
+}
+function downloadReportsPDF(){
+  var c=document.getElementById('reportResults');
+  if(!c||!c.innerHTML.trim()){showToast('Load reports first.','warning');return;}
+  materializeQRCodes(c);
+  var clone=c.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.innerHTML);
+  _runPdf(w,b.name+'-Reports-'+getTodayDate()+'.pdf');
+}
+function downloadSelectedReportsPDF(){
+  var sel=document.querySelectorAll('#reportResults .report-select-cb:checked');
+  if(sel.length===0){showToast('No reports selected.','warning');return;}
+  var cards='';
+  sel.forEach(function(cb){
+    var c=cb.closest('.generated-document');if(!c)return;
+    materializeQRCodes(c);
+    var clone=c.cloneNode(true);
+    clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+    cards+=clone.outerHTML;
+  });
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(cards);
+  _runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');
+}
 
 /* ============ MINI REPORTS ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
 async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
-  try{var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});miniReportData=r.data?.sheetData?.students||[];renderMiniReports();}catch(e){}
+  try{
+    var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
+    miniReportData=r.data?.sheetData?.students||[];
+    renderMiniReports();
+  }catch(e){}
 }
 function renderMiniReports(){
   var c=document.getElementById('miniResults');if(!c)return;
@@ -1445,26 +2259,37 @@ function renderMiniReports(){
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var h='';
   f.forEach(function(s){
-    var fi=(s.studentName||'')[0]||'';var si=(s.studentName||'').split(' ')[1]?.[0]||'';
+    var fi=(s.studentName||'')[0]||'';
+    var si=(s.studentName||'').split(' ')[1]?.[0]||'';
     var initials=(fi+si).toUpperCase();
     var subjects=Object.keys(s.scores||{});
-    var subjRows='';var isALevel=isALevelClass(s.class);var totalPointsMini=0;
+    var subjRows='';
+    var isALevel=isALevelClass(s.class);
+    var totalPointsMini=0;
     if(subjects.length===0){subjRows='<div style="text-align:center;color:#999;padding:8px">No scores</div>';}
     else{
       subjects.forEach(function(sub){
         var sv=s.scores[sub];
         if(isALevel){
-          var p1=parseFloat(sv.paper1)||0;var grade=gradeFromPercentage(p1,'alevel');var pts=gradeToPoints(grade);
+          var p1=parseFloat(sv.paper1)||0;
+          var grade=gradeFromPercentage(p1,'alevel');
+          var pts=gradeToPoints(grade);
           totalPointsMini+=pts;
           subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">Paper 1: '+p1.toFixed(1)+' <b>'+grade+'</b> · '+pts+'pts</span></div>';
         }else{
-          var aoi=parseFloat(sv.aoi)||0;var ap=Math.round((aoi/20)*100);var grade=gradeFromPercentage(ap,'olevel');
+          var aoi=parseFloat(sv.aoi)||0;
+          var ap=Math.round((aoi/20)*100);
+          var grade=gradeFromPercentage(ap,'olevel');
           subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">AOI: '+aoi+'/20 · '+ap+'% <b>'+grade+'</b></span></div>';
         }
       });
     }
     var avgPct=0,count=0;
-    subjects.forEach(function(sub){var sv=s.scores[sub];if(isALevel){var p1=parseFloat(sv.paper1)||0;if(p1>0){avgPct+=p1;count++;}}else{var aoi=parseFloat(sv.aoi)||0;if(aoi>0){avgPct+=(aoi/20)*100;count++;}}});
+    subjects.forEach(function(sub){
+      var sv=s.scores[sub];
+      if(isALevel){var p1=parseFloat(sv.paper1)||0;if(p1>0){avgPct+=p1;count++;}}
+      else{var aoi=parseFloat(sv.aoi)||0;if(aoi>0){avgPct+=(aoi/20)*100;count++;}}
+    });
     var avg=count>0?avgPct/count:0;
     var og=count>0?gradeFromPercentage(avg,isALevel?'alevel':'olevel'):null;
     var status=count===0?'<div class="status-bar no-data">No Data</div>':(og==='A'?'<div class="status-bar outstanding">OUTSTANDING</div>':'<div class="status-bar">'+descriptorFromGrade(og)+'</div>');
@@ -1488,14 +2313,34 @@ function renderMiniReports(){
   materializeQRCodes(c);
 }
 function filterMiniReports(){renderMiniReports();}
-function downloadSingleMiniPDF(btn){var card=btn.closest('.mini-report-card');if(!card)return;materializeQRCodes(card);var clone=card.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var b=getSchoolBranding();var w=_buildPdfWrap(clone.outerHTML);_runPdf(w,b.name+'-Mini-'+getTodayDate()+'.pdf');}
-function downloadMiniReportsPDF(){var c=document.getElementById('miniResults');if(!c||!c.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}materializeQRCodes(c);var clone=c.cloneNode(true);clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});var b=getSchoolBranding();var w=_buildPdfWrap(clone.innerHTML);_runPdf(w,b.name+'-Mini-Reports-'+getTodayDate()+'.pdf');}
+function downloadSingleMiniPDF(btn){
+  var card=btn.closest('.mini-report-card');if(!card)return;
+  materializeQRCodes(card);
+  var clone=card.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.outerHTML);
+  _runPdf(w,b.name+'-Mini-'+getTodayDate()+'.pdf');
+}
+function downloadMiniReportsPDF(){
+  var c=document.getElementById('miniResults');
+  if(!c||!c.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}
+  materializeQRCodes(c);
+  var clone=c.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.innerHTML);
+  _runPdf(w,b.name+'-Mini-Reports-'+getTodayDate()+'.pdf');
+}
 
 /* ============ DOCUMENTS ============ */
 function updateDocClassInfo(){var cls=document.getElementById('docClassSelect')?.value;var i=document.getElementById('docClassInfo');if(i)i.textContent=cls||'Select';}
 async function generateDocument(){
-  var cls=document.getElementById('docClassSelect')?.value,subj=document.getElementById('docSubjectSelect')?.value,type=document.getElementById('docTypeSelect')?.value;
-  var sheetId=getClassSheetId(cls);if(!sheetId){showToast('Sheet not configured.','warning');return;}
+  var cls=document.getElementById('docClassSelect')?.value;
+  var subj=document.getElementById('docSubjectSelect')?.value;
+  var type=document.getElementById('docTypeSelect')?.value;
+  var sheetId=getClassSheetId(cls);
+  if(!sheetId){showToast('Sheet not configured.','warning');return;}
   try{
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
@@ -1505,15 +2350,37 @@ async function generateDocument(){
     var tbl='';
     if(type==='classlist'){
       tbl='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>SEX</th><th>STREAM</th><th>RESIDENCE</th><th>PARENT</th><th>PHONE</th><th>EMAIL</th></tr></thead><tbody>';
-      students.forEach(function(s,i){var p=getStudentPhoto(s.studentId,s.studentName);var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+escapeHtml(s.sex||'')+'</td><td>'+escapeHtml(s.stream||'')+'</td><td>'+escapeHtml(s.residence||'')+'</td><td>'+escapeHtml(s.parentName||'')+'</td><td>'+escapeHtml(s.parentPhone||'')+'</td><td>'+escapeHtml(s.parentEmail||'')+'</td></tr>';});
+      students.forEach(function(s,i){
+        var p=getStudentPhoto(s.studentId,s.studentName);
+        var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
+        tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+escapeHtml(s.sex||'')+'</td><td>'+escapeHtml(s.stream||'')+'</td><td>'+escapeHtml(s.residence||'')+'</td><td>'+escapeHtml(s.parentName||'')+'</td><td>'+escapeHtml(s.parentPhone||'')+'</td><td>'+escapeHtml(s.parentEmail||'')+'</td></tr>';
+      });
       tbl+='</tbody></table>';
     }else{
       if(isALevel){
         tbl='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>P1</th><th>P2</th><th>AVG</th><th>GRADE</th><th>POINTS</th></tr></thead><tbody>';
-        students.forEach(function(s,i){var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};var p1=parseFloat(sv.paper1)||0;var p2=parseFloat(sv.paper2)||0;var avg=((p1+p2)/2).toFixed(1);var g=gradeFromPercentage(avg,'alevel');var pts=gradeToPoints(g);var p=getStudentPhoto(s.studentId,s.studentName);var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+p1.toFixed(1)+'</td><td>'+p2.toFixed(1)+'</td><td>'+avg+'</td><td>'+g+'</td><td>'+pts+'</td></tr>';});
+        students.forEach(function(s,i){
+          var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};
+          var p1=parseFloat(sv.paper1)||0,p2=parseFloat(sv.paper2)||0;
+          var avg=((p1+p2)/2).toFixed(1);
+          var g=gradeFromPercentage(avg,'alevel');
+          var pts=gradeToPoints(g);
+          var p=getStudentPhoto(s.studentId,s.studentName);
+          var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
+          tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+p1.toFixed(1)+'</td><td>'+p2.toFixed(1)+'</td><td>'+avg+'</td><td>'+g+'</td><td>'+pts+'</td></tr>';
+        });
       }else{
         tbl='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>AOI</th><th>EOT</th><th>TOTAL (%)</th><th>GRADE</th></tr></thead><tbody>';
-        students.forEach(function(s,i){var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};var aoi=parseFloat(sv.aoi)||0;var eot=parseFloat(sv.eot)||0;var tp=((aoi/20)*100+(eot/80)*100)/2;if(isNaN(tp))tp=0;var g=gradeFromPercentage(tp,'olevel');var p=getStudentPhoto(s.studentId,s.studentName);var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+aoi+'</td><td>'+eot+'</td><td>'+tp.toFixed(1)+'</td><td>'+g+'</td></tr>';});
+        students.forEach(function(s,i){
+          var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};
+          var aoi=parseFloat(sv.aoi)||0,eot=parseFloat(sv.eot)||0;
+          var tp=((aoi/20)*100+(eot/80)*100)/2;
+          if(isNaN(tp))tp=0;
+          var g=gradeFromPercentage(tp,'olevel');
+          var p=getStudentPhoto(s.studentId,s.studentName);
+          var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
+          tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+aoi+'</td><td>'+eot+'</td><td>'+tp.toFixed(1)+'</td><td>'+g+'</td></tr>';
+        });
       }
       tbl+='</tbody></table>';
     }
@@ -1522,37 +2389,208 @@ async function generateDocument(){
     window.__lastGeneratedDoc=full;
   }catch(e){showToast(e.message,'error');}
 }
-function downloadDocument(){var html=window.__lastGeneratedDoc;if(!html){showToast('Generate a document first.','warning');return;}var b=getSchoolBranding();var w=_buildPdfWrap('<div class="generated-document">'+html+'</div>');_runPdf(w,b.name+'-Doc-'+getTodayDate()+'.pdf');}
-function printDocument(){var html=window.__lastGeneratedDoc;if(!html){showToast('Generate a document first.','warning');return;}var w=window.open('','_blank');w.document.write('<html><head><title>Document</title><style>@page{size:A4;margin:10mm}body{margin:0;padding:0;background:#fff;font-family:Arial}.generated-document{width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px}table{width:100%;border-collapse:collapse;font-size:10px}img{max-width:100%}</style></head><body><div class="generated-document">'+html+'</div></body></html>');w.document.close();setTimeout(function(){w.print();},400);}
+function downloadDocument(){
+  var html=window.__lastGeneratedDoc;
+  if(!html){showToast('Generate a document first.','warning');return;}
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap('<div class="generated-document">'+html+'</div>');
+  _runPdf(w,b.name+'-Doc-'+getTodayDate()+'.pdf');
+}
+function printDocument(){
+  var html=window.__lastGeneratedDoc;
+  if(!html){showToast('Generate a document first.','warning');return;}
+  var w=window.open('','_blank');
+  w.document.write('<html><head><title>Document</title><style>@page{size:A4;margin:10mm}body{margin:0;padding:0;background:#fff;font-family:Arial}.generated-document{width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px}table{width:100%;border-collapse:collapse;font-size:10px}img{max-width:100%}</style></head><body><div class="generated-document">'+html+'</div></body></html>');
+  w.document.close();
+  setTimeout(function(){w.print();},400);
+}
 
-/* ============ TIMETABLE / PROGRAM / NOTICES ============ */
-function loadTimetable(){var cls=document.getElementById('ttClassSelect')?.value;var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';var display=document.getElementById('timetableDisplay');if(!cls){display.innerHTML='<p style="color:#999;text-align:center;padding:20px">Select a class.</p>';return;}var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;var tt=JSON.parse(localStorage.getItem(key)||'{}');var days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];var periods=['08:00 - 08:40','08:40 - 09:20','09:20 - 10:00','10:00 - 10:20 (Break)','10:20 - 11:00','11:00 - 11:40','11:40 - 12:20','12:20 - 13:00','13:00 - 14:00 (Lunch)','14:00 - 14:40','14:40 - 15:20','15:20 - 16:00'];var h='<table class="timetable-grid"><thead><tr><th>Period</th>';days.forEach(function(d){h+='<th>'+d+'</th>';});h+='</tr></thead><tbody>';periods.forEach(function(p){h+='<tr><td style="font-weight:600;background:#f0f4ff;color:#302b63;font-size:11px">'+p+'</td>';days.forEach(function(d){var k=d+'|'+p;var e=tt[k];if(e){h+='<td><div class="period-subject">'+escapeHtml(e.subject)+'</div><div class="period-teacher">'+escapeHtml(e.teacher||'')+'</div><div class="period-room">'+escapeHtml(e.room||'')+'</div></td>';}else if(p.indexOf('Break')!==-1||p.indexOf('Lunch')!==-1){h+='<td style="background:#fff3cd">'+p.split(' ')[0]+'</td>';}else{h+='<td class="empty">—</td>';}});h+='</tr>';});h+='</tbody></table>';display.innerHTML=h;}
-function addTimetablePeriod(){var cls=document.getElementById('ttClassSelect')?.value;if(!cls){showToast('Select a class.','warning');return;}var d=document.getElementById('ttDay')?.value,p=document.getElementById('ttPeriod')?.value,s=document.getElementById('ttSubject')?.value?.trim(),t=document.getElementById('ttTeacher')?.value?.trim(),r=document.getElementById('ttRoom')?.value?.trim();if(!s){showToast('Enter a subject.','warning');return;}var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;var tt=JSON.parse(localStorage.getItem(key)||'{}');tt[d+'|'+p]={subject:s,teacher:t,room:r};localStorage.setItem(key,JSON.stringify(tt));showToast('Period added!','success');loadTimetable();}
-function clearTimetable(){var cls=document.getElementById('ttClassSelect')?.value;if(!cls)return;if(!confirm('Clear timetable for '+cls+'?'))return;var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';localStorage.removeItem('timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year);showToast('Cleared','info');loadTimetable();}
+/* ============ TIMETABLE ============ */
+function loadTimetable(){
+  var cls=document.getElementById('ttClassSelect')?.value;
+  var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';
+  var display=document.getElementById('timetableDisplay');
+  if(!cls){display.innerHTML='<p style="color:#999;text-align:center;padding:20px">Select a class.</p>';return;}
+  var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;
+  var tt=JSON.parse(localStorage.getItem(key)||'{}');
+  var days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var periods=['08:00 - 08:40','08:40 - 09:20','09:20 - 10:00','10:00 - 10:20 (Break)','10:20 - 11:00','11:00 - 11:40','11:40 - 12:20','12:20 - 13:00','13:00 - 14:00 (Lunch)','14:00 - 14:40','14:40 - 15:20','15:20 - 16:00'];
+  var h='<table class="timetable-grid"><thead><tr><th>Period</th>';
+  days.forEach(function(d){h+='<th>'+d+'</th>';});
+  h+='</tr></thead><tbody>';
+  periods.forEach(function(p){
+    h+='<tr><td style="font-weight:600;background:#f0f4ff;color:#302b63;font-size:11px">'+p+'</td>';
+    days.forEach(function(d){
+      var k=d+'|'+p;
+      var e=tt[k];
+      if(e){
+        h+='<td><div class="period-subject">'+escapeHtml(e.subject)+'</div><div class="period-teacher">'+escapeHtml(e.teacher||'')+'</div><div class="period-room">'+escapeHtml(e.room||'')+'</div></td>';
+      }else if(p.indexOf('Break')!==-1||p.indexOf('Lunch')!==-1){
+        h+='<td style="background:#fff3cd">'+p.split(' ')[0]+'</td>';
+      }else{
+        h+='<td class="empty">—</td>';
+      }
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  display.innerHTML=h;
+}
+function addTimetablePeriod(){
+  var cls=document.getElementById('ttClassSelect')?.value;
+  if(!cls){showToast('Select a class.','warning');return;}
+  var d=document.getElementById('ttDay')?.value,p=document.getElementById('ttPeriod')?.value;
+  var s=document.getElementById('ttSubject')?.value?.trim(),t=document.getElementById('ttTeacher')?.value?.trim(),r=document.getElementById('ttRoom')?.value?.trim();
+  if(!s){showToast('Enter a subject.','warning');return;}
+  var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';
+  var key='timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year;
+  var tt=JSON.parse(localStorage.getItem(key)||'{}');
+  tt[d+'|'+p]={subject:s,teacher:t,room:r};
+  localStorage.setItem(key,JSON.stringify(tt));
+  showToast('Period added!','success');
+  loadTimetable();
+}
+function clearTimetable(){
+  var cls=document.getElementById('ttClassSelect')?.value;
+  if(!cls)return;
+  if(!confirm('Clear timetable for '+cls+'?'))return;
+  var term=document.getElementById('ttTerm')?.value||'III',year=document.getElementById('ttYear')?.value||'2026';
+  localStorage.removeItem('timetable_'+getActiveSchool()+'_'+cls+'_'+term+'_'+year);
+  showToast('Cleared','info');
+  loadTimetable();
+}
 
-function addProgramItem(){var date=document.getElementById('progDate')?.value,title=document.getElementById('progTitle')?.value?.trim(),cat=document.getElementById('progCategory')?.value,desc=document.getElementById('progDesc')?.value?.trim();if(!date||!title){showToast('Fill date and title.','warning');return;}var school=getActiveSchool();var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');var program=JSON.parse(localStorage.getItem(key)||'[]');program.push({id:Date.now(),date:date,title:title,category:cat,description:desc});program.sort(function(a,b){return a.date.localeCompare(b.date);});localStorage.setItem(key,JSON.stringify(program));showToast('Added!','success');loadProgram();}
-function loadProgram(){var school=getActiveSchool();var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');var program=JSON.parse(localStorage.getItem(key)||'[]');var c=document.getElementById('programDisplay');if(program.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No program items.</p>';return;}var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Event</th><th>Description</th><th>Action</th></tr></thead><tbody>';program.forEach(function(p){h+='<tr><td>'+escapeHtml(p.date)+'</td><td><strong>'+escapeHtml(p.title)+'</strong></td><td>'+escapeHtml(p.description||'')+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteProgramItem('+p.id+')">Delete</button></td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
-function deleteProgramItem(id){var school=getActiveSchool();var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');var program=JSON.parse(localStorage.getItem(key)||'[]').filter(function(p){return p.id!==id;});localStorage.setItem(key,JSON.stringify(program));loadProgram();}
+/* ============ PROGRAM ============ */
+function addProgramItem(){
+  var date=document.getElementById('progDate')?.value,title=document.getElementById('progTitle')?.value?.trim();
+  var cat=document.getElementById('progCategory')?.value,desc=document.getElementById('progDesc')?.value?.trim();
+  if(!date||!title){showToast('Fill date and title.','warning');return;}
+  var school=getActiveSchool();
+  var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');
+  var program=JSON.parse(localStorage.getItem(key)||'[]');
+  program.push({id:Date.now(),date:date,title:title,category:cat,description:desc});
+  program.sort(function(a,b){return a.date.localeCompare(b.date);});
+  localStorage.setItem(key,JSON.stringify(program));
+  showToast('Added!','success');
+  loadProgram();
+}
+function loadProgram(){
+  var school=getActiveSchool();
+  var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');
+  var program=JSON.parse(localStorage.getItem(key)||'[]');
+  var c=document.getElementById('programDisplay');
+  if(program.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No program items.</p>';return;}
+  var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Event</th><th>Description</th><th>Action</th></tr></thead><tbody>';
+  program.forEach(function(p){
+    h+='<tr><td>'+escapeHtml(p.date)+'</td><td><strong>'+escapeHtml(p.title)+'</strong></td><td>'+escapeHtml(p.description||'')+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteProgramItem('+p.id+')">Delete</button></td></tr>';
+  });
+  h+='</tbody></table>';
+  c.innerHTML=h;
+}
+function deleteProgramItem(id){
+  var school=getActiveSchool();
+  var key='program_'+school+'_'+(document.getElementById('settingsYear')?.value||'2026');
+  var program=JSON.parse(localStorage.getItem(key)||'[]').filter(function(p){return p.id!==id;});
+  localStorage.setItem(key,JSON.stringify(program));
+  loadProgram();
+}
 
-function postNotice(){var title=document.getElementById('noticeTitle')?.value?.trim(),body=document.getElementById('noticeBody')?.value?.trim(),pr=document.getElementById('noticePriority')?.value,tg=document.getElementById('noticeTarget')?.value,ex=document.getElementById('noticeExpiry')?.value,date=document.getElementById('noticeDate')?.value||getTodayDate();if(!title||!body){showToast('Fill title and body.','warning');return;}var school=getActiveSchool();var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');notices.push({id:Date.now(),title:title,body:body,priority:pr,target:tg,expiry:ex,date:date,postedBy:authSession?.name||'Admin'});localStorage.setItem('notices_'+school,JSON.stringify(notices));showToast('Posted!','success');document.getElementById('noticeTitle').value='';document.getElementById('noticeBody').value='';loadNotices();}
-function loadNotices(){var school=getActiveSchool();var c=document.getElementById('noticesDisplay');if(!c)return;var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');if(notices.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No notices.</p>';return;}var sorted=notices.slice().reverse();var h='';sorted.forEach(function(n){h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div style="display:flex;justify-content:space-between"><div class="notice-title">'+escapeHtml(n.title)+'</div><button class="btn btn-danger btn-sm" onclick="deleteNotice('+n.id+')">Delete</button></div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml(n.body)+'</div></div>';});c.innerHTML=h;}
-function deleteNotice(id){var school=getActiveSchool();var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]').filter(function(n){return n.id!==id;});localStorage.setItem('notices_'+school,JSON.stringify(notices));loadNotices();}
+/* ============ NOTICES ============ */
+function postNotice(){
+  var title=document.getElementById('noticeTitle')?.value?.trim();
+  var body=document.getElementById('noticeBody')?.value?.trim();
+  var pr=document.getElementById('noticePriority')?.value,tg=document.getElementById('noticeTarget')?.value;
+  var ex=document.getElementById('noticeExpiry')?.value,date=document.getElementById('noticeDate')?.value||getTodayDate();
+  if(!title||!body){showToast('Fill title and body.','warning');return;}
+  var school=getActiveSchool();
+  var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');
+  notices.push({id:Date.now(),title:title,body:body,priority:pr,target:tg,expiry:ex,date:date,postedBy:authSession?.name||'Admin'});
+  localStorage.setItem('notices_'+school,JSON.stringify(notices));
+  showToast('Posted!','success');
+  document.getElementById('noticeTitle').value='';
+  document.getElementById('noticeBody').value='';
+  loadNotices();
+}
+function loadNotices(){
+  var school=getActiveSchool();
+  var c=document.getElementById('noticesDisplay');if(!c)return;
+  var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]');
+  if(notices.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No notices.</p>';return;}
+  var sorted=notices.slice().reverse();
+  var h='';
+  sorted.forEach(function(n){
+    h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div style="display:flex;justify-content:space-between"><div class="notice-title">'+escapeHtml(n.title)+'</div><button class="btn btn-danger btn-sm" onclick="deleteNotice('+n.id+')">Delete</button></div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml(n.body)+'</div></div>';
+  });
+  c.innerHTML=h;
+}
+function deleteNotice(id){
+  var school=getActiveSchool();
+  var notices=JSON.parse(localStorage.getItem('notices_'+school)||'[]').filter(function(n){return n.id!==id;});
+  localStorage.setItem('notices_'+school,JSON.stringify(notices));
+  loadNotices();
+}
 
 /* ============ CLASS SELECTORS ============ */
-function loadClassSelectors(){['regClassSelect','scoreClassSelect','miniClassSelect','reportClassSelect','docClassSelect','ttClassSelect'].forEach(function(id){var s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">Select a Class</option>';CLASSES.forEach(function(cls){var o=document.createElement('option');o.value=cls;o.textContent=cls+(isOLevelClass(cls)?' (O-Level)':isALevelClass(cls)?' (A-Level)':'');s.appendChild(o);});});}
+function loadClassSelectors(){
+  ['regClassSelect','scoreClassSelect','miniClassSelect','reportClassSelect','docClassSelect','ttClassSelect'].forEach(function(id){
+    var s=document.getElementById(id);if(!s)return;
+    s.innerHTML='<option value="">Select a Class</option>';
+    CLASSES.forEach(function(cls){
+      var o=document.createElement('option');
+      o.value=cls;
+      o.textContent=cls+(isOLevelClass(cls)?' (O-Level)':isALevelClass(cls)?' (A-Level)':'');
+      s.appendChild(o);
+    });
+  });
+}
 
 /* ============ CHAT ============ */
-async function loadChatUsers(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getChatUsers',school:school});chatUsers=r.data?.users||[];renderChatUsers();}catch(e){}}
-function renderChatUsers(){var c=document.getElementById('chatUserList');if(!c)return;var me=authSession?.username||'';var h='';chatUsers.forEach(function(u){if(u.username===me)return;h+='<div class="chat-user" onclick="selectChatUser(\''+escapeHtml(u.username).replace(/'/g,"\\'")+'\')"><div class="avatar">'+escapeHtml((u.name||'?').charAt(0))+'</div><div><b>'+escapeHtml(u.name)+'</b><div style="font-size:11px;color:#888">'+escapeHtml(u.role||'')+'</div></div></div>';});c.innerHTML=h||'<p style="color:#999;font-size:13px;padding:10px">No other users.</p>';}
+async function loadChatUsers(){
+  var school=getActiveSchool();if(!school)return;
+  try{
+    var r=await callAppsScript({action:'getChatUsers',school:school});
+    chatUsers=r.data?.users||[];
+    renderChatUsers();
+  }catch(e){}
+}
+function renderChatUsers(){
+  var c=document.getElementById('chatUserList');if(!c)return;
+  var me=authSession?.username||'';
+  var h='';
+  chatUsers.forEach(function(u){
+    if(u.username===me)return;
+    h+='<div class="chat-user" onclick="selectChatUser(\''+escapeHtml(u.username).replace(/'/g,"\\'")+'\')"><div class="avatar">'+escapeHtml((u.name||'?').charAt(0))+'</div><div><b>'+escapeHtml(u.name)+'</b><div style="font-size:11px;color:#888">'+escapeHtml(u.role||'')+'</div></div></div>';
+  });
+  c.innerHTML=h||'<p style="color:#999;font-size:13px;padding:10px">No other users.</p>';
+}
 function selectChatUser(u){currentChatUser=u;document.getElementById('chatHeader').textContent='Chat with '+u;loadChatMessages();}
-async function sendMessage(){var msg=document.getElementById('chatInput').value.trim();if(!msg||!currentChatUser)return;try{await callAppsScript({action:'saveChatMessage',school:getActiveSchool(),from:authSession.username,to:currentChatUser,message:msg,time:getCurrentTime()});document.getElementById('chatInput').value='';loadChatMessages();}catch(e){}}
-async function loadChatMessages(){if(!currentChatUser)return;try{var r=await callAppsScript({action:'getChatMessages',school:getActiveSchool(),user1:authSession.username,user2:currentChatUser});var msgs=r.data?.messages||[];document.getElementById('messagesArea').innerHTML=msgs.map(function(m){var sent=m.from===authSession.username;return '<div class="message '+(sent?'sent':'received')+'">'+escapeHtml(m.message)+'</div>';}).join('')||'<p style="text-align:center;color:#999;padding:20px">No messages.</p>';}catch(e){}}
-function startChatPolling(){if(chatPollInterval)clearInterval(chatPollInterval);chatPollInterval=setInterval(function(){if(currentChatUser)loadChatMessages();},5000);}
+async function sendMessage(){
+  var msg=document.getElementById('chatInput').value.trim();
+  if(!msg||!currentChatUser)return;
+  try{
+    await callAppsScript({action:'saveChatMessage',school:getActiveSchool(),from:authSession.username,to:currentChatUser,message:msg,time:getCurrentTime()});
+    document.getElementById('chatInput').value='';
+    loadChatMessages();
+  }catch(e){}
+}
+async function loadChatMessages(){
+  if(!currentChatUser)return;
+  try{
+    var r=await callAppsScript({action:'getChatMessages',school:getActiveSchool(),user1:authSession.username,user2:currentChatUser});
+    var msgs=r.data?.messages||[];
+    document.getElementById('messagesArea').innerHTML=msgs.map(function(m){var sent=m.from===authSession.username;return '<div class="message '+(sent?'sent':'received')+'">'+escapeHtml(m.message)+'</div>';}).join('')||'<p style="text-align:center;color:#999;padding:20px">No messages.</p>';
+  }catch(e){}
+}
+function startChatPolling(){
+  if(chatPollInterval)clearInterval(chatPollInterval);
+  chatPollInterval=setInterval(function(){if(currentChatUser)loadChatMessages();},5000);
+}
 
 /* ============ SETTINGS ============ */
 function loadSettings(){
   var school=getActiveSchool();if(!school)return;
-  var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');schoolSettings=s;
+  var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
+  schoolSettings=s;
   var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
   set('settingsSchoolName',s.schoolName||school);set('settingsSchoolMotto',s.schoolMotto||'Empowering Education');
   set('settingsSchoolAddress',s.schoolAddress||'');set('settingsSchoolPhone',s.schoolPhone||'');
@@ -1567,31 +2605,123 @@ function loadSettings(){
   set('settingsFinanceSheet',s.financeSheet||'');set('settingsAttendanceSheet',s.attendanceSheet||'');
   set('settingsTimetableSheet',s.timetableSheet||'');set('settingsStoreSheet',s.storeSheet||'');
   set('settingsNurseSheet',s.nurseSheet||'');
-  CLASSES.forEach(function(cls){var e=document.getElementById(CLASS_IDS[cls]);if(e){e.value=localStorage.getItem('classLink_'+cls+'_'+school)||'';validateClassLink(cls);}});
-  var badge=localStorage.getItem('reportCardBadge');if(badge&&document.getElementById('settingsBadgePreview'))document.getElementById('settingsBadgePreview').innerHTML='<img src="'+badge+'" style="width:100%;height:100%;object-fit:contain" />';
-  var sig=localStorage.getItem('headTeacherSignature');if(sig&&document.getElementById('signaturePreview'))document.getElementById('signaturePreview').innerHTML='<img src="'+sig+'" style="width:100%;height:100%;object-fit:contain" />';
+  CLASSES.forEach(function(cls){
+    var e=document.getElementById(CLASS_IDS[cls]);
+    if(e){e.value=localStorage.getItem('classLink_'+cls+'_'+school)||'';validateClassLink(cls);}
+  });
+  var badge=localStorage.getItem('reportCardBadge');
+  if(badge&&document.getElementById('settingsBadgePreview'))document.getElementById('settingsBadgePreview').innerHTML='<img src="'+badge+'" style="width:100%;height:100%;object-fit:contain" />';
+  var sig=localStorage.getItem('headTeacherSignature');
+  if(sig&&document.getElementById('signaturePreview'))document.getElementById('signaturePreview').innerHTML='<img src="'+sig+'" style="width:100%;height:100%;object-fit:contain" />';
 }
 async function saveAllSettings(){
   var school=getActiveSchool();if(!school)return;
   var get=function(id){return document.getElementById(id)?.value?.trim()||'';};
-  var s={schoolName:get('settingsSchoolName'),schoolMotto:get('settingsSchoolMotto'),schoolAddress:get('settingsSchoolAddress'),schoolPhone:get('settingsSchoolPhone'),schoolEmail:get('settingsSchoolEmail'),schoolWebsite:get('settingsSchoolWebsite'),latitude:get('settingsLatitude'),longitude:get('settingsLongitude'),termStartDate:get('termStartDate'),termEndDate:get('termEndDate'),nextTermStart:get('nextTermStart'),nextTermEnd:get('nextTermEnd'),currentTerm:get('settingsTerm'),currentYear:get('settingsYear'),expectedFeesThisTerm:get('settingsExpectedFee'),gradeA:get('gradeA'),gradeB:get('gradeB'),gradeC:get('gradeC'),gradeD:get('gradeD'),gradeE:get('gradeE'),gradeAALevel:get('gradeAALevel'),gradeBALevel:get('gradeBALevel'),gradeCALevel:get('gradeCALevel'),gradeDALevel:get('gradeDALevel'),gradeEALevel:get('gradeEALevel'),financeSheet:get('settingsFinanceSheet'),attendanceSheet:get('settingsAttendanceSheet'),timetableSheet:get('settingsTimetableSheet'),storeSheet:get('settingsStoreSheet'),nurseSheet:get('settingsNurseSheet')};
+  var s={
+    schoolName:get('settingsSchoolName'),schoolMotto:get('settingsSchoolMotto'),schoolAddress:get('settingsSchoolAddress'),
+    schoolPhone:get('settingsSchoolPhone'),schoolEmail:get('settingsSchoolEmail'),schoolWebsite:get('settingsSchoolWebsite'),
+    latitude:get('settingsLatitude'),longitude:get('settingsLongitude'),
+    termStartDate:get('termStartDate'),termEndDate:get('termEndDate'),nextTermStart:get('nextTermStart'),nextTermEnd:get('nextTermEnd'),
+    currentTerm:get('settingsTerm'),currentYear:get('settingsYear'),expectedFeesThisTerm:get('settingsExpectedFee'),
+    gradeA:get('gradeA'),gradeB:get('gradeB'),gradeC:get('gradeC'),gradeD:get('gradeD'),gradeE:get('gradeE'),
+    gradeAALevel:get('gradeAALevel'),gradeBALevel:get('gradeBALevel'),gradeCALevel:get('gradeCALevel'),gradeDALevel:get('gradeDALevel'),gradeEALevel:get('gradeEALevel'),
+    financeSheet:get('settingsFinanceSheet'),attendanceSheet:get('settingsAttendanceSheet'),
+    timetableSheet:get('settingsTimetableSheet'),storeSheet:get('settingsStoreSheet'),nurseSheet:get('settingsNurseSheet')
+  };
   localStorage.setItem('schoolSettings_'+school,JSON.stringify(s));
-  for(var i=0;i<CLASSES.length;i++){var cls=CLASSES[i];var e=document.getElementById(CLASS_IDS[cls]);if(!e)continue;var url=e.value.trim();localStorage.setItem('classLink_'+cls+'_'+school,url);validateClassLink(cls);var sheetId=extractSheetIdFromUrl(url);if(sheetId){try{await callAppsScript({action:'saveClassLink',school:school,className:cls,sheetId:sheetId});}catch(err){}}}
+  for(var i=0;i<CLASSES.length;i++){
+    var cls=CLASSES[i];
+    var e=document.getElementById(CLASS_IDS[cls]);if(!e)continue;
+    var url=e.value.trim();
+    localStorage.setItem('classLink_'+cls+'_'+school,url);
+    validateClassLink(cls);
+    var sheetId=extractSheetIdFromUrl(url);
+    if(sheetId){try{await callAppsScript({action:'saveClassLink',school:school,className:cls,sheetId:sheetId});}catch(err){}}
+  }
   try{await callAppsScript({action:'saveSchoolSettings',school:school,settings:JSON.stringify(s)});}catch(err){}
   showToast('Settings saved!','success');
 }
-function validateClassLink(cls){var e=document.getElementById(CLASS_IDS[cls]),st=document.getElementById('status'+cls);if(!e||!st)return;var id=extractSheetIdFromUrl(e.value.trim());var school=getActiveSchool();if(id){localStorage.setItem('classLink_'+cls+'_'+school,e.value.trim());st.innerHTML='Saved';st.style.color='#2d6a4f';st.style.fontWeight='700';e.style.background='#d4edda';e.style.borderColor='#2d6a4f';}else{st.innerHTML='Not configured';st.style.color='#c1121f';st.style.fontWeight='400';e.style.background='';e.style.borderColor='';}}
+function validateClassLink(cls){
+  var e=document.getElementById(CLASS_IDS[cls]),st=document.getElementById('status'+cls);
+  if(!e||!st)return;
+  var id=extractSheetIdFromUrl(e.value.trim());
+  var school=getActiveSchool();
+  if(id){
+    localStorage.setItem('classLink_'+cls+'_'+school,e.value.trim());
+    st.innerHTML='Saved';st.style.color='#2d6a4f';st.style.fontWeight='700';
+    e.style.background='#d4edda';e.style.borderColor='#2d6a4f';
+  }else{
+    st.innerHTML='Not configured';st.style.color='#c1121f';st.style.fontWeight='400';
+    e.style.background='';e.style.borderColor='';
+  }
+}
 function clearSettingsBadge(){localStorage.removeItem('reportCardBadge');if(document.getElementById('settingsBadgePreview'))document.getElementById('settingsBadgePreview').innerHTML='<span style="font-size:11px;color:#999;text-align:center">Upload<br/>Badge</span>';showToast('Removed','info');}
 function clearSignature(){localStorage.removeItem('headTeacherSignature');if(document.getElementById('signaturePreview'))document.getElementById('signaturePreview').innerHTML='<span style="font-size:11px;color:#999;text-align:center">Upload<br/>Signature</span>';showToast('Removed','info');}
 function getCurrentLocation(){if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(pos){document.getElementById('settingsLatitude').value=pos.coords.latitude.toFixed(6);document.getElementById('settingsLongitude').value=pos.coords.longitude.toFixed(6);showToast('Captured!','success');},function(){showToast('Failed','error');},{enableHighAccuracy:true,timeout:10000});}}
 
-async function testBackendConnection(){var b=document.getElementById('connStatusBadge'),o=document.getElementById('sysToolsOutput');if(b){b.className='conn-badge checking';b.textContent='Checking...';}try{var r=await callAppsScript({action:'getStudentCount',school:getActiveSchool()});if(r&&(r.success||r.data)){if(b){b.className='conn-badge ok';b.textContent='Connected';}if(o)o.textContent='Backend OK.';}else{if(b){b.className='conn-badge fail';b.textContent='Unexpected';}}}catch(e){if(b){b.className='conn-badge fail';b.textContent='Unreachable';}if(o)o.textContent='Failed: '+e.message;}}
-function downloadSystemBackup(){var school=getActiveSchool();var backup={exportedAt:new Date().toISOString(),school:school,schoolSettings:JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}'),classLinks:{},registeredFaces:getRegisteredFaces(),reportCardBadge:localStorage.getItem('reportCardBadge')||'',headTeacherSignature:localStorage.getItem('headTeacherSignature')||''};CLASSES.forEach(function(cls){backup.classLinks[cls]=localStorage.getItem('classLink_'+cls+'_'+school)||'';});var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='edutrack-backup-'+getTodayDate()+'.json';a.click();showToast('Backup downloaded','success');}
+async function testBackendConnection(){
+  var b=document.getElementById('connStatusBadge'),o=document.getElementById('sysToolsOutput');
+  if(b){b.className='conn-badge checking';b.textContent='Checking...';}
+  try{
+    var r=await callAppsScript({action:'getStudentCount',school:getActiveSchool()});
+    if(r&&(r.success||r.data)){
+      if(b){b.className='conn-badge ok';b.textContent='Connected';}
+      if(o)o.textContent='Backend OK.';
+    }else{
+      if(b){b.className='conn-badge fail';b.textContent='Unexpected';}
+    }
+  }catch(e){
+    if(b){b.className='conn-badge fail';b.textContent='Unreachable';}
+    if(o)o.textContent='Failed: '+e.message;
+  }
+}
+function downloadSystemBackup(){
+  var school=getActiveSchool();
+  var backup={
+    exportedAt:new Date().toISOString(),school:school,
+    schoolSettings:JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}'),
+    classLinks:{},registeredFaces:getRegisteredFaces(),
+    reportCardBadge:localStorage.getItem('reportCardBadge')||'',
+    headTeacherSignature:localStorage.getItem('headTeacherSignature')||''
+  };
+  CLASSES.forEach(function(cls){backup.classLinks[cls]=localStorage.getItem('classLink_'+cls+'_'+school)||'';});
+  var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='edutrack-backup-'+getTodayDate()+'.json';
+  a.click();
+  showToast('Backup downloaded','success');
+}
 
-function toggleTeacherAssignments(){var r=document.getElementById('newUserRole')?.value;var t=document.getElementById('teacherAssignmentSection'),p=document.getElementById('parentChildSection');if(t)t.style.display=r==='teacher'?'block':'none';if(p)p.style.display=r==='parent'?'block':'none';if(r==='parent')loadParentChildSelect();}
-async function loadParentChildSelect(){var s=document.getElementById('parentChildSelect');var school=getActiveSchool();if(!school||!s)return;s.innerHTML='<option value="">Select student</option>';for(var i=0;i<CLASSES.length;i++){var sheetId=getClassSheetId(CLASSES[i]);if(!sheetId)continue;try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});(r.data?.students||[]).forEach(function(x){var o=document.createElement('option');o.value=x.studentId;o.textContent=x.studentName+' ('+x.studentId+') - '+CLASSES[i];s.appendChild(o);});}catch(e){}}}
+/* ============ USER ACCOUNTS ============ */
+function toggleTeacherAssignments(){
+  var r=document.getElementById('newUserRole')?.value;
+  var t=document.getElementById('teacherAssignmentSection'),p=document.getElementById('parentChildSection');
+  if(t)t.style.display=r==='teacher'?'block':'none';
+  if(p)p.style.display=r==='parent'?'block':'none';
+  if(r==='parent')loadParentChildSelect();
+}
+async function loadParentChildSelect(){
+  var s=document.getElementById('parentChildSelect');
+  var school=getActiveSchool();
+  if(!school||!s)return;
+  s.innerHTML='<option value="">Select student</option>';
+  for(var i=0;i<CLASSES.length;i++){
+    var sheetId=getClassSheetId(CLASSES[i]);if(!sheetId)continue;
+    try{
+      var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});
+      (r.data?.students||[]).forEach(function(x){
+        var o=document.createElement('option');
+        o.value=x.studentId;
+        o.textContent=x.studentName+' ('+x.studentId+') - '+CLASSES[i];
+        s.appendChild(o);
+      });
+    }catch(e){}
+  }
+}
 async function createUserAccount(){
-  var school=getActiveSchool(),name=document.getElementById('newUserName')?.value?.trim();
+  var school=getActiveSchool();
+  var name=document.getElementById('newUserName')?.value?.trim();
   var username=document.getElementById('newUserUsername')?.value?.trim();
   var password=document.getElementById('newUserPassword')?.value||generatePassword();
   var pc=document.getElementById('newUserPasswordConfirm')?.value||'';
@@ -1606,7 +2736,8 @@ async function createUserAccount(){
       var ct='EduTrack Pro\n\nName: '+name+'\nUsername: '+username+'\nPassword: '+password+'\nRole: '+(ROLE_NAMES[role]||role)+'\nLogin: '+LOGIN_URL;
       var wt=encodeURIComponent(ct);
       document.getElementById('newUserCredsBox').innerHTML='<div style="background:#d4edda;padding:15px;border-radius:8px"><b>Account Created</b><pre style="white-space:pre-wrap;font-family:monospace;margin:10px 0;background:#fff;padding:10px;font-size:12px">'+escapeHtml(ct)+'</pre><a class="btn btn-sm btn-success" href="https://wa.me/?text='+wt+'" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600">Share on WhatsApp</a></div>';
-      showToast('Created!','success');loadUserAccounts();
+      showToast('Created!','success');
+      loadUserAccounts();
     }else showToast(r.message,'error');
   }catch(e){showToast(e.message,'error');}
 }
@@ -1614,15 +2745,34 @@ function generatePassword(){var ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 async function loadUserAccounts(){
   var school=getActiveSchool();if(!school)return;
   var c=document.getElementById('userAccountsList');if(!c)return;
-  var sa=[];try{var r=await callAppsScript({action:'getAllAccounts',school:school});sa=r.data?.accounts||[];}catch(e){}
+  var sa=[];
+  try{var r=await callAppsScript({action:'getAllAccounts',school:school});sa=r.data?.accounts||[];}catch(e){}
   if(sa.length===0){c.innerHTML='<p style="color:#999;font-size:13px">No accounts.</p>';return;}
   var h='<table class="ledger-table"><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody>';
-  sa.forEach(function(a){h+='<tr><td><strong>'+escapeHtml(a.username)+'</strong></td><td>'+escapeHtml(a.name)+'</td><td>'+(ROLE_NAMES[a.role]||a.role)+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+a.username+'\')">Delete</button></td></tr>';});
-  h+='</tbody></table>';c.innerHTML=h;
+  sa.forEach(function(a){
+    h+='<tr><td><strong>'+escapeHtml(a.username)+'</strong></td><td>'+escapeHtml(a.name)+'</td><td>'+(ROLE_NAMES[a.role]||a.role)+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+a.username+'\')">Delete</button></td></tr>';
+  });
+  h+='</tbody></table>';
+  c.innerHTML=h;
 }
-async function deleteAccount(username){if(!confirm('Delete '+username+'?'))return;try{var r=await callAppsScript({action:'deleteAccount',school:getActiveSchool(),username:username});if(r.success){showToast('Deleted!','success');loadUserAccounts();}}catch(e){}}
+async function deleteAccount(username){
+  if(!confirm('Delete '+username+'?'))return;
+  try{
+    var r=await callAppsScript({action:'deleteAccount',school:getActiveSchool(),username:username});
+    if(r.success){showToast('Deleted!','success');loadUserAccounts();}
+  }catch(e){}
+}
 
-function uploadClassTeacherSig(cls,event){var f=event.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(e){localStorage.setItem('classTeacherSig_'+cls,e.target.result);document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain" />';showToast('Signature saved for '+cls,'success');};rd.readAsDataURL(f);}
+function uploadClassTeacherSig(cls,event){
+  var f=event.target.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(e){
+    localStorage.setItem('classTeacherSig_'+cls,e.target.result);
+    document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain" />';
+    showToast('Signature saved for '+cls,'success');
+  };
+  rd.readAsDataURL(f);
+}
 
 /* ============ INIT ============ */
 document.addEventListener('DOMContentLoaded',function(){
@@ -1632,19 +2782,50 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('navUserAvatar').textContent=(authSession.name||'A').charAt(0).toUpperCase();
   var today=getTodayDate();
   ['manualAttDate','expenseDate','progDate','noticeDate'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=today;});
-  loadClassSelectors();loadSettings();updateDashboard();initCharts();loadUserAccounts();loadFeesStudents();loadNotices();
-  document.getElementById('settingsBadgeUpload')?.addEventListener('change',function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){document.getElementById('settingsBadgePreview').innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:contain" />';localStorage.setItem('reportCardBadge',ev.target.result);};r.readAsDataURL(f);}});
-  document.getElementById('signatureUpload')?.addEventListener('change',function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){document.getElementById('signaturePreview').innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:contain" />';localStorage.setItem('headTeacherSignature',ev.target.result);};r.readAsDataURL(f);}});
-  loadFaceRecognitionModels();displayRegisteredFaces();renderQRScanHistory();
+  loadClassSelectors();
+  loadSettings();
+  updateDashboard();
+  initCharts();
+  loadUserAccounts();
+  loadFeesStudents();
+  loadNotices();
+  document.getElementById('settingsBadgeUpload')?.addEventListener('change',function(e){
+    var f=e.target.files[0];if(f){
+      var r=new FileReader();
+      r.onload=function(ev){
+        document.getElementById('settingsBadgePreview').innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:contain" />';
+        localStorage.setItem('reportCardBadge',ev.target.result);
+      };
+      r.readAsDataURL(f);
+    }
+  });
+  document.getElementById('signatureUpload')?.addEventListener('change',function(e){
+    var f=e.target.files[0];if(f){
+      var r=new FileReader();
+      r.onload=function(ev){
+        document.getElementById('signaturePreview').innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:contain" />';
+        localStorage.setItem('headTeacherSignature',ev.target.result);
+      };
+      r.readAsDataURL(f);
+    }
+  });
+  loadFaceRecognitionModels();
+  displayRegisteredFaces();
+  renderQRScanHistory();
   CLASSES.forEach(function(cls){
     var container=document.getElementById('classTeacherSignatures');if(!container)return;
-    var div=document.createElement('div');div.style.cssText='padding:10px;background:#fff;border-radius:8px';
+    var div=document.createElement('div');
+    div.style.cssText='padding:10px;background:#fff;border-radius:8px';
     div.innerHTML='<label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">'+cls+' Signature</label><div id="ctSigPreview_'+cls+'" style="width:100px;height:40px;border:1px dashed #ccc;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa;margin-bottom:4px"><span style="font-size:10px;color:#999">Upload</span></div><input type="file" accept="image/*" onchange="uploadClassTeacherSig(\''+cls+'\',event)" style="font-size:11px;width:100%" />';
     container.appendChild(div);
-    var ex=localStorage.getItem('classTeacherSig_'+cls);if(ex)document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+ex+'" style="width:100%;height:100%;object-fit:contain" />';
+    var ex=localStorage.getItem('classTeacherSig_'+cls);
+    if(ex)document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+ex+'" style="width:100%;height:100%;object-fit:contain" />';
   });
 });
-window.addEventListener('beforeunload',function(){stopCamera();stopFaceRegCamera();stopQRScanner();if(chatPollInterval)clearInterval(chatPollInterval);});
+window.addEventListener('beforeunload',function(){
+  stopCamera();stopFaceRegCamera();stopQRScanner();
+  if(chatPollInterval)clearInterval(chatPollInterval);
+});
 </script>
 </body>
 </html>
