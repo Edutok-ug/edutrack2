@@ -865,10 +865,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v7.0 — Complete JavaScript
+   EduTrack Pro Admin v8.0 — Complete JavaScript
    ============================================================ */
 
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwhoPbdHDqSxB3ASGCF4lEzNlDS1wnJex3OmbQLc3-S3qtLIhpgUZ-pEQZREtGDcypV0g/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycby0fsApuB9GHAUuJkHyVEb-LbZ1KTJtcReAfwVZvKKd4x5L0cexHLSrgiRTaoXEAM3oPA/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','Entrepreneurship':'541','Computer Studies':'462','Luganda':'345','Kiswahili':'336','Agriculture':'531'};
@@ -919,7 +919,7 @@ function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey
 
 function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
 
-/* PHOTO BY NAME ONLY */
+/* PHOTO MATCHED BY STUDENT NAME ONLY */
 function getStudentPhoto(studentId,name){
   if(!name)return '';
   var target=normalizeNameKey(name);
@@ -1224,84 +1224,69 @@ function enforceMax(inputEl,maxVal){
     inputEl.value=maxVal;
     inputEl.style.borderColor='#c1121f';
     inputEl.style.background='#fff5f5';
-    showToast('Maximum score for this field is '+maxVal+'. Value capped.','warning');
+    showToast('Maximum score for this field is '+maxVal+'.','warning');
     setTimeout(function(){inputEl.style.borderColor='';inputEl.style.background='';},1500);
   }
   if(v<0){inputEl.value=0;}
 }
-function convertScore(raw,rawMax,targetOutOf){if(!rawMax||rawMax<=0)return 0;return (parseFloat(raw)||0)*(targetOutOf/rawMax);}
-
-function computeOLevelRow(s){
-  var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
-  var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
-  var aoi=parseFloat(s.score1)||0;
-  var eot=parseFloat(s.score2)||0;
-  var aoiC=convertScore(aoi,aoiMax,20);
-  var eotC=convertScore(eot,eotMax,80);
-  var total=aoiC+eotC;
-  var avg=((aoiC/20)*100+(eotC/80)*100)/2;
-  if(isNaN(avg))avg=0;
-  return{aoiRaw:aoi,aoiConverted:aoiC,eotRaw:eot,eotConverted:eotC,total:total,avg:avg};
-}
-function computeALevelRow(s){
-  var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
-  var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
-  var p1Raw=parseFloat(s.score1)||0;
-  var p2Raw=parseFloat(s.score2)||0;
-  var p1=(p1Raw/p1Max)*100;
-  var p2=(p2Raw/p2Max)*100;
-  var avg=(p1+p2)/2;
-  return{p1:p1,p2:p2,p1Raw:p1Raw,p2Raw:p2Raw,avg:avg};
-}
 
 function renderScoreTable(){
-  var tbody=document.getElementById('scoreTableBody');if(!tbody)return;
+  var tbody=document.getElementById('scoreTableBody');
+  if(!tbody)return;
   var q=document.getElementById('scoreSearchInput')?.value?.toLowerCase()||'';
   var filtered=q?scoreRows.filter(function(s){return(s.studentId||'').toLowerCase().includes(q)||(s.studentName||'').toLowerCase().includes(q);}):scoreRows;
   if(filtered.length===0){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">No students.</td></tr>';return;}
-  var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
-  var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
-  var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
-  var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
+  var max1=0,max2=0;
+  if(currentScoreLevel==='olevel'){
+    max1=parseFloat(document.getElementById('aoiMax')?.value)||20;
+    max2=parseFloat(document.getElementById('eotMax')?.value)||80;
+  } else {
+    max1=parseFloat(document.getElementById('paper1Max')?.value)||100;
+    max2=parseFloat(document.getElementById('paper2Max')?.value)||100;
+  }
   var h='';
   filtered.forEach(function(s){
-    var idx=scoreRows.indexOf(s);var s1=s.score1||'',s2=s.score2||'';var avg='',max1=0,max2=0;
-    if(currentScoreLevel==='olevel'){max1=aoiMax;max2=eotMax;var r=computeOLevelRow(s);avg=r.avg.toFixed(1);}
-    else{max1=p1Max;max2=p2Max;var r2=computeALevelRow(s);avg=r2.avg.toFixed(1);}
-    h+='<tr><td style="font-weight:600;font-size:12px">'+(s.studentId||'')+'</td><td>'+(s.studentName||'')+'</td>'+
-      '<td><input type="number" id="score1_'+idx+'" value="'+s1+'" min="0" max="'+max1+'" step="0.5" oninput="enforceMax(this,'+max1+')" onchange="updateScore('+idx+',1)" /></td>'+
-      '<td><input type="number" id="score2_'+idx+'" value="'+s2+'" min="0" max="'+max2+'" step="0.5" oninput="enforceMax(this,'+max2+')" onchange="updateScore('+idx+',2)" /></td>'+
-      '<td style="font-weight:600;color:#302b63" id="avg_'+idx+'">'+avg+(avg?'%':'')+'</td></tr>';
+    var idx=scoreRows.indexOf(s);
+    var s1=s.score1||'',s2=s.score2||'';
+    h+='<tr>'+
+      '<td style="font-weight:600;font-size:12px">'+(s.studentId||'')+'</td>'+
+      '<td>'+(s.studentName||'')+'</td>'+
+      '<td><input type="number" id="score1_'+idx+'" value="'+s1+'" min="0" max="'+max1+'" step="0.5" oninput="enforceMax(this,'+max1+')" onchange="updateScore('+idx+')" /></td>'+
+      '<td><input type="number" id="score2_'+idx+'" value="'+s2+'" min="0" max="'+max2+'" step="0.5" oninput="enforceMax(this,'+max2+')" onchange="updateScore('+idx+')" /></td>'+
+      '<td style="font-weight:600;color:#302b63" id="avg_'+idx+'">—</td>'+
+    '</tr>';
   });
   tbody.innerHTML=h;
 }
 function updateScore(i){
   var n1=parseFloat(document.getElementById('score1_'+i)?.value)||0;
   var n2=parseFloat(document.getElementById('score2_'+i)?.value)||0;
-  scoreRows[i].score1=n1;scoreRows[i].score2=n2;
-  var avg='';
-  if(currentScoreLevel==='olevel'){var r=computeOLevelRow(scoreRows[i]);avg=r.avg.toFixed(1);}
-  else{var r2=computeALevelRow(scoreRows[i]);avg=r2.avg.toFixed(1);}
-  var e=document.getElementById('avg_'+i);if(e)e.textContent=avg+(avg?'%':'');
+  scoreRows[i].score1=n1;
+  scoreRows[i].score2=n2;
+  var e=document.getElementById('avg_'+i);
+  if(e){
+    var max1,max2;
+    if(currentScoreLevel==='olevel'){
+      max1=parseFloat(document.getElementById('aoiMax')?.value)||20;
+      max2=parseFloat(document.getElementById('eotMax')?.value)||80;
+    } else {
+      max1=parseFloat(document.getElementById('paper1Max')?.value)||100;
+      max2=parseFloat(document.getElementById('paper2Max')?.value)||100;
+    }
+    var pct1=(n1/max1)*100;
+    var pct2=(n2/max2)*100;
+    var avg=((pct1+pct2)/2).toFixed(1);
+    e.textContent=avg+'%';
+  }
 }
 function filterScoreRows(){renderScoreTable();}
-
 function updateScoreEntryMode(){
   var cls=document.getElementById('scoreClassSelect')?.value;
   var isO=isOLevelClass(cls),isA=isALevelClass(cls);
   var oe=document.getElementById('olevelScoreEntry'),ae=document.getElementById('alevelScoreEntry');
-  if(isO){
-    if(oe)oe.style.display='block';
-    if(ae)ae.style.display='none';
-    currentScoreLevel='olevel';
-  } else if(isA){
-    if(oe)oe.style.display='none';
-    if(ae)ae.style.display='block';
-    currentScoreLevel='alevel';
-  } else {
-    if(oe)oe.style.display='block';
-    if(ae)ae.style.display='none';
-  }
+  if(isO){if(oe)oe.style.display='block';if(ae)ae.style.display='none';currentScoreLevel='olevel';}
+  else if(isA){if(oe)oe.style.display='none';if(ae)ae.style.display='block';currentScoreLevel='alevel';}
+  else{if(oe)oe.style.display='block';if(ae)ae.style.display='none';}
   setScoreLevel(currentScoreLevel);
 }
 function setScoreLevel(level){
@@ -1323,16 +1308,16 @@ function updateScoreEntryModeHeaders(){
   var h1=document.getElementById('score1Header'),h2=document.getElementById('score2Header'),hAvg=document.getElementById('averageHeader');
   if(currentScoreLevel==='olevel'){
     var examSel=document.getElementById('examSelectionOLevel')?.value||'both';
-    if(examSel==='aoi'){if(h1)h1.textContent='AOI (20)';if(h2)h2.textContent='—';}
-    else if(examSel==='eot'){if(h1)h1.textContent='—';if(h2)h2.textContent='EOT (80)';}
-    else{if(h1)h1.textContent='AOI (20)';if(h2)h2.textContent='EOT (80)';}
-    if(hAvg)hAvg.textContent='TOTAL (%)';
+    if(examSel==='aoi'){if(h1)h1.textContent='AOI';if(h2)h2.textContent='—';}
+    else if(examSel==='eot'){if(h1)h1.textContent='—';if(h2)h2.textContent='EOT';}
+    else{if(h1)h1.textContent='AOI';if(h2)h2.textContent='EOT';}
+    if(hAvg)hAvg.textContent='Average %';
   } else {
     var paperSel=document.getElementById('paperSelectionALevel')?.value||'both';
-    if(paperSel==='paper1'){if(h1)h1.textContent='Paper 1 /100';if(h2)h2.textContent='—';}
-    else if(paperSel==='paper2'){if(h1)h1.textContent='—';if(h2)h2.textContent='Paper 2 /100';}
-    else{if(h1)h1.textContent='Paper 1 /100';if(h2)h2.textContent='Paper 2 /100';}
-    if(hAvg)hAvg.textContent='AVG (%)';
+    if(paperSel==='paper1'){if(h1)h1.textContent='Paper 1';if(h2)h2.textContent='—';}
+    else if(paperSel==='paper2'){if(h1)h1.textContent='—';if(h2)h2.textContent='Paper 2';}
+    else{if(h1)h1.textContent='Paper 1';if(h2)h2.textContent='Paper 2';}
+    if(hAvg)hAvg.textContent='Average %';
   }
 }
 function updateALevelPaperDisplay(){updateScoreEntryModeHeaders();loadStudents();}
@@ -1341,7 +1326,7 @@ function updateOLevelExamDisplay(){
   var aoiC=document.getElementById('aoiMaxContainer');
   var eotC=document.getElementById('eotMaxContainer');
   if(examSel==='aoi'){if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='none';}
-  else if(examSel==='eot'){if(aoiC)aoiC.style.display='none';if(eotC)eotC.style.display='block';}
+  else if(examSel==='eot'){if(aoiC)aoiC.style.display='none';if(eotC)eotC.style.display='block';var em=document.getElementById('eotMax');if(em&&(!em.value||em.value==='20'))em.value='80';}
   else{if(aoiC)aoiC.style.display='block';if(eotC)eotC.style.display='block';}
   updateScoreEntryModeHeaders();
   loadStudents();
@@ -1354,48 +1339,69 @@ function updateScoreClassInfo(){
   if(lvl)lvl.textContent=level;
 }
 
-/* POST SCORES — INDEPENDENT AOI/EOT or P1/P2 */
+/* POST SCORES — INDEPENDENT AOI/EOT or P1/P2 with CONVERSION */
 async function postScores(e){
   e.preventDefault();
   var cls=document.getElementById('scoreClassSelect')?.value;
   var subj=document.getElementById('scoreSubjectOLevel')?.value||document.getElementById('scoreSubjectALevel')?.value;
   var initials=document.getElementById('teacherInitialsOLevel')?.value||document.getElementById('teacherInitialsALevel')?.value||'';
   var sheetId=getClassSheetId(cls);
+
   if(!cls||!subj||!sheetId){showStatus('Fill required fields.','error');return;}
   if(!initials){showStatus('Teacher initials required.','error');return;}
 
-  var scores=[];var has=false;
+  var scores=[];
+  var has=false;
 
-  scoreRows.forEach(function(s){
-    var raw1=s.score1;
-    var raw2=s.score2;
-    var n1=parseFloat(raw1);
-    var n2=parseFloat(raw2);
-    var hasS1 = !isNaN(n1) && raw1 !== '' && raw1 !== null && raw1 !== undefined;
-    var hasS2 = !isNaN(n2) && raw2 !== '' && raw2 !== null && raw2 !== undefined;
+  if(currentScoreLevel==='olevel'){
+    var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
+    var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
 
-    if(!hasS1 && !hasS2) return;
-    has=true;
+    scoreRows.forEach(function(s){
+      var rawAoi=s.score1;
+      var rawEot=s.score2;
+      var aoiNum=parseFloat(rawAoi);
+      var eotNum=parseFloat(rawEot);
+      var hasAoi=!isNaN(aoiNum)&&rawAoi!==''&&rawAoi!==null&&rawAoi!==undefined;
+      var hasEot=!isNaN(eotNum)&&rawEot!==''&&rawEot!==null&&rawEot!==undefined;
+      if(!hasAoi&&!hasEot)return;
+      has=true;
 
-    var entry={ studentId:s.studentId, studentName:s.studentName, teacherInitials:initials };
+      // Convert to standard /20 and /80
+      var convertedAoi=hasAoi?Math.round((aoiNum/aoiMax)*20*10)/10:'';
+      var convertedEot=hasEot?Math.round((eotNum/eotMax)*80*10)/10:'';
 
-    if(currentScoreLevel==='olevel'){
-      var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
-      var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
-      if(hasS1){ entry.aoi = Math.round((n1/aoiMax)*20*10)/10; entry.aoiMax = 20; }
-      if(hasS2){ entry.eot = Math.round((n2/eotMax)*80*10)/10; entry.eotMax = 80; }
-    } else {
-      var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
-      var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
-      if(hasS1){ entry.paper1 = Math.round((n1/p1Max)*100*10)/10; entry.paper1Max = 100; }
-      if(hasS2){ entry.paper2 = Math.round((n2/p2Max)*100*10)/10; entry.paper2Max = 100; }
-      entry.weight=parseFloat(document.getElementById('subjectWeightALevel')?.value)||3;
-    }
-    scores.push(entry);
-  });
+      var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
+      if(hasAoi)entry.aoi=convertedAoi;
+      if(hasEot)entry.eot=convertedEot;
+      scores.push(entry);
+    });
+  } else {
+    var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
+    var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
+
+    scoreRows.forEach(function(s){
+      var rawP1=s.score1;
+      var rawP2=s.score2;
+      var p1Num=parseFloat(rawP1);
+      var p2Num=parseFloat(rawP2);
+      var hasP1=!isNaN(p1Num)&&rawP1!==''&&rawP1!==null&&rawP1!==undefined;
+      var hasP2=!isNaN(p2Num)&&rawP2!==''&&rawP2!==null&&rawP2!==undefined;
+      if(!hasP1&&!hasP2)return;
+      has=true;
+
+      // Convert to /100
+      var convertedP1=hasP1?Math.round((p1Num/p1Max)*100*10)/10:'';
+      var convertedP2=hasP2?Math.round((p2Num/p2Max)*100*10)/10:'';
+
+      var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
+      if(hasP1)entry.paper1=convertedP1;
+      if(hasP2)entry.paper2=convertedP2;
+      scores.push(entry);
+    });
+  }
 
   if(!has){showStatus('Enter at least one score.','error');return;}
-
   var btn=document.getElementById('scoreSubmitBtn');
   if(btn){btn.disabled=true;btn.textContent='Posting...';}
   try{
@@ -1403,9 +1409,8 @@ async function postScores(e){
       action:'postScoresOnly',
       sheetId:sheetId,
       subject:subj,
-      scores:JSON.stringify(scores),
       level:currentScoreLevel,
-      timestamp:new Date().toISOString()
+      scores:JSON.stringify(scores)
     });
     if(btn){btn.disabled=false;btn.textContent='Post Scores';}
     if(r.success){
@@ -1414,10 +1419,7 @@ async function postScores(e){
       document.getElementById('scoreSuccessMsg').textContent='Added '+(r.data.added||0)+', updated '+(r.data.updated||0)+'.';
       showToast('Scores posted to "'+subj+'" tab!','success');
     } else showStatus(r.message,'error');
-  }catch(e){
-    if(btn){btn.disabled=false;btn.textContent='Post Scores';}
-    showStatus(e.message,'error');
-  }
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='Post Scores';}showStatus(e.message,'error');}
 }
 function resetScoresForm(){
   document.getElementById('scoresForm').style.display='block';
@@ -1534,21 +1536,14 @@ async function fetchReportData(search){
   try{
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
-    // Fetch attendance days — prefer module sheet from settings
     var daysData={};
     try{
       var settings=JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
       var attSheetId=extractSheetIdFromUrl(settings.attendanceSheet||'');
-      var ar=await callAppsScript({
-        action:'getAttendanceDays',
-        sheetId:sheetId,
-        className:cls,
-        school:getActiveSchool(),
-        attendanceSheetId:attSheetId
-      });
+      var ar=await callAppsScript({action:'getAttendanceDays',sheetId:sheetId,className:cls,school:getActiveSchool(),attendanceSheetId:attSheetId});
       if(ar.success&&ar.data)daysData=ar.data.days||{};
     }catch(e){}
-    students.forEach(function(s){ s.daysAttended = daysData[s.studentId] || {present:0,absent:0,late:0,leave:0,total:0}; });
+    students.forEach(function(s){s.daysAttended=daysData[s.studentId]||{present:0,absent:0,late:0,leave:0,total:0};});
     if(search){var q=search.toLowerCase();students=students.filter(function(st){return(st.studentId||'').toLowerCase().includes(q)||(st.studentName||'').toLowerCase().includes(q);});}
     renderReportResults(students);
   }catch(e){document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';}
@@ -1564,17 +1559,18 @@ function renderReportResults(students){
     var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort(),rows='';
     var totalPctSum=0,count=0,totalPointsSum=0;
     var isALevel=isALevelClass(cls);
+
     var headers=isALevel
-      ?'<th style="padding:6px;border:1px solid #fff">Code Subject</th><th style="padding:6px;border:1px solid #fff">Paper 1</th><th style="padding:6px;border:1px solid #fff">Paper 2</th><th style="padding:6px;border:1px solid #fff">Average</th><th style="padding:6px;border:1px solid #fff">Grade</th><th style="padding:6px;border:1px solid #fff">Points</th><th style="padding:6px;border:1px solid #fff">Weight</th><th style="padding:6px;border:1px solid #fff">Level of Achievement</th>'
+      ?'<th style="padding:6px;border:1px solid #fff">Code Subject</th><th style="padding:6px;border:1px solid #fff">Paper 1</th><th style="padding:6px;border:1px solid #fff">Paper 2</th><th style="padding:6px;border:1px solid #fff">Average</th><th style="padding:6px;border:1px solid #fff">Grade</th><th style="padding:6px;border:1px solid #fff">Points</th><th style="padding:6px;border:1px solid #fff">Level of Achievement</th>'
       :'<th style="padding:6px;border:1px solid #c1121f">CODE</th><th style="padding:6px;border:1px solid #c1121f;text-align:left">SUBJECT</th><th style="padding:6px;border:1px solid #c1121f">AOI (20)</th><th style="padding:6px;border:1px solid #c1121f">EOT (80)</th><th style="padding:6px;border:1px solid #c1121f">TOTAL (%)</th><th style="padding:6px;border:1px solid #c1121f">GRADE</th><th style="padding:6px;border:1px solid #c1121f">LEVEL OF ACHIEVEMENT</th><th style="padding:6px;border:1px solid #c1121f">INITIAL</th>';
     var headerBg=isALevel?'#1a3b5c':'#c1121f';
+
     subjects.forEach(function(subj){
       var sv=scores[subj];var code=subjectCodeFor(subj);
       var init=(typeof sv==='object'&&sv.teacherInitials)?sv.teacherInitials:'—';
       if(isALevel){
         var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;
         var p2=typeof sv==='object'?(parseFloat(sv.paper2)||0):0;
-        var weight=typeof sv==='object'?(parseFloat(sv.weight)||3):3;
         var avg=(p1+p2)/2;
         var grade=gradeFromPercentage(avg,'alevel');
         var points=gradeToPoints(grade);
@@ -1585,10 +1581,9 @@ function renderReportResults(students){
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+avg.toFixed(1)+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+points+'</td>'+
-          '<td style="padding:6px;border:1px solid #666;text-align:center">'+weight+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+desc+'</td></tr>';
         totalPctSum+=avg;count++;
-        totalPointsSum += points; // sum of points column
+        totalPointsSum+=points;
       } else {
         var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;
         var eot=typeof sv==='object'?(parseFloat(sv.eot)||0):0;
@@ -1604,11 +1599,11 @@ function renderReportResults(students){
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+desc+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+init+'</td></tr>';
-        totalPctSum += totalPct;
-        count++;
+        totalPctSum+=totalPct;count++;
       }
     });
-    var overallAvg = count>0 ? totalPctSum/count : 0;
+
+    var overallAvg=count>0?(isALevel?totalPctSum/count:totalPctSum/count):0;
     var overallGrade=gradeFromPercentage(overallAvg,isALevel?'alevel':'olevel');
     var overallComment=generateAutoComment(overallAvg,isALevel);
     var studentPhoto=getStudentPhoto(stu.studentId,stu.studentName);
@@ -1623,13 +1618,11 @@ function renderReportResults(students){
 
     var footerHtml='';
     if(isALevel){
-      // A-Level: Points = sum of points column, no division, no grade scale
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f0f4ff">'+
         '<div style="padding:8px;border-right:1px solid #666">Total Points: <b>'+totalPointsSum+'</b></div>'+
         '<div style="padding:8px;border-right:1px solid #666">Average: <b>'+overallAvg.toFixed(1)+'</b></div>'+
         '<div style="padding:8px">Grade: <b>'+overallGrade+'</b></div></div>';
     } else {
-      // O-Level: Total Score = sum of TOTAL (%) column; add Average Score
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa">'+
         '<div style="padding:8px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div>'+
         '<div style="padding:8px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div>'+
@@ -1695,11 +1688,11 @@ function selectAllReports(){document.querySelectorAll('#reportResults .report-se
 function clearReportSelection(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=false;var c=cb.closest('.generated-document');if(c)c.classList.remove('selected');});updatePrintSelectionBar();}
 function refreshReportToolbar(){setTimeout(updatePrintSelectionBar,0);}
 
-/* ============ PDF ============ */
-function _buildPdfWrap(htmlContent){
+/* ============ PDF DOWNLOADS ============ */
+function _buildPdfWrap(html){
   var wrap=document.createElement('div');
   wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  wrap.innerHTML=htmlContent;
+  wrap.innerHTML=html;
   wrap.querySelectorAll('.generated-document').forEach(function(el){
     el.style.cssText='width:190mm;margin:0 auto 8mm auto;padding:10mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';
   });
@@ -1709,7 +1702,7 @@ function _buildPdfWrap(htmlContent){
   return wrap;
 }
 function _runPdf(wrap,filename){
-  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded. Reload page.','error');return;}
+  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
   showToast('Generating PDF...','info');
   html2pdf().set({margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
 }
@@ -1747,14 +1740,12 @@ function renderMiniReports(){
       subjects.forEach(function(sub){
         var sv=s.scores[sub];
         if(isALevel){
-          // A-Level mini: Paper 1 + Points
           var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;
           var grade=gradeFromPercentage(p1,'alevel');
           var points=gradeToPoints(grade);
-          totalPointsMini += points;
+          totalPointsMini+=points;
           subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">Paper 1: '+p1.toFixed(1)+' <b>'+grade+'</b> · '+points+'pts</span></div>';
         } else {
-          // O-Level mini: AOI only
           var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;
           var aoiPct=Math.round((aoi/20)*100);
           var grade=gradeFromPercentage(aoiPct,'olevel');
@@ -1774,7 +1765,7 @@ function renderMiniReports(){
     var studentPhoto=getStudentPhoto(s.studentId,s.studentName);
     var photo=studentPhoto?'<img src="'+studentPhoto+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:overallGrade});
-    var pointsRow = isALevel ? '<span>Points: '+totalPointsMini+'</span>' : '';
+    var pointsRow=isALevel?'<span>Points: '+totalPointsMini+'</span>':'';
     h+='<div class="mini-report-card" style="position:relative">'+
       '<input type="checkbox" class="report-select-cb" onclick="toggleMiniReportSelection(this)" />'+
       '<button class="report-print-btn" onclick="downloadSingleMiniPDF(this)">Download PDF</button>'+
@@ -1833,10 +1824,10 @@ async function generateDocument(){
     }
     var fullHtml=headerHtml+tableHtml;
     document.getElementById('documentPreview').innerHTML='<div class="generated-document">'+fullHtml+'</div>';
-    window.__lastGeneratedDoc = fullHtml;
+    window.__lastGeneratedDoc=fullHtml;
   }catch(e){showToast(e.message,'error');}
 }
-function downloadDocument(){var html=window.__lastGeneratedDoc;if(!html){showToast('Generate a document first.','warning');return;}var b=getSchoolBranding();var wrap=document.createElement('div');wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';wrap.innerHTML='<div class="generated-document">'+html+'</div>';wrap.querySelectorAll('.generated-document').forEach(function(el){el.style.cssText='width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px';});_runPdf(wrap,b.name+'-Doc-'+getTodayDate()+'.pdf');}
+function downloadDocument(){var html=window.__lastGeneratedDoc;if(!html){showToast('Generate a document first.','warning');return;}var b=getSchoolBranding();var wrap=_buildPdfWrap('<div class="generated-document">'+html+'</div>');_runPdf(wrap,b.name+'-Doc-'+getTodayDate()+'.pdf');}
 function printDocument(){var html=window.__lastGeneratedDoc;if(!html){showToast('Generate a document first.','warning');return;}var w=window.open('','_blank');w.document.write('<html><head><title>Document</title><style>@page{size:A4;margin:10mm}body{margin:0;padding:0;background:#fff;font-family:Arial}.generated-document{width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px}table{width:100%;border-collapse:collapse;font-size:10px}img{max-width:100%}</style></head><body><div class="generated-document">'+html+'</div></body></html>');w.document.close();setTimeout(function(){w.print();},400);}
 
 /* ============ TIMETABLE / PROGRAM / NOTICES ============ */
@@ -1931,7 +1922,7 @@ async function createUserAccount(){
   var childId=role==='parent'?(document.getElementById('parentChildSelect')?.value||''):'';
   if(role==='parent'&&!childId){showToast('Select a child.','warning');return;}
   try{
-    var r=await callAppsScript({action:'createUserAccount',school:school,name:name,username:username,password:password,role:role,assignments:'[]',otherRoles:'[]',childId:childId,salary:0,employmentType:'full-time'});
+    var r=await callAppsScript({action:'createUserAccount',school:school,name:name,username:username,password:password,role:role,childId:childId});
     if(r.success){
       var credsText='EduTrack Pro\n\nName: '+name+'\nUsername: '+username+'\nPassword: '+password+'\nRole: '+(ROLE_NAMES[role]||role)+'\nLogin: '+LOGIN_URL;
       var waText=encodeURIComponent(credsText);
