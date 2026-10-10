@@ -865,10 +865,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v10.0 — Complete JavaScript
+   EduTrack Pro Admin v12.0 — Complete JavaScript
    ============================================================ */
 
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyuHN2O7wmtVKXWXxlKNUG05JZlF_79WXd3KuOY5Ui0j-mkayiNgIDLSD1yE8WDhCduuQ/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbymIVNoK383FnHNarc6yQUvnyx8rVrb55fyl8A_Dlh703yfPCIYWVPqhmBej8cfR-FtFg/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','Entrepreneurship':'541','Computer Studies':'462','Luganda':'345','Kiswahili':'336','Agriculture':'531'};
@@ -1019,7 +1019,7 @@ function switchTab(tab){
 function updateDashboard(){updateStudentCount();updateClassCards();updateDashboardFinanceCards();updateDashboardAttendanceStats();fetchNurseSummary();fetchStoresSummary();updateExpectedFeesCard();}
 async function updateStudentCount(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getStudentCount',school:school});if(r.success&&r.data){var c=r.data.count||0;var s=document.getElementById('statTotalStudents');if(s)s.textContent=c;var d=document.getElementById('dashboardStudentCount');if(d)d.textContent='Total Students: '+c;}}catch(e){}}
 async function updateClassCards(){var school=getActiveSchool();if(!school)return;var c=document.getElementById('classCardsContainer');if(!c)return;try{var counts={};for(var i=0;i<CLASSES.length;i++){var cls=CLASSES[i];var sheetId=getClassSheetId(cls);if(sheetId){try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});counts[cls]=(r.success&&r.data)?(r.data.students||[]).length:0;}catch(e){counts[cls]=0;}}else counts[cls]=0;}var h='';for(var cl in counts){if(counts.hasOwnProperty(cl)){h+='<div class="class-card"><div class="class-name">'+cl+'</div><div class="class-count">'+counts[cl]+'</div><div class="class-label">Students</div></div>';}}c.innerHTML=h||'<p style="color:#999;text-align:center">No classes.</p>';}catch(e){}}
-async function updateDashboardFinanceCards(){var school=getActiveSchool();if(!school)return;try{var fr=await callAppsScript({action:'getFeeRecords',school:school});var records=(fr&&fr.success&&fr.data)?(fr.data.records||[]):[];var today=getTodayDate();var todayFees=records.filter(function(r){return r.date===today;}).reduce(function(s,r){return s+(r.amount||0);},0);var er=await callAppsScript({action:'getExpenses',school:school});var expRecords=(er&&er.success&&er.data)?(er.data.expenses||[]):[];var todayExp=expRecords.filter(function(e){return e.date===today;}).reduce(function(s,e){return s+(e.amount||0);},0);var fe=document.getElementById('statFeesCollected');if(fe)fe.textContent='UGX '+todayFees.toLocaleString();var ee=document.getElementById('statExpensesToday');if(ee)ee.textContent='UGX '+todayExp.toLocaleString();}catch(e){}}
+async function updateDashboardFinanceCards(){var school=getActiveSchool();if(!school)return;try{var fr=await callAppsScript({action:'getFeeRecords',school:school});var records=(fr&&fr.success&&fr.data)?(fr.data.records||[]):[];var today=getTodayDate();var tf=records.filter(function(r){return r.date===today;}).reduce(function(s,r){return s+(r.amount||0);},0);var er=await callAppsScript({action:'getExpenses',school:school});var expRecords=(er&&er.success&&er.data)?(er.data.expenses||[]):[];var te=expRecords.filter(function(e){return e.date===today;}).reduce(function(s,e){return s+(e.amount||0);},0);var fe=document.getElementById('statFeesCollected');if(fe)fe.textContent='UGX '+tf.toLocaleString();var ee=document.getElementById('statExpensesToday');if(ee)ee.textContent='UGX '+te.toLocaleString();}catch(e){}}
 async function updateDashboardAttendanceStats(){var school=getActiveSchool();if(!school)return;var today=getTodayDate();var present=0,absent=0;try{for(var i=0;i<CLASSES.length;i++){var cls=CLASSES[i],sheetId=getClassSheetId(cls);if(!sheetId)continue;try{var mr=await callAppsScript({action:'getManualAttendance',sheetId:sheetId,school:school,className:cls,date:today});var recs=(mr&&mr.success&&mr.data)?(mr.data.records||[]):[];recs.forEach(function(r){if(r.status==='present')present++;else if(r.status==='absent')absent++;});}catch(e2){}}}catch(e){}var p=document.getElementById('statPresentToday');if(p)p.textContent=present;var a=document.getElementById('statAbsentToday');if(a)a.textContent=absent;if(attendanceChartInstance){attendanceChartInstance.data.datasets[0].data=[present,absent];attendanceChartInstance.update();}}
 async function fetchNurseSummary(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getNurseSummary',school:school});if(r.success&&r.data){var d=r.data;var e;e=document.getElementById('statClinicVisits');if(e)e.textContent=d.clinicVisits||0;e=document.getElementById('statSickBay');if(e)e.textContent=d.sickBay||0;e=document.getElementById('statDischarged');if(e)e.textContent=d.discharged||0;e=document.getElementById('statCritical');if(e)e.textContent=d.critical||0;}}catch(e){}}
 async function fetchStoresSummary(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getStoresSummary',school:school});if(r.success&&r.data){var d=r.data;var fd=d.foodUsage||[0,0,0,0,0,0,0,0,0,0];var fl=d.foodLabels||['Beans','Maize Flour','Cooking Oil','Onions','Tomatoes','Salt','Eggs','Rice','Posho','Milk'];if(storesBarChartInstance){storesBarChartInstance.data.labels=fl;storesBarChartInstance.data.datasets[0].data=fd;storesBarChartInstance.update();}if(storesStatusChartInstance){storesStatusChartInstance.data.datasets[0].data=[d.inStock||0,d.lowStock||0,d.outOfStock||0];storesStatusChartInstance.update();}var ol=document.getElementById('outOfStockList');if(ol){var items=d.outOfStockItems||[];ol.innerHTML=items.length>0?items.map(function(i){return '<span style="display:inline-block;background:#c1121f;color:#fff;padding:3px 10px;border-radius:12px;margin:2px;font-size:11px">'+escapeHtml(i)+'</span>';}).join(''):'<em>All items in stock</em>';}}}catch(e){}}
@@ -1109,15 +1109,8 @@ function updateScoreEntryMode(){var cls=document.getElementById('scoreClassSelec
 function setScoreLevel(level){
   currentScoreLevel=level;
   document.querySelectorAll('#levelOLevel, #levelALevel').forEach(function(el){el.style.background='none';el.style.color='#666';});
-  if(level==='olevel'){
-    var b=document.getElementById('levelOLevel');if(b){b.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b.style.color='#fff';}
-    var oe=document.getElementById('olevelScoreEntry');if(oe)oe.style.display='block';
-    var ae=document.getElementById('alevelScoreEntry');if(ae)ae.style.display='none';
-  }else{
-    var b2=document.getElementById('levelALevel');if(b2){b2.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b2.style.color='#fff';}
-    var oe2=document.getElementById('olevelScoreEntry');if(oe2)oe2.style.display='none';
-    var ae2=document.getElementById('alevelScoreEntry');if(ae2)ae2.style.display='block';
-  }
+  if(level==='olevel'){var b=document.getElementById('levelOLevel');if(b){b.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b.style.color='#fff';}var oe=document.getElementById('olevelScoreEntry');if(oe)oe.style.display='block';var ae=document.getElementById('alevelScoreEntry');if(ae)ae.style.display='none';}
+  else{var b2=document.getElementById('levelALevel');if(b2){b2.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b2.style.color='#fff';}var oe2=document.getElementById('olevelScoreEntry');if(oe2)oe2.style.display='none';var ae2=document.getElementById('alevelScoreEntry');if(ae2)ae2.style.display='block';}
   updateScoreEntryModeHeaders();
   loadStudents();
 }
@@ -1143,61 +1136,82 @@ function updateScoreClassInfo(){var cls=document.getElementById('scoreClassSelec
 
 async function postScores(e){
   e.preventDefault();
-  var cls=document.getElementById('scoreClassSelect')?.value;
-  var subj=document.getElementById('scoreSubjectOLevel')?.value||document.getElementById('scoreSubjectALevel')?.value;
-  var initials=document.getElementById('teacherInitialsOLevel')?.value||document.getElementById('teacherInitialsALevel')?.value||'';
-  var sheetId=getClassSheetId(cls);
-  if(!cls||!subj||!sheetId){showStatus('Fill required fields.','error');return;}
-  if(!initials){showStatus('Teacher initials required.','error');return;}
+  showStatus('', '');
 
-  var scores=[];var has=false;
+  var cls = document.getElementById('scoreClassSelect')?.value;
+  var subj = document.getElementById('scoreSubjectOLevel')?.value || document.getElementById('scoreSubjectALevel')?.value;
+  var initials = document.getElementById('teacherInitialsOLevel')?.value || document.getElementById('teacherInitialsALevel')?.value || '';
+  var sheetId = getClassSheetId(cls);
 
-  if(currentScoreLevel==='olevel'){
-    var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
-    var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
+  if(!cls){ showStatus('❌ Please select a class.', 'error'); showToast('Select a class.', 'error'); return; }
+  if(!sheetId){ showStatus('❌ Class sheet not configured. Go to Settings.', 'error'); showToast('Sheet URL missing.', 'error'); return; }
+  if(!subj){ showStatus('❌ Please select a subject.', 'error'); showToast('Select a subject.', 'error'); return; }
+  if(!initials || !initials.trim()){ showStatus('❌ Teacher initials required.', 'error'); showToast('Enter your initials.', 'error'); return; }
+  if(!scoreRows || scoreRows.length === 0){ showStatus('❌ No students loaded. Select a class again.', 'error'); return; }
+
+  var scores = [];
+  var has = false;
+
+  if(currentScoreLevel === 'olevel'){
+    var aoiMax = parseFloat(document.getElementById('aoiMax')?.value) || 20;
+    var eotMax = parseFloat(document.getElementById('eotMax')?.value) || 80;
+
     scoreRows.forEach(function(s){
-      var rA=s.score1,rE=s.score2;
-      var nA=parseFloat(rA),nE=parseFloat(rE);
-      var hA=!isNaN(nA)&&rA!==''&&rA!==null&&rA!==undefined;
-      var hE=!isNaN(nE)&&rE!==''&&rE!==null&&rE!==undefined;
-      if(!hA&&!hE)return;
-      has=true;
-      var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
-      if(hA)entry.aoi=Math.round((nA/aoiMax)*20*10)/10;
-      if(hE)entry.eot=Math.round((nE/eotMax)*80*10)/10;
+      var rA = s.score1, rE = s.score2;
+      var nA = parseFloat(rA), nE = parseFloat(rE);
+      var hA = !isNaN(nA) && rA !== '' && rA !== null && rA !== undefined;
+      var hE = !isNaN(nE) && rE !== '' && rE !== null && rE !== undefined;
+      if(!hA && !hE) return;
+      has = true;
+
+      var entry = { studentId: s.studentId, studentName: s.studentName, teacherInitials: initials };
+      if(hA) entry.aoi = Math.round((nA / aoiMax) * 20 * 10) / 10;
+      if(hE) entry.eot = Math.round((nE / eotMax) * 80 * 10) / 10;
       scores.push(entry);
     });
-  }else{
-    var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
-    var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
+  } else {
+    var p1Max = parseFloat(document.getElementById('paper1Max')?.value) || 100;
+    var p2Max = parseFloat(document.getElementById('paper2Max')?.value) || 100;
+
     scoreRows.forEach(function(s){
-      var r1=s.score1,r2=s.score2;
-      var n1=parseFloat(r1),n2=parseFloat(r2);
-      var h1=!isNaN(n1)&&r1!==''&&r1!==null&&r1!==undefined;
-      var h2=!isNaN(n2)&&r2!==''&&r2!==null&&r2!==undefined;
-      if(!h1&&!h2)return;
-      has=true;
-      var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
-      if(h1)entry.paper1=Math.round((n1/p1Max)*100*10)/10;
-      if(h2)entry.paper2=Math.round((n2/p2Max)*100*10)/10;
+      var r1 = s.score1, r2 = s.score2;
+      var n1 = parseFloat(r1), n2 = parseFloat(r2);
+      var h1 = !isNaN(n1) && r1 !== '' && r1 !== null && r1 !== undefined;
+      var h2 = !isNaN(n2) && r2 !== '' && r2 !== null && r2 !== undefined;
+      if(!h1 && !h2) return;
+      has = true;
+
+      var entry = { studentId: s.studentId, studentName: s.studentName, teacherInitials: initials };
+      if(h1) entry.paper1 = Math.round((n1 / p1Max) * 100 * 10) / 10;
+      if(h2) entry.paper2 = Math.round((n2 / p2Max) * 100 * 10) / 10;
       scores.push(entry);
     });
   }
 
-  if(!has){showStatus('Enter at least one score.','error');return;}
-  var btn=document.getElementById('scoreSubmitBtn');
-  if(btn){btn.disabled=true;btn.textContent='Posting...';}
+  if(!has){ showStatus('❌ Enter at least one score before posting.', 'error'); showToast('No scores entered.', 'warning'); return; }
+
+  var btn = document.getElementById('scoreSubmitBtn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Posting...'; }
+
   try{
-    var r=await callAppsScript({action:'postScoresOnly',sheetId:sheetId,subject:subj,level:currentScoreLevel,scores:JSON.stringify(scores)});
-    if(btn){btn.disabled=false;btn.textContent='Post Scores';}
+    var r = await callAppsScript({ action:'postScoresOnly', sheetId:sheetId, subject:subj, level:currentScoreLevel, scores:JSON.stringify(scores) });
+    if(btn){ btn.disabled = false; btn.textContent = 'Post Scores'; }
+
     if(r.success){
-      console.log('Posted to tab:',r.data.tabName,'| headers:',r.data.headers);
-      document.getElementById('scoreSuccess').style.display='block';
-      document.getElementById('scoresForm').style.display='none';
-      document.getElementById('scoreSuccessMsg').textContent='Posted to tab "'+(r.data.tabName||subj)+'": Added '+(r.data.added||0)+', updated '+(r.data.updated||0)+'.';
-      showToast('Scores posted to "'+(r.data.tabName||subj)+'"!','success');
-    }else showStatus('❌ '+r.message,'error');
-  }catch(e){if(btn){btn.disabled=false;btn.textContent='Post Scores';}showStatus('❌ '+e.message,'error');}
+      console.log('Posted:', r.data);
+      document.getElementById('scoreSuccess').style.display = 'block';
+      document.getElementById('scoresForm').style.display = 'none';
+      document.getElementById('scoreSuccessMsg').innerHTML = '📄 Tab: <strong>' + (r.data.tabName || subj) + '</strong><br>➕ Added: ' + (r.data.added || 0) + ' | 🔄 Updated: ' + (r.data.updated || 0);
+      showToast('✅ Posted to "' + (r.data.tabName || subj) + '"!', 'success');
+    } else {
+      showStatus('❌ ' + (r.message || 'Unknown'), 'error');
+      showToast('Failed: ' + (r.message || 'Unknown'), 'error');
+    }
+  }catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = 'Post Scores'; }
+    showStatus('❌ ' + e.message, 'error');
+    showToast('Error: ' + e.message, 'error');
+  }
 }
 function resetScoresForm(){document.getElementById('scoresForm').style.display='block';document.getElementById('scoreSuccess').style.display='none';document.getElementById('scoreClassSelect').value='';document.getElementById('scoreTableBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';scoreRows=[];showStatus('','');}
 
@@ -1226,7 +1240,7 @@ async function startCamera(){if(isCameraRunning)return;try{await loadFaceRecogni
 function stopCamera(){if(videoStream){videoStream.getTracks().forEach(function(t){t.stop();});videoStream=null;}isCameraRunning=false;var v=document.getElementById('videoFeed');if(v)v.srcObject=null;var btn=document.getElementById('cameraToggleBtn');if(btn){btn.textContent='Start Camera';btn.className='btn btn-info';}var st=document.getElementById('detectionStatus');if(st)st.style.display='none';if(detectionInterval){clearInterval(detectionInterval);detectionInterval=null;}}
 function switchCamera(){cameraMode=cameraMode==='user'?'environment':'user';if(isCameraRunning){stopCamera();setTimeout(startCamera,500);}else startCamera();}
 function startFaceDetectionLoop(){if(detectionInterval)clearInterval(detectionInterval);detectionInterval=setInterval(detectFace,500);}
-async function detectFace(){var v=document.getElementById('videoFeed'),st=document.getElementById('detectionStatus');if(!isCameraRunning||!v||v.videoWidth===0)return;if(!faceState.modelsLoaded)return;try{var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS);if(!det){if(st)st.textContent='Position your face';return;}if(st)st.textContent='Face detected - Press Capture & Verify';}catch(e){}}
+async function detectFace(){var v=document.getElementById('videoFeed'),st=document.getElementById('detectionStatus');if(!isCameraRunning||!v||v.videoWidth===0)return;if(!faceState.modelsLoaded)return;try{var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS);if(!det){if(st)st.textContent='Position your face';return;}if(st)st.textContent='Face detected - Press Capture';}catch(e){}}
 async function captureAndVerify(){if(!isCameraRunning||!faceState.modelsLoaded){showToast('Start camera first.','warning');return;}var v=document.getElementById('videoFeed');try{var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();if(!det){showToast('No face detected.','error');return;}var result=await verifyFace(det.descriptor);if(result)await markAttendance(result.id,result.name);else showToast('Face not recognized.','error');}catch(e){showToast(e.message,'error');}}
 function verifyFace(descriptor){return new Promise(function(resolve){var R=getRegisteredFaces();if(R.length===0){resolve(null);return;}var best=null,bd=999;for(var i=0;i<R.length;i++){var rec=R[i],D=rec.descriptors||[rec.descriptor];for(var j=0;j<D.length;j++){if(!D[j])continue;var st=new Float32Array(D[j]);if(st.length!==descriptor.length)continue;var d=calculateFaceDistance(descriptor,st);if(d<bd){bd=d;best={id:rec.id,name:rec.name,distance:d};}}}if(best&&best.distance<=FACE_CONFIG.recognitionThreshold)resolve(best);else resolve(null);});}
 function calculateFaceDistance(d1,d2){var s=0,n=Math.min(d1.length,d2.length);for(var i=0;i<n;i++){var df=d1[i]-d2[i];s+=df*df;}return Math.sqrt(s);}
@@ -1275,8 +1289,8 @@ async function fetchReportData(search){
   try{
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
-    console.log('Loaded students:',students.length);
-    if(students[0])console.log('First student scores:',Object.keys(students[0].scores||{}));
+    console.log('Loaded',students.length,'students');
+    if(r.data.tabsRead)console.log('Tabs read:',r.data.tabsRead);
 
     var daysData={};
     try{
