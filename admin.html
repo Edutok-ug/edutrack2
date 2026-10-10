@@ -865,9 +865,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v5.0 — Complete JavaScript
+   EduTrack Pro Admin v6.0 — Complete JavaScript
+   Fixes: photo by name, AOI/EOT independent, A-Level points,
+   days attended, per-subject tabs, mini report A-Level P1 only,
+   auto-switch A/O level on class select, PDF class lists,
+   full registration info on class lists
    ============================================================ */
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwhID-M8-0THTqVtuhhF4ORw554uSRg-cF59Bv5QRnCHgiru3xaFZG3uZ0cEjLGi4JraQ/exec';
+
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwxodIXTSyZlzdl8Uropf30mqXC_Ea4XaKlpbtvdrhF5VxEtTeeUj4lz7tkbsWex3XWIw/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','Entrepreneurship':'541','Computer Studies':'462','Luganda':'345','Kiswahili':'336','Agriculture':'531'};
@@ -877,12 +882,10 @@ var OLEVEL_CLASSES=['S.1','S.2','S.3','S.4'];
 var ALEVEL_CLASSES=['S.5','S.6'];
 var ROLE_NAMES={'admin':'Admin','teacher':'Teacher','bursar':'Bursar','gateman':'Gate Man','parent':'Parent','nurse':'Nurse','storekeeper':'Storekeeper'};
 var LOGIN_URL='https://edutok-ug.github.io/edutrack2/index.html';
-var SUBJECTS_LIST=['English','Mathematics','Physics','Chemistry','Biology','Geography','History','CRE','Computer Studies','Luganda','Kiswahili','Agriculture','Entrepreneurship'];
 
 var authSession=null,currentChatUser=null,chatPollInterval=null,detectionInterval=null,videoStream=null,faceRegStream=null,isCameraRunning=false,isFaceRegRunning=false,scoreRows=[],studentList=[],miniReportData=[],isManualId=false,currentScoreLevel='olevel',feesChartInstance=null,attendanceChartInstance=null,storesBarChartInstance=null,storesStatusChartInstance=null,schoolSettings={},cameraMode='user',manualAttStudents=[],manualAttFiltered=[],manualAttClass='',feesRecords=[],expenseRecords=[],chatUsers=[];
 var faceState={modelsLoaded:false,modelsLoading:false,faceDetected:false};
 var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
-var studentIdsByClass={};
 
 /* ============ UTILS ============ */
 function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -913,46 +916,47 @@ function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
 function isOLevelClass(cls){return OLEVEL_CLASSES.indexOf(cls)!==-1;}
 function isALevelClass(cls){return ALEVEL_CLASSES.indexOf(cls)!==-1;}
 
-/* ============ FACE/PHOTO STORAGE ============ */
+/* ============ PHOTO MATCHING (BY NAME ONLY) ============ */
 function getRegisteredFaces(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.storageKey)||'[]');}catch(e){return[];}}
 function saveRegisteredFaces(r){localStorage.setItem(FACE_CONFIG.storageKey,JSON.stringify(r));}
 function getAttendanceRecords(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.attendanceKey)||'[]');}catch(e){return[];}}
 function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey,JSON.stringify(r));}
 
-function normalizeName(name){return String(name||'').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');}
-function normalizeForMatch(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
+function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
 
-function getStudentPhotoByName(name){
+/* Look up photo BY STUDENT NAME only — ignores ID completely */
+function getStudentPhoto(studentId,name){
   if(!name)return '';
-  var nkey=normalizeName(name);
-  var direct=localStorage.getItem('studentPhoto_name_'+nkey);
+  var target=normalizeNameKey(name);
+  if(!target)return '';
+  // Direct key
+  var key=String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  var direct=localStorage.getItem('studentPhoto_name_'+key);
   if(direct)return direct;
-  var searchName=normalizeForMatch(name);
+  // Scan all name keys
   for(var i=0;i<localStorage.length;i++){
     var k=localStorage.key(i);
+    if(k&&k.startsWith('studentPhoto_name_')){
+      var storedNorm=normalizeNameKey(k.replace('studentPhoto_name_',''));
+      if(storedNorm===target)return localStorage.getItem(k)||'';
+    }
     if(k&&k.startsWith('studentPhotoName_')){
-      var storedName=normalizeForMatch(localStorage.getItem(k)||'');
-      if(storedName===searchName||storedName.includes(searchName)||searchName.includes(storedName)){
+      var storedVal=normalizeNameKey(localStorage.getItem(k)||'');
+      if(storedVal===target){
         var sid=k.replace('studentPhotoName_','');
         var photo=localStorage.getItem('studentPhoto_'+sid);
         if(photo)return photo;
       }
     }
     if(k&&k.startsWith('studentPhotoFile_')){
-      var fname=normalizeForMatch(String(localStorage.getItem(k)||'').replace(/\.[^.]+$/,''));
-      if(fname===searchName||fname.includes(searchName)||searchName.includes(fname)){
+      var fname=normalizeNameKey(String(localStorage.getItem(k)||'').replace(/\.[^.]+$/,''));
+      if(fname===target){
         var sid2=k.replace('studentPhotoFile_','');
         var photo2=localStorage.getItem('studentPhoto_'+sid2);
         if(photo2)return photo2;
       }
     }
   }
-  return '';
-}
-function getStudentPhoto(id,name){
-  var p=localStorage.getItem('studentPhoto_'+id);
-  if(p)return p;
-  if(name){p=getStudentPhotoByName(name);if(p)return p;}
   return '';
 }
 
@@ -1057,11 +1061,9 @@ async function updateClassCards(){
   try{
     var counts={};
     for(var i=0;i<CLASSES.length;i++){
-      var cls=CLASSES[i];
-      var sheetId=getClassSheetId(cls);
-      if(sheetId){
-        try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});counts[cls]=(r.success&&r.data)?(r.data.students||[]).length:0;}catch(e){counts[cls]=0;}
-      }else counts[cls]=0;
+      var cls=CLASSES[i];var sheetId=getClassSheetId(cls);
+      if(sheetId){try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});counts[cls]=(r.success&&r.data)?(r.data.students||[]).length:0;}catch(e){counts[cls]=0;}}
+      else counts[cls]=0;
     }
     var h='';
     for(var cl in counts){if(counts.hasOwnProperty(cl)){h+='<div class="class-card"><div class="class-name">'+cl+'</div><div class="class-count">'+counts[cl]+'</div><div class="class-label">Students</div></div>';}}
@@ -1103,17 +1105,7 @@ async function updateDashboardAttendanceStats(){
 }
 async function fetchNurseSummary(){
   var school=getActiveSchool();if(!school)return;
-  try{
-    var r=await callAppsScript({action:'getNurseSummary',school:school});
-    if(r.success&&r.data){
-      var d=r.data;
-      var e;
-      e=document.getElementById('statClinicVisits');if(e)e.textContent=d.clinicVisits||0;
-      e=document.getElementById('statSickBay');if(e)e.textContent=d.sickBay||0;
-      e=document.getElementById('statDischarged');if(e)e.textContent=d.discharged||0;
-      e=document.getElementById('statCritical');if(e)e.textContent=d.critical||0;
-    }
-  }catch(e){}
+  try{var r=await callAppsScript({action:'getNurseSummary',school:school});if(r.success&&r.data){var d=r.data;var e;e=document.getElementById('statClinicVisits');if(e)e.textContent=d.clinicVisits||0;e=document.getElementById('statSickBay');if(e)e.textContent=d.sickBay||0;e=document.getElementById('statDischarged');if(e)e.textContent=d.discharged||0;e=document.getElementById('statCritical');if(e)e.textContent=d.critical||0;}}catch(e){}
 }
 async function fetchStoresSummary(){
   var school=getActiveSchool();if(!school)return;
@@ -1123,29 +1115,18 @@ async function fetchStoresSummary(){
       var d=r.data;
       var foodData=d.foodUsage||[0,0,0,0,0,0,0,0,0,0];
       var foodLabels=d.foodLabels||['Beans','Maize Flour','Cooking Oil','Onions','Tomatoes','Salt','Eggs','Rice','Posho','Milk'];
-      if(storesBarChartInstance){
-        storesBarChartInstance.data.labels=foodLabels;
-        storesBarChartInstance.data.datasets[0].data=foodData;
-        storesBarChartInstance.update();
-      }
-      if(storesStatusChartInstance){
-        storesStatusChartInstance.data.datasets[0].data=[d.inStock||0,d.lowStock||0,d.outOfStock||0];
-        storesStatusChartInstance.update();
-      }
+      if(storesBarChartInstance){storesBarChartInstance.data.labels=foodLabels;storesBarChartInstance.data.datasets[0].data=foodData;storesBarChartInstance.update();}
+      if(storesStatusChartInstance){storesStatusChartInstance.data.datasets[0].data=[d.inStock||0,d.lowStock||0,d.outOfStock||0];storesStatusChartInstance.update();}
       var outList=document.getElementById('outOfStockList');
-      if(outList){
-        var items=d.outOfStockItems||[];
-        outList.innerHTML=items.length>0?items.map(function(i){return '<span style="display:inline-block;background:#c1121f;color:#fff;padding:3px 10px;border-radius:12px;margin:2px;font-size:11px">'+escapeHtml(i)+'</span>';}).join(''):'<em>All items in stock</em>';
-      }
+      if(outList){var items=d.outOfStockItems||[];outList.innerHTML=items.length>0?items.map(function(i){return '<span style="display:inline-block;background:#c1121f;color:#fff;padding:3px 10px;border-radius:12px;margin:2px;font-size:11px">'+escapeHtml(i)+'</span>';}).join(''):'<em>All items in stock</em>';}
     }
   }catch(e){}
 }
 function updateExpectedFeesCard(){
   var school=getActiveSchool();if(!school)return;
   var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
-  var expected=s.expectedFeesThisTerm||0;
   var el=document.getElementById('statExpectedFees');
-  if(el)el.textContent='UGX '+(expected).toLocaleString();
+  if(el)el.textContent='UGX '+((s.expectedFeesThisTerm||0)).toLocaleString();
 }
 async function loadDashboardNotices(){
   var c=document.getElementById('dashboardNotices');if(!c)return;
@@ -1155,9 +1136,7 @@ async function loadDashboardNotices(){
     if(notices.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:15px">No notices posted.</p>';return;}
     var recent=notices.slice(-3).reverse();
     var h='';
-    recent.forEach(function(n){
-      h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div class="notice-title">'+escapeHtml(n.title)+'</div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml(n.body.substring(0,120))+'</div></div>';
-    });
+    recent.forEach(function(n){h+='<div class="notice-card priority-'+(n.priority||'low')+'"><div class="notice-title">'+escapeHtml(n.title)+'</div><div class="notice-meta">'+escapeHtml(n.date)+'</div><div class="notice-body">'+escapeHtml((n.body||'').substring(0,120))+'</div></div>';});
     c.innerHTML=h;
   }catch(e){c.innerHTML='<p style="color:#999;text-align:center">Error loading notices.</p>';}
 }
@@ -1181,26 +1160,8 @@ function initCharts(){
 }
 
 /* ============ REGISTER ============ */
-async function fetchNextStudentId(){
-  var cls=document.getElementById('regClassSelect')?.value;
-  var d=document.getElementById('regIdDisplay');
-  if(!cls){if(d)d.textContent='Stu001';return;}
-  var sheetId=getClassSheetId(cls);
-  if(!sheetId){if(d)d.textContent='Stu001';return;}
-  try{
-    var r=await callAppsScript({action:'getNextStudentId',sheetId:sheetId,school:getActiveSchool()});
-    if(r.success&&r.data&&d){
-      d.textContent=r.data.nextId;
-      if(!isManualId){var i=document.getElementById('regStudentId');if(i)i.value=r.data.nextId;}
-    }
-  }catch(e){}
-}
-function toggleManualId(){
-  isManualId=document.getElementById('manualIdToggle')?.checked||false;
-  var i=document.getElementById('regStudentId'),d=document.getElementById('regIdDisplay');
-  if(isManualId){if(i){i.disabled=false;i.value='';i.focus();}}
-  else if(i){i.disabled=true;i.value=d?d.textContent:'';}
-}
+async function fetchNextStudentId(){var cls=document.getElementById('regClassSelect')?.value;var d=document.getElementById('regIdDisplay');if(!cls){if(d)d.textContent='Stu001';return;}var sheetId=getClassSheetId(cls);if(!sheetId){if(d)d.textContent='Stu001';return;}try{var r=await callAppsScript({action:'getNextStudentId',sheetId:sheetId,school:getActiveSchool()});if(r.success&&r.data&&d){d.textContent=r.data.nextId;if(!isManualId){var i=document.getElementById('regStudentId');if(i)i.value=r.data.nextId;}}}catch(e){}}
+function toggleManualId(){isManualId=document.getElementById('manualIdToggle')?.checked||false;var i=document.getElementById('regStudentId'),d=document.getElementById('regIdDisplay');if(isManualId){if(i){i.disabled=false;i.value='';i.focus();}}else if(i){i.disabled=true;i.value=d?d.textContent:'';}}
 function resetRegisterForm(){
   document.getElementById('registerForm').style.display='block';
   document.getElementById('regSuccess').style.display='none';
@@ -1239,37 +1200,27 @@ async function registerStudent(e){
   if(!school||!cls||!sn||!sex||!residence){showStatus('Fill all required fields.','error');return;}
   var sheetId=getClassSheetId(cls);
   if(!sheetId){showStatus('Sheet not configured.','error');return;}
-
   var photoInput=document.getElementById('regStudentPhoto');
   if(photoInput&&photoInput.files[0]){
     var file=photoInput.files[0];
     var reader=new FileReader();
     reader.onload=function(ev){
-      localStorage.setItem('studentPhoto_'+sid,ev.target.result);
-      var nameKey=normalizeName(sn);
+      var nameKey=String(sn).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
       localStorage.setItem('studentPhoto_name_'+nameKey,ev.target.result);
+      localStorage.setItem('studentPhoto_'+sid,ev.target.result);
       localStorage.setItem('studentPhotoName_'+sid,sn);
       localStorage.setItem('studentPhotoFile_'+sid,file.name||'');
     };
     reader.readAsDataURL(file);
   }
-
   var btn=document.getElementById('regSubmitBtn');
   if(btn){btn.disabled=true;btn.textContent='Registering...';}
   try{
     var r=await callAppsScript({action:'registerStudent',sheetId:sheetId,school:school,className:cls,studentId:sid,studentName:sn,parentName:pn,parentPhone:pp,parentEmail:pe,sex:sex,stream:stream,residence:residence,term:term,year:year});
     if(btn){btn.disabled=false;btn.textContent='Register';}
-    if(r.success){
-      document.getElementById('regSuccess').style.display='block';
-      document.getElementById('registerForm').style.display='none';
-      document.getElementById('regSuccessId').textContent=sid;
-      showToast('Registered!','success');
-      updateStudentCount();updateClassCards();
-    } else showStatus(r.message,'error');
-  }catch(e){
-    if(btn){btn.disabled=false;btn.textContent='Register';}
-    showStatus(e.message,'error');
-  }
+    if(r.success){document.getElementById('regSuccess').style.display='block';document.getElementById('registerForm').style.display='none';document.getElementById('regSuccessId').textContent=sid;showToast('Registered!','success');updateStudentCount();updateClassCards();}
+    else showStatus(r.message,'error');
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='Register';}showStatus(e.message,'error');}
 }
 
 /* ============ SCORES ============ */
@@ -1290,13 +1241,17 @@ async function loadStudents(){
 function enforceMax(inputEl,maxVal){
   var v=parseFloat(inputEl.value);
   if(isNaN(v))return;
-  if(v>maxVal){inputEl.value=maxVal;inputEl.classList.add('invalid');showToast('Max '+maxVal+' exceeded.','warning');setTimeout(function(){inputEl.classList.remove('invalid');},1500);}
+  if(v>maxVal){
+    inputEl.value=maxVal;
+    inputEl.style.borderColor='#c1121f';
+    inputEl.style.background='#fff5f5';
+    showToast('Max '+maxVal+' exceeded. Value capped.','warning');
+    setTimeout(function(){inputEl.style.borderColor='';inputEl.style.background='';},1500);
+  }
   if(v<0){inputEl.value=0;}
 }
-function convertScore(rawScore,rawMax,targetOutOf){
-  if(!rawMax||rawMax<=0)return 0;
-  return (parseFloat(rawScore)||0)*(targetOutOf/rawMax);
-}
+function convertScore(raw,rawMax,targetOutOf){if(!rawMax||rawMax<=0)return 0;return (parseFloat(raw)||0)*(targetOutOf/rawMax);}
+
 function computeOLevelRow(s){
   var aoiMax=parseFloat(document.getElementById('aoiMax')?.value)||20;
   var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
@@ -1325,6 +1280,7 @@ function computeALevelRow(s){
   else avg=(p1+p2)/2;
   return{p1:p1,p2:p2,p1Raw:p1Raw,p2Raw:p2Raw,avg:avg};
 }
+
 function renderScoreTable(){
   var tbody=document.getElementById('scoreTableBody');if(!tbody)return;
   var q=document.getElementById('scoreSearchInput')?.value?.toLowerCase()||'';
@@ -1353,30 +1309,38 @@ function updateScore(i){
   var avg='';
   if(currentScoreLevel==='olevel'){var r=computeOLevelRow(scoreRows[i]);avg=r.avg.toFixed(1);}
   else{var r2=computeALevelRow(scoreRows[i]);avg=r2.avg.toFixed(1);}
-  var e=document.getElementById('avg_'+i);
-  if(e)e.textContent=avg+(avg?'%':'');
+  var e=document.getElementById('avg_'+i);if(e)e.textContent=avg+(avg?'%':'');
 }
 function filterScoreRows(){renderScoreTable();}
+
+/* Auto-switches A/O level when class is selected */
 function updateScoreEntryMode(){
   var cls=document.getElementById('scoreClassSelect')?.value;
   var isO=isOLevelClass(cls),isA=isALevelClass(cls);
   var oe=document.getElementById('olevelScoreEntry'),ae=document.getElementById('alevelScoreEntry');
-  if(oe)oe.style.display=isO?'block':'none';
-  if(ae)ae.style.display=isA?'block':'none';
-  if(isO)currentScoreLevel='olevel';else if(isA)currentScoreLevel='alevel';
+  if(isO){
+    if(oe)oe.style.display='block';
+    if(ae)ae.style.display='none';
+    currentScoreLevel='olevel';
+  } else if(isA){
+    if(oe)oe.style.display='none';
+    if(ae)ae.style.display='block';
+    currentScoreLevel='alevel';
+  } else {
+    if(oe)oe.style.display='block';
+    if(ae)ae.style.display='none';
+  }
   setScoreLevel(currentScoreLevel);
 }
 function setScoreLevel(level){
   currentScoreLevel=level;
   document.querySelectorAll('#levelOLevel, #levelALevel').forEach(function(el){el.style.background='none';el.style.color='#666';});
   if(level==='olevel'){
-    var b=document.getElementById('levelOLevel');
-    if(b){b.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b.style.color='#fff';}
+    var b=document.getElementById('levelOLevel');if(b){b.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b.style.color='#fff';}
     var oe=document.getElementById('olevelScoreEntry');if(oe)oe.style.display='block';
     var ae=document.getElementById('alevelScoreEntry');if(ae)ae.style.display='none';
   } else {
-    var b2=document.getElementById('levelALevel');
-    if(b2){b2.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b2.style.color='#fff';}
+    var b2=document.getElementById('levelALevel');if(b2){b2.style.background='linear-gradient(135deg,#0f0c29,#302b63)';b2.style.color='#fff';}
     var oe2=document.getElementById('olevelScoreEntry');if(oe2)oe2.style.display='none';
     var ae2=document.getElementById('alevelScoreEntry');if(ae2)ae2.style.display='block';
   }
@@ -1426,6 +1390,7 @@ function updateScoreClassInfo(){
   if(info)info.innerHTML='<strong>'+cls+'</strong>';
   if(lvl)lvl.textContent=level;
 }
+
 async function postScores(e){
   e.preventDefault();
   var cls=document.getElementById('scoreClassSelect')?.value;
@@ -1434,6 +1399,7 @@ async function postScores(e){
   var sheetId=getClassSheetId(cls);
   if(!cls||!subj||!sheetId){showStatus('Fill required fields.','error');return;}
   if(!initials){showStatus('Teacher initials required.','error');return;}
+
   var scores=[];var has=false;
   scoreRows.forEach(function(s){
     var s1=parseFloat(s.score1)||0;
@@ -1446,33 +1412,30 @@ async function postScores(e){
       var eotMax=parseFloat(document.getElementById('eotMax')?.value)||80;
       var examSel=document.getElementById('examSelectionOLevel')?.value||'both';
       var computed=computeOLevelRow(s);
-      entry.aoiMax=20;
-      entry.eotMax=80;
-      entry.originalAoiMax=aoiMax;
-      entry.originalEotMax=eotMax;
       entry.examSelection=examSel;
+      entry.aoiMax=20; // standardized
+      entry.eotMax=80;
+      // Only send columns that were selected
       if(examSel==='aoi'||examSel==='both'){
         entry.aoi=Math.round(computed.aoiConverted*10)/10;
-        entry.aoiRaw=computed.aoiRaw;
       }
       if(examSel==='eot'||examSel==='both'){
         entry.eot=Math.round(computed.eotConverted*10)/10;
-        entry.eotRaw=computed.eotRaw;
       }
+      // Average based on available
       var a=entry.aoi||0;
       var b=entry.eot||0;
       if(examSel==='aoi')entry.average=(a/20)*100;
       else if(examSel==='eot')entry.average=(b/80)*100;
       else entry.average=((a/20)*100+(b/80)*100)/2;
-      entry.total=a+b;
       entry.grade=gradeFromPercentage(entry.average,'olevel');
     } else {
       var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
       var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
       var paperSel=document.getElementById('paperSelectionALevel')?.value||'both';
       var computed2=computeALevelRow(s);
-      entry.paper1Max=p1Max;
-      entry.paper2Max=p2Max;
+      entry.paper1Max=100; // standardized to /100
+      entry.paper2Max=100;
       entry.paperSelection=paperSel;
       entry.weight=parseFloat(document.getElementById('subjectWeightALevel')?.value)||3;
       if(paperSel==='paper1'||paperSel==='both')entry.paper1=Math.round(computed2.p1*10)/10;
@@ -1518,12 +1481,7 @@ function switchAttendanceMode(mode){
   else if(mode==='qr'){if(qb){qb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';qb.style.color='#fff';}if(qp)qp.style.display='block';if(isCameraRunning)stopCamera();}
   else{if(mb){mb.style.background='linear-gradient(135deg,#0f0c29,#302b63)';mb.style.color='#fff';}if(mp)mp.style.display='block';if(isCameraRunning)stopCamera();if(qrScanInterval)stopQRScanner();var d=document.getElementById('manualAttDate');if(d&&!d.value)d.value=getTodayDate();populateManualAttClassSelect();}
 }
-function populateManualAttClassSelect(){
-  var sel=document.getElementById('manualAttClassSelect');
-  if(!sel||sel.options.length>1)return;
-  sel.innerHTML='<option value="">Select a Class</option>';
-  CLASSES.forEach(function(cls){var o=document.createElement('option');o.value=cls;o.textContent=cls;sel.appendChild(o);});
-}
+function populateManualAttClassSelect(){var sel=document.getElementById('manualAttClassSelect');if(!sel||sel.options.length>1)return;sel.innerHTML='<option value="">Select a Class</option>';CLASSES.forEach(function(cls){var o=document.createElement('option');o.value=cls;o.textContent=cls;sel.appendChild(o);});}
 async function loadManualAttendanceStudents(){
   var cls=document.getElementById('manualAttClassSelect')?.value,school=getActiveSchool(),grid=document.getElementById('manualAttGrid');
   if(!grid)return;
@@ -1544,10 +1502,7 @@ function renderManualAttGrid(){
   var g=document.getElementById('manualAttGrid');if(!g)return;
   if(!manualAttFiltered||manualAttFiltered.length===0){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No students.</p>';return;}
   var h='';
-  manualAttFiltered.forEach(function(s){
-    var isP=s.status==='present';
-    h+='<div class="attendance-check-item"><input type="checkbox" '+(isP?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\', this.checked)" /><label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label></div>';
-  });
+  manualAttFiltered.forEach(function(s){var isP=s.status==='present';h+='<div class="attendance-check-item"><input type="checkbox" '+(isP?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\', this.checked)" /><label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label></div>';});
   g.innerHTML=h;
 }
 function toggleManualStudent(id,checked){var s=manualAttStudents.find(function(x){return x.studentId===id;});if(s)s.status=checked?'present':'absent';}
@@ -1565,354 +1520,77 @@ async function saveManualAttendance(){
     if(btn){btn.disabled=false;btn.textContent='Save Attendance';}
     if(res.success)showToast('Attendance saved!','success');
     else showToast(res.message,'error');
-  }catch(e){
-    if(btn){btn.disabled=false;btn.textContent='Save Attendance';}
-    showToast(e.message,'error');
-  }
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='Save Attendance';}showToast(e.message,'error');}
 }
 
-/* ============ FACE RECOGNITION ============ */
-async function loadFaceRecognitionModels(){
-  if(faceState.modelsLoaded||faceState.modelsLoading)return faceState.modelsLoaded;
-  faceState.modelsLoading=true;
-  try{
-    if(typeof faceapi==='undefined'){faceState.modelsLoading=false;return false;}
-    var path=FACE_CONFIG.modelPath;
-    await faceapi.nets.tinyFaceDetector.loadFromUri(path);
-    await faceapi.nets.faceLandmark68Net.loadFromUri(path);
-    await faceapi.nets.faceRecognitionNet.loadFromUri(path);
-    FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});
-    faceState.modelsLoaded=true;
-    faceState.modelsLoading=false;
-    return true;
-  }catch(e){faceState.modelsLoading=false;return false;}
-}
-async function startCamera(){
-  if(isCameraRunning)return;
-  try{
-    await loadFaceRecognitionModels();
-    videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:cameraMode,width:{ideal:1280},height:{ideal:720}},audio:false});
-    var v=document.getElementById('videoFeed');
-    v.srcObject=videoStream;
-    await v.play();
-    isCameraRunning=true;
-    var btn=document.getElementById('cameraToggleBtn');
-    if(btn){btn.textContent='Stop';btn.className='btn btn-danger';}
-    var st=document.getElementById('detectionStatus');
-    if(st){st.textContent='Camera ready';st.style.display='block';st.className='detection-status active';}
-    startFaceDetectionLoop();
-  }catch(e){showToast(e.message,'error');}
-}
-function stopCamera(){
-  if(videoStream){videoStream.getTracks().forEach(function(t){t.stop();});videoStream=null;}
-  isCameraRunning=false;
-  var v=document.getElementById('videoFeed');
-  if(v)v.srcObject=null;
-  var btn=document.getElementById('cameraToggleBtn');
-  if(btn){btn.textContent='Start Camera';btn.className='btn btn-info';}
-  var st=document.getElementById('detectionStatus');
-  if(st)st.style.display='none';
-  if(detectionInterval){clearInterval(detectionInterval);detectionInterval=null;}
-}
+/* ============ FACE ============ */
+async function loadFaceRecognitionModels(){if(faceState.modelsLoaded||faceState.modelsLoading)return faceState.modelsLoaded;faceState.modelsLoading=true;try{if(typeof faceapi==='undefined'){faceState.modelsLoading=false;return false;}var path=FACE_CONFIG.modelPath;await faceapi.nets.tinyFaceDetector.loadFromUri(path);await faceapi.nets.faceLandmark68Net.loadFromUri(path);await faceapi.nets.faceRecognitionNet.loadFromUri(path);FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});faceState.modelsLoaded=true;faceState.modelsLoading=false;return true;}catch(e){faceState.modelsLoading=false;return false;}}
+async function startCamera(){if(isCameraRunning)return;try{await loadFaceRecognitionModels();videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:cameraMode,width:{ideal:1280},height:{ideal:720}},audio:false});var v=document.getElementById('videoFeed');v.srcObject=videoStream;await v.play();isCameraRunning=true;var btn=document.getElementById('cameraToggleBtn');if(btn){btn.textContent='Stop';btn.className='btn btn-danger';}var st=document.getElementById('detectionStatus');if(st){st.textContent='Camera ready';st.style.display='block';st.className='detection-status active';}startFaceDetectionLoop();}catch(e){showToast(e.message,'error');}}
+function stopCamera(){if(videoStream){videoStream.getTracks().forEach(function(t){t.stop();});videoStream=null;}isCameraRunning=false;var v=document.getElementById('videoFeed');if(v)v.srcObject=null;var btn=document.getElementById('cameraToggleBtn');if(btn){btn.textContent='Start Camera';btn.className='btn btn-info';}var st=document.getElementById('detectionStatus');if(st)st.style.display='none';if(detectionInterval){clearInterval(detectionInterval);detectionInterval=null;}}
 function switchCamera(){cameraMode=cameraMode==='user'?'environment':'user';if(isCameraRunning){stopCamera();setTimeout(startCamera,500);}else startCamera();}
 function startFaceDetectionLoop(){if(detectionInterval)clearInterval(detectionInterval);detectionInterval=setInterval(detectFace,500);}
-async function detectFace(){
-  var v=document.getElementById('videoFeed'),st=document.getElementById('detectionStatus');
-  if(!isCameraRunning||!v||v.videoWidth===0)return;
-  if(!faceState.modelsLoaded)return;
-  try{
-    var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS);
-    if(!det){if(st)st.textContent='Position your face';return;}
-    if(st)st.textContent='Face detected - Press Capture & Verify';
-  }catch(e){}
-}
-async function captureAndVerify(){
-  if(!isCameraRunning||!faceState.modelsLoaded){showToast('Start camera first.','warning');return;}
-  var v=document.getElementById('videoFeed');
-  try{
-    var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();
-    if(!det){showToast('No face detected.','error');return;}
-    var result=await verifyFace(det.descriptor);
-    if(result)await markAttendance(result.id,result.name);
-    else showToast('Face not recognized.','error');
-  }catch(e){showToast(e.message,'error');}
-}
-function verifyFace(descriptor){
-  return new Promise(function(resolve){
-    var registered=getRegisteredFaces();
-    if(registered.length===0){resolve(null);return;}
-    var best=null,bd=999;
-    for(var i=0;i<registered.length;i++){
-      var rec=registered[i],descs=rec.descriptors||[rec.descriptor];
-      for(var j=0;j<descs.length;j++){
-        if(!descs[j])continue;
-        var st=new Float32Array(descs[j]);
-        if(st.length!==descriptor.length)continue;
-        var d=calculateFaceDistance(descriptor,st);
-        if(d<bd){bd=d;best={id:rec.id,name:rec.name,distance:d};}
-      }
-    }
-    if(best&&best.distance<=FACE_CONFIG.recognitionThreshold)resolve(best);
-    else resolve(null);
-  });
-}
+async function detectFace(){var v=document.getElementById('videoFeed'),st=document.getElementById('detectionStatus');if(!isCameraRunning||!v||v.videoWidth===0)return;if(!faceState.modelsLoaded)return;try{var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS);if(!det){if(st)st.textContent='Position your face';return;}if(st)st.textContent='Face detected - Press Capture & Verify';}catch(e){}}
+async function captureAndVerify(){if(!isCameraRunning||!faceState.modelsLoaded){showToast('Start camera first.','warning');return;}var v=document.getElementById('videoFeed');try{var det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();if(!det){showToast('No face detected.','error');return;}var result=await verifyFace(det.descriptor);if(result)await markAttendance(result.id,result.name);else showToast('Face not recognized.','error');}catch(e){showToast(e.message,'error');}}
+function verifyFace(descriptor){return new Promise(function(resolve){var registered=getRegisteredFaces();if(registered.length===0){resolve(null);return;}var best=null,bd=999;for(var i=0;i<registered.length;i++){var rec=registered[i],descs=rec.descriptors||[rec.descriptor];for(var j=0;j<descs.length;j++){if(!descs[j])continue;var st=new Float32Array(descs[j]);if(st.length!==descriptor.length)continue;var d=calculateFaceDistance(descriptor,st);if(d<bd){bd=d;best={id:rec.id,name:rec.name,distance:d};}}}if(best&&best.distance<=FACE_CONFIG.recognitionThreshold)resolve(best);else resolve(null);});}
 function calculateFaceDistance(d1,d2){var s=0,n=Math.min(d1.length,d2.length);for(var i=0;i<n;i++){var diff=d1[i]-d2[i];s+=diff*diff;}return Math.sqrt(s);}
-async function markAttendance(id,name){
-  var records=getAttendanceRecords(),today=getTodayDate(),time=new Date().toLocaleTimeString();
-  var already=records.some(function(r){return r.id===id&&r.date===today;});
-  if(already){showToast(name+' already marked.','warning');return;}
-  records.push({id:id,name:name,date:today,time:time,method:'Face',timestamp:new Date().toISOString()});
-  saveAttendanceRecords(records);
-  try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:id,studentName:name,date:today,time:time,method:'Face'});}catch(e){}
-  showToast(name+' marked present!','success');
-}
-function saveRegisteredFace(id,name,descriptor,role){
-  if(!descriptor||descriptor.length===0)return false;
-  var newDesc=Array.from(descriptor);
-  var records=getRegisteredFaces();
-  var idx=-1;
-  for(var i=0;i<records.length;i++)if(records[i].id===id){idx=i;break;}
-  if(idx>=0){
-    var rec=records[idx];
-    if(!rec.descriptors)rec.descriptors=[rec.descriptor];
-    rec.descriptors.push(newDesc);
-    if(rec.descriptors.length>3)rec.descriptors.shift();
-    rec.descriptor=rec.descriptors[0];
-    rec.name=name;
-    rec.role=role||rec.role;
-  }else{
-    records.push({id:id,name:name,role:role||'student',descriptor:newDesc,descriptors:[newDesc],registeredAt:new Date().toISOString()});
-  }
-  saveRegisteredFaces(records);
-  displayRegisteredFaces();
-  loadRegisteredFaces();
-  return true;
-}
+async function markAttendance(id,name){var records=getAttendanceRecords(),today=getTodayDate(),time=new Date().toLocaleTimeString();var already=records.some(function(r){return r.id===id&&r.date===today;});if(already){showToast(name+' already marked.','warning');return;}records.push({id:id,name:name,date:today,time:time,method:'Face',timestamp:new Date().toISOString()});saveAttendanceRecords(records);try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:id,studentName:name,date:today,time:time,method:'Face'});}catch(e){}showToast(name+' marked present!','success');}
+function saveRegisteredFace(id,name,descriptor,role){if(!descriptor||descriptor.length===0)return false;var newDesc=Array.from(descriptor);var records=getRegisteredFaces();var idx=-1;for(var i=0;i<records.length;i++)if(records[i].id===id){idx=i;break;}if(idx>=0){var rec=records[idx];if(!rec.descriptors)rec.descriptors=[rec.descriptor];rec.descriptors.push(newDesc);if(rec.descriptors.length>3)rec.descriptors.shift();rec.descriptor=rec.descriptors[0];rec.name=name;rec.role=role||rec.role;}else records.push({id:id,name:name,role:role||'student',descriptor:newDesc,descriptors:[newDesc],registeredAt:new Date().toISOString()});saveRegisteredFaces(records);displayRegisteredFaces();loadRegisteredFaces();return true;}
 function deleteRegisteredFace(id){var records=getRegisteredFaces().filter(function(r){return r.id!==id;});saveRegisteredFaces(records);displayRegisteredFaces();loadRegisteredFaces();}
-function displayRegisteredFaces(){
-  var c=document.getElementById('registeredFacesList');if(!c)return;
-  var records=getRegisteredFaces();
-  if(records.length===0){c.innerHTML='<p style="color:#999;text-align:center">No faces registered.</p>';return;}
-  var h='<table style="width:100%;font-size:13px;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px">ID</th><th style="text-align:left;padding:8px">Name</th><th>Action</th></tr></thead><tbody>';
-  records.forEach(function(r){h+='<tr><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.id)+'</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.name)+'</td><td style="padding:8px"><button class="btn btn-danger btn-sm" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></td></tr>';});
-  h+='</tbody></table>';
-  c.innerHTML=h;
-}
-function loadRegisteredFaces(){
-  var g=document.getElementById('registeredFacesGrid');if(!g)return;
-  var records=getRegisteredFaces();
-  if(records.length===0){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No faces registered yet</p>';return;}
-  var h='';
-  records.forEach(function(r){
-    h+='<div class="face-registered-item"><div style="font-size:30px">👤</div><div class="face-name">'+escapeHtml(r.name)+'</div><div class="face-role">'+escapeHtml(r.role||'student')+' | '+escapeHtml(r.id)+'</div><button class="btn btn-danger btn-sm" style="margin-top:5px;padding:2px 8px;font-size:10px" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></div>';
-  });
-  g.innerHTML=h;
-}
-async function startFaceRegCamera(){
-  if(isFaceRegRunning){stopFaceRegCamera();return;}
-  try{
-    faceRegStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
-    var v=document.getElementById('faceRegVideo');
-    if(v){v.srcObject=faceRegStream;await v.play();}
-    isFaceRegRunning=true;
-    var s=document.getElementById('faceRegStatus');
-    if(s){s.textContent='Camera running';s.style.display='block';}
-  }catch(e){showToast(e.message,'error');}
-}
+function displayRegisteredFaces(){var c=document.getElementById('registeredFacesList');if(!c)return;var records=getRegisteredFaces();if(records.length===0){c.innerHTML='<p style="color:#999;text-align:center">No faces registered.</p>';return;}var h='<table style="width:100%;font-size:13px;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px">ID</th><th style="text-align:left;padding:8px">Name</th><th>Action</th></tr></thead><tbody>';records.forEach(function(r){h+='<tr><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.id)+'</td><td style="padding:8px;border-bottom:1px solid #e0e0e0">'+escapeHtml(r.name)+'</td><td style="padding:8px"><button class="btn btn-danger btn-sm" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
+function loadRegisteredFaces(){var g=document.getElementById('registeredFacesGrid');if(!g)return;var records=getRegisteredFaces();if(records.length===0){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No faces registered yet</p>';return;}var h='';records.forEach(function(r){h+='<div class="face-registered-item"><div style="font-size:30px">👤</div><div class="face-name">'+escapeHtml(r.name)+'</div><div class="face-role">'+escapeHtml(r.role||'student')+' | '+escapeHtml(r.id)+'</div><button class="btn btn-danger btn-sm" style="margin-top:5px;padding:2px 8px;font-size:10px" onclick="deleteRegisteredFace(\''+escapeHtml(r.id).replace(/'/g,"\\'")+'\')">Delete</button></div>';});g.innerHTML=h;}
+async function startFaceRegCamera(){if(isFaceRegRunning){stopFaceRegCamera();return;}try{faceRegStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});var v=document.getElementById('faceRegVideo');if(v){v.srcObject=faceRegStream;await v.play();}isFaceRegRunning=true;var s=document.getElementById('faceRegStatus');if(s){s.textContent='Camera running';s.style.display='block';}}catch(e){showToast(e.message,'error');}}
 function switchFaceRegCamera(){stopFaceRegCamera();setTimeout(startFaceRegCamera,500);}
-function stopFaceRegCamera(){
-  if(faceRegStream){faceRegStream.getTracks().forEach(function(t){t.stop();});faceRegStream=null;}
-  isFaceRegRunning=false;
-  var v=document.getElementById('faceRegVideo');
-  if(v)v.srcObject=null;
-  var s=document.getElementById('faceRegStatus');
-  if(s)s.style.display='none';
-}
-async function registerFaceFromTab(){
-  var id=document.getElementById('regFaceId')?.value?.trim();
-  var name=document.getElementById('regFaceName')?.value?.trim();
-  var role=document.getElementById('regFaceRole')?.value||'student';
-  if(!id||!name||!isFaceRegRunning){showToast('Fill fields + start camera.','warning');return;}
-  if(!faceState.modelsLoaded)await loadFaceRecognitionModels();
-  if(!FACE_DETECTION_OPTIONS)FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});
-  var v=document.getElementById('faceRegVideo'),det=null;
-  for(var i=0;i<3;i++){
-    det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();
-    if(det)break;
-    await new Promise(function(r){setTimeout(r,300);});
-  }
-  if(!det){showToast('No face detected.','error');return;}
-  if(saveRegisteredFace(id,name,det.descriptor,role)){
-    showToast('Registered: '+name,'success');
-    document.getElementById('regFaceId').value='';
-    document.getElementById('regFaceName').value='';
-  }
-}
+function stopFaceRegCamera(){if(faceRegStream){faceRegStream.getTracks().forEach(function(t){t.stop();});faceRegStream=null;}isFaceRegRunning=false;var v=document.getElementById('faceRegVideo');if(v)v.srcObject=null;var s=document.getElementById('faceRegStatus');if(s)s.style.display='none';}
+async function registerFaceFromTab(){var id=document.getElementById('regFaceId')?.value?.trim(),name=document.getElementById('regFaceName')?.value?.trim(),role=document.getElementById('regFaceRole')?.value||'student';if(!id||!name||!isFaceRegRunning){showToast('Fill fields + start camera.','warning');return;}if(!faceState.modelsLoaded)await loadFaceRecognitionModels();if(!FACE_DETECTION_OPTIONS)FACE_DETECTION_OPTIONS=new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4});var v=document.getElementById('faceRegVideo'),det=null;for(var i=0;i<3;i++){det=await faceapi.detectSingleFace(v,FACE_DETECTION_OPTIONS).withFaceLandmarks().withFaceDescriptor();if(det)break;await new Promise(function(r){setTimeout(r,300);});}if(!det){showToast('No face detected.','error');return;}if(saveRegisteredFace(id,name,det.descriptor,role)){showToast('Registered: '+name,'success');document.getElementById('regFaceId').value='';document.getElementById('regFaceName').value='';}}
 
-/* ============ QR SCANNER ============ */
-async function startQRScanner(){
-  try{
-    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}});
-    var v=document.getElementById('qrVideo');
-    v.srcObject=qrStream;
-    await v.play();
-    document.getElementById('qrToggleBtn').textContent='Stop Scanner';
-    document.getElementById('qrToggleBtn').className='btn btn-danger';
-    qrScanInterval=setInterval(scanQRCode,500);
-    showToast('QR Scanner started','info');
-  }catch(e){showToast(e.message,'error');}
-}
-function stopQRScanner(){
-  if(qrScanInterval){clearInterval(qrScanInterval);qrScanInterval=null;}
-  if(qrStream){qrStream.getTracks().forEach(function(t){t.stop();});qrStream=null;}
-  var v=document.getElementById('qrVideo');
-  if(v)v.srcObject=null;
-  var btn=document.getElementById('qrToggleBtn');
-  if(btn){btn.textContent='Start QR Scanner';btn.className='btn btn-info';}
-  var r=document.getElementById('qrResult');
-  if(r)r.classList.remove('active');
-}
+/* ============ QR ============ */
+async function startQRScanner(){try{qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:480}}});var v=document.getElementById('qrVideo');v.srcObject=qrStream;await v.play();document.getElementById('qrToggleBtn').textContent='Stop Scanner';document.getElementById('qrToggleBtn').className='btn btn-danger';qrScanInterval=setInterval(scanQRCode,500);showToast('QR Scanner started','info');}catch(e){showToast(e.message,'error');}}
+function stopQRScanner(){if(qrScanInterval){clearInterval(qrScanInterval);qrScanInterval=null;}if(qrStream){qrStream.getTracks().forEach(function(t){t.stop();});qrStream=null;}var v=document.getElementById('qrVideo');if(v)v.srcObject=null;var btn=document.getElementById('qrToggleBtn');if(btn){btn.textContent='Start QR Scanner';btn.className='btn btn-info';}var r=document.getElementById('qrResult');if(r)r.classList.remove('active');}
 function switchQRCamera(){stopQRScanner();setTimeout(startQRScanner,500);}
-function scanQRCode(){
-  var v=document.getElementById('qrVideo');
-  if(!v||v.readyState!==v.HAVE_ENOUGH_DATA)return;
-  if(Date.now()-qrLastScanTime<2000)return;
-  var c=document.createElement('canvas');
-  c.width=v.videoWidth;
-  c.height=v.videoHeight;
-  var ctx=c.getContext('2d');
-  ctx.drawImage(v,0,0,c.width,c.height);
-  var img=ctx.getImageData(0,0,c.width,c.height);
-  if(typeof jsQR!=='undefined'){
-    var code=jsQR(img.data,img.width,img.height);
-    if(code&&code.data){handleQRCode(code.data);qrLastScanTime=Date.now();}
-  }
-}
-function handleQRCode(data){
-  try{
-    var parsed=JSON.parse(data);
-    if(parsed.id&&parsed.name){
-      document.getElementById('qrStudentName').textContent=parsed.name;
-      document.getElementById('qrStudentId').textContent='ID: '+parsed.id;
-      document.getElementById('qrResult').classList.add('active');
-      document.getElementById('qrResult').dataset.studentId=parsed.id;
-      document.getElementById('qrResult').dataset.studentName=parsed.name;
-      setTimeout(function(){if(document.getElementById('qrResult').classList.contains('active'))markQRAttendance();},2000);
-    }
-  }catch(e){}
-}
-async function markQRAttendance(){
-  var studentId=document.getElementById('qrResult').dataset.studentId;
-  var studentName=document.getElementById('qrResult').dataset.studentName;
-  if(!studentId||!studentName)return;
-  var today=getTodayDate();
-  var records=getAttendanceRecords();
-  var already=records.some(function(r){return r.id===studentId&&r.date===today;});
-  if(already){showToast(studentName+' already marked today','warning');document.getElementById('qrResult').classList.remove('active');return;}
-  records.push({id:studentId,name:studentName,date:today,time:getCurrentTime(),method:'QR',timestamp:new Date().toISOString()});
-  saveAttendanceRecords(records);
-  try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:studentId,studentName:studentName,date:today,time:getCurrentTime(),method:'QR'});}catch(e){}
-  showToast(studentName+' marked present!','success');
-  qrScanHistory.unshift({id:studentId,name:studentName,time:getCurrentTime(),date:today});
-  renderQRScanHistory();
-  document.getElementById('qrResult').classList.remove('active');
-}
-function renderQRScanHistory(){
-  var c=document.getElementById('qrScanHistory');if(!c)return;
-  if(qrScanHistory.length===0){c.innerHTML='<p style="color:#999;text-align:center">No scans yet.</p>';return;}
-  var h='<table style="width:100%;font-size:12px;border-collapse:collapse">';
-  qrScanHistory.slice(0,20).forEach(function(s){h+='<tr><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.name)+'</td><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.id)+'</td><td style="padding:4px;border-bottom:1px solid #eee;text-align:right">'+s.time+'</td></tr>';});
-  h+='</table>';
-  c.innerHTML=h;
-}
+function scanQRCode(){var v=document.getElementById('qrVideo');if(!v||v.readyState!==v.HAVE_ENOUGH_DATA)return;if(Date.now()-qrLastScanTime<2000)return;var c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;var ctx=c.getContext('2d');ctx.drawImage(v,0,0,c.width,c.height);var img=ctx.getImageData(0,0,c.width,c.height);if(typeof jsQR!=='undefined'){var code=jsQR(img.data,img.width,img.height);if(code&&code.data){handleQRCode(code.data);qrLastScanTime=Date.now();}}}
+function handleQRCode(data){try{var parsed=JSON.parse(data);if(parsed.id&&parsed.name){document.getElementById('qrStudentName').textContent=parsed.name;document.getElementById('qrStudentId').textContent='ID: '+parsed.id;document.getElementById('qrResult').classList.add('active');document.getElementById('qrResult').dataset.studentId=parsed.id;document.getElementById('qrResult').dataset.studentName=parsed.name;setTimeout(function(){if(document.getElementById('qrResult').classList.contains('active'))markQRAttendance();},2000);}}catch(e){}}
+async function markQRAttendance(){var studentId=document.getElementById('qrResult').dataset.studentId;var studentName=document.getElementById('qrResult').dataset.studentName;if(!studentId||!studentName)return;var today=getTodayDate();var records=getAttendanceRecords();var already=records.some(function(r){return r.id===studentId&&r.date===today;});if(already){showToast(studentName+' already marked today','warning');document.getElementById('qrResult').classList.remove('active');return;}records.push({id:studentId,name:studentName,date:today,time:getCurrentTime(),method:'QR',timestamp:new Date().toISOString()});saveAttendanceRecords(records);try{await callAppsScript({action:'saveAttendance',school:getActiveSchool(),studentId:studentId,studentName:studentName,date:today,time:getCurrentTime(),method:'QR'});}catch(e){}showToast(studentName+' marked present!','success');qrScanHistory.unshift({id:studentId,name:studentName,time:getCurrentTime(),date:today});renderQRScanHistory();document.getElementById('qrResult').classList.remove('active');}
+function renderQRScanHistory(){var c=document.getElementById('qrScanHistory');if(!c)return;if(qrScanHistory.length===0){c.innerHTML='<p style="color:#999;text-align:center">No scans yet.</p>';return;}var h='<table style="width:100%;font-size:12px;border-collapse:collapse">';qrScanHistory.slice(0,20).forEach(function(s){h+='<tr><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.name)+'</td><td style="padding:4px;border-bottom:1px solid #eee">'+escapeHtml(s.id)+'</td><td style="padding:4px;border-bottom:1px solid #eee;text-align:right">'+s.time+'</td></tr>';});h+='</table>';c.innerHTML=h;}
 
 /* ============ FEES ============ */
-async function loadFeesStudents(){
-  var select=document.getElementById('feesStudentSelect');
-  var school=getActiveSchool();
-  if(!school||!select)return;
-  select.innerHTML='<option value="">Select Student</option>';
-  var all=[];
-  for(var i=0;i<CLASSES.length;i++){
-    var sheetId=getClassSheetId(CLASSES[i]);
-    if(!sheetId)continue;
-    try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});(r.data?.students||[]).forEach(function(s){all.push(s);});}catch(e){}
-  }
-  all.forEach(function(s){var o=document.createElement('option');o.value=s.studentId;o.textContent=s.studentName+' ('+s.studentId+')';select.appendChild(o);});
-}
-async function recordFeePayment(){
-  var sid=document.getElementById('feesStudentSelect')?.value,amt=parseFloat(document.getElementById('feesAmount')?.value);
-  var m=document.getElementById('feesMethod')?.value,t=document.getElementById('feesTerm')?.value,y=document.getElementById('feesYear')?.value;
-  var n=document.getElementById('feesNarration')?.value,school=getActiveSchool();
-  if(!sid||!amt||amt<=0||!school){showStatus('Fill required fields.','error');return;}
-  var receipt='RCP-'+Date.now().toString().slice(-8);
-  document.getElementById('feesReceipt').value=receipt;
-  var record={id:receipt,studentId:sid,amount:amt,method:m,term:t,year:y,date:getTodayDate(),time:getCurrentTime(),narration:n};
-  try{
-    var r=await callAppsScript({action:'saveFeeRecord',school:school,record:JSON.stringify(record)});
-    if(r.success){showToast('Payment recorded! '+receipt,'success');resetFeesForm();loadFeesData();}
-    else showStatus(r.message,'error');
-  }catch(e){showStatus(e.message,'error');}
-}
-async function loadFeesData(){
-  var school=getActiveSchool();if(!school)return;
-  try{var r=await callAppsScript({action:'getFeeRecords',school:school});if(r.success&&r.data){feesRecords=r.data.records||[];renderFeesRecords();updateFeesSummary();}}catch(e){}
-}
-function renderFeesRecords(){
-  var c=document.getElementById('feesRecordsContainer');if(!c)return;
-  var q=document.getElementById('feesSearch')?.value?.toLowerCase()||'';
-  var f=q?feesRecords.filter(function(r){return(r.studentId||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q);}):feesRecords;
-  if(f.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}
-  var h='<table class="ledger-table"><thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>';
-  f.forEach(function(r){h+='<tr><td>'+escapeHtml(r.id||'')+'</td><td>'+escapeHtml(r.studentId||'')+'</td><td class="credit">UGX '+(r.amount||0).toLocaleString()+'</td><td>'+escapeHtml(r.method||'')+'</td><td>'+escapeHtml(r.date||'')+'</td></tr>';});
-  h+='</tbody></table>';
-  c.innerHTML=h;
-}
+async function loadFeesStudents(){var select=document.getElementById('feesStudentSelect');var school=getActiveSchool();if(!school||!select)return;select.innerHTML='<option value="">Select Student</option>';var all=[];for(var i=0;i<CLASSES.length;i++){var sheetId=getClassSheetId(CLASSES[i]);if(!sheetId)continue;try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});(r.data?.students||[]).forEach(function(s){all.push(s);});}catch(e){}}all.forEach(function(s){var o=document.createElement('option');o.value=s.studentId;o.textContent=s.studentName+' ('+s.studentId+')';select.appendChild(o);});}
+async function recordFeePayment(){var sid=document.getElementById('feesStudentSelect')?.value,amt=parseFloat(document.getElementById('feesAmount')?.value),m=document.getElementById('feesMethod')?.value,t=document.getElementById('feesTerm')?.value,y=document.getElementById('feesYear')?.value,n=document.getElementById('feesNarration')?.value,school=getActiveSchool();if(!sid||!amt||amt<=0||!school){showStatus('Fill required fields.','error');return;}var receipt='RCP-'+Date.now().toString().slice(-8);document.getElementById('feesReceipt').value=receipt;var record={id:receipt,studentId:sid,amount:amt,method:m,term:t,year:y,date:getTodayDate(),time:getCurrentTime(),narration:n};try{var r=await callAppsScript({action:'saveFeeRecord',school:school,record:JSON.stringify(record)});if(r.success){showToast('Payment recorded! '+receipt,'success');resetFeesForm();loadFeesData();}else showStatus(r.message,'error');}catch(e){showStatus(e.message,'error');}}
+async function loadFeesData(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getFeeRecords',school:school});if(r.success&&r.data){feesRecords=r.data.records||[];renderFeesRecords();updateFeesSummary();}}catch(e){}}
+function renderFeesRecords(){var c=document.getElementById('feesRecordsContainer');if(!c)return;var q=document.getElementById('feesSearch')?.value?.toLowerCase()||'';var f=q?feesRecords.filter(function(r){return(r.studentId||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q);}):feesRecords;if(f.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}var h='<table class="ledger-table"><thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>';f.forEach(function(r){h+='<tr><td>'+escapeHtml(r.id||'')+'</td><td>'+escapeHtml(r.studentId||'')+'</td><td class="credit">UGX '+(r.amount||0).toLocaleString()+'</td><td>'+escapeHtml(r.method||'')+'</td><td>'+escapeHtml(r.date||'')+'</td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
 function updateFeesSummary(){var total=0;feesRecords.forEach(function(r){total+=r.amount||0;});var e=document.getElementById('totalFeesCollected');if(e)e.textContent='UGX '+total.toLocaleString();}
 function resetFeesForm(){['feesStudentSelect','feesAmount','feesNarration','feesReceipt'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});var m=document.getElementById('feesMethod');if(m)m.value='cash';showStatus('','');}
 function filterFeesRecords(){renderFeesRecords();}
 
 /* ============ EXPENSES ============ */
-async function recordExpense(){
-  var d=document.getElementById('expenseDesc')?.value?.trim(),a=parseFloat(document.getElementById('expenseAmount')?.value);
-  var cat=document.getElementById('expenseCategory')?.value,date=document.getElementById('expenseDate')?.value||getTodayDate();
-  var n=document.getElementById('expenseNarration')?.value||'',school=getActiveSchool();
-  if(!d||!a||a<=0||!school){showStatus('Fill required fields.','error');return;}
-  var exp={id:'EXP-'+Date.now().toString().slice(-8),description:d,amount:a,category:cat,date:date,time:getCurrentTime(),narration:n};
-  try{
-    var r=await callAppsScript({action:'saveExpense',school:school,expense:JSON.stringify(exp)});
-    if(r.success){showToast('Expense recorded!','success');resetExpenseForm();loadExpenses();}
-    else showStatus(r.message,'error');
-  }catch(e){showStatus(e.message,'error');}
-}
-async function loadExpenses(){
-  var school=getActiveSchool();if(!school)return;
-  try{var r=await callAppsScript({action:'getExpenses',school:school});if(r.success&&r.data){expenseRecords=r.data.expenses||[];renderExpenses();updateExpenseSummary();}}catch(e){}
-}
-function renderExpenses(){
-  var c=document.getElementById('expensesContainer');if(!c)return;
-  if(expenseRecords.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}
-  var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>';
-  expenseRecords.forEach(function(e){h+='<tr><td>'+escapeHtml(e.date||'')+'</td><td>'+escapeHtml(e.description||'')+'</td><td class="debit">UGX '+(e.amount||0).toLocaleString()+'</td><td>'+escapeHtml(e.category||'')+'</td></tr>';});
-  h+='</tbody></table>';
-  c.innerHTML=h;
-}
+async function recordExpense(){var d=document.getElementById('expenseDesc')?.value?.trim(),a=parseFloat(document.getElementById('expenseAmount')?.value),cat=document.getElementById('expenseCategory')?.value,date=document.getElementById('expenseDate')?.value||getTodayDate(),n=document.getElementById('expenseNarration')?.value||'',school=getActiveSchool();if(!d||!a||a<=0||!school){showStatus('Fill required fields.','error');return;}var exp={id:'EXP-'+Date.now().toString().slice(-8),description:d,amount:a,category:cat,date:date,time:getCurrentTime(),narration:n};try{var r=await callAppsScript({action:'saveExpense',school:school,expense:JSON.stringify(exp)});if(r.success){showToast('Expense recorded!','success');resetExpenseForm();loadExpenses();}else showStatus(r.message,'error');}catch(e){showStatus(e.message,'error');}}
+async function loadExpenses(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getExpenses',school:school});if(r.success&&r.data){expenseRecords=r.data.expenses||[];renderExpenses();updateExpenseSummary();}}catch(e){}}
+function renderExpenses(){var c=document.getElementById('expensesContainer');if(!c)return;if(expenseRecords.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>';return;}var h='<table class="ledger-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>';expenseRecords.forEach(function(e){h+='<tr><td>'+escapeHtml(e.date||'')+'</td><td>'+escapeHtml(e.description||'')+'</td><td class="debit">UGX '+(e.amount||0).toLocaleString()+'</td><td>'+escapeHtml(e.category||'')+'</td></tr>';});h+='</tbody></table>';c.innerHTML=h;}
 function updateExpenseSummary(){var t=0,today=getTodayDate(),td=0;expenseRecords.forEach(function(e){t+=e.amount||0;if(e.date===today)td+=e.amount||0;});var el;el=document.getElementById('totalExpenses');if(el)el.textContent='UGX '+t.toLocaleString();el=document.getElementById('expensesToday');if(el)el.textContent='UGX '+td.toLocaleString();}
-function resetExpenseForm(){['expenseDesc','expenseAmount','expenseNarration'].forEach(function(id){var e=document.getElementById(e);if(e)e.value='';});var c=document.getElementById('expenseCategory');if(c)c.value='stationery';var d=document.getElementById('expenseDate');if(d)d.value=getTodayDate();showStatus('','');}
+function resetExpenseForm(){['expenseDesc','expenseAmount','expenseNarration'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});var c=document.getElementById('expenseCategory');if(c)c.value='stationery';var d=document.getElementById('expenseDate');if(d)d.value=getTodayDate();showStatus('','');}
 
-/* ============ REPORTS ============ */
+/* ============ REPORT HELPERS ============ */
 function updateReportClassInfo(){var cls=document.getElementById('reportClassSelect')?.value;var info=document.getElementById('reportClassInfo');if(info)info.textContent=cls||'Select a class';}
 async function searchStudent(){var cls=document.getElementById('reportClassSelect')?.value,q=document.getElementById('searchInput')?.value?.trim();if(!cls||!q){showToast('Select class + enter search','warning');return;}await fetchReportData(q);}
+
+/* Fetches students + attendance days */
 async function fetchReportData(search){
   var cls=document.getElementById('reportClassSelect')?.value,sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
   try{
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
-    if(search){var s=search.toLowerCase();students=students.filter(function(st){return(st.studentId||'').toLowerCase().includes(s)||(st.studentName||'').toLowerCase().includes(s);});}
+    // Also fetch attendance days
+    var daysData={};
+    try{
+      var ar=await callAppsScript({action:'getAttendanceDays',sheetId:sheetId,className:cls});
+      if(ar.success&&ar.data)daysData=ar.data.days||{};
+    }catch(e){}
+    students.forEach(function(s){ s.daysAttended = daysData[s.studentId] || {present:0,absent:0,late:0,leave:0,total:0}; });
+    if(search){var q=search.toLowerCase();students=students.filter(function(st){return(st.studentId||'').toLowerCase().includes(q)||(st.studentName||'').toLowerCase().includes(q);});}
     renderReportResults(students);
   }catch(e){document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';}
 }
+
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -1920,7 +1598,7 @@ function renderReportResults(students){
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var h='';
   students.forEach(function(stu){
-    var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort(),rows='',totalPctSum=0,count=0,totalMarks=0;
+    var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort(),rows='',totalPctSum=0,count=0,totalPoints=0;
     var isALevel=isALevelClass(cls);
     var headers=isALevel
       ?'<th style="padding:6px;border:1px solid #fff">Code Subject</th><th style="padding:6px;border:1px solid #fff">Paper 1</th><th style="padding:6px;border:1px solid #fff">Paper 2</th><th style="padding:6px;border:1px solid #fff">Average</th><th style="padding:6px;border:1px solid #fff">Grade</th><th style="padding:6px;border:1px solid #fff">Points</th><th style="padding:6px;border:1px solid #fff">Weight</th><th style="padding:6px;border:1px solid #fff">Level of Achievement</th>'
@@ -1946,64 +1624,54 @@ function renderReportResults(students){
           '<td style="padding:6px;border:1px solid #666;text-align:center">'+weight+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+desc+'</td></tr>';
         totalPctSum+=avg;count++;
+        // Points sum weighted by weight
+        totalPoints += points * weight;
       } else {
         var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;
         var eot=typeof sv==='object'?(parseFloat(sv.eot)||0):0;
-        var total=aoi+eot;
-        totalMarks+=total;
-        var avg=((aoi/20)*100+(eot/80)*100)/2;
-        if(isNaN(avg))avg=0;
-        var grade=gradeFromPercentage(avg,'olevel');
-        var desc=generateAutoComment(avg,false);
+        // TOTAL (%) = average of (AOI/20)*100 and (EOT/80)*100
+        var totalPct=((aoi/20)*100+(eot/80)*100)/2;
+        if(isNaN(totalPct))totalPct=0;
+        var grade=gradeFromPercentage(totalPct,'olevel');
+        var desc=generateAutoComment(totalPct,false);
         rows+='<tr><td style="padding:6px;border:1px solid #666;text-align:center;font-size:11px">'+code+'</td>'+
           '<td style="padding:6px;border:1px solid #666;font-weight:600;font-size:11px">'+subj.toUpperCase()+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center">'+(aoi||'—')+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center">'+(eot||'—')+'</td>'+
-          '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f">'+avg.toFixed(1)+'%</td>'+
+          '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f">'+totalPct.toFixed(1)+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+desc+'</td>'+
           '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:10px">'+init+'</td></tr>';
-        totalPctSum+=avg;count++;
+        // Sum the TOTAL (%) column ONLY
+        totalPctSum += totalPct;
+        count++;
       }
     });
-    var overall=count>0?totalPctSum/count:0;
-    var overallGrade=gradeFromPercentage(overall,isALevel?'alevel':'olevel');
-    var overallComment=generateAutoComment(overall,isALevel);
+    var overall=count>0?(isALevel?(totalPctSum/count):(totalPctSum)):0;
+    var overallGrade=gradeFromPercentage(isALevel?totalPctSum/count:totalPctSum/count,isALevel?'alevel':'olevel');
+    var overallComment=generateAutoComment(isALevel?totalPctSum/count:totalPctSum/count,isALevel);
     var studentPhoto=getStudentPhoto(stu.studentId,stu.studentName);
     var photoHtml=studentPhoto?'<img src="'+studentPhoto+'" style="width:80px;height:100px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:80px;height:100px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999;text-align:center">PHOTO</div>';
-    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:cls,term:term,year:year,avg:overall.toFixed(1),grade:overallGrade});
+    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:cls,term:term,year:year,avg:isALevel?(totalPctSum/count).toFixed(1):totalPctSum.toFixed(1),grade:overallGrade});
     var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px" />':'<span style="font-size:11px;color:#999;">....................</span>';
     var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:30px" />':'<span style="font-size:11px;color:#999;">....................</span>';
-    var teacherComment=overallComment+'. '+(overall>=70?'Excellent effort. Keep it up!':overall>=50?'Good work. Aim higher next term.':overall>=40?'Fair. More effort needed.':'Needs serious improvement.');
-    var headComment=overallComment+'. '+(overall>=70?'You are on the right track.':overall>=50?'Satisfactory performance.':overall>=40?'Improvement is possible.':'Parents should monitor closely.')+' — '+branding.name+' wishes you the best.';
+    var avgDisplay=isALevel?(totalPctSum/count):totalPctSum;
+    var teacherComment=overallComment+'. '+(avgDisplay>=70?'Excellent effort. Keep it up!':avgDisplay>=50?'Good work. Aim higher next term.':avgDisplay>=40?'Fair. More effort needed.':'Needs serious improvement.');
+    var headComment=overallComment+'. '+(avgDisplay>=70?'You are on the right track.':avgDisplay>=50?'Satisfactory performance.':avgDisplay>=40?'Improvement is possible.':'Parents should monitor closely.')+' — '+branding.name+' wishes you the best.';
+
+    var daysAttended=stu.daysAttended||{present:0,absent:0,late:0,leave:0,total:0};
 
     var footerHtml='';
     if(isALevel){
-      var totalPoints=0;
-      subjects.forEach(function(subj){
-        var sv=scores[subj];
-        var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;
-        var p2=typeof sv==='object'?(parseFloat(sv.paper2)||0):0;
-        var weight=typeof sv==='object'?(parseFloat(sv.weight)||3):3;
-        var avg=(p1+p2)/2;
-        var g=gradeFromPercentage(avg,'alevel');
-        var pts=gradeToPoints(g);
-        totalPoints+=pts*weight;
-      });
-      var division=totalPoints>=15?'Division 1':totalPoints>=10?'Division 2':totalPoints>=5?'Division 3':'Division 4';
-      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f0f4ff">'+
-        '<div style="padding:8px;border-right:1px solid #666">Points: <b>'+totalPoints+'</b></div>'+
-        '<div style="padding:8px;border-right:1px solid #666">Avg: <b>'+overall.toFixed(1)+'</b></div>'+
-        '<div style="padding:8px;border-right:1px solid #666">Grade: <b>'+overallGrade+'</b></div>'+
-        '<div style="padding:8px">Division: <b>'+division+'</b></div></div>'+
-        '<div style="margin-top:10px;border:1px solid #666;font-size:10px;text-align:center;padding:6px;background:#f8f9fa">'+
-          '<b>A-LEVEL GRADING SCALE:</b> A (80-100)=6pts | B (70-79)=5pts | C (50-69)=4pts | D (35-49)=3pts | E (0-34)=2pts<br>'+
-          '<b>DIVISIONS:</b> 15+ = Div 1 | 10-14 = Div 2 | 5-9 = Div 3 | 0-4 = Div 4'+
-        '</div>';
+      // A-Level: Points sum (weighted), NO division, NO grade scale
+      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f0f4ff">'+
+        '<div style="padding:8px;border-right:1px solid #666">Total Points: <b>'+totalPoints+'</b></div>'+
+        '<div style="padding:8px;border-right:1px solid #666">Average: <b>'+(totalPctSum/count).toFixed(1)+'</b></div>'+
+        '<div style="padding:8px">Grade: <b>'+overallGrade+'</b></div></div>';
     } else {
-      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa">'+
-        '<div style="padding:8px;border-right:1px solid #666">Total Marks: <b>'+totalMarks.toFixed(1)+'</b></div>'+
-        '<div style="padding:8px;border-right:1px solid #666">Average: <b>'+overall.toFixed(1)+'</b></div>'+
+      // O-Level: Total Marks = SUM of TOTAL (%) column
+      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa">'+
+        '<div style="padding:8px;border-right:1px solid #666">Total Marks (sum of TOTAL %): <b>'+totalPctSum.toFixed(1)+'</b></div>'+
         '<div style="padding:8px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div>'+
         '<div style="margin-top:10px;border:1px solid #666;font-size:10px;text-align:center;padding:6px;background:#f8f9fa">'+
           '<b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)'+
@@ -2037,6 +1705,12 @@ function renderReportResults(students){
           '<tbody>'+(rows||'<tr><td colspan="8" style="padding:20px;text-align:center">No scores</td></tr>')+'</tbody>'+
         '</table>'+
         footerHtml+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#fff8e1">'+
+          '<div style="padding:6px;border-right:1px solid #666">Days Attended: <b>'+daysAttended.total+'</b></div>'+
+          '<div style="padding:6px;border-right:1px solid #666">Present: <b style="color:#2d6a4f">'+daysAttended.present+'</b></div>'+
+          '<div style="padding:6px;border-right:1px solid #666">Absent: <b style="color:#c1121f">'+daysAttended.absent+'</b></div>'+
+          '<div style="padding:6px">Late: <b style="color:#e85d04">'+daysAttended.late+'</b></div>'+
+        '</div>'+
         '<div style="margin-top:10px;border:1px solid #666;font-size:11px">'+
           '<div style="padding:6px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER:</strong> '+teacherComment+' <span style="float:right">'+ctSig+'</span></div>'+
           '<div style="padding:6px;background:#f0f4ff"><strong>HEAD TEACHER:</strong> '+headComment+' <span style="float:right">'+hmSig+'</span></div>'+
@@ -2053,6 +1727,7 @@ function renderReportResults(students){
   materializeQRCodes(c);
   refreshReportToolbar();
 }
+
 function toggleReportSelection(cb){var c=cb.closest('.generated-document');if(c)c.classList.toggle('selected',cb.checked);updatePrintSelectionBar();}
 function updatePrintSelectionBar(){var count=document.querySelectorAll('#reportResults .report-select-cb:checked').length;var ce=document.getElementById('psbCount');if(ce)ce.textContent=count;var pb=document.getElementById('psbPrintBtn');if(pb)pb.disabled=count===0;var bar=document.getElementById('printSelectionBar');var total=document.querySelectorAll('#reportResults .generated-document').length;if(bar)bar.classList.toggle('active',total>0);}
 function selectAllReports(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=true;var c=cb.closest('.generated-document');if(c)c.classList.add('selected');});updatePrintSelectionBar();}
@@ -2060,22 +1735,31 @@ function clearReportSelection(){document.querySelectorAll('#reportResults .repor
 function refreshReportToolbar(){setTimeout(updatePrintSelectionBar,0);}
 
 /* ============ PDF DOWNLOADS ============ */
+function _buildPdfWrap(htmlContent, isMini){
+  var wrap=document.createElement('div');
+  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
+  wrap.innerHTML=htmlContent;
+  wrap.querySelectorAll('.generated-document').forEach(function(el){
+    el.style.cssText='width:190mm;margin:0 auto 8mm auto;padding:10mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';
+  });
+  wrap.querySelectorAll('.mini-report-card').forEach(function(el){
+    el.style.cssText='width:120mm;margin:0 auto 8mm auto;padding:6mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:12px';
+  });
+  return wrap;
+}
+function _runPdf(wrap,filename){
+  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded. Reload page.','error');return;}
+  showToast('Generating PDF...','info');
+  html2pdf().set({margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
+}
 function downloadSingleReportPDF(btn){
-  var card=btn.closest('.generated-document');
-  if(!card){showToast('Report card not found.','error');return;}
+  var card=btn.closest('.generated-document');if(!card)return;
   materializeQRCodes(card);
   var clone=card.cloneNode(true);
   clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
   var branding=getSchoolBranding();
-  var wrap=document.createElement('div');
-  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  wrap.innerHTML=clone.outerHTML;
-  wrap.querySelectorAll('.generated-document').forEach(function(el){
-    el.style.cssText='width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px';
-  });
-  showToast('Generating PDF...','info');
-  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
-  html2pdf().set({margin:0,filename:branding.name+'-Report-'+getTodayDate()+'.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
+  var wrap=_buildPdfWrap(clone.outerHTML,false);
+  _runPdf(wrap,branding.name+'-Report-'+getTodayDate()+'.pdf');
 }
 function downloadReportsPDF(){
   var container=document.getElementById('reportResults');
@@ -2084,37 +1768,17 @@ function downloadReportsPDF(){
   var clone=container.cloneNode(true);
   clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
   var branding=getSchoolBranding();
-  var wrap=document.createElement('div');
-  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  wrap.innerHTML=clone.innerHTML;
-  wrap.querySelectorAll('.generated-document').forEach(function(el){
-    el.style.cssText='width:190mm;margin:0 auto 8mm auto;padding:10mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';
-  });
-  showToast('Generating PDF...','info');
-  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
-  html2pdf().set({margin:0,filename:branding.name+'-Reports-'+getTodayDate()+'.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
+  var wrap=_buildPdfWrap(clone.innerHTML,false);
+  _runPdf(wrap,branding.name+'-Reports-'+getTodayDate()+'.pdf');
 }
 function downloadSelectedReportsPDF(){
   var selected=document.querySelectorAll('#reportResults .report-select-cb:checked');
   if(selected.length===0){showToast('No reports selected.','warning');return;}
   var cards='';
-  selected.forEach(function(cb){
-    var c=cb.closest('.generated-document');if(!c)return;
-    materializeQRCodes(c);
-    var clone=c.cloneNode(true);
-    clone.querySelectorAll('.report-print-btn, .report-select-cb').forEach(function(el){el.remove();});
-    cards+=clone.outerHTML;
-  });
+  selected.forEach(function(cb){var c=cb.closest('.generated-document');if(!c)return;materializeQRCodes(c);var clone=c.cloneNode(true);clone.querySelectorAll('.report-print-btn, .report-select-cb').forEach(function(el){el.remove();});cards+=clone.outerHTML;});
   var branding=getSchoolBranding();
-  var wrap=document.createElement('div');
-  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  wrap.innerHTML=cards;
-  wrap.querySelectorAll('.generated-document').forEach(function(el){
-    el.style.cssText='width:190mm;margin:0 auto 8mm auto;padding:10mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';
-  });
-  showToast('Generating PDF...','info');
-  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
-  html2pdf().set({margin:0,filename:branding.name+'-Selected-'+getTodayDate()+'.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
+  var wrap=_buildPdfWrap(cards,false);
+  _runPdf(wrap,branding.name+'-Selected-'+getTodayDate()+'.pdf');
 }
 function downloadMiniReportsPDF(){
   var container=document.getElementById('miniResults');
@@ -2123,15 +1787,17 @@ function downloadMiniReportsPDF(){
   var clone=container.cloneNode(true);
   clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
   var branding=getSchoolBranding();
-  var wrap=document.createElement('div');
-  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  wrap.innerHTML=clone.innerHTML;
-  wrap.querySelectorAll('.mini-report-card').forEach(function(el){
-    el.style.cssText='width:120mm;margin:0 auto 8mm auto;padding:6mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:12px';
-  });
-  showToast('Generating PDF...','info');
-  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
-  html2pdf().set({margin:5,filename:branding.name+'-Mini-Reports-'+getTodayDate()+'.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
+  var wrap=_buildPdfWrap(clone.innerHTML,true);
+  _runPdf(wrap,branding.name+'-Mini-Reports-'+getTodayDate()+'.pdf');
+}
+function downloadSingleMiniPDF(btn){
+  var card=btn.closest('.mini-report-card');if(!card)return;
+  materializeQRCodes(card);
+  var clone=card.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var branding=getSchoolBranding();
+  var wrap=_buildPdfWrap(clone.outerHTML,true);
+  _runPdf(wrap,branding.name+'-Mini-'+getTodayDate()+'.pdf');
 }
 
 /* ============ MINI REPORTS ============ */
@@ -2161,12 +1827,12 @@ function renderMiniReports(){
       subjects.forEach(function(sub){
         var sv=s.scores[sub];
         if(isALevel){
+          // A-LEVEL MINI: show ONLY Paper 1
           var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;
-          var p2=typeof sv==='object'?(parseFloat(sv.paper2)||0):0;
-          var avg=((p1+p2)/2).toFixed(1);
-          var grade=gradeFromPercentage(avg,'alevel');
-          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">P1: '+p1.toFixed(1)+' · P2: '+p2.toFixed(1)+' · Avg: '+avg+' <b>'+grade+'</b></span></div>';
+          var grade=gradeFromPercentage(p1,'alevel');
+          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">Paper 1: '+p1.toFixed(1)+' <b>'+grade+'</b></span></div>';
         } else {
+          // O-LEVEL MINI: show AOI only
           var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;
           var aoiPct=Math.round((aoi/20)*100);
           var grade=gradeFromPercentage(aoiPct,'olevel');
@@ -2177,7 +1843,7 @@ function renderMiniReports(){
     var avgPct=0,count=0;
     subjects.forEach(function(sub){
       var sv=s.scores[sub];
-      if(isALevel){var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;var p2=typeof sv==='object'?(parseFloat(sv.paper2)||0):0;var avg=((p1+p2)/2);if(avg>0){avgPct+=avg;count++;}}
+      if(isALevel){var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;if(p1>0){avgPct+=p1;count++;}}
       else{var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;if(aoi>0){avgPct+=(aoi/20)*100;count++;}}
     });
     var avg=count>0?avgPct/count:0;
@@ -2204,21 +1870,6 @@ function renderMiniReports(){
 }
 function filterMiniReports(){renderMiniReports();}
 function toggleMiniReportSelection(cb){var c=cb.closest('.mini-report-card');if(c)c.classList.toggle('selected',cb.checked);}
-function downloadSingleMiniPDF(btn){
-  var card=btn.closest('.mini-report-card');if(!card)return;
-  materializeQRCodes(card);
-  var clone=card.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var branding=getSchoolBranding();
-  var wrap=document.createElement('div');
-  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  wrap.innerHTML=clone.outerHTML;
-  wrap.querySelectorAll('.mini-report-card').forEach(function(el){
-    el.style.cssText='width:120mm;margin:0 auto;padding:6mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;box-sizing:border-box;font-size:12px';
-  });
-  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
-  html2pdf().set({margin:5,filename:branding.name+'-Mini-'+getTodayDate()+'.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
-}
 
 /* ============ DOCUMENTS ============ */
 function updateDocClassInfo(){var cls=document.getElementById('docClassSelect')?.value;var i=document.getElementById('docClassInfo');if(i)i.textContent=cls||'Select';}
@@ -2234,28 +1885,62 @@ async function generateDocument(){
     var headerHtml='<div style="text-align:center;border-bottom:2px solid #302b63;padding-bottom:10px;margin-bottom:15px">'+
       (b.badge?'<img src="'+b.badge+'" style="height:60px;float:left;margin-right:10px" />':'')+
       '<div style="font-size:22px;font-weight:700;color:#302b63;font-family:Georgia,serif">'+b.name+'</div>'+
-      '<div style="font-size:14px;font-weight:700;color:#c1121f;margin-top:8px">'+(type==='classlist'?'CLASS LIST - ':'SCORE SHEET - ')+cls+'</div>'+
+      '<div style="font-size:12px;color:#555">'+(b.address||'')+' | '+(b.phone||'')+'</div>'+
+      '<div style="font-size:14px;font-weight:700;color:#c1121f;margin-top:8px">'+(type==='classlist'?'CLASS REGISTER - ':'SCORE SHEET - ')+cls+'</div>'+
+      (type==='scoresheet'&&subj?'<div style="font-size:12px;color:#333">SUBJECT: '+subj.toUpperCase()+'</div>':'')+
       '</div>';
     var tableHtml='';
     if(type==='classlist'){
-      tableHtml='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>SEX</th><th>STREAM</th><th>RESIDENCE</th><th>PARENT PHONE</th></tr></thead><tbody>';
-      students.forEach(function(s,i){var photo=getStudentPhoto(s.studentId,s.studentName);var ph=photo?'<img src="'+photo+'" style="width:40px;height:50px;object-fit:cover" />':'<span style="color:#999">N/A</span>';tableHtml+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+s.studentId+'</td><td>'+s.studentName+'</td><td>'+(s.sex||'')+'</td><td>'+(s.stream||'')+'</td><td>'+(s.residence||'')+'</td><td>'+(s.parentPhone||'')+'</td></tr>';});
+      // Full registration info
+      tableHtml='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>SEX</th><th>STREAM</th><th>RESIDENCE</th><th>PARENT NAME</th><th>PARENT PHONE</th><th>PARENT EMAIL</th></tr></thead><tbody>';
+      students.forEach(function(s,i){
+        var photo=getStudentPhoto(s.studentId,s.studentName);
+        var ph=photo?'<img src="'+photo+'" style="width:40px;height:50px;object-fit:cover" />':'<span style="color:#999">N/A</span>';
+        tableHtml+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+escapeHtml(s.sex||'')+'</td><td>'+escapeHtml(s.stream||'')+'</td><td>'+escapeHtml(s.residence||'')+'</td><td>'+escapeHtml(s.parentName||'')+'</td><td>'+escapeHtml(s.parentPhone||'')+'</td><td>'+escapeHtml(s.parentEmail||'')+'</td></tr>';
+      });
       tableHtml+='</tbody></table>';
     } else {
       if(isALevel){
-        tableHtml='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>P1</th><th>P2</th><th>AVG</th><th>GRADE</th></tr></thead><tbody>';
-        students.forEach(function(s,i){var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;var p2=typeof sv==='object'?(parseFloat(sv.paper2)||0):0;var avg=((p1+p2)/2).toFixed(1);var grade=gradeFromPercentage(avg,'alevel');var photo=getStudentPhoto(s.studentId,s.studentName);var ph=photo?'<img src="'+photo+'" style="width:40px;height:50px;object-fit:cover" />':'<span style="color:#999">N/A</span>';tableHtml+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+s.studentId+'</td><td>'+s.studentName+'</td><td>'+p1.toFixed(1)+'</td><td>'+p2.toFixed(1)+'</td><td>'+avg+'</td><td>'+grade+'</td></tr>';});
+        tableHtml='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>P1</th><th>P2</th><th>AVG</th><th>GRADE</th><th>POINTS</th></tr></thead><tbody>';
+        students.forEach(function(s,i){var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};var p1=typeof sv==='object'?(parseFloat(sv.paper1)||0):0;var p2=typeof sv==='object'?(parseFloat(sv.paper2)||0):0;var avg=((p1+p2)/2).toFixed(1);var grade=gradeFromPercentage(avg,'alevel');var pts=gradeToPoints(grade);var photo=getStudentPhoto(s.studentId,s.studentName);var ph=photo?'<img src="'+photo+'" style="width:40px;height:50px;object-fit:cover" />':'<span style="color:#999">N/A</span>';tableHtml+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+p1.toFixed(1)+'</td><td>'+p2.toFixed(1)+'</td><td>'+avg+'</td><td>'+grade+'</td><td>'+pts+'</td></tr>';});
       } else {
-        tableHtml='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>AOI</th><th>EOT</th><th>TOTAL</th><th>GRADE</th></tr></thead><tbody>';
-        students.forEach(function(s,i){var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;var eot=typeof sv==='object'?(parseFloat(sv.eot)||0):0;var total=aoi+eot;var avg=((aoi/20)*100+(eot/80)*100)/2;if(isNaN(avg))avg=0;var grade=gradeFromPercentage(avg,'olevel');var photo=getStudentPhoto(s.studentId,s.studentName);var ph=photo?'<img src="'+photo+'" style="width:40px;height:50px;object-fit:cover" />':'<span style="color:#999">N/A</span>';tableHtml+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+s.studentId+'</td><td>'+s.studentName+'</td><td>'+aoi+'</td><td>'+eot+'</td><td>'+total.toFixed(1)+'</td><td>'+grade+'</td></tr>';});
+        tableHtml='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>AOI</th><th>EOT</th><th>TOTAL (%)</th><th>GRADE</th></tr></thead><tbody>';
+        students.forEach(function(s,i){var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};var aoi=typeof sv==='object'?(parseFloat(sv.aoi)||0):0;var eot=typeof sv==='object'?(parseFloat(sv.eot)||0):0;var totalPct=((aoi/20)*100+(eot/80)*100)/2;if(isNaN(totalPct))totalPct=0;var grade=gradeFromPercentage(totalPct,'olevel');var photo=getStudentPhoto(s.studentId,s.studentName);var ph=photo?'<img src="'+photo+'" style="width:40px;height:50px;object-fit:cover" />':'<span style="color:#999">N/A</span>';tableHtml+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+aoi+'</td><td>'+eot+'</td><td>'+totalPct.toFixed(1)+'</td><td>'+grade+'</td></tr>';});
       }
       tableHtml+='</tbody></table>';
     }
-    document.getElementById('documentPreview').innerHTML='<div class="generated-document">'+headerHtml+tableHtml+'</div>';
+    var fullHtml=headerHtml+tableHtml;
+    document.getElementById('documentPreview').innerHTML='<div class="generated-document">'+fullHtml+'</div>';
+    // Store for download
+    window.__lastGeneratedDoc = fullHtml;
   }catch(e){showToast(e.message,'error');}
 }
-function downloadDocument(){var p=document.getElementById('documentPreview').innerHTML;var blob=new Blob([p],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='doc.html';a.click();}
-function printDocument(){var p=document.getElementById('documentPreview').innerHTML;var w=window.open('','_blank');w.document.write('<html><body>'+p+'</body></html>');w.document.close();w.print();}
+function downloadDocumentPDF(){
+  var html=window.__lastGeneratedDoc;
+  if(!html){showToast('Generate a document first.','warning');return;}
+  var b=getSchoolBranding();
+  var wrap=document.createElement('div');
+  wrap.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
+  wrap.innerHTML='<div class="generated-document">'+html+'</div>';
+  wrap.querySelectorAll('.generated-document').forEach(function(el){
+    el.style.cssText='width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px';
+  });
+  _runPdf(wrap,b.name+'-Doc-'+getTodayDate()+'.pdf');
+}
+function downloadDocument(){
+  var html=window.__lastGeneratedDoc;
+  if(!html){showToast('Generate a document first.','warning');return;}
+  downloadDocumentPDF();
+}
+function printDocument(){
+  var html=window.__lastGeneratedDoc;
+  if(!html){showToast('Generate a document first.','warning');return;}
+  var b=getSchoolBranding();
+  var w=window.open('','_blank');
+  w.document.write('<html><head><title>Document</title><style>@page{size:A4;margin:10mm}body{margin:0;padding:0;background:#fff;font-family:Arial}.generated-document{width:190mm;margin:0 auto;padding:10mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px}table{width:100%;border-collapse:collapse;font-size:10px}img{max-width:100%}</style></head><body><div class="generated-document">'+html+'</div></body></html>');
+  w.document.close();
+  setTimeout(function(){w.print();},400);
+}
 
 /* ============ TIMETABLE ============ */
 function loadTimetable(){
@@ -2284,8 +1969,7 @@ function loadTimetable(){
   display.innerHTML=html;
 }
 function addTimetablePeriod(){
-  var cls=document.getElementById('ttClassSelect')?.value;
-  if(!cls){showToast('Select a class.','warning');return;}
+  var cls=document.getElementById('ttClassSelect')?.value;if(!cls){showToast('Select a class.','warning');return;}
   var day=document.getElementById('ttDay')?.value,period=document.getElementById('ttPeriod')?.value;
   var subject=document.getElementById('ttSubject')?.value?.trim(),teacher=document.getElementById('ttTeacher')?.value?.trim(),room=document.getElementById('ttRoom')?.value?.trim();
   if(!subject){showToast('Enter a subject.','warning');return;}
@@ -2364,16 +2048,7 @@ function loadClassSelectors(){
 
 /* ============ CHAT ============ */
 async function loadChatUsers(){var school=getActiveSchool();if(!school)return;try{var r=await callAppsScript({action:'getChatUsers',school:school});chatUsers=r.data?.users||[];renderChatUsers();}catch(e){}}
-function renderChatUsers(){
-  var c=document.getElementById('chatUserList');if(!c)return;
-  var me=authSession?.username||'';
-  var h='';
-  chatUsers.forEach(function(u){
-    if(u.username===me)return;
-    h+='<div class="chat-user" onclick="selectChatUser(\''+escapeHtml(u.username).replace(/'/g,"\\'")+'\')"><div class="avatar">'+escapeHtml((u.name||'?').charAt(0))+'</div><div><b>'+escapeHtml(u.name)+'</b><div style="font-size:11px;color:#888">'+escapeHtml(u.role||'')+'</div></div></div>';
-  });
-  c.innerHTML=h||'<p style="color:#999;font-size:13px;padding:10px">No other users.</p>';
-}
+function renderChatUsers(){var c=document.getElementById('chatUserList');if(!c)return;var me=authSession?.username||'';var h='';chatUsers.forEach(function(u){if(u.username===me)return;h+='<div class="chat-user" onclick="selectChatUser(\''+escapeHtml(u.username).replace(/'/g,"\\'")+'\')"><div class="avatar">'+escapeHtml((u.name||'?').charAt(0))+'</div><div><b>'+escapeHtml(u.name)+'</b><div style="font-size:11px;color:#888">'+escapeHtml(u.role||'')+'</div></div></div>';});c.innerHTML=h||'<p style="color:#999;font-size:13px;padding:10px">No other users.</p>';}
 function selectChatUser(u){currentChatUser=u;document.getElementById('chatHeader').textContent='Chat with '+u;loadChatMessages();}
 async function sendMessage(){var msg=document.getElementById('chatInput').value.trim();if(!msg||!currentChatUser)return;try{await callAppsScript({action:'saveChatMessage',school:getActiveSchool(),from:authSession.username,to:currentChatUser,message:msg,time:getCurrentTime()});document.getElementById('chatInput').value='';loadChatMessages();}catch(e){}}
 async function loadChatMessages(){if(!currentChatUser)return;try{var r=await callAppsScript({action:'getChatMessages',school:getActiveSchool(),user1:authSession.username,user2:currentChatUser});var msgs=r.data?.messages||[];document.getElementById('messagesArea').innerHTML=msgs.map(function(m){var sent=m.from===authSession.username;return '<div class="message '+(sent?'sent':'received')+'">'+escapeHtml(m.message)+'</div>';}).join('')||'<p style="text-align:center;color:#999;padding:20px">No messages.</p>';}catch(e){}}
@@ -2426,11 +2101,7 @@ function getCurrentLocation(){if(navigator.geolocation){navigator.geolocation.ge
 async function testBackendConnection(){
   var badge=document.getElementById('connStatusBadge'),out=document.getElementById('sysToolsOutput');
   if(badge){badge.className='conn-badge checking';badge.textContent='Checking...';}
-  try{
-    var r=await callAppsScript({action:'getStudentCount',school:getActiveSchool()});
-    if(r&&(r.success||r.data)){if(badge){badge.className='conn-badge ok';badge.textContent='Connected';}if(out)out.textContent='Backend OK.';}
-    else{if(badge){badge.className='conn-badge fail';badge.textContent='Unexpected';}}
-  }catch(e){if(badge){badge.className='conn-badge fail';badge.textContent='Unreachable';}if(out)out.textContent='Failed: '+e.message;}
+  try{var r=await callAppsScript({action:'getStudentCount',school:getActiveSchool()});if(r&&(r.success||r.data)){if(badge){badge.className='conn-badge ok';badge.textContent='Connected';}if(out)out.textContent='Backend OK.';}else{if(badge){badge.className='conn-badge fail';badge.textContent='Unexpected';}}}catch(e){if(badge){badge.className='conn-badge fail';badge.textContent='Unreachable';}if(out)out.textContent='Failed: '+e.message;}
 }
 function downloadSystemBackup(){
   var school=getActiveSchool();
@@ -2456,12 +2127,7 @@ async function loadParentChildSelect(){
   s.innerHTML='<option value="">Select student</option>';
   for(var i=0;i<CLASSES.length;i++){
     var sheetId=getClassSheetId(CLASSES[i]);if(!sheetId)continue;
-    try{
-      var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});
-      (r.data?.students||[]).forEach(function(x){
-        var o=document.createElement('option');o.value=x.studentId;o.textContent=x.studentName+' ('+x.studentId+') - '+CLASSES[i];s.appendChild(o);
-      });
-    }catch(e){}
+    try{var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});(r.data?.students||[]).forEach(function(x){var o=document.createElement('option');o.value=x.studentId;o.textContent=x.studentName+' ('+x.studentId+') - '+CLASSES[i];s.appendChild(o);});}catch(e){}
   }
 }
 async function createUserAccount(){
@@ -2488,8 +2154,7 @@ function generatePassword(){var ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 async function loadUserAccounts(){
   var school=getActiveSchool();if(!school)return;
   var c=document.getElementById('userAccountsList');if(!c)return;
-  var serverAccounts=[];
-  try{var r=await callAppsScript({action:'getAllAccounts',school:school});serverAccounts=r.data?.accounts||[];}catch(e){}
+  var serverAccounts=[];try{var r=await callAppsScript({action:'getAllAccounts',school:school});serverAccounts=r.data?.accounts||[];}catch(e){}
   if(serverAccounts.length===0){c.innerHTML='<p style="color:#999;font-size:13px">No accounts.</p>';return;}
   var h='<table class="ledger-table"><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody>';
   serverAccounts.forEach(function(a){h+='<tr><td><strong>'+escapeHtml(a.username)+'</strong></td><td>'+escapeHtml(a.name)+'</td><td>'+(ROLE_NAMES[a.role]||a.role)+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+a.username+'\')">Delete</button></td></tr>';});
@@ -2502,11 +2167,7 @@ async function deleteAccount(username){if(!confirm('Delete '+username+'?'))retur
 function uploadClassTeacherSig(cls,event){
   var file=event.target.files[0];if(!file)return;
   var reader=new FileReader();
-  reader.onload=function(e){
-    localStorage.setItem('classTeacherSig_'+cls,e.target.result);
-    document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain" />';
-    showToast('Signature saved for '+cls,'success');
-  };
+  reader.onload=function(e){localStorage.setItem('classTeacherSig_'+cls,e.target.result);document.getElementById('ctSigPreview_'+cls).innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain" />';showToast('Signature saved for '+cls,'success');};
   reader.readAsDataURL(file);
 }
 
