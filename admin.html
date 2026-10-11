@@ -195,7 +195,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 #printSelectionBar .psb-btn-print{background:linear-gradient(135deg,#2d6a4f,#1a8a4a);color:#fff}
 #printSelectionBar .psb-btn-print:disabled{opacity:.45;cursor:not-allowed}
 #printSelectionBar .psb-btn-selectall,#printSelectionBar .psb-btn-clear{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
-.mini-report-card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 10px 25px rgba(0,0,0,.15);border:2px solid #1a3b5c;position:relative;overflow:hidden;color:#333;margin-bottom:12px;max-width:520px;margin-left:auto;margin-right:auto}
+.mini-report-card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 10px 25px rgba(0,0,0,.15);border:2px solid #1a3b5c;position:relative;overflow:hidden;color:#333;margin-bottom:12px;max-width:560px;margin-left:auto;margin-right:auto}
 .mini-report-card .card-header{text-align:center;margin-bottom:12px}
 .mini-report-card .school-name{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#1a3b5c;text-transform:uppercase;border-bottom:2px solid #1a3b5c;padding-bottom:8px;display:inline-block}
 .mini-report-card .photo-container{display:flex;justify-content:center;margin-bottom:6px}
@@ -203,12 +203,20 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mini-report-card .photo-placeholder img{width:100%;height:100%;object-fit:cover}
 .mini-report-card .student-name{text-align:center;font-size:19px;font-weight:700;color:#1a3b5c;text-transform:uppercase}
 .mini-report-card .student-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#555;margin-bottom:8px}
-.mini-report-card .score-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;margin-bottom:8px;padding:0 4px}
-.mini-report-card .score-values{display:flex;align-items:center;gap:6px;font-weight:700;color:#1a3b5c;font-size:12px}
 .mini-report-card .average-row{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:6px;margin-bottom:10px;padding:0 4px;border-top:1px solid #e0e0e0;padding-top:8px}
 .mini-report-card .status-bar{background:#e2e8f0;border-radius:20px;padding:7px 14px;text-align:center;font-size:13px;font-weight:700;color:#1a3b5c;margin-bottom:12px}
 .mini-report-card .status-bar.outstanding{background:#dbeafe;color:#1e3a8a}
 .mini-report-card .status-bar.no-data{background:#e2e8f0;color:#4b5563}
+/* Mini report table */
+.mini-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+.mini-table th{background:#1a3b5c;color:#fff;padding:6px 8px;text-align:left;font-size:12px;border:1px solid #1a3b5c}
+.mini-table td{padding:6px 8px;border:1px solid #cfd8e3;vertical-align:middle}
+.mini-table tr:nth-child(even) td{background:#f7f9fc}
+.mini-table .mini-total-row td{background:#eef2f7;font-weight:700;border-top:2px solid #1a3b5c}
+.mini-table .mini-pts{text-align:center;font-weight:700;color:#1a3b5c}
+.mini-table .mini-grade{text-align:center;font-weight:700}
+.mini-table .mini-pct{text-align:center;font-weight:600}
+.mini-table .mini-subject{font-weight:600;color:#1a3b5c}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
 @media print{.generated-document,.mini-report-card{break-inside:avoid;page-break-after:always;box-shadow:none!important;border:1px solid #000!important}.no-print,.btn,.navbar,.bottom-nav,.report-print-btn,.report-select-cb{display:none!important}body{background:#fff!important;padding:0!important}.container{box-shadow:none!important;padding:0!important}@page{size:A4;margin:6mm}}
 /* A4 report fit */
@@ -885,9 +893,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v19.0
-   - A-Level reports: larger fonts, better A4 fill
-   - A-Level mini reports: Paper 1 only, converted to 100
+   EduTrack Pro Admin v20.0
+   - Mini reports now use TABLE rows/columns
+   - A-Level mini reports show Points + Total Points
    ============================================================ */
 
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwqGUBv3CxNAY4G2gOnDcJ1WfSL3kk681U1NMWi0AyGp5Mor0r7KPNBDfmU7E8CN7K7wA/exec';
@@ -2194,7 +2202,7 @@ async function fetchReportData(search){
     document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';
   }
 }
-/* ============ FULL REPORT RENDER — A-Level larger fonts ============ */
+/* ============ FULL REPORT RENDER ============ */
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -2379,7 +2387,7 @@ function _buildPdfWrap(html){
   w.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
   w.innerHTML=html;
   w.querySelectorAll('.generated-document').forEach(function(el){el.style.cssText='width:190mm;margin:0 auto 4mm auto;padding:8mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box';});
-  w.querySelectorAll('.mini-report-card').forEach(function(el){el.style.cssText='width:120mm;margin:0 auto 6mm auto;padding:5mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';});
+  w.querySelectorAll('.mini-report-card').forEach(function(el){el.style.cssText='width:140mm;margin:0 auto 6mm auto;padding:5mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';});
   return w;
 }
 function _runPdf(wrap,filename){
@@ -2453,7 +2461,7 @@ function downloadSelectedReportsPDF(){
   _runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');
 }
 
-/* ============ MINI REPORTS — A-Level shows Paper 1 only ============ */
+/* ============ MINI REPORTS — TABLE FORMAT + A-Level Points ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
 async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
@@ -2475,54 +2483,75 @@ function renderMiniReports(){
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var h='';
   f.forEach(function(s){
-    var subjects=Object.keys(s.scores||{});
-    var subjRows='';
-    if(subjects.length===0){subjRows='<div style="text-align:center;color:#999;padding:8px">No scores</div>';}
-    else{
+    var subjects=Object.keys(s.scores||{}).sort();
+    var tableRows='';
+    var totalPoints=0;
+    var sumPct=0,count=0;
+
+    if(subjects.length===0){
+      tableRows='<tr><td colspan="'+(isALevel?'5':'4')+'" style="text-align:center;color:#999;padding:10px">No scores</td></tr>';
+    } else {
       subjects.forEach(function(sub){
-        var sv=s.scores[sub];
+        var sv=s.scores[sub]||{};
         if(isALevel){
-          // A-Level: show only Paper 1 converted to 100 and graded
+          // A-Level: Paper 1 only, converted to 100, graded + points
           var p1=parseFloat(sv.paper1)||0;
-          var ap=Math.round(p1);
-          var grade=gradeFromPercentage(ap,'alevel');
+          var pct=Math.round(p1);
+          var grade=gradeFromPercentage(pct,'alevel');
           if(grade==='F') grade='E';
-          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">Paper 1: '+p1.toFixed(1)+' → '+ap+'% <b>'+grade+'</b></span></div>';
-        }else{
-          // O-Level: show AOI converted to 100 and graded
+          var weight = sv.weight ? parseInt(sv.weight) : (isSubsidiarySubject(sub)?1:3);
+          var pts=gradeToPoints(grade, weight);
+          totalPoints+=pts;
+          if(p1>0){sumPct+=pct;count++;}
+          tableRows+='<tr>'+
+            '<td class="mini-subject">'+escapeHtml(sub)+'</td>'+
+            '<td class="mini-pct">'+pct+'%</td>'+
+            '<td class="mini-grade">'+grade+'</td>'+
+            '<td class="mini-pts">'+weight+'</td>'+
+            '<td class="mini-pts">'+pts+'</td>'+
+            '</tr>';
+        } else {
+          // O-Level: AOI converted to 100, graded
           var aoi=parseFloat(sv.aoi)||0;
-          var ap=Math.round((aoi/20)*100);
-          var grade=gradeFromPercentage(ap,'olevel');
-          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">AOI: '+aoi+'/20 → '+ap+'% <b>'+grade+'</b></span></div>';
+          var pct=Math.round((aoi/20)*100);
+          var grade=gradeFromPercentage(pct,'olevel');
+          if(aoi>0){sumPct+=pct;count++;}
+          tableRows+='<tr>'+
+            '<td class="mini-subject">'+escapeHtml(sub)+'</td>'+
+            '<td class="mini-pct">'+aoi+'/20 → '+pct+'%</td>'+
+            '<td class="mini-grade">'+grade+'</td>'+
+            '</tr>';
         }
       });
     }
-    var avgPct=0,count=0;
-    subjects.forEach(function(sub){
-      var sv=s.scores[sub];
-      if(isALevel){
-        var p1=parseFloat(sv.paper1)||0;
-        if(p1>0){avgPct+=p1;count++;}
-      }else{
-        var aoi=parseFloat(sv.aoi)||0;
-        if(aoi>0){avgPct+=(aoi/20)*100;count++;}
-      }
-    });
-    var avg=count>0?avgPct/count:0;
+
+    var avg=count>0?sumPct/count:0;
     var og=count>0?gradeFromPercentage(avg,isALevel?'alevel':'olevel'):null;
     if(isALevel && og==='F') og='E';
     var status=count===0?'<div class="status-bar no-data">No Data</div>':(og==='A'?'<div class="status-bar outstanding">OUTSTANDING</div>':'<div class="status-bar">'+descriptorFromGrade(og)+'</div>');
     var photo=getStudentPhoto(s.studentId,s.studentName);
     var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:og});
+
+    // Build table header (A-Level has Weight & Points columns)
+    var tableHeader = isALevel
+      ? '<thead><tr><th>Subject</th><th>Paper 1 (%)</th><th>Grade</th><th>Wt</th><th>Pts</th></tr></thead>'
+      : '<thead><tr><th>Subject</th><th>AOI → 100</th><th>Grade</th></tr></thead>';
+
+    // Total points row for A-Level
+    var totalRow = '';
+    if(isALevel){
+      totalRow = '<tr class="mini-total-row"><td colspan="4" style="text-align:right">TOTAL POINTS:</td><td class="mini-pts">'+totalPoints+'</td></tr>';
+    }
+
     h+='<div class="mini-report-card" style="position:relative">'+
       '<button class="report-print-btn" onclick="downloadSingleMiniPDF(this)">Download PDF</button>'+
       '<div class="card-header"><div class="school-name" style="font-size:19px">'+branding.name+'</div></div>'+
       '<div class="photo-container"><div class="photo-placeholder" style="width:75px;height:75px">'+photoHtml+'</div></div>'+
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
       '<div class="student-meta"><span>ID: '+escapeHtml(s.studentId||'')+'</span><span>Class: '+escapeHtml(s.class||'')+'</span><span>Stream: '+escapeHtml(s.stream||'—')+'</span><span>Term: '+escapeHtml(term)+'</span></div>'+
-      subjRows+
-      '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span><span>Grade: '+(og||'---')+'</span></div>'+
+      '<table class="mini-table">'+tableHeader+'<tbody>'+tableRows+totalRow+'</tbody></table>'+
+      '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span>'+(isALevel?'<span>Total Points: '+totalPoints+'</span>':'')+'<span>Grade: '+(og||'---')+'</span></div>'+
       status+
       '<div style="text-align:center;margin-top:8px"><div data-qr="'+escapeHtml(qrText)+'" style="display:inline-block"></div></div>'+
       '<div style="text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0;font-size:10px;color:#888">'+
