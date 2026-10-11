@@ -1404,7 +1404,7 @@ function enforceMax(inputEl,maxVal){
   if(v<0)inputEl.value=0;
 }
 
-/* ============ RENDER SCORE TABLE — shows both columns when exam=både ============ */
+/* ============ RENDER SCORE TABLE ============ */
 function renderScoreTable(){
   var tbody=document.getElementById('scoreTableBody');if(!tbody)return;
   var q=document.getElementById('scoreSearchInput')?.value?.toLowerCase()||'';
@@ -2144,6 +2144,7 @@ async function fetchReportData(search){
     document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';
   }
 }
+/* ============ FULL REPORT RENDER — with branding, fees balance, motivational comments, no attendance row ============ */
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -2151,6 +2152,8 @@ function renderReportResults(students){
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var customTeacherComment=getCustomTeacherComment();
   var customHeadComment=getCustomHeadComment();
+  // Fees balance from finance sheet link
+  var financeSheetUrl = localStorage.getItem('schoolSettings_'+getActiveSchool()) ? JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())).financeSheet : '';
   var h='';
   students.forEach(function(stu){
     var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort();
@@ -2164,13 +2167,12 @@ function renderReportResults(students){
     subjects.forEach(function(subj){
       var sv=scores[subj]||{};
       var code=subjectCodeFor(subj);
-      var init=sv.teacherInitials||'—';
+      var init=(sv.teacherInitials||'—').toUpperCase();
       if(isALevel){
         var p1=parseFloat(sv.paper1)||0;
         var p2=parseFloat(sv.paper2)||0;
         var avg=(p1+p2)/2;
         var grade=gradeFromPercentage(avg,'alevel');
-        // Default weight 3 for most; GP/SubMath/ICT = weight 1
         var weight = (subj==='General Paper'||subj==='Subsidiary Mathematics'||subj==='ICT')?1:3;
         var pts=gradeToPoints(grade, weight);
         var desc=generateAutoComment(avg,true);
@@ -2191,15 +2193,23 @@ function renderReportResults(students){
     var overallAvg=count>0?totalPctSum/count:0;
     var overallGrade=gradeFromPercentage(overallAvg,isALevel?'alevel':'olevel');
     var autoComment=generateAutoComment(overallAvg,isALevel);
-    // Combine auto + custom comment
-    var teacherCommentFinal = customTeacherComment ? (autoComment + ' — ' + customTeacherComment) : autoComment;
-    var headCommentFinal = customHeadComment ? (autoComment + ' — ' + customHeadComment) : autoComment;
+    // Motivational comments based on grade
+    var motivational = {
+      'A': 'Outstanding performance! Your dedication and hard work are truly inspiring. Keep shining!',
+      'B': 'Excellent work! You are on the right track. Aim even higher next term.',
+      'C': 'Good effort! With a bit more focus, you can achieve greatness. Keep pushing.',
+      'D': 'You have potential. Let\'s work together to turn things around. Never give up.',
+      'E': 'Every journey begins with a step. With determination, you will improve. We believe in you.',
+      'F': 'Challenges are opportunities to grow. Let\'s put in more effort and seek help. You can do it.'
+    };
+    var teacherCommentFinal = customTeacherComment ? (customTeacherComment + ' — ' + (motivational[overallGrade]||'')) : (motivational[overallGrade]||autoComment);
+    var headCommentFinal = customHeadComment ? (customHeadComment + ' — ' + (motivational[overallGrade]||'')) : (motivational[overallGrade]||autoComment);
 
     var photo=getStudentPhoto(stu.studentId,stu.studentName);
     var photoHtml=photo?'<img src="'+photo+'" style="width:80px;height:100px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:80px;height:100px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">PHOTO</div>';
     var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:cls,term:term,year:year,avg:overallAvg.toFixed(1),grade:overallGrade});
-    var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px" /><br><span style="font-size:9px">Sign</span>':'....................';
-    var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:30px" /><br><span style="font-size:9px">Sign</span>':'....................';
+    var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px;display:inline-block;vertical-align:middle;margin-left:5px" /><span style="font-size:9px;display:inline-block;vertical-align:middle">Sign</span>':'....................';
+    var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:30px;display:inline-block;vertical-align:middle;margin-left:5px" /><span style="font-size:9px;display:inline-block;vertical-align:middle">Sign</span>':'....................';
     var days=stu.daysAttended||{present:0,absent:0,late:0,leave:0,total:0};
     var footerHtml;
     if(isALevel){
@@ -2208,6 +2218,10 @@ function renderReportResults(students){
     }else{
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa"><div style="padding:8px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div><div style="padding:8px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:8px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div><div style="margin-top:10px;border:1px solid #666;font-size:10px;text-align:center;padding:6px;background:#f8f9fa"><b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)</div>';
     }
+
+    // fees balance (placeholder — actual balance comes from finance link)
+    var feeBalance = 'UGX 0'; // Will be updated dynamically after report render if data is available
+
     h+='<div class="generated-document" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:20px">'+
       '<div style="position:relative;z-index:1;padding:20px">'+
         '<input type="checkbox" class="report-select-cb" onclick="toggleReportSelection(this)" />'+
@@ -2235,19 +2249,14 @@ function renderReportResults(students){
           '<tbody>'+(rows||'<tr><td colspan="8" style="padding:20px;text-align:center">No scores</td></tr>')+'</tbody>'+
         '</table>'+
         footerHtml+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#fff8e1">'+
-          '<div style="padding:6px;border-right:1px solid #666">Days: <b>'+days.total+'</b></div>'+
-          '<div style="padding:6px;border-right:1px solid #666">Present: <b style="color:#2d6a4f">'+days.present+'</b></div>'+
-          '<div style="padding:6px;border-right:1px solid #666">Absent: <b style="color:#c1121f">'+days.absent+'</b></div>'+
-          '<div style="padding:6px">Late: <b style="color:#e85d04">'+days.late+'</b></div>'+
-        '</div>'+
+        // Removed attendance row (days attended) as requested
         '<div style="margin-top:10px;border:1px solid #666;font-size:11px">'+
-          '<div style="padding:6px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> '+teacherCommentFinal+' <span style="float:right;text-align:center">'+ctSig+'</span></div>'+
-          '<div style="padding:6px;background:#f0f4ff"><strong>HEAD TEACHER\'S COMMENT:</strong> '+headCommentFinal+' <span style="float:right;text-align:center">'+hmSig+'</span></div>'+
+          '<div style="padding:6px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> <em>'+teacherCommentFinal+'</em> <span style="float:right;text-align:center">'+ctSig+'</span></div>'+
+          '<div style="padding:6px;background:#f0f4ff"><strong>HEAD TEACHER\'S COMMENT:</strong> <em>'+headCommentFinal+'</em> <span style="float:right;text-align:center">'+hmSig+'</span></div>'+
         '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;font-size:11px">'+
           '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Term Begins:</strong> '+(branding.termStartDate||'N/A')+'</div>'+
-          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Term Ends:</strong> '+(branding.termEndDate||'N/A')+'</div>'+
+          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Fees Balance:</strong> <span class="fee-balance" data-student-id="'+stu.studentId+'">Loading...</span></div>'+
           '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Scan to Verify</strong><div data-qr="'+escapeHtml(qrText)+'"></div></div>'+
         '</div>'+
         '<div style="text-align:center;margin-top:10px;font-size:11px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
@@ -2256,12 +2265,37 @@ function renderReportResults(students){
   });
   c.innerHTML=h;
   materializeQRCodes(c);
+  // Fetch fees balance for each student
   setTimeout(function(){
+    document.querySelectorAll('.fee-balance').forEach(async function(el){
+      var sid = el.getAttribute('data-student-id');
+      var balance = await fetchStudentFeeBalance(sid);
+      el.textContent = balance;
+    });
     var total=document.querySelectorAll('#reportResults .report-select-cb').length;
     var bar=document.getElementById('printSelectionBar');
     if(bar)bar.classList.toggle('active',total>0);
   },50);
 }
+
+/* Fetch fee balance from finance sheet if link exists */
+async function fetchStudentFeeBalance(studentId) {
+  var school = getActiveSchool();
+  var settings = {};
+  try { settings = JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}'); } catch(e) {}
+  var financeSheetUrl = settings.financeSheet || '';
+  if (!financeSheetUrl) return 'N/A';
+  var financeSheetId = extractSheetIdFromUrl(financeSheetUrl);
+  if (!financeSheetId) return 'N/A';
+  try {
+    var res = await callAppsScript({action:'getFeeBalance', sheetId: financeSheetId, studentId: studentId});
+    if (res.success && res.data && res.data.balance !== undefined) {
+      return 'UGX ' + Number(res.data.balance).toLocaleString();
+    }
+  } catch(e) {}
+  return 'UGX 0';
+}
+
 function toggleReportSelection(cb){var c=cb.closest('.generated-document');if(c)c.classList.toggle('selected',cb.checked);updatePrintSelectionBar();}
 function updatePrintSelectionBar(){
   var count=document.querySelectorAll('#reportResults .report-select-cb:checked').length;
@@ -2351,7 +2385,7 @@ function downloadSelectedReportsPDF(){
   _runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');
 }
 
-/* ============ MINI REPORTS ============ */
+/* ============ MINI REPORTS — only AOI converted to 100, grading below, branding ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
 async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
@@ -2371,45 +2405,32 @@ function renderMiniReports(){
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var h='';
   f.forEach(function(s){
-    var fi=(s.studentName||'')[0]||'';
-    var si=(s.studentName||'').split(' ')[1]?.[0]||'';
-    var initials=(fi+si).toUpperCase();
     var subjects=Object.keys(s.scores||{});
     var subjRows='';
     var isALevel=isALevelClass(s.class);
-    var totalPointsMini=0;
+    // For mini reports, only AOI converted to 100 is shown
     if(subjects.length===0){subjRows='<div style="text-align:center;color:#999;padding:8px">No scores</div>';}
     else{
       subjects.forEach(function(sub){
         var sv=s.scores[sub];
-        if(isALevel){
-          var p1=parseFloat(sv.paper1)||0;
-          var grade=gradeFromPercentage(p1,'alevel');
-          var weight = (sub==='General Paper'||sub==='Subsidiary Mathematics'||sub==='ICT')?1:3;
-          var pts=gradeToPoints(grade, weight);
-          totalPointsMini+=pts;
-          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">Paper 1: '+p1.toFixed(1)+' <b>'+grade+'</b> · '+pts+'pts</span></div>';
-        }else{
-          var aoi=parseFloat(sv.aoi)||0;
-          var ap=Math.round((aoi/20)*100);
-          var grade=gradeFromPercentage(ap,'olevel');
-          subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">AOI: '+aoi+'/20 · '+ap+'% <b>'+grade+'</b></span></div>';
-        }
+        var aoi=parseFloat(sv.aoi)||0;
+        var ap=Math.round((aoi/20)*100); // converted to 100
+        var grade=gradeFromPercentage(ap,'olevel');
+        subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">AOI: '+aoi+'/20 → '+ap+'% <b>'+grade+'</b></span></div>';
       });
     }
     var avgPct=0,count=0;
     subjects.forEach(function(sub){
       var sv=s.scores[sub];
-      if(isALevel){var p1=parseFloat(sv.paper1)||0;if(p1>0){avgPct+=p1;count++;}}
-      else{var aoi=parseFloat(sv.aoi)||0;if(aoi>0){avgPct+=(aoi/20)*100;count++;}}
+      var aoi=parseFloat(sv.aoi)||0;
+      if(aoi>0){avgPct+=(aoi/20)*100;count++;}
     });
     var avg=count>0?avgPct/count:0;
-    var og=count>0?gradeFromPercentage(avg,isALevel?'alevel':'olevel'):null;
+    var og=count>0?gradeFromPercentage(avg,'olevel'):null;
     var status=count===0?'<div class="status-bar no-data">No Data</div>':(og==='A'?'<div class="status-bar outstanding">OUTSTANDING</div>':'<div class="status-bar">'+descriptorFromGrade(og)+'</div>');
     var photo=getStudentPhoto(s.studentId,s.studentName);
     var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:og});
-    var pointsRow=isALevel?'<span>Points: '+totalPointsMini+'</span>':'';
     h+='<div class="mini-report-card" style="position:relative">'+
       '<button class="report-print-btn" onclick="downloadSingleMiniPDF(this)">Download PDF</button>'+
       '<div class="card-header"><div class="school-name">'+branding.name+'</div></div>'+
@@ -2417,7 +2438,7 @@ function renderMiniReports(){
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
       '<div class="student-meta"><span>ID: '+escapeHtml(s.studentId||'')+'</span><span>Class: '+escapeHtml(s.class||'')+'</span><span>Stream: '+escapeHtml(s.stream||'—')+'</span><span>Term: '+escapeHtml(term)+'</span></div>'+
       subjRows+
-      '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span>'+pointsRow+'<span>Grade: '+(og||'---')+'</span></div>'+
+      '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span><span>Grade: '+(og||'---')+'</span></div>'+
       status+
       '<div style="text-align:center;margin-top:8px"><div data-qr="'+escapeHtml(qrText)+'" style="display:inline-block"></div></div>'+
     '</div>';
