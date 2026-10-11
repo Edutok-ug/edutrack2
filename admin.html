@@ -212,7 +212,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
 @media print{.generated-document,.mini-report-card{break-inside:avoid;page-break-after:always;box-shadow:none!important;border:1px solid #000!important}.no-print,.btn,.navbar,.bottom-nav,.report-print-btn,.report-select-cb{display:none!important}body{background:#fff!important;padding:0!important}.container{box-shadow:none!important;padding:0!important}@page{size:A4;margin:6mm}}
 /* A4 report fit - balanced spacing */
-.a4-report{width:190mm;min-height:auto;margin:0 auto;padding:8mm;box-sizing:border-box;font-size:11px;background:#fff;display:flex;flex-direction:column;justify-content:flex-start}
+.a4-report{width:190mm;min-height:auto;margin:0 auto;padding:8mm;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;justify-content:flex-start;font-size:12px}
 .a4-report .report-content{flex:1}
 </style>
 </head>
@@ -882,8 +882,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v17.0 — Restored Download PDF buttons,
-   fixed A4 page spacing
+   EduTrack Pro Admin v18.0 — Increased report card font sizes
    ============================================================ */
 
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwqGUBv3CxNAY4G2gOnDcJ1WfSL3kk681U1NMWi0AyGp5Mor0r7KPNBDfmU7E8CN7K7wA/exec';
@@ -1103,12 +1102,12 @@ function materializeQRCodes(root){
     if(!src&&typeof QRCode!=='undefined'){
       el.innerHTML='';
       try{
-        new QRCode(el,{text:text,width:60,height:60,correctLevel:QRCode.CorrectLevel.H});
+        new QRCode(el,{text:text,width:70,height:70,correctLevel:QRCode.CorrectLevel.H});
         src=qrToImage(el);
       }catch(e){}
     }
-    if(src){el.innerHTML='<img src="'+src+'" width="60" height="60" alt="QR" />';}
-    else{el.innerHTML='<img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data='+encodeURIComponent(text)+'" width="60" height="60" alt="QR" />';}
+    if(src){el.innerHTML='<img src="'+src+'" width="70" height="70" alt="QR" />';}
+    else{el.innerHTML='<img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data='+encodeURIComponent(text)+'" width="70" height="70" alt="QR" />';}
   });
 }
 
@@ -2190,7 +2189,7 @@ async function fetchReportData(search){
     document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';
   }
 }
-/* ============ FULL REPORT RENDER — restored Download PDF button, fixed A4 spacing ============ */
+/* ============ FULL REPORT RENDER — increased font sizes to fill A4 ============ */
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -2204,8 +2203,8 @@ function renderReportResults(students){
     var rows='',totalPctSum=0,count=0,totalPointsSum=0;
     var isALevel=isALevelClass(cls);
     var headers=isALevel
-      ?'<th style="padding:4px;border:1px solid #fff;font-size:10px">Subject</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Paper 1</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Paper 2</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Average</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Grade</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Weight</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Points</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Achievement</th><th style="padding:4px;border:1px solid #fff;font-size:10px">Initial</th>'
-      :'<th style="padding:4px;border:1px solid #c1121f;font-size:10px">Code</th><th style="padding:4px;border:1px solid #c1121f;font-size:10px">Subject</th><th style="padding:4px;border:1px solid #c1121f;font-size:10px">AOI</th><th style="padding:4px;border:1px solid #c1121f;font-size:10px">EOT</th><th style="padding:4px;border:1px solid #c1121f;font-size:10px">TOTAL</th><th style="padding:4px;border:1px solid #c1121f;font-size:10px">Grade</th><th style="padding:4px;border:1px solid #c1121f;font-size:10px">Achievement</th><th style="padding:4px;border:1px solid #c1121f;font-size:10px">Initial</th>';
+      ?'<th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Subject</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Paper 1</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Paper 2</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Average</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Grade</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Weight</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Points</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Achievement</th><th style="padding:6px 4px;border:1px solid #fff;font-size:12px">Initial</th>'
+      :'<th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">Code</th><th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">Subject</th><th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">AOI</th><th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">EOT</th><th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">TOTAL</th><th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">Grade</th><th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">Achievement</th><th style="padding:6px 4px;border:1px solid #c1121f;font-size:12px">Initial</th>';
     var bg=isALevel?'#1a3b5c':'#c1121f';
 
     subjects.forEach(function(subj){
@@ -2227,7 +2226,7 @@ function renderReportResults(students){
         var weight = sv.weight ? parseInt(sv.weight) : (isSubsidiary?1:3);
         var pts=gradeToPoints(grade, weight);
         var desc=generateAutoComment(avg,true);
-        rows+='<tr><td style="padding:4px;border:1px solid #666;font-size:10px">'+code+' '+subj+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-size:10px">'+p1.toFixed(1)+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-size:10px">'+p2.toFixed(1)+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-weight:700;font-size:10px">'+avg.toFixed(1)+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-weight:700;font-size:10px">'+grade+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-size:10px">'+weight+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-weight:700;font-size:10px">'+pts+'</td><td style="padding:4px;border:1px solid #666;font-size:9px">'+desc+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-size:9px">'+init+'</td></tr>';
+        rows+='<tr><td style="padding:6px 4px;border:1px solid #666;font-size:12px">'+code+' '+subj+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:12px">'+p1.toFixed(1)+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:12px">'+p2.toFixed(1)+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-weight:700;font-size:12px">'+avg.toFixed(1)+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-weight:700;font-size:12px">'+grade+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:12px">'+weight+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-weight:700;font-size:12px">'+pts+'</td><td style="padding:6px 4px;border:1px solid #666;font-size:11px">'+desc+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:11px">'+init+'</td></tr>';
         totalPctSum+=avg;count++;totalPointsSum+=pts;
       }else{
         var aoi=parseFloat(sv.aoi)||0;
@@ -2235,7 +2234,7 @@ function renderReportResults(students){
         var total = aoi + eot;
         var grade=gradeFromPercentage((total/100)*100,'olevel');
         var desc=generateAutoComment((total/100)*100,false);
-        rows+='<tr><td style="padding:4px;border:1px solid #666;text-align:center;font-size:10px">'+code+'</td><td style="padding:4px;border:1px solid #666;font-weight:600;font-size:10px">'+subj.toUpperCase()+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-size:10px">'+(aoi||'—')+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-size:10px">'+(eot||'—')+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f;font-size:10px">'+total.toFixed(1)+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-weight:700;font-size:10px">'+grade+'</td><td style="padding:4px;border:1px solid #666;font-size:9px">'+desc+'</td><td style="padding:4px;border:1px solid #666;text-align:center;font-size:9px">'+init+'</td></tr>';
+        rows+='<tr><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:12px">'+code+'</td><td style="padding:6px 4px;border:1px solid #666;font-weight:600;font-size:12px">'+subj.toUpperCase()+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:12px">'+(aoi||'—')+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:12px">'+(eot||'—')+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f;font-size:12px">'+total.toFixed(1)+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-weight:700;font-size:12px">'+grade+'</td><td style="padding:6px 4px;border:1px solid #666;font-size:11px">'+desc+'</td><td style="padding:6px 4px;border:1px solid #666;text-align:center;font-size:11px">'+init+'</td></tr>';
         totalPctSum+=total;count++;
       }
     });
@@ -2262,34 +2261,34 @@ function renderReportResults(students){
     var headCommentFinal = customHeadComment ? (customHeadComment + ' — ' + (headMotivational[overallGrade]||'')) : (headMotivational[overallGrade]||autoComment);
 
     var photo=getStudentPhoto(stu.studentId,stu.studentName);
-    var photoHtml=photo?'<img src="'+photo+'" style="width:70px;height:90px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:70px;height:90px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#999">PHOTO</div>';
+    var photoHtml=photo?'<img src="'+photo+'" style="width:80px;height:100px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:80px;height:100px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">PHOTO</div>';
     var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:cls,term:term,year:year,avg:overallAvg.toFixed(1),grade:overallGrade});
-    var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:25px;display:inline-block;vertical-align:middle;margin-left:5px" /><span style="font-size:8px;display:inline-block;vertical-align:middle">Sign</span>':'....................';
-    var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:25px;display:inline-block;vertical-align:middle;margin-left:5px" /><span style="font-size:8px;display:inline-block;vertical-align:middle">Sign</span>':'....................';
+    var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px;display:inline-block;vertical-align:middle;margin-left:5px" /><span style="font-size:10px;display:inline-block;vertical-align:middle">Sign</span>':'....................';
+    var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:30px;display:inline-block;vertical-align:middle;margin-left:5px" /><span style="font-size:10px;display:inline-block;vertical-align:middle">Sign</span>':'....................';
     var days=stu.daysAttended||{present:0,absent:0,late:0,leave:0,total:0};
     var footerHtml;
     if(isALevel){
-      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:10px;text-align:center;background:#f0f4ff"><div style="padding:5px;border-right:1px solid #666">Total Points: <b>'+totalPointsSum+'</b></div><div style="padding:5px;border-right:1px solid #666">Average: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:5px">Grade: <b>'+overallGrade+'</b></div></div>'+
-      '<div style="margin-top:6px;border:1px solid #666;font-size:8px;text-align:center;padding:4px;background:#f8f9fa"><b>A-LEVEL GRADING SCALE:</b> A (5 pts) | B (4 pts) | C (3 pts) | D (2 pts) | E (1 pt) — Weight 3 | Subsid (1 pt if pass 50+)</div>';
+      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f0f4ff"><div style="padding:6px;border-right:1px solid #666">Total Points: <b>'+totalPointsSum+'</b></div><div style="padding:6px;border-right:1px solid #666">Average: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:6px">Grade: <b>'+overallGrade+'</b></div></div>'+
+      '<div style="margin-top:8px;border:1px solid #666;font-size:10px;text-align:center;padding:5px;background:#f8f9fa"><b>A-LEVEL GRADING SCALE:</b> A (5 pts) | B (4 pts) | C (3 pts) | D (2 pts) | E (1 pt) — Weight 3 | Subsid (1 pt if pass 50+)</div>';
     }else{
-      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:10px;text-align:center;background:#f8f9fa"><div style="padding:5px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div><div style="padding:5px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:5px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div><div style="margin-top:6px;border:1px solid #666;font-size:8px;text-align:center;padding:4px;background:#f8f9fa"><b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)</div>';
+      footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa"><div style="padding:6px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div><div style="padding:6px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:6px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div><div style="margin-top:8px;border:1px solid #666;font-size:10px;text-align:center;padding:5px;background:#f8f9fa"><b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)</div>';
     }
 
-    // A4 report — restored Download PDF button, balanced top/bottom spacing
+    // A4 report with larger fonts to fill page
     h+='<div class="generated-document a4-report" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px">'+
-      '<div style="position:relative;z-index:1;padding:10px 12px">'+
+      '<div style="position:relative;z-index:1;padding:14px 16px">'+
         '<input type="checkbox" class="report-select-cb" onclick="toggleReportSelection(this)" />'+
         '<button class="report-print-btn" onclick="downloadSingleReportPDF(this)">Download PDF</button>'+
-        '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:6px;margin-bottom:6px">'+
-          (branding.badge?'<img src="'+branding.badge+'" style="height:50px;float:left;margin-right:8px" />':'')+
-          '<div style="font-size:18px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
-          '<div style="font-size:9px;color:#555">'+(branding.address||'')+' | '+(branding.phone||'')+'</div>'+
-          '<div style="font-size:10px;font-weight:700;color:#004085;margin-top:3px">MOTTO: '+(branding.motto||'').toUpperCase()+'</div>'+
+        '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:8px;margin-bottom:8px">'+
+          (branding.badge?'<img src="'+branding.badge+'" style="height:60px;float:left;margin-right:10px" />':'')+
+          '<div style="font-size:20px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
+          '<div style="font-size:11px;color:#555">'+(branding.address||'')+' | '+(branding.phone||'')+'</div>'+
+          '<div style="font-size:12px;font-weight:700;color:#004085;margin-top:4px">MOTTO: '+(branding.motto||'').toUpperCase()+'</div>'+
         '</div>'+
-        '<div style="background:'+bg+';color:#fff;text-align:center;padding:5px;font-weight:700;font-size:12px;margin-bottom:6px;text-transform:uppercase">'+(isALevel?'A-LEVEL REPORT CARD '+year:'END OF TERM '+term+' '+year+' REPORT CARD')+'</div>'+
-        '<div style="display:grid;grid-template-columns:70px 1fr;gap:10px;margin-bottom:6px">'+
+        '<div style="background:'+bg+';color:#fff;text-align:center;padding:7px;font-weight:700;font-size:14px;margin-bottom:8px;text-transform:uppercase">'+(isALevel?'A-LEVEL REPORT CARD '+year:'END OF TERM '+term+' '+year+' REPORT CARD')+'</div>'+
+        '<div style="display:grid;grid-template-columns:80px 1fr;gap:12px;margin-bottom:8px">'+
           '<div>'+photoHtml+'</div>'+
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;padding:5px;background:#f8f9fa;border-radius:4px;border:1px solid #ddd">'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;padding:6px;background:#f8f9fa;border-radius:4px;border:1px solid #ddd">'+
             '<div><strong>NAME:</strong> '+escapeHtml(stu.studentName||'')+'</div>'+
             '<div><strong>ID:</strong> '+escapeHtml(stu.studentId||'')+'</div>'+
             '<div><strong>CLASS:</strong> '+escapeHtml(cls)+'</div>'+
@@ -2298,21 +2297,21 @@ function renderReportResults(students){
             '<div><strong>RESIDENCE:</strong> '+escapeHtml(stu.residence||'—')+'</div>'+
           '</div>'+
         '</div>'+
-        '<table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #666">'+
+        '<table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #666">'+
           '<thead style="background:'+bg+';color:#fff"><tr>'+headers+'</tr></thead>'+
-          '<tbody>'+(rows||'<tr><td colspan="9" style="padding:12px;text-align:center">No scores</td></tr>')+'</tbody>'+
+          '<tbody>'+(rows||'<tr><td colspan="9" style="padding:14px;text-align:center">No scores</td></tr>')+'</tbody>'+
         '</table>'+
         footerHtml+
-        '<div style="margin-top:6px;border:1px solid #666;font-size:9px">'+
-          '<div style="padding:4px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> <em>'+teacherCommentFinal+'</em> <span style="float:right;text-align:center">'+ctSig+'</span></div>'+
-          '<div style="padding:4px;background:#f0f4ff"><strong>HEAD TEACHER\'S COMMENT:</strong> <em>'+headCommentFinal+'</em> <span style="float:right;text-align:center">'+hmSig+'</span></div>'+
+        '<div style="margin-top:8px;border:1px solid #666;font-size:11px">'+
+          '<div style="padding:6px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> <em>'+teacherCommentFinal+'</em> <span style="float:right;text-align:center">'+ctSig+'</span></div>'+
+          '<div style="padding:6px;background:#f0f4ff"><strong>HEAD TEACHER\'S COMMENT:</strong> <em>'+headCommentFinal+'</em> <span style="float:right;text-align:center">'+hmSig+'</span></div>'+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px;font-size:9px">'+
-          '<div style="border:1px solid #666;padding:3px;text-align:center"><strong>Next Term Begins:</strong> '+(branding.termStartDate||'N/A')+'</div>'+
-          '<div style="border:1px solid #666;padding:3px;text-align:center"><strong>Fees Balance:</strong> <span class="fee-balance" data-student-id="'+stu.studentId+'">Loading...</span></div>'+
-          '<div style="border:1px solid #666;padding:3px;text-align:center"><strong>Scan to Verify</strong><div data-qr="'+escapeHtml(qrText)+'"></div></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;font-size:11px">'+
+          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Next Term Begins:</strong> '+(branding.termStartDate||'N/A')+'</div>'+
+          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Fees Balance:</strong> <span class="fee-balance" data-student-id="'+stu.studentId+'">Loading...</span></div>'+
+          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Scan to Verify</strong><div data-qr="'+escapeHtml(qrText)+'"></div></div>'+
         '</div>'+
-        '<div style="text-align:center;margin-top:6px;font-size:9px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
+        '<div style="text-align:center;margin-top:8px;font-size:11px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
       '</div>'+
     '</div>';
   });
@@ -2362,7 +2361,7 @@ function _buildPdfWrap(html){
   var w=document.createElement('div');
   w.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
   w.innerHTML=html;
-  w.querySelectorAll('.generated-document').forEach(function(el){el.style.cssText='width:190mm;margin:0 auto 4mm auto;padding:6mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:9px';});
+  w.querySelectorAll('.generated-document').forEach(function(el){el.style.cssText='width:190mm;margin:0 auto 4mm auto;padding:8mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';});
   w.querySelectorAll('.mini-report-card').forEach(function(el){el.style.cssText='width:120mm;margin:0 auto 6mm auto;padding:5mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';});
   return w;
 }
@@ -2374,7 +2373,7 @@ function _runPdf(wrap,filename){
 
 /* PRINT — A4 layout */
 function _runPrint(html){
-  var styles='<style>@page{size:A4;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}.generated-document{width:190mm;margin:0 auto;padding:6mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:9px;page-break-after:always}.generated-document:last-child{page-break-after:auto}img{max-width:100%;page-break-inside:avoid}table{width:100%;border-collapse:collapse;font-size:8px}thead{display:table-header-group}tr{page-break-inside:avoid}</style>';
+  var styles='<style>@page{size:A4;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}.generated-document{width:190mm;margin:0 auto;padding:8mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:11px;page-break-after:always}.generated-document:last-child{page-break-after:auto}img{max-width:100%;page-break-inside:avoid}table{width:100%;border-collapse:collapse;font-size:10px}thead{display:table-header-group}tr{page-break-inside:avoid}</style>';
   var w=window.open('','_blank');
   w.document.write('<html><head><title>Print Reports</title>'+styles+'</head><body>'+html+'</body></html>');
   w.document.close();
@@ -2437,7 +2436,7 @@ function downloadSelectedReportsPDF(){
   _runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');
 }
 
-/* ============ MINI REPORTS — restored Download PDF button ============ */
+/* ============ MINI REPORTS ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
 async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
