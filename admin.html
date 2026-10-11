@@ -636,14 +636,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <input type="text" id="searchInput" placeholder="Search by ID or Name…" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;min-width:200px;font-family:inherit" />
     <button class="btn btn-success" onclick="searchStudent()">🔍 Search</button>
     <button class="btn btn-primary" onclick="fetchReportData()">📋 Load All</button>
-    <button class="btn btn-danger" onclick="printReports()">🖨️ Print All</button>
+    <button class="btn btn-danger" onclick="downloadReportsPDF()">📥 Download PDF</button>
   </div>
   <div id="printSelectionBar">
     <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px"><span>📋</span><span>Selected:</span><span class="psb-count" id="psbCount">0</span></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button type="button" class="psb-btn-selectall" onclick="selectAllReports()">✅ Select All</button>
       <button type="button" class="psb-btn-clear" onclick="clearReportSelection()">✖️ Clear</button>
-      <button type="button" class="psb-btn-print" id="psbPrintBtn" onclick="printSelectedReports()" disabled>🖨️ Print Selected</button>
+      <button type="button" class="psb-btn-print" id="psbPrintBtn" onclick="downloadSelectedReportsPDF()" disabled>📥 Download Selected PDF</button>
     </div>
   </div>
   <div id="reportResults"></div>
@@ -656,7 +656,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:15px 0">
     <input type="text" id="miniSearchInput" placeholder="🔍 Search…" onkeyup="filterMiniReports()" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;min-width:200px;font-family:inherit" />
     <button class="btn btn-success" onclick="loadMiniReports()">📋 Load All</button>
-    <button class="btn btn-danger" onclick="printMiniReports()">🖨️ Print All</button>
+    <button class="btn btn-danger" onclick="downloadMiniReportsPDF()">📥 Download PDF</button>
   </div>
   <div id="miniResults"></div>
 </div>
@@ -671,7 +671,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0">
     <button class="btn btn-success" onclick="generateDocument()">📄 Generate</button>
-    <button class="btn btn-primary" onclick="printDocument()">🖨️ Print</button>
+    <button class="btn btn-primary" onclick="downloadDocument()">📥 Download</button>
+    <button class="btn btn-secondary" onclick="printDocument()">🖨️ Print</button>
   </div>
   <div id="documentPreview" style="margin-top:20px"><p style="color:#999;text-align:center;padding:20px">Generate a document first.</p></div>
 </div>
@@ -881,7 +882,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v16.0 — Print instead of Download, A4 Fit
+   EduTrack Pro Admin v17.0 — Restored Download PDF buttons,
+   fixed A4 page spacing
    ============================================================ */
 
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwqGUBv3CxNAY4G2gOnDcJ1WfSL3kk681U1NMWi0AyGp5Mor0r7KPNBDfmU7E8CN7K7wA/exec';
@@ -2188,7 +2190,7 @@ async function fetchReportData(search){
     document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';
   }
 }
-/* ============ FULL REPORT RENDER — A4 fit, Print instead of Download ============ */
+/* ============ FULL REPORT RENDER — restored Download PDF button, fixed A4 spacing ============ */
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -2273,11 +2275,11 @@ function renderReportResults(students){
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:10px;text-align:center;background:#f8f9fa"><div style="padding:5px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div><div style="padding:5px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:5px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div><div style="margin-top:6px;border:1px solid #666;font-size:8px;text-align:center;padding:4px;background:#f8f9fa"><b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)</div>';
     }
 
-    // Balanced A4 report with flex layout to fill page
-    h+='<div class="generated-document a4-report" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px;display:flex;flex-direction:column;min-height:0">'+
-      '<div style="position:relative;z-index:1;padding:10px 12px;flex:1;display:flex;flex-direction:column">'+
+    // A4 report — restored Download PDF button, balanced top/bottom spacing
+    h+='<div class="generated-document a4-report" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px">'+
+      '<div style="position:relative;z-index:1;padding:10px 12px">'+
         '<input type="checkbox" class="report-select-cb" onclick="toggleReportSelection(this)" />'+
-        '<button class="report-print-btn" onclick="printSingleReport(this)">🖨️ Print</button>'+
+        '<button class="report-print-btn" onclick="downloadSingleReportPDF(this)">Download PDF</button>'+
         '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:6px;margin-bottom:6px">'+
           (branding.badge?'<img src="'+branding.badge+'" style="height:50px;float:left;margin-right:8px" />':'')+
           '<div style="font-size:18px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
@@ -2355,20 +2357,28 @@ function updatePrintSelectionBar(){
 function selectAllReports(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=true;var c=cb.closest('.generated-document');if(c)c.classList.add('selected');});updatePrintSelectionBar();}
 function clearReportSelection(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=false;var c=cb.closest('.generated-document');if(c)c.classList.remove('selected');});updatePrintSelectionBar();}
 
-/* ============ PRINT FUNCTIONS (replacing PDF downloads) ============ */
+/* ============ PDF / PRINT (restored Download PDF) ============ */
+function _buildPdfWrap(html){
+  var w=document.createElement('div');
+  w.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
+  w.innerHTML=html;
+  w.querySelectorAll('.generated-document').forEach(function(el){el.style.cssText='width:190mm;margin:0 auto 4mm auto;padding:6mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:9px';});
+  w.querySelectorAll('.mini-report-card').forEach(function(el){el.style.cssText='width:120mm;margin:0 auto 6mm auto;padding:5mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';});
+  return w;
+}
+function _runPdf(wrap,filename){
+  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
+  showToast('Generating PDF...','info');
+  html2pdf().set({margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
+}
+
+/* PRINT — A4 layout */
 function _runPrint(html){
-  var styles='<style>@page{size:A4;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}.generated-document{width:190mm;margin:0 auto;padding:6mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:9px;page-break-after:always;display:flex;flex-direction:column}.generated-document:last-child{page-break-after:auto}img{max-width:100%;page-break-inside:avoid}table{width:100%;border-collapse:collapse;font-size:8px}thead{display:table-header-group}tr{page-break-inside:avoid}.mini-report-card{width:120mm;margin:0 auto 6mm auto;padding:5mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px}</style>';
+  var styles='<style>@page{size:A4;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}.generated-document{width:190mm;margin:0 auto;padding:6mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:9px;page-break-after:always}.generated-document:last-child{page-break-after:auto}img{max-width:100%;page-break-inside:avoid}table{width:100%;border-collapse:collapse;font-size:8px}thead{display:table-header-group}tr{page-break-inside:avoid}</style>';
   var w=window.open('','_blank');
   w.document.write('<html><head><title>Print Reports</title>'+styles+'</head><body>'+html+'</body></html>');
   w.document.close();
   setTimeout(function(){w.focus();w.print();},500);
-}
-function printSingleReport(btn){
-  var card=btn.closest('.generated-document');if(!card)return;
-  materializeQRCodes(card);
-  var clone=card.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  _runPrint(clone.outerHTML);
 }
 function printReports(){
   var c=document.getElementById('reportResults');
@@ -2378,7 +2388,7 @@ function printReports(){
   clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
   _runPrint(clone.innerHTML);
 }
-function printSelectedReports(){
+function printSelectedReportsPDF(){
   var sel=document.querySelectorAll('#reportResults .report-select-cb:checked');
   if(sel.length===0){showToast('No reports selected.','warning');return;}
   var cards='';
@@ -2391,23 +2401,43 @@ function printSelectedReports(){
   });
   _runPrint(cards);
 }
-function printMiniReports(){
-  var c=document.getElementById('miniResults');
-  if(!c||!c.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}
-  materializeQRCodes(c);
-  var clone=c.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  _runPrint(clone.innerHTML);
-}
-function printMiniReport(btn){
-  var card=btn.closest('.mini-report-card');if(!card)return;
+
+function downloadSingleReportPDF(btn){
+  var card=btn.closest('.generated-document');if(!card)return;
   materializeQRCodes(card);
   var clone=card.cloneNode(true);
   clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  _runPrint(clone.outerHTML);
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.outerHTML);
+  _runPdf(w,b.name+'-Report-'+getTodayDate()+'.pdf');
+}
+function downloadReportsPDF(){
+  var c=document.getElementById('reportResults');
+  if(!c||!c.innerHTML.trim()){showToast('Load reports first.','warning');return;}
+  materializeQRCodes(c);
+  var clone=c.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.innerHTML);
+  _runPdf(w,b.name+'-Reports-'+getTodayDate()+'.pdf');
+}
+function downloadSelectedReportsPDF(){
+  var sel=document.querySelectorAll('#reportResults .report-select-cb:checked');
+  if(sel.length===0){showToast('No reports selected.','warning');return;}
+  var cards='';
+  sel.forEach(function(cb){
+    var c=cb.closest('.generated-document');if(!c)return;
+    materializeQRCodes(c);
+    var clone=c.cloneNode(true);
+    clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+    cards+=clone.outerHTML;
+  });
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(cards);
+  _runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');
 }
 
-/* ============ MINI REPORTS ============ */
+/* ============ MINI REPORTS — restored Download PDF button ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
 async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
@@ -2453,7 +2483,7 @@ function renderMiniReports(){
     var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:og});
     h+='<div class="mini-report-card" style="position:relative">'+
-      '<button class="report-print-btn" onclick="printMiniReport(this)">🖨️ Print</button>'+
+      '<button class="report-print-btn" onclick="downloadSingleMiniPDF(this)">Download PDF</button>'+
       '<div class="card-header"><div class="school-name" style="font-size:19px">'+branding.name+'</div></div>'+
       '<div class="photo-container"><div class="photo-placeholder" style="width:75px;height:75px">'+photoHtml+'</div></div>'+
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
@@ -2471,6 +2501,25 @@ function renderMiniReports(){
   materializeQRCodes(c);
 }
 function filterMiniReports(){renderMiniReports();}
+function downloadSingleMiniPDF(btn){
+  var card=btn.closest('.mini-report-card');if(!card)return;
+  materializeQRCodes(card);
+  var clone=card.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.outerHTML);
+  _runPdf(w,b.name+'-Mini-'+getTodayDate()+'.pdf');
+}
+function downloadMiniReportsPDF(){
+  var c=document.getElementById('miniResults');
+  if(!c||!c.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}
+  materializeQRCodes(c);
+  var clone=c.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap(clone.innerHTML);
+  _runPdf(w,b.name+'-Mini-Reports-'+getTodayDate()+'.pdf');
+}
 
 /* ============ DOCUMENTS ============ */
 function updateDocClassInfo(){var cls=document.getElementById('docClassSelect')?.value;var i=document.getElementById('docClassInfo');if(i)i.textContent=cls||'Select';}
@@ -2530,6 +2579,13 @@ async function generateDocument(){
     document.getElementById('documentPreview').innerHTML='<div class="generated-document">'+full+'</div>';
     window.__lastGeneratedDoc=full;
   }catch(e){showToast(e.message,'error');}
+}
+function downloadDocument(){
+  var html=window.__lastGeneratedDoc;
+  if(!html){showToast('Generate a document first.','warning');return;}
+  var b=getSchoolBranding();
+  var w=_buildPdfWrap('<div class="generated-document">'+html+'</div>');
+  _runPdf(w,b.name+'-Doc-'+getTodayDate()+'.pdf');
 }
 function printDocument(){
   var html=window.__lastGeneratedDoc;
