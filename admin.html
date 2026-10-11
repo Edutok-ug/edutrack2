@@ -197,9 +197,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 #printSelectionBar .psb-btn-selectall,#printSelectionBar .psb-btn-clear{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
 .mini-report-card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 10px 25px rgba(0,0,0,.15);border:2px solid #1a3b5c;position:relative;overflow:hidden;color:#333;margin-bottom:12px;max-width:520px;margin-left:auto;margin-right:auto}
 .mini-report-card .card-header{text-align:center;margin-bottom:12px}
-.mini-report-card .school-name{font-family:Georgia,serif;font-size:17px;font-weight:700;color:#1a3b5c;text-transform:uppercase;border-bottom:2px solid #1a3b5c;padding-bottom:8px;display:inline-block}
+.mini-report-card .school-name{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#1a3b5c;text-transform:uppercase;border-bottom:2px solid #1a3b5c;padding-bottom:8px;display:inline-block}
 .mini-report-card .photo-container{display:flex;justify-content:center;margin-bottom:6px}
-.mini-report-card .photo-placeholder{width:65px;height:65px;border-radius:50%;background:#eef2f7;border:2px solid #1a3b5c;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mini-report-card .photo-placeholder{width:75px;height:75px;border-radius:50%;background:#eef2f7;border:2px solid #1a3b5c;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .mini-report-card .photo-placeholder img{width:100%;height:100%;object-fit:cover}
 .mini-report-card .student-name{text-align:center;font-size:19px;font-weight:700;color:#1a3b5c;text-transform:uppercase}
 .mini-report-card .student-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#555;margin-bottom:8px}
@@ -211,8 +211,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mini-report-card .status-bar.no-data{background:#e2e8f0;color:#4b5563}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
 @media print{.generated-document,.mini-report-card{break-inside:avoid;page-break-after:always;box-shadow:none!important;border:1px solid #000!important}.no-print,.btn,.navbar,.bottom-nav,.report-print-btn,.report-select-cb{display:none!important}body{background:#fff!important;padding:0!important}.container{box-shadow:none!important;padding:0!important}@page{size:A4;margin:6mm}}
-/* A4 report fit */
-.a4-report{width:190mm;min-height:0;margin:0 auto;padding:8mm;box-sizing:border-box;font-size:11px;background:#fff}
+/* A4 report fit - balanced spacing */
+.a4-report{width:190mm;min-height:auto;margin:0 auto;padding:8mm;box-sizing:border-box;font-size:11px;background:#fff;display:flex;flex-direction:column;justify-content:flex-start}
+.a4-report .report-content{flex:1}
 </style>
 </head>
 <body>
@@ -635,14 +636,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <input type="text" id="searchInput" placeholder="Search by ID or Name…" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;min-width:200px;font-family:inherit" />
     <button class="btn btn-success" onclick="searchStudent()">🔍 Search</button>
     <button class="btn btn-primary" onclick="fetchReportData()">📋 Load All</button>
-    <button class="btn btn-danger" onclick="downloadReportsPDF()">📥 Download PDF</button>
+    <button class="btn btn-danger" onclick="printReports()">🖨️ Print All</button>
   </div>
   <div id="printSelectionBar">
     <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px"><span>📋</span><span>Selected:</span><span class="psb-count" id="psbCount">0</span></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button type="button" class="psb-btn-selectall" onclick="selectAllReports()">✅ Select All</button>
       <button type="button" class="psb-btn-clear" onclick="clearReportSelection()">✖️ Clear</button>
-      <button type="button" class="psb-btn-print" id="psbPrintBtn" onclick="downloadSelectedReportsPDF()" disabled>📥 Download Selected PDF</button>
+      <button type="button" class="psb-btn-print" id="psbPrintBtn" onclick="printSelectedReports()" disabled>🖨️ Print Selected</button>
     </div>
   </div>
   <div id="reportResults"></div>
@@ -655,7 +656,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:15px 0">
     <input type="text" id="miniSearchInput" placeholder="🔍 Search…" onkeyup="filterMiniReports()" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;min-width:200px;font-family:inherit" />
     <button class="btn btn-success" onclick="loadMiniReports()">📋 Load All</button>
-    <button class="btn btn-danger" onclick="downloadMiniReportsPDF()">📥 Download PDF</button>
+    <button class="btn btn-danger" onclick="printMiniReports()">🖨️ Print All</button>
   </div>
   <div id="miniResults"></div>
 </div>
@@ -670,8 +671,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0">
     <button class="btn btn-success" onclick="generateDocument()">📄 Generate</button>
-    <button class="btn btn-primary" onclick="downloadDocument()">📥 Download</button>
-    <button class="btn btn-secondary" onclick="printDocument()">🖨️ Print</button>
+    <button class="btn btn-primary" onclick="printDocument()">🖨️ Print</button>
   </div>
   <div id="documentPreview" style="margin-top:20px"><p style="color:#999;text-align:center;padding:20px">Generate a document first.</p></div>
 </div>
@@ -881,7 +881,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 /* ============================================================
-   EduTrack Pro Admin v15.0 — Complete JavaScript
+   EduTrack Pro Admin v16.0 — Print instead of Download, A4 Fit
    ============================================================ */
 
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwqGUBv3CxNAY4G2gOnDcJ1WfSL3kk681U1NMWi0AyGp5Mor0r7KPNBDfmU7E8CN7K7wA/exec';
@@ -906,7 +906,6 @@ function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c
 function subjectCodeFor(n){return SUBJECT_CODES[n]||'—';}
 function descriptorFromGrade(g){return{'A':'EXCEPTIONAL','B':'OUTSTANDING','C':'SATISFACTORY','D':'BASIC','E':'ELEMENTARY','F':'ELEMENTARY'}[g]||'ELEMENTARY';}
 
-/* A-Level Points: A=5, B=4, C=3, D=2, E=1 for Weight 3; Weight 1 = 1 point if pass (50+) else 0 */
 function gradeToPoints(g, weight){
   weight = weight || 3;
   if(weight === 1) {
@@ -2189,7 +2188,7 @@ async function fetchReportData(search){
     document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';
   }
 }
-/* ============ FULL REPORT RENDER — O-Level Total = AOI+EOT, A-Level weight column, subsidiary subjects ============ */
+/* ============ FULL REPORT RENDER — A4 fit, Print instead of Download ============ */
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -2215,15 +2214,14 @@ function renderReportResults(students){
         var p1=parseFloat(sv.paper1)||0;
         var p2=parseFloat(sv.paper2)||0;
         var isSubsidiary = isSubsidiarySubject(subj);
-        // For subsidiary subjects: same value fills both paper columns and average
         if(isSubsidiary){
-          var single = p1 || p2; // use whichever is available
+          var single = p1 || p2;
           p1 = single;
           p2 = single;
         }
         var avg=(p1+p2)/2;
         var grade=gradeFromPercentage(avg,'alevel');
-        if(grade==='F') grade='E'; // A-Level min grade is E
+        if(grade==='F') grade='E';
         var weight = sv.weight ? parseInt(sv.weight) : (isSubsidiary?1:3);
         var pts=gradeToPoints(grade, weight);
         var desc=generateAutoComment(avg,true);
@@ -2232,7 +2230,6 @@ function renderReportResults(students){
       }else{
         var aoi=parseFloat(sv.aoi)||0;
         var eot=parseFloat(sv.eot)||0;
-        // O-Level Total = AOI + EOT (raw sum)
         var total = aoi + eot;
         var grade=gradeFromPercentage((total/100)*100,'olevel');
         var desc=generateAutoComment((total/100)*100,false);
@@ -2245,7 +2242,6 @@ function renderReportResults(students){
     var overallGrade=gradeFromPercentage(overallAvg,isALevel?'alevel':'olevel');
     if(isALevel && overallGrade==='F') overallGrade='E';
     var autoComment=generateAutoComment(overallAvg,isALevel);
-    // Different motivational comments for teacher vs head teacher
     var teacherMotivational = {
       'A': 'Outstanding performance! Your dedication and hard work are truly inspiring. Keep shining!',
       'B': 'Excellent work! You are on the right track. Aim even higher next term.',
@@ -2277,10 +2273,11 @@ function renderReportResults(students){
       footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:10px;text-align:center;background:#f8f9fa"><div style="padding:5px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div><div style="padding:5px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:5px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div><div style="margin-top:6px;border:1px solid #666;font-size:8px;text-align:center;padding:4px;background:#f8f9fa"><b>O-LEVEL GRADING SCALE:</b> A (80-100) | B (70-79) | C (50-69) | D (40-49) | E (0-39)</div>';
     }
 
-    h+='<div class="generated-document a4-report" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px">'+
-      '<div style="position:relative;z-index:1;padding:10px 12px">'+
+    // Balanced A4 report with flex layout to fill page
+    h+='<div class="generated-document a4-report" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px;display:flex;flex-direction:column;min-height:0">'+
+      '<div style="position:relative;z-index:1;padding:10px 12px;flex:1;display:flex;flex-direction:column">'+
         '<input type="checkbox" class="report-select-cb" onclick="toggleReportSelection(this)" />'+
-        '<button class="report-print-btn" onclick="downloadSingleReportPDF(this)">Download PDF</button>'+
+        '<button class="report-print-btn" onclick="printSingleReport(this)">🖨️ Print</button>'+
         '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:6px;margin-bottom:6px">'+
           (branding.badge?'<img src="'+branding.badge+'" style="height:50px;float:left;margin-right:8px" />':'')+
           '<div style="font-size:18px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
@@ -2358,28 +2355,20 @@ function updatePrintSelectionBar(){
 function selectAllReports(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=true;var c=cb.closest('.generated-document');if(c)c.classList.add('selected');});updatePrintSelectionBar();}
 function clearReportSelection(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=false;var c=cb.closest('.generated-document');if(c)c.classList.remove('selected');});updatePrintSelectionBar();}
 
-/* ============ PDF / PRINT ============ */
-function _buildPdfWrap(html){
-  var w=document.createElement('div');
-  w.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
-  w.innerHTML=html;
-  w.querySelectorAll('.generated-document').forEach(function(el){el.style.cssText='width:190mm;margin:0 auto 4mm auto;padding:6mm;border:1px solid #c1121f;background:#fff;page-break-after:always;box-sizing:border-box;font-size:9px';});
-  w.querySelectorAll('.mini-report-card').forEach(function(el){el.style.cssText='width:120mm;margin:0 auto 6mm auto;padding:5mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px';});
-  return w;
-}
-function _runPdf(wrap,filename){
-  if(typeof html2pdf==='undefined'){showToast('PDF library not loaded','error');return;}
-  showToast('Generating PDF...','info');
-  html2pdf().set({margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
-}
-
-/* PRINT — A4 layout with balanced spacing */
+/* ============ PRINT FUNCTIONS (replacing PDF downloads) ============ */
 function _runPrint(html){
-  var styles='<style>@page{size:A4;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}.generated-document{width:190mm;margin:0 auto;padding:6mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:9px;page-break-after:always}.generated-document:last-child{page-break-after:auto}img{max-width:100%;page-break-inside:avoid}table{width:100%;border-collapse:collapse;font-size:8px}thead{display:table-header-group}tr{page-break-inside:avoid}</style>';
+  var styles='<style>@page{size:A4;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}.generated-document{width:190mm;margin:0 auto;padding:6mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;font-size:9px;page-break-after:always;display:flex;flex-direction:column}.generated-document:last-child{page-break-after:auto}img{max-width:100%;page-break-inside:avoid}table{width:100%;border-collapse:collapse;font-size:8px}thead{display:table-header-group}tr{page-break-inside:avoid}.mini-report-card{width:120mm;margin:0 auto 6mm auto;padding:5mm;border:2px solid #1a3b5c;border-radius:12px;background:#fff;page-break-after:always;box-sizing:border-box;font-size:11px}</style>';
   var w=window.open('','_blank');
   w.document.write('<html><head><title>Print Reports</title>'+styles+'</head><body>'+html+'</body></html>');
   w.document.close();
   setTimeout(function(){w.focus();w.print();},500);
+}
+function printSingleReport(btn){
+  var card=btn.closest('.generated-document');if(!card)return;
+  materializeQRCodes(card);
+  var clone=card.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  _runPrint(clone.outerHTML);
 }
 function printReports(){
   var c=document.getElementById('reportResults');
@@ -2389,7 +2378,7 @@ function printReports(){
   clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
   _runPrint(clone.innerHTML);
 }
-function printSelectedReportsPDF(){
+function printSelectedReports(){
   var sel=document.querySelectorAll('#reportResults .report-select-cb:checked');
   if(sel.length===0){showToast('No reports selected.','warning');return;}
   var cards='';
@@ -2402,43 +2391,23 @@ function printSelectedReportsPDF(){
   });
   _runPrint(cards);
 }
-
-function downloadSingleReportPDF(btn){
-  var card=btn.closest('.generated-document');if(!card)return;
-  materializeQRCodes(card);
-  var clone=card.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var b=getSchoolBranding();
-  var w=_buildPdfWrap(clone.outerHTML);
-  _runPdf(w,b.name+'-Report-'+getTodayDate()+'.pdf');
-}
-function downloadReportsPDF(){
-  var c=document.getElementById('reportResults');
-  if(!c||!c.innerHTML.trim()){showToast('Load reports first.','warning');return;}
+function printMiniReports(){
+  var c=document.getElementById('miniResults');
+  if(!c||!c.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}
   materializeQRCodes(c);
   var clone=c.cloneNode(true);
   clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var b=getSchoolBranding();
-  var w=_buildPdfWrap(clone.innerHTML);
-  _runPdf(w,b.name+'-Reports-'+getTodayDate()+'.pdf');
+  _runPrint(clone.innerHTML);
 }
-function downloadSelectedReportsPDF(){
-  var sel=document.querySelectorAll('#reportResults .report-select-cb:checked');
-  if(sel.length===0){showToast('No reports selected.','warning');return;}
-  var cards='';
-  sel.forEach(function(cb){
-    var c=cb.closest('.generated-document');if(!c)return;
-    materializeQRCodes(c);
-    var clone=c.cloneNode(true);
-    clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-    cards+=clone.outerHTML;
-  });
-  var b=getSchoolBranding();
-  var w=_buildPdfWrap(cards);
-  _runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');
+function printMiniReport(btn){
+  var card=btn.closest('.mini-report-card');if(!card)return;
+  materializeQRCodes(card);
+  var clone=card.cloneNode(true);
+  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
+  _runPrint(clone.outerHTML);
 }
 
-/* ============ MINI REPORTS — only AOI converted to 100, grading below, branding below card ============ */
+/* ============ MINI REPORTS ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
 async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
@@ -2461,13 +2430,12 @@ function renderMiniReports(){
     var subjects=Object.keys(s.scores||{});
     var subjRows='';
     var isALevel=isALevelClass(s.class);
-    // For mini reports, only AOI converted to 100 is shown
     if(subjects.length===0){subjRows='<div style="text-align:center;color:#999;padding:8px">No scores</div>';}
     else{
       subjects.forEach(function(sub){
         var sv=s.scores[sub];
         var aoi=parseFloat(sv.aoi)||0;
-        var ap=Math.round((aoi/20)*100); // converted to 100
+        var ap=Math.round((aoi/20)*100);
         var grade=gradeFromPercentage(ap,'olevel');
         subjRows+='<div class="score-row"><span>'+sub+'</span><span class="score-values">AOI: '+aoi+'/20 → '+ap+'% <b>'+grade+'</b></span></div>';
       });
@@ -2484,9 +2452,8 @@ function renderMiniReports(){
     var photo=getStudentPhoto(s.studentId,s.studentName);
     var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:og});
-    // Badge size increased slightly
     h+='<div class="mini-report-card" style="position:relative">'+
-      '<button class="report-print-btn" onclick="downloadSingleMiniPDF(this)">Download PDF</button>'+
+      '<button class="report-print-btn" onclick="printMiniReport(this)">🖨️ Print</button>'+
       '<div class="card-header"><div class="school-name" style="font-size:19px">'+branding.name+'</div></div>'+
       '<div class="photo-container"><div class="photo-placeholder" style="width:75px;height:75px">'+photoHtml+'</div></div>'+
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
@@ -2495,7 +2462,6 @@ function renderMiniReports(){
       '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span><span>Grade: '+(og||'---')+'</span></div>'+
       status+
       '<div style="text-align:center;margin-top:8px"><div data-qr="'+escapeHtml(qrText)+'" style="display:inline-block"></div></div>'+
-      // System branding below mini report card
       '<div style="text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0;font-size:10px;color:#888">'+
         'Powered by <strong>EduTrack Pro</strong> | Developed by <strong>EDUTOK</strong> | His Grace Technologies'+
       '</div>'+
@@ -2505,25 +2471,6 @@ function renderMiniReports(){
   materializeQRCodes(c);
 }
 function filterMiniReports(){renderMiniReports();}
-function downloadSingleMiniPDF(btn){
-  var card=btn.closest('.mini-report-card');if(!card)return;
-  materializeQRCodes(card);
-  var clone=card.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var b=getSchoolBranding();
-  var w=_buildPdfWrap(clone.outerHTML);
-  _runPdf(w,b.name+'-Mini-'+getTodayDate()+'.pdf');
-}
-function downloadMiniReportsPDF(){
-  var c=document.getElementById('miniResults');
-  if(!c||!c.innerHTML.trim()){showToast('Load mini reports first.','warning');return;}
-  materializeQRCodes(c);
-  var clone=c.cloneNode(true);
-  clone.querySelectorAll('.report-print-btn,.report-select-cb').forEach(function(el){el.remove();});
-  var b=getSchoolBranding();
-  var w=_buildPdfWrap(clone.innerHTML);
-  _runPdf(w,b.name+'-Mini-Reports-'+getTodayDate()+'.pdf');
-}
 
 /* ============ DOCUMENTS ============ */
 function updateDocClassInfo(){var cls=document.getElementById('docClassSelect')?.value;var i=document.getElementById('docClassInfo');if(i)i.textContent=cls||'Select';}
@@ -2583,13 +2530,6 @@ async function generateDocument(){
     document.getElementById('documentPreview').innerHTML='<div class="generated-document">'+full+'</div>';
     window.__lastGeneratedDoc=full;
   }catch(e){showToast(e.message,'error');}
-}
-function downloadDocument(){
-  var html=window.__lastGeneratedDoc;
-  if(!html){showToast('Generate a document first.','warning');return;}
-  var b=getSchoolBranding();
-  var w=_buildPdfWrap('<div class="generated-document">'+html+'</div>');
-  _runPdf(w,b.name+'-Doc-'+getTodayDate()+'.pdf');
 }
 function printDocument(){
   var html=window.__lastGeneratedDoc;
