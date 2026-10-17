@@ -4,238 +4,240 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#0f0c29" />
-<title>👩‍🏫 Teacher — EduTrack Pro</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>📚 EduTrack Pro — Login</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root{--bg1:#0f0c29;--bg2:#302b63;--bg3:#24243e;--primary:#302b63;--accent:#fcdc04;--student:#004085;--student-dark:#002855;--student-light:#cce5ff;--success:#1a8a4a;--success-dark:#2d6a4f;--danger:#c1121f;--danger-dark:#780000;--warning:#e85d04;--warning-dark:#dc2f02;--info:#0069d9;--info-dark:#004085;--surface:#fff;--surface-2:#f8f9fa;--surface-3:#f0f7ff;--text:#1a1a2e;--text-2:#555;--text-3:#888;--border:#e0e0e0;--shadow-sm:0 2px 10px rgba(0,0,0,.06);--shadow-md:0 4px 15px rgba(0,0,0,.08);--shadow-lg:0 10px 30px rgba(0,0,0,.15);--radius-sm:8px;--radius-md:12px;--radius-lg:16px}
+:root{
+  --bg1:#0f0c29;--bg2:#302b63;--bg3:#24243e;
+  --primary:#302b63;--accent:#fcdc04;
+  --surface:#fff;--surface-2:#f8f9fa;--surface-3:#f0f4ff;
+  --text:#1a1a2e;--text-2:#555;--text-3:#888;--border:#e0e0e0;
+  --success:#1a8a4a;--danger:#c1121f;--warning:#e85d04;--info:#004085;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.06);
+  --shadow-md:0 4px 15px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.15);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));min-height:100vh;padding:10px;color:var(--text)}
-@media(min-width:768px){body{padding:20px}}
-.navbar{background:rgba(255,255,255,.98);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:1000;border-bottom:3px solid var(--student)}
-.navbar-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--student);text-decoration:none;font-family:Georgia,serif}
-.navbar-brand .brand-text{background:linear-gradient(135deg,var(--student-dark),var(--student));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.navbar-toggle{display:none;background:none;border:none;font-size:22px;color:var(--student);cursor:pointer;padding:6px}
-@media(max-width:900px){.navbar-toggle{display:block}}
-.navbar-menu{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-@media(max-width:900px){.navbar-menu{display:none;width:100%;flex-direction:column;align-items:stretch;padding:10px 0;border-top:1px solid var(--border);margin-top:10px;max-height:70vh;overflow-y:auto}.navbar-menu.open{display:flex}}
-.nav-link{padding:9px 13px;border-radius:10px;color:#666;font-weight:600;font-size:13px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:6px;white-space:nowrap;text-align:left}
-.nav-link:hover{background:rgba(0,64,133,.08);color:var(--student)}
-.nav-link.active{background:linear-gradient(135deg,var(--student-dark),var(--student));color:#fff}
-.nav-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:20px;background:var(--student-light);border:1px solid var(--student)}
-.nav-user .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--student);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
-.nav-user .user-info{font-size:11px;line-height:1.2}
-.nav-user .user-info .user-name{font-weight:600}
-.nav-user .user-info .user-role{font-size:9px;color:var(--text-3)}
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0;z-index:900;box-shadow:0 -4px 15px rgba(0,0,0,.08)}
-.bottom-nav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border:none;background:none;font-size:10px;color:var(--text-3);cursor:pointer;font-weight:600}
-.bottom-nav .bn-item.active{color:var(--student)}
-.bottom-nav .bn-item i{font-size:18px}
-@media(max-width:900px){.bottom-nav{display:flex}body{padding-bottom:70px}}
-.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.97);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:18px 15px 24px;box-shadow:0 20px 60px rgba(0,0,0,.4);min-height:80vh;position:relative}
-@media(min-width:768px){.container{padding:22px 28px 32px}}
-.container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#000 0%,#000 33%,var(--accent) 33%,var(--accent) 66%,var(--student) 66%,var(--student) 100%)}
-.form-section{display:none;animation:fadeIn .25s ease;padding-top:8px}
-.form-section.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.section-title{font-size:20px;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.section-desc{color:var(--text-3);font-size:13px;margin-bottom:16px}
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg3) 100%);
+  min-height:100vh;padding:14px;display:flex;align-items:center;justify-content:center;color:var(--text)
+}
+@media(min-width:640px){body{padding:24px}}
+
+.auth-wrapper{width:100%;max-width:560px;position:relative}
+.auth-card{
+  background:rgba(255,255,255,.98);border-radius:var(--radius-lg);
+  padding:24px 20px 28px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden
+}
+@media(min-width:640px){.auth-card{padding:30px 30px 34px}}
+.auth-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,#000 0%,#000 33%,var(--accent) 33%,var(--accent) 66%,#d90000 66%,#d90000 100%)
+}
+
+.auth-header{text-align:center;margin-bottom:18px}
+.auth-header .logo{font-size:50px;line-height:1;display:block;margin-bottom:6px}
+.auth-header h1{
+  font-family:Georgia,serif;color:var(--primary);font-size:26px;font-weight:700;margin-bottom:3px;
+  background:linear-gradient(135deg,var(--bg1),var(--primary));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text
+}
+.auth-header .subtitle{color:var(--text-3);font-size:13px}
+.conn-status{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;
+  font-size:11px;font-weight:700;margin-top:10px
+}
+.conn-status .dot{width:8px;height:8px;border-radius:50%;background:#666;display:inline-block;flex-shrink:0}
+.conn-status.checking{background:#fff3cd;color:#856404}
+.conn-status.checking .dot{background:var(--warning);animation:pulse 1s infinite}
+.conn-status.connected{background:#d4edda;color:#155724}
+.conn-status.connected .dot{background:var(--success)}
+.conn-status.disconnected{background:#f8d7da;color:#721c24}
+.conn-status.disconnected .dot{background:var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.role-toggle{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:5px;background:var(--surface-2);padding:5px;border-radius:12px;
+  margin-bottom:16px
+}
+@media(max-width:420px){.role-toggle{grid-template-columns:repeat(2,1fr)}}
+.role-btn{
+  padding:10px 6px;border:none;border-radius:8px;background:none;
+  font-weight:700;font-size:11px;color:#666;cursor:pointer;transition:.2s;
+  white-space:nowrap;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  min-height:56px;justify-content:center
+}
+@media(min-width:640px){.role-btn{font-size:12px;min-height:60px}}
+.role-btn .role-emoji{font-size:18px;line-height:1}
+.role-btn.active{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff;box-shadow:0 4px 12px rgba(48,43,99,.35)}
+.role-btn:not(.active):hover{background:rgba(48,43,99,.08);color:var(--primary)}
+
+.mode-toggle{text-align:center;margin-bottom:16px;font-size:13px}
+.mode-link{
+  background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;
+  color:var(--text-3);padding:6px 10px;font-family:inherit
+}
+.mode-link.active{color:var(--primary);text-decoration:underline}
+
 .form-group{margin-bottom:14px}
-.form-group label{display:block;font-weight:600;color:var(--text-2);font-size:13px;margin-bottom:5px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:#fafafa;font-family:inherit;-webkit-appearance:none}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--student);outline:none;box-shadow:0 0 0 3px rgba(0,64,133,.15);background:#fff}
-.form-group input:disabled{background:#f0f0f0;color:#333;font-weight:600}
-.form-row-2{display:grid;grid-template-columns:1fr;gap:12px}
-.form-row-3{display:grid;grid-template-columns:1fr;gap:12px}
-@media(min-width:640px){.form-row-2{grid-template-columns:1fr 1fr}.form-row-3{grid-template-columns:1fr 1fr 1fr}}
-.btn{padding:12px 22px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;transition:.15s}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:linear-gradient(135deg,var(--student-dark),var(--student));color:#fff}
-.btn-success{background:linear-gradient(135deg,var(--success),var(--success-dark));color:#fff}
-.btn-danger{background:linear-gradient(135deg,var(--danger),var(--danger-dark));color:#fff}
-.btn-info{background:linear-gradient(135deg,var(--info),var(--info-dark));color:#fff}
-.btn-secondary{background:#e2e8f0;color:#333}
-.btn-sm{padding:8px 14px;font-size:12px;min-height:36px}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-block{width:100%}
-.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
-@media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
-.stat-card{background:#fff;border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;text-align:center}
-.stat-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--student)}
-.stat-card.success::before{background:var(--success)}
-.stat-card.danger::before{background:var(--danger)}
-.stat-card.warning::before{background:var(--warning)}
-.stat-card.info::before{background:var(--info)}
-.stat-card .stat-icon{font-size:22px}
-.stat-card .stat-number{font-size:20px;font-weight:700;color:var(--text);margin:4px 0;line-height:1.2;word-break:break-word}
-.stat-card .stat-label{font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:600}
-.info-box{background:var(--surface-3);border-left:4px solid var(--student);padding:12px 15px;border-radius:8px;margin:12px 0}
-.info-box .info-title{font-weight:700;color:var(--student);font-size:13px;margin-bottom:3px}
-.info-box .info-text{color:var(--text-2);font-size:12px;line-height:1.5}
-.table-wrap{overflow-x:auto;border-radius:var(--radius-md);background:#fff;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:10px 0}
-table.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
-table.data-table th{background:linear-gradient(135deg,var(--student-dark),var(--student));color:#fff;padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase}
-table.data-table td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
-table.data-table tr:hover td{background:var(--surface-2)}
-.score-table{width:100%;border-collapse:collapse;margin:10px 0;border-radius:10px;overflow:hidden;font-size:13px}
-.score-table th{background:linear-gradient(135deg,var(--student-dark),var(--student));color:#fff;padding:12px 10px;text-align:left;font-size:12px}
-.score-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
-.score-table input{width:100%;padding:8px 10px;border:2px solid #ddd;border-radius:6px;font-size:14px;background:#fafafa;font-family:inherit}
-.attendance-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:15px 0;max-height:500px;overflow-y:auto;padding:5px}
-.attendance-check-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border);flex-wrap:wrap}
-.attendance-check-item input[type="checkbox"]{width:20px;height:20px;cursor:pointer;accent-color:var(--success-dark)}
-.attendance-check-item label{font-size:13px;font-weight:500;cursor:pointer;flex:1;min-width:100px}
-.chart-container{background:#fff;border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin:14px 0}
-.chart-container h4{font-size:14px;color:var(--student);margin-bottom:10px}
-.chart-container canvas{max-height:260px;max-width:100%}
-.toast-notification{position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;color:#fff;font-weight:600;z-index:99999;opacity:0;transform:translateY(-20px);transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center;max-width:400px}
+.form-group label{display:block;font-weight:600;color:var(--text-2);font-size:13px;margin-bottom:6px}
+.form-group input,.form-group select{
+  width:100%;padding:13px 15px;border:2px solid var(--border);border-radius:10px;
+  font-size:16px;background:#fafafa;transition:.2s;font-family:inherit;-webkit-appearance:none
+}
+.form-group input:focus,.form-group select:focus{
+  border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(48,43,99,.15);background:#fff
+}
+.form-row{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:520px){.form-row{grid-template-columns:1fr 1fr}}
+.pass-wrap{position:relative}
+.pass-toggle{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:#888;font-size:15px;cursor:pointer;padding:6px
+}
+
+.btn{
+  padding:14px 24px;border:none;border-radius:10px;font-size:15px;font-weight:700;
+  cursor:pointer;transition:.2s;font-family:inherit;min-height:50px;width:100%;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px
+}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff}
+.btn-success{background:linear-gradient(135deg,var(--success),#2d6a4f);color:#fff}
+.btn-primary:hover:not(:disabled),.btn-success:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+
+hr{border:none;border-top:1px dashed var(--border);margin:18px 0}
+
+.status-msg{
+  padding:12px 15px;border-radius:10px;margin-top:12px;font-size:13px;display:none;
+  line-height:1.5;border-left:4px solid
+}
+.status-msg.success{display:block;background:#d4edda;color:#155724;border-color:var(--success)}
+.status-msg.error{display:block;background:#f8d7da;color:#721c24;border-color:var(--danger)}
+.status-msg.info{display:block;background:#d1ecf1;color:#0c5460;border-color:var(--info)}
+.status-msg.warning{display:block;background:#fff3cd;color:#856404;border-color:var(--warning)}
+
+.toast-notification{
+  position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;
+  color:#fff;font-weight:600;z-index:9999;opacity:0;transform:translateY(-20px);
+  transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center;max-width:400px
+}
 @media(min-width:640px){.toast-notification{left:auto;transform:translateX(120%)}}
 .toast-notification.show{opacity:1;transform:translateY(0)}
 @media(min-width:640px){.toast-notification.show{transform:translateX(0)}}
-.toast-notification.success{background:linear-gradient(135deg,var(--success),var(--success-dark))}
-.toast-notification.error{background:linear-gradient(135deg,var(--danger),var(--danger-dark))}
-.toast-notification.info{background:linear-gradient(135deg,var(--student-dark),var(--student))}
-.toast-notification.warning{background:linear-gradient(135deg,var(--warning),var(--warning-dark))}
+.toast-notification.success{background:linear-gradient(135deg,var(--success),#2d6a4f)}
+.toast-notification.error{background:linear-gradient(135deg,var(--danger),#780000)}
+.toast-notification.info{background:linear-gradient(135deg,var(--bg1),var(--primary))}
+.toast-notification.warning{background:linear-gradient(135deg,var(--warning),#dc2f02)}
+
+.footer-note{text-align:center;font-size:11px;color:var(--text-3);margin-top:16px;line-height:1.6}
 </style>
 </head>
 <body>
 
 <div id="toastContainer"></div>
 
-<nav class="navbar">
-  <a href="teacher.html" class="navbar-brand"><span style="font-size:26px">👩‍🏫</span><span class="brand-text">EduTrack Teacher</span></a>
-  <button class="navbar-toggle" onclick="document.getElementById('navbarMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
-  <div class="navbar-menu" id="navbarMenu">
-    <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
-    <button class="nav-link" data-tab="attendance" onclick="switchTab('attendance')"><i class="fas fa-check-circle"></i> Attendance</button>
-    <button class="nav-link" data-tab="classes" onclick="switchTab('classes')"><i class="fas fa-chalkboard"></i> My Classes</button>
-    <button class="nav-link" data-tab="students" onclick="switchTab('students')"><i class="fas fa-user-graduate"></i> Students</button>
-    <button class="nav-link" data-tab="profile" onclick="switchTab('profile')"><i class="fas fa-user"></i> Profile</button>
-    <div class="nav-user">
-      <div class="user-avatar" id="navUserAvatar">T</div>
-      <div class="user-info">
-        <div class="user-name" id="navUserName">Teacher</div>
-        <div class="user-role" id="navUserRole">Teacher</div>
-      </div>
-    </div>
-    <button class="btn btn-secondary btn-sm" onclick="appLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-  </div>
-</nav>
-
-<div class="container">
-
-  <div id="tabDashboard" class="form-section active">
-    <h2 class="section-title"><i class="fas fa-home" style="color:var(--student)"></i> Welcome, <span id="dashTeacherName">Teacher</span></h2>
-    <p class="section-desc" id="dashSubtitle">Your teaching overview.</p>
-
-    <div class="info-box" id="teacherInfoBox"></div>
-
-    <div class="stats-grid" style="margin-bottom:10px">
-      <div class="stat-card success"><div class="stat-icon">💰</div><div class="stat-number" id="dsSalary" style="font-size:16px">UGX 0</div><div class="stat-label">Monthly Salary</div></div>
-      <div class="stat-card warning" style="grid-column:span 2"><div class="stat-icon">🎯</div><div class="stat-number" id="dsOtherRoles" style="font-size:14px">None</div><div class="stat-label">Other Assignments</div></div>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <span class="logo">📚</span>
+      <h1>EduTrack Pro</h1>
+      <p class="subtitle" id="authSubtitle">Please sign in to continue</p>
+      <span id="connectionStatus" class="conn-status checking"><span class="dot"></span> Checking connection…</span>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-number" id="dsMyClasses">0</div><div class="stat-label">My Classes</div></div>
-      <div class="stat-card info"><div class="stat-icon">📖</div><div class="stat-number" id="dsMySubjects">0</div><div class="stat-label">Subjects</div></div>
-      <div class="stat-card success"><div class="stat-icon">👨‍🎓</div><div class="stat-number" id="dsMyStudents">0</div><div class="stat-label">Students</div></div>
-      <div class="stat-card warning"><div class="stat-icon">📝</div><div class="stat-number" id="dsAssignments">0</div><div class="stat-label">Assignments</div></div>
+    <div class="role-toggle">
+      <button type="button" class="role-btn active" id="roleBtnAdmin"       onclick="setAuthRole('admin')"><span class="role-emoji">👨‍💼</span>Admin</button>
+      <button type="button" class="role-btn"        id="roleBtnBursar"      onclick="setAuthRole('bursar')"><span class="role-emoji">💰</span>Bursar</button>
+      <button type="button" class="role-btn"        id="roleBtnGateman"     onclick="setAuthRole('gateman')"><span class="role-emoji">🚪</span>Gate</button>
+      <button type="button" class="role-btn"        id="roleBtnTeacher"     onclick="setAuthRole('teacher')"><span class="role-emoji">👩‍🏫</span>Teacher</button>
+      <button type="button" class="role-btn"        id="roleBtnParent"      onclick="setAuthRole('parent')"><span class="role-emoji">👨‍👩‍👦</span>Parent</button>
+      <button type="button" class="role-btn"        id="roleBtnStudent"     onclick="setAuthRole('student')"><span class="role-emoji">🎓</span>Student</button>
+      <button type="button" class="role-btn"        id="roleBtnNurse"       onclick="setAuthRole('nurse')"><span class="role-emoji">🏥</span>Nurse</button>
+      <button type="button" class="role-btn"        id="roleBtnStorekeeper" onclick="setAuthRole('storekeeper')"><span class="role-emoji">📦</span>Store</button>
     </div>
 
-    <div class="stat-card info" style="margin-bottom:14px;text-align:left">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:var(--student)">📊 Class Attendance Summary</div>
-          <div style="font-size:12px;color:var(--text-3)">Percentage present today across your classes.</div>
-        </div>
-        <div style="font-size:28px;font-weight:700;color:var(--success)" id="dsAttendancePct">0%</div>
-      </div>
+    <div class="mode-toggle" id="authModeToggle">
+      <button type="button" class="mode-link active" id="modeBtnLogin" onclick="setAuthMode('login')">Login</button>
+      <span style="color:#ccc">|</span>
+      <button type="button" class="mode-link" id="modeBtnSignup" onclick="setAuthMode('signup')">Create School Account</button>
     </div>
 
-    <div class="chart-container">
-      <h4>📈 Performance vs Other Subjects</h4>
-      <canvas id="performanceChart"></canvas>
-    </div>
-
-    <div class="stats-grid" style="grid-template-columns:1fr 1fr;gap:12px">
-      <div class="stat-card" style="text-align:left;background:#fff5f5;border-color:#f5c6cb">
-        <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:6px">🔻 Weak Learners</div>
-        <div id="weakLearnersList" style="font-size:12px;line-height:1.6">Loading…</div>
-      </div>
-      <div class="stat-card" style="text-align:left;background:#f0fff4;border-color:#c3e6cb">
-        <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:6px">🏆 Strong Learners</div>
-        <div id="strongLearnersList" style="font-size:12px;line-height:1.6">Loading…</div>
-      </div>
-    </div>
-
-    <h4 style="margin:14px 0 8px;color:var(--student);font-size:14px">📚 My Assigned Classes</h4>
-    <div id="dashClassesList"></div>
-  </div>
-
-  <div id="tabAttendance" class="form-section">
-    <h2 class="section-title"><i class="fas fa-check-circle" style="color:var(--student)"></i> Take Attendance</h2>
-    <div class="form-row-2">
+    <div id="loginFields">
       <div class="form-group">
-        <label>Class *</label>
-        <select id="manualAttClassSelect" onchange="loadManualAttendanceStudents()"><option value="">Select a Class</option></select>
+        <label>Username</label>
+        <input type="text" id="authUsername" placeholder="Enter your username" autocomplete="username"
+          onchange="if(pendingAuthRole==='parent') loadParentChildren()"
+          onblur="if(pendingAuthRole==='parent') loadParentChildren()" />
       </div>
-      <div class="form-group"><label>Date</label><input type="date" id="manualAttDate" /></div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:15px 0">
-      <button class="btn btn-success btn-sm" onclick="markAllManual('present')">✅ All Present</button>
-      <button class="btn btn-danger btn-sm" onclick="markAllManual('absent')">❌ All Absent</button>
-      <button class="btn btn-secondary btn-sm" onclick="resetManualAttendance()">🔄 Reset</button>
-    </div>
-    <div id="manualAttGrid" class="attendance-check-grid"><p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p></div>
-    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px">
-      <button class="btn btn-primary" id="manualAttSaveBtn" onclick="saveManualAttendance()">💾 Save Attendance</button>
-    </div>
-  </div>
-
-  <div id="tabClasses" class="form-section">
-    <h2 class="section-title"><i class="fas fa-chalkboard" style="color:var(--student)"></i> My Classes</h2>
-    <div id="classesGrid"></div>
-  </div>
-
-  <div id="tabStudents" class="form-section">
-    <h2 class="section-title"><i class="fas fa-user-graduate" style="color:var(--student)"></i> My Students</h2>
-    <div class="form-group">
-      <label>Select Class *</label>
-      <select id="studentsClassSelect" onchange="loadStudentsForTab()"><option value="">Select a Class</option></select>
-    </div>
-    <div id="studentsBody"><p style="color:#999;text-align:center;padding:20px">Select a class.</p></div>
-  </div>
-
-  <div id="tabProfile" class="form-section">
-    <h2 class="section-title"><i class="fas fa-user" style="color:var(--student)"></i> My Profile</h2>
-    <div style="text-align:center;margin:14px 0">
-      <div style="width:100px;height:100px;border-radius:50%;background:var(--student);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto;overflow:hidden" id="profileAvatar">
-        <span id="profileInitial">T</span>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input type="password" id="authPassword" placeholder="Enter your password" autocomplete="current-password" />
+          <button type="button" class="pass-toggle" onclick="togglePassword('authPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
       </div>
+      <div class="form-group" id="authSchoolGroup">
+        <label>School</label>
+        <select id="authSchoolSelect" onchange="if(pendingAuthRole==='parent') loadParentChildren()">
+          <option value="">Select your school</option>
+        </select>
+      </div>
+      <div class="form-group" id="authChildGroup" style="display:none">
+        <label>Select Child</label>
+        <select id="authChildSelect"><option value="">Select your child</option></select>
+      </div>
+      <button class="btn btn-primary" id="authLoginBtn" onclick="attemptLogin()">🔓 Login</button>
+      <p class="footer-note">Contact admin for your login credentials.</p>
     </div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Full Name</label><input type="text" id="pfName" disabled /></div>
-      <div class="form-group"><label>Staff ID</label><input type="text" id="pfStaffId" disabled /></div>
-    </div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Phone</label><input type="tel" id="pfPhone" /></div>
-      <div class="form-group"><label>Email</label><input type="email" id="pfEmail" /></div>
-    </div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Salary (UGX)</label><input type="text" id="pfSalary" disabled /></div>
-      <div class="form-group"><label>Other Roles</label><input type="text" id="pfOtherRoles" disabled /></div>
-    </div>
-    <div class="form-group"><label>Qualifications</label><textarea id="pfQuals" rows="3"></textarea></div>
-    <div class="form-group"><label>Subjects Taught</label><input type="text" id="pfSubjects" disabled /></div>
-    <div class="form-group"><label>Classes Taught</label><input type="text" id="pfClasses" disabled /></div>
-    <button class="btn btn-primary btn-block" onclick="saveProfile()">💾 Save Profile</button>
-  </div>
 
+    <div id="signupFields" style="display:none">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="signupName" autocomplete="name" /></div>
+      <div class="form-group"><label>Username *</label><input type="text" id="signupUsername" autocomplete="username" /></div>
+      <div class="form-group">
+        <label>Password *</label>
+        <div class="pass-wrap">
+          <input type="password" id="signupPassword" autocomplete="new-password" />
+          <button type="button" class="pass-toggle" onclick="togglePassword('signupPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password *</label>
+        <div class="pass-wrap">
+          <input type="password" id="signupPasswordConfirm" autocomplete="new-password" />
+          <button type="button" class="pass-toggle" onclick="togglePassword('signupPasswordConfirm',this)"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <hr>
+      <p style="color:var(--primary);font-weight:700;font-size:14px;margin-bottom:12px">🏫 School Details</p>
+      <div class="form-group"><label>School Name *</label><input type="text" id="signupSchoolName" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone *</label><input type="tel" id="signupSchoolPhone" /></div>
+        <div class="form-group"><label>Email *</label><input type="email" id="signupSchoolEmail" /></div>
+      </div>
+      <div class="form-group"><label>Address</label><input type="text" id="signupSchoolAddress" /></div>
+      <div class="form-group"><label>Motto</label><input type="text" id="signupSchoolMotto" /></div>
+      <button class="btn btn-success" id="authSignupBtn" onclick="attemptAdminSignup()">✅ Create School Account</button>
+    </div>
+
+    <div id="authStatus" class="status-msg"></div>
+  </div>
 </div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════════
+   EduTrack Pro — Login v3
+   ═══════════════════════════════════════════════════════════════ */
+
 var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8LoQcAlViMcFQLvvJYMdjZT00Ha8YHqeV91ibXFGB2BQnHrVgyU-0psvDdyhwUcrSKA/exec';
 var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
 
@@ -249,6 +251,7 @@ var pendingAuthRole = 'admin';
 var pendingAuthMode = 'login';
 var isConnected = false;
 
+/* ─── Toast / status ─── */
 function showToast(msg, type){
   type = type || 'info';
   var c = document.getElementById('toastContainer');
@@ -273,6 +276,7 @@ function togglePassword(id, btn){
   btn.innerHTML = show ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
 }
 
+/* ─── API helper ─── */
 async function callAppsScript(params){
   var parts = [];
   for(var k in params){
@@ -290,6 +294,7 @@ async function callAppsScript(params){
   return await res.json();
 }
 
+/* ─── Role / mode toggles ─── */
 function setAuthRole(role){
   pendingAuthRole = role;
   document.querySelectorAll('.role-btn').forEach(function(el){ el.classList.remove('active'); });
@@ -305,7 +310,6 @@ function setAuthRole(role){
   setAuthMode(role !== 'admin' ? 'login' : pendingAuthMode);
   if(role === 'admin') loadSchoolsForLogin();
 }
-
 function setAuthMode(mode){
   pendingAuthMode = mode;
   document.getElementById('modeBtnLogin').classList.toggle('active', mode === 'login');
@@ -316,6 +320,7 @@ function setAuthMode(mode){
   if(mode === 'login') loadSchoolsForLogin();
 }
 
+/* ─── Connection ─── */
 async function testConnection(){
   var s = document.getElementById('connectionStatus');
   s.className = 'conn-status checking';
@@ -392,6 +397,7 @@ async function loadParentChildren(){
   } catch(e){}
 }
 
+/* ─── Login ─── */
 async function attemptLogin(){
   if(!isConnected) await testConnection();
 
@@ -445,6 +451,7 @@ async function attemptLogin(){
   }
 }
 
+/* ─── Signup ─── */
 async function attemptAdminSignup(){
   if(!isConnected) await testConnection();
 
@@ -491,12 +498,17 @@ async function attemptAdminSignup(){
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   DOMContentLoaded — validate session, else show login form
-   ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   DOMContentLoaded — validate session, else ALWAYS show login
+   ═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function(){
-  var restored = false;
+  // If URL contains ?loggedout=… → always force logout state
+  var urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('loggedout') || urlParams.has('fresh')){
+    try{ sessionStorage.removeItem('authSession'); }catch(e){}
+  }
 
+  // Try to auto-restore a *validated* session
   try{
     var raw = sessionStorage.getItem('authSession');
     if(raw){
@@ -504,27 +516,26 @@ document.addEventListener('DOMContentLoaded', function(){
       var role = String((s && s.role) || '').trim().toLowerCase();
       var home = ROLE_HOME[role];
 
-      // Only redirect when the session is truly valid
-      if(home && s && s.username){
-        restored = true;
+      // A session is valid only if we know where to send the user
+      // AND it has a username AND a recognised role
+      if(home && s && s.username && role){
         window.location.replace(home);
         return;
       }
 
-      // Bad session — clear and show login
+      // Invalid session → clear it
       console.warn('[login] Discarding invalid session:', s);
       sessionStorage.removeItem('authSession');
     }
-  }catch(e){
+  } catch(e){
     console.warn('[login] Session parse error:', e);
-    sessionStorage.removeItem('authSession');
+    try{ sessionStorage.removeItem('authSession'); }catch(_){}
   }
 
-  if(!restored){
-    setAuthRole('admin');
-    setAuthMode('login');
-    setTimeout(testConnection, 400);
-  }
+  // Show login form
+  setAuthRole('admin');
+  setAuthMode('login');
+  setTimeout(testConnection, 400);
 });
 </script>
 </body>
