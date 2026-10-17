@@ -370,56 +370,110 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v22.0
+   EduTrack Pro — Admin v22.0
+   - Reads authSession set by index.html (no login form here)
+   - Redirects to index.html if session missing/wrong role
+   - All account actions hit the Accounts tab
+   - Header-tolerant backend contract (login, createUserAccount,
+     getAllAccounts, getTeacherAccount, deleteAccount, etc.)
    ============================================================ */
+
 var APPS_SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycby8LoQcAlViMcFQLvvJYMdjZT00Ha8YHqeV91ibXFGB2BQnHrVgyU-0psvDdyhwUcrSKA/exec';
 var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var LOGIN_URL        = 'index.html';
+
 var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
 var CLASS_IDS = {'S.1':'classS1','S.2':'classS2','S.3':'classS3','S.4':'classS4','S.5':'classS5','S.6':'classS6'};
 var ROLE_NAMES = {admin:'Admin',teacher:'Teacher',bursar:'Bursar',gateman:'Gate Man',parent:'Parent',nurse:'Nurse',storekeeper:'Storekeeper'};
-var authSession = null;
+var OLEVEL_CLASSES = ['S.1','S.2','S.3','S.4'];
+var ALEVEL_CLASSES = ['S.5','S.6'];
+var SUBJECT_CODES = {'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','IRE':'224','Entrepreneurship':'541','Computer Studies':'462','ICT':'461','Luganda':'345','Kiswahili':'336','Agriculture':'531','General Paper':'101','Subsidiary Mathematics':'457','Divinity':'225','Food and Nutrition':'545','Runyankole Rukiga':'347','Art and Design':'610'};
+
+/* ─── Global state ─── */
+var authSession   = null;
 var pendingAssignments = [];
-var manualAttStudents = [];
-var manualAttClass = '';
-var scoreRows = [];
+var manualAttStudents  = [];
+var manualAttFiltered  = [];
+var manualAttClass     = '';
+var manualAttSearchQ   = '';
+var scoreRows          = [];
+var currentScoreLevel  = 'olevel';
+var feesRecords        = [];
+var expenseRecords     = [];
+var chatUsers          = [];
+var currentChatUser    = null;
+var chatPollInterval   = null;
+var performanceChartInstance = null;
+var feesChartInstance        = null;
+var attendanceChartInstance  = null;
+var storesBarChartInstance   = null;
+var storesStatusChartInstance= null;
 
-/* ─── Helpers ─── */
-function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function getActiveSchool(){return authSession?authSession.school:'';}
-function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function extractSheetIdFromUrl(u){if(!u)return '';var m=u.match(/\/d\/([a-zA-Z0-9-_]+)/);if(m)return m[1];if(/^[a-zA-Z0-9-_]{30,}$/.test(u))return u;return '';}
-function getClassLink(cls){try{var s=getActiveSchool();if(!s)return '';return localStorage.getItem('classLink_'+cls+'_'+s)||'';}catch(e){return '';}}
-function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
-
-function showToast(msg,type){
-  type=type||'info';
-  var c=document.getElementById('toastContainer');
-  var t=document.createElement('div');
-  t.className='toast-notification '+type;
-  t.textContent=msg;
-  c.appendChild(t);
-  setTimeout(function(){t.classList.add('show');},50);
-  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove();},400);},3500);
+/* ─── Utilities ─── */
+function escapeHtml(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
 }
-function showStatus(msg,type){
-  var m=document.getElementById('statusMessage');
-  if(!m)return;
-  if(!msg){m.style.display='none';return;}
+function getActiveSchool(){ return authSession ? (authSession.school||'') : ''; }
+function getTodayDate(){
+  var d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function getCurrentTime(){ return new Date().toLocaleTimeString(); }
+function extractSheetIdFromUrl(url){
+  if(!url) return '';
+  var m = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if(m) return m[1];
+  if(/^[a-zA-Z0-9-_]{30,}$/.test(url)) return url;
+  return '';
+}
+function getClassLink(cls){
+  try{
+    var s = getActiveSchool();
+    if(!s) return '';
+    return localStorage.getItem('classLink_'+cls+'_'+s)||'';
+  }catch(e){ return ''; }
+}
+function getClassSheetId(cls){ return extractSheetIdFromUrl(getClassLink(cls)); }
+function isOLevelClass(cls){ return OLEVEL_CLASSES.indexOf(cls)!==-1; }
+function isALevelClass(cls){ return ALEVEL_CLASSES.indexOf(cls)!==-1; }
+function isSubsidiarySubject(s){ return s==='General Paper'||s==='Subsidiary Mathematics'||s==='ICT'; }
+
+function showToast(msg, type){
+  type = type||'info';
+  var c = document.getElementById('toastContainer');
+  if(!c) return;
+  var t = document.createElement('div');
+  t.className = 'toast-notification '+type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 30);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); },400); }, 3600);
+}
+function showStatus(msg, type){
+  var m = document.getElementById('statusMessage');
+  if(!m) return;
+  if(!msg){ m.style.display='none'; return; }
   m.style.display='block';
   m.className='status-message '+(type||'info');
   m.textContent=msg;
 }
-function closeModal(){document.getElementById('modalOverlay').classList.remove('active');}
+function closeModal(){
+  var o = document.getElementById('modalOverlay');
+  if(o) o.classList.remove('active');
+}
 
+/* ─── API wrapper ─── */
 async function api(params){
-  var parts=[];
+  var parts = [];
   for(var k in params){
-    if(params.hasOwnProperty(k)&&params[k]!=null){
+    if(params.hasOwnProperty(k) && params[k]!=null){
       parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
     }
   }
   try{
-    var res=await fetch(APPS_SCRIPT_URL,{
+    var res = await fetch(APPS_SCRIPT_URL, {
       method:'POST',
       headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
       body:parts.join('&'),
@@ -428,161 +482,643 @@ async function api(params){
     if(!res.ok) throw new Error('HTTP '+res.status);
     return await res.json();
   }catch(e){
-    return {success:false,offline:true,message:e.message};
+    return {success:false, offline:true, message:e.message};
   }
 }
 
-/* ─── Tab switching ─── */
+/* ─── Navigation ─── */
 function switchTab(tab){
-  document.querySelectorAll('.form-section').forEach(function(el){el.classList.remove('active');});
-  document.querySelectorAll('.nav-link').forEach(function(el){el.classList.remove('active');});
-  var m={dashboard:'tabDashboard',register:'tabRegister',scores:'tabScores',attendance:'tabAttendance',
-         fees:'tabFees',expenses:'tabExpenses',reports:'tabReports',settings:'tabSettings'};
-  var t=document.getElementById(m[tab]||'tabDashboard');
-  if(t)t.classList.add('active');
-  document.querySelectorAll('.nav-link[data-tab="'+tab+'"]').forEach(function(b){b.classList.add('active');});
-  document.getElementById('navbarMenu').classList.remove('open');
-  if(tab==='dashboard')loadDashboard();
-  if(tab==='attendance'){var d=document.getElementById('manualAttDate');if(d&&!d.value)d.value=getTodayDate();}
-  if(tab==='settings'){loadSettings();loadUserAccounts();}
+  document.querySelectorAll('.form-section').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('.nav-link').forEach(function(el){ el.classList.remove('active'); });
+
+  var map = {
+    dashboard:'tabDashboard', register:'tabRegister', scores:'tabScores',
+    attendance:'tabAttendance', facereg:'tabFaceReg', fees:'tabFees',
+    expenses:'tabExpenses', reports:'tabReports', mini:'tabMini',
+    documents:'tabDocuments', timetable:'tabTimetable', program:'tabProgram',
+    notices:'tabNotices', chat:'tabChat', settings:'tabSettings'
+  };
+  var el = document.getElementById(map[tab]||'tabDashboard');
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-link[data-tab="'+tab+'"]').forEach(function(b){ b.classList.add('active'); });
+
+  var menu = document.getElementById('navbarMenu');
+  if(menu) menu.classList.remove('open');
+
+  // Tab-specific loads
+  if(tab==='dashboard'){ loadDashboard(); }
+  if(tab==='attendance'){ populateManualAttClassSelect(); var md=document.getElementById('manualAttDate'); if(md&&!md.value) md.value=getTodayDate(); }
+  if(tab==='scores'){ updateScoreEntryMode(); }
+  if(tab==='fees'){ loadFeesData(); }
+  if(tab==='expenses'){ loadExpenses(); }
+  if(tab==='settings'){ loadSettings(); loadUserAccounts(); }
+  if(tab==='chat'){ loadChatUsers(); }
+
   window.scrollTo(0,0);
 }
 
-/* ─── Dashboard ─── */
-async function loadDashboard(){
-  var school=getActiveSchool();
-  document.getElementById('dashboardSchoolName').textContent=school||'School';
-  var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
-  document.getElementById('dashboardMotto').textContent='"'+ (s.schoolMotto||'Empowering Education')+'"';
-
+/* ─── Logout ─── */
+function appLogout(){
   try{
-    var r=await api({action:'getStudentCount',school:school});
-    var c=(r&&r.success&&r.data)?(r.data.count||0):0;
-    document.getElementById('statTotalStudents').textContent=c;
-    document.getElementById('dashboardStudentCount').textContent='👨‍🎓 Total Students: '+c;
+    sessionStorage.removeItem('authSession');
+    localStorage.removeItem('authSession');
   }catch(e){}
+  window.location.replace('index.html?loggedout=' + Date.now());
 }
 
-/* ─── Settings ─── */
-function loadSettings(){
-  var school=getActiveSchool();
-  var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
-  var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
-  set('settingsSchoolName',s.schoolName||school);
-  set('settingsSchoolMotto',s.schoolMotto||'');
-  set('settingsSchoolPhone',s.schoolPhone||'');
-  set('settingsSchoolEmail',s.schoolEmail||'');
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+async function loadDashboard(){
+  var school = getActiveSchool();
+  var nameEl = document.getElementById('dashboardSchoolName');
+  if(nameEl) nameEl.textContent = school || '—';
+
+  var s = {};
+  try{ s = JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}'); }catch(e){}
+  var motEl = document.getElementById('dashboardMotto');
+  if(motEl) motEl.textContent = '"'+ (s.schoolMotto||'Empowering Education') +'"';
+
+  try{
+    var r = await api({action:'getStudentCount', school:school});
+    var count = (r && r.success && r.data) ? (r.data.count||0) : 0;
+    var tEl = document.getElementById('statTotalStudents'); if(tEl) tEl.textContent = count;
+    var dEl = document.getElementById('dashboardStudentCount'); if(dEl) dEl.textContent = '👨‍🎓 Total Students: '+count;
+  }catch(e){}
+
+  try{
+    var fr = await api({action:'getFeeRecords', school:school});
+    var records = (fr && fr.success && fr.data) ? (fr.data.records||[]) : [];
+    var today = getTodayDate();
+    var tf = records.filter(function(r){ return r.date===today; }).reduce(function(s,r){ return s+(r.amount||0); },0);
+    var feEl = document.getElementById('statFeesCollected'); if(feEl) feEl.textContent = 'UGX '+tf.toLocaleString();
+  }catch(e){}
+
+  try{
+    var er = await api({action:'getExpenses', school:school});
+    var exps = (er && er.success && er.data) ? (er.data.expenses||[]) : [];
+    var today2 = getTodayDate();
+    var te = exps.filter(function(e){ return e.date===today2; }).reduce(function(s,e){ return s+(e.amount||0); },0);
+    var eeEl = document.getElementById('statExpensesToday'); if(eeEl) eeEl.textContent = 'UGX '+te.toLocaleString();
+  }catch(e){}
+
+  await updateClassCards();
+  await updateAttendanceStats();
+}
+
+async function updateClassCards(){
+  var container = document.getElementById('classCardsContainer');
+  if(!container) return;
+  var school = getActiveSchool();
+  var counts = {};
+  for(var i=0;i<CLASSES.length;i++){
+    var cls = CLASSES[i];
+    var sheetId = getClassSheetId(cls);
+    if(!sheetId){ counts[cls] = 0; continue; }
+    try{
+      var r = await api({action:'getStudents', sheetId:sheetId, school:school, className:cls});
+      counts[cls] = (r && r.success && r.data) ? (r.data.students||[]).length : 0;
+    }catch(e){ counts[cls] = 0; }
+  }
+  var h='';
+  CLASSES.forEach(function(c){
+    h += '<div class="class-card"><div class="class-name">'+c+'</div><div class="class-count">'+counts[c]+'</div><div class="class-label">Students</div></div>';
+  });
+  container.innerHTML = h || '<p style="color:#999;text-align:center">No classes.</p>';
+}
+
+async function updateAttendanceStats(){
+  var school = getActiveSchool();
+  var today  = getTodayDate();
+  var present=0, absent=0;
+  for(var i=0;i<CLASSES.length;i++){
+    var cls = CLASSES[i];
+    var sheetId = getClassSheetId(cls);
+    if(!sheetId) continue;
+    try{
+      var r = await api({action:'getManualAttendance', sheetId:sheetId, school:school, className:cls, date:today});
+      var recs = (r && r.success && r.data) ? (r.data.records||[]) : [];
+      recs.forEach(function(rec){
+        if(rec.status==='present') present++;
+        else if(rec.status==='absent') absent++;
+      });
+    }catch(e){}
+  }
+  var pEl = document.getElementById('statPresentToday'); if(pEl) pEl.textContent = present;
+  var aEl = document.getElementById('statAbsentToday');   if(aEl) aEl.textContent = absent;
+}
+
+/* ============================================================
+   REGISTER STUDENT
+   ============================================================ */
+async function registerStudent(){
+  var cls = document.getElementById('regClassSelect').value;
+  var sid = (document.getElementById('regStudentId').value||'').trim();
+  var sn  = (document.getElementById('regStudentName').value||'').trim();
+  if(!cls||!sn){ showToast('Fill class and name','warning'); return; }
+  var sheetId = getClassSheetId(cls);
+  if(!sheetId){ showToast('Class sheet not configured','warning'); return; }
+  var btn = document.getElementById('regSubmitBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Registering…'; }
+  try{
+    var r = await api({
+      action:'registerStudent', sheetId:sheetId, school:getActiveSchool(),
+      className:cls, studentId:sid, studentName:sn,
+      sex:'', stream:'', residence:'Day',
+      parentName:'', parentPhone:'', parentEmail:'',
+      term:'III', year:'2026'
+    });
+    if(btn){ btn.disabled=false; btn.textContent='📤 Register'; }
+    if(r && r.success){
+      var box = document.getElementById('regSuccess');
+      if(box) box.style.display='block';
+      var mEl = document.getElementById('regSuccessMsg');
+      if(mEl) mEl.textContent = 'Student ID: '+(r.data.studentId||sid);
+      showToast('Registered','success');
+      await loadDashboard();
+    }else{
+      showToast((r && r.message)||'Registration failed','error');
+    }
+  }catch(e){
+    if(btn){ btn.disabled=false; btn.textContent='📤 Register'; }
+    showToast(e.message,'error');
+  }
+}
+function resetRegisterForm(){
+  var f;
+  f = document.getElementById('regStudentName'); if(f) f.value='';
+  f = document.getElementById('regStudentId');   if(f) f.value='';
+  f = document.getElementById('regClassSelect'); if(f) f.value='';
+  f = document.getElementById('regSuccess');     if(f) f.style.display='none';
+}
+
+/* ============================================================
+   SCORES
+   ============================================================ */
+function setScoreLevel(level){
+  currentScoreLevel = level;
+  document.querySelectorAll('#levelOLevel, #levelALevel').forEach(function(el){
+    el.style.background='none'; el.style.color='#666';
+  });
+  var b = document.getElementById(level==='olevel' ? 'levelOLevel' : 'levelALevel');
+  if(b){ b.style.background='linear-gradient(135deg,#0f0c29,#302b63)'; b.style.color='#fff'; }
+  var oe = document.getElementById('olevelScoreEntry');
+  var ae = document.getElementById('alevelScoreEntry');
+  if(oe) oe.style.display = level==='olevel' ? 'block':'none';
+  if(ae) ae.style.display = level==='alevel' ? 'block':'none';
+  updateScoreEntryModeHeaders();
+  loadStudents();
+}
+function updateScoreEntryMode(){
+  var cls = document.getElementById('scoreClassSelect')?.value;
+  var isO = isOLevelClass(cls), isA = isALevelClass(cls);
+  document.getElementById('olevelScoreEntry').style.display = isO?'block':'none';
+  document.getElementById('alevelScoreEntry').style.display = isA?'block':'none';
+  if(isO) currentScoreLevel='olevel';
+  else if(isA) currentScoreLevel='alevel';
+  setScoreLevel(currentScoreLevel);
+}
+async function loadStudents(){
+  var cls = document.getElementById('scoreClassSelect')?.value;
+  var tbody = document.getElementById('scoreTableBody');
+  if(!tbody) return;
+  if(!cls){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';
+    return;
+  }
+  var sheetId = getClassSheetId(cls);
+  if(!sheetId){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Sheet not configured.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Loading…</td></tr>';
+  try{
+    var r = await api({action:'getStudents', sheetId:sheetId, school:getActiveSchool(), className:cls});
+    var st = (r && r.success && r.data) ? (r.data.students||[]) : [];
+    scoreRows = st.map(function(s){ return {studentId:s.studentId, studentName:s.studentName, aoi:'', eot:'', p1:'', p2:''}; });
+    renderScoreTable();
+  }catch(e){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c1121f;padding:30px">'+e.message+'</td></tr>';
+  }
+}
+function renderScoreTable(){
+  var tbody = document.getElementById('scoreTableBody');
+  if(!tbody) return;
+  if(!scoreRows.length){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">No students.</td></tr>';
+    return;
+  }
+  var h='';
+  scoreRows.forEach(function(s,i){
+    h += '<tr>'+
+      '<td style="font-weight:600;font-size:12px">'+escapeHtml(s.studentId||'')+'</td>'+
+      '<td>'+escapeHtml(s.studentName||'')+'</td>'+
+      '<td><input type="number" min="0" value="'+s.aoi+'" onchange="scoreRows['+i+'].aoi=this.value" /></td>'+
+      '<td><input type="number" min="0" value="'+s.eot+'" onchange="scoreRows['+i+'].eot=this.value" /></td>'+
+      '<td></td></tr>';
+  });
+  tbody.innerHTML = h;
+}
+async function postScores(){
+  var cls = document.getElementById('scoreClassSelect')?.value;
+  var subj = (document.getElementById('scoreSubject')?.value||'').trim();
+  var initials = (document.getElementById('scoreInitials')?.value||'').trim();
+  if(!cls||!subj||!initials){ showToast('Fill class, subject and initials','warning'); return; }
+  var sheetId = getClassSheetId(cls);
+  if(!sheetId){ showToast('Sheet not configured','warning'); return; }
+
+  var scores = scoreRows.map(function(s){
+    return {
+      studentId: s.studentId, studentName: s.studentName,
+      aoi: parseFloat(s.aoi)||0, eot: parseFloat(s.eot)||0,
+      teacherInitials: initials
+    };
+  }).filter(function(s){ return s.aoi || s.eot; });
+  if(!scores.length){ showToast('Enter at least one score','warning'); return; }
+
+  var btn = document.getElementById('scoreSubmitBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Posting…'; }
+  try{
+    var r = await api({
+      action:'postScoresOnly',
+      sheetId:sheetId, subject:subj, level:currentScoreLevel,
+      scores:JSON.stringify(scores)
+    });
+    if(btn){ btn.disabled=false; btn.textContent='📤 Post'; }
+    if(r && r.success){
+      showToast('Posted '+r.data.added+' new, '+r.data.updated+' updated','success');
+    }else{
+      showToast((r && r.message)||'Post failed','error');
+    }
+  }catch(e){
+    if(btn){ btn.disabled=false; btn.textContent='📤 Post'; }
+    showToast(e.message,'error');
+  }
+}
+function resetScoresForm(){
+  var t = document.getElementById('scoreTableBody');
+  if(t) t.innerHTML='<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';
+  scoreRows = [];
+}
+function updateScoreEntryModeHeaders(){
+  var h1 = document.getElementById('score1Header');
+  var h2 = document.getElementById('score2Header');
+  var hA = document.getElementById('averageHeader');
+  if(!h1||!h2) return;
+  if(currentScoreLevel==='olevel'){ h1.textContent='AOI'; h2.textContent='EOT'; }
+  else{ h1.textContent='Paper 1'; h2.textContent='Paper 2'; }
+  if(hA) hA.textContent = 'Average %';
+}
+
+/* ============================================================
+   ATTENDANCE
+   ============================================================ */
+function populateManualAttClassSelect(){
+  var sel = document.getElementById('manualAttClassSelect');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Select a Class</option>';
   CLASSES.forEach(function(cls){
-    var e=document.getElementById(CLASS_IDS[cls]);
-    if(e){e.value=localStorage.getItem('classLink_'+cls+'_'+school)||'';validateClassLink(cls);}
+    var o = document.createElement('option'); o.value=cls; o.textContent=cls; sel.appendChild(o);
+  });
+}
+async function loadManualAttendanceStudents(){
+  var cls = document.getElementById('manualAttClassSelect')?.value;
+  var grid = document.getElementById('manualAttGrid');
+  if(!cls){ if(grid) grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p>'; return; }
+  var sheetId = getClassSheetId(cls);
+  if(!sheetId){ if(grid) grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">Sheet not configured.</p>'; return; }
+  manualAttClass = cls;
+  if(grid) grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Loading…</p>';
+  try{
+    var r = await api({action:'getStudents', sheetId:sheetId, school:getActiveSchool(), className:cls});
+    var st = (r && r.success && r.data) ? (r.data.students||[]) : [];
+    manualAttStudents = st.map(function(s){ return {studentId:s.studentId, studentName:s.studentName, status:'present'}; });
+    manualAttFiltered = manualAttStudents.slice();
+    renderManualAttGrid();
+  }catch(e){
+    if(grid) grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">'+e.message+'</p>';
+  }
+}
+function renderManualAttGrid(){
+  var g = document.getElementById('manualAttGrid');
+  if(!g) return;
+  if(!manualAttFiltered.length){
+    g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No students.</p>';
+    return;
+  }
+  var h='';
+  manualAttFiltered.forEach(function(s){
+    var isP = s.status==='present';
+    h += '<div class="attendance-check-item">'+
+      '<input type="checkbox" '+(isP?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\',this.checked)" />'+
+      '<label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label>'+
+    '</div>';
+  });
+  g.innerHTML = h;
+}
+function toggleManualStudent(id, c){
+  var s = manualAttStudents.find(function(x){ return x.studentId===id; });
+  if(s) s.status = c?'present':'absent';
+}
+function markAllManual(st){
+  manualAttStudents.forEach(function(s){ s.status = st; });
+  renderManualAttGrid();
+}
+function resetManualAttendance(){
+  manualAttStudents.forEach(function(s){ s.status='present'; });
+  renderManualAttGrid();
+}
+function filterManualAttendance(){
+  var q = (document.getElementById('manualAttSearch')?.value||'').toLowerCase().trim();
+  manualAttFiltered = q
+    ? manualAttStudents.filter(function(s){ return (s.studentId||'').toLowerCase().includes(q) || (s.studentName||'').toLowerCase().includes(q); })
+    : manualAttStudents.slice();
+  renderManualAttGrid();
+}
+async function saveManualAttendance(){
+  if(!manualAttClass || !manualAttStudents.length){ showToast('Load students first','warning'); return; }
+  var sheetId = getClassSheetId(manualAttClass);
+  var records = manualAttStudents.map(function(s){
+    return {studentId:s.studentId, studentName:s.studentName, status:s.status, class:manualAttClass};
+  });
+  var btn = document.getElementById('manualAttSaveBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+  try{
+    var r = await api({
+      action:'saveManualAttendance',
+      sheetId:sheetId, school:getActiveSchool(), className:manualAttClass,
+      date:document.getElementById('manualAttDate').value||getTodayDate(),
+      term:document.getElementById('manualAttTerm')?.value||'III',
+      year:document.getElementById('manualAttYear')?.value||'2026',
+      records:JSON.stringify(records),
+      markedBy:(authSession&&authSession.name)||'admin',
+      markedByRole:'admin'
+    });
+    if(btn){ btn.disabled=false; btn.textContent='💾 Save'; }
+    if(r && r.success){ showToast('Attendance saved','success'); await loadDashboard(); }
+    else showToast((r && r.message)||'Save failed','error');
+  }catch(e){
+    if(btn){ btn.disabled=false; btn.textContent='💾 Save'; }
+    showToast(e.message,'error');
+  }
+}
+
+/* ============================================================
+   FEES
+   ============================================================ */
+async function loadFeesData(){
+  try{
+    var r = await api({action:'getFeeRecords', school:getActiveSchool()});
+    feesRecords = (r && r.success && r.data) ? (r.data.records||[]) : [];
+    var c = document.getElementById('feesRecordsContainer');
+    if(!c) return;
+    if(!feesRecords.length){ c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>'; return; }
+    var h = '<table class="ledger-table"><thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead><tbody>';
+    feesRecords.forEach(function(r){
+      h += '<tr><td>'+escapeHtml(r.id)+'</td><td>'+escapeHtml(r.studentId)+'</td><td class="credit">UGX '+(r.amount||0).toLocaleString()+'</td><td>'+escapeHtml(r.method||'')+'</td><td>'+escapeHtml(r.date||'')+'</td></tr>';
+    });
+    h += '</tbody></table>';
+    c.innerHTML = h;
+  }catch(e){}
+}
+function resetFeesForm(){
+  ['feesStudentId','feesAmount'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+}
+async function recordFeePayment(){
+  var sid = (document.getElementById('feesStudentId')?.value||'').trim();
+  var amt = parseFloat(document.getElementById('feesAmount')?.value);
+  if(!sid||!amt){ showToast('Enter student ID and amount','warning'); return; }
+  try{
+    var r = await api({
+      action:'saveFeeRecord',
+      school:getActiveSchool(),
+      record:JSON.stringify({
+        id:'RCP-'+Date.now().toString().slice(-8),
+        studentId:sid, amount:amt,
+        method:document.getElementById('feesMethod').value,
+        term:'III', year:'2026',
+        date:getTodayDate(), time:getCurrentTime(), narration:''
+      })
+    });
+    if(r && r.success){ showToast('Payment recorded','success'); resetFeesForm(); loadFeesData(); }
+    else showToast((r && r.message)||'Failed','error');
+  }catch(e){ showToast(e.message,'error'); }
+}
+
+/* ============================================================
+   EXPENSES
+   ============================================================ */
+async function loadExpenses(){
+  try{
+    var r = await api({action:'getExpenses', school:getActiveSchool()});
+    expenseRecords = (r && r.success && r.data) ? (r.data.expenses||[]) : [];
+    var c = document.getElementById('expensesContainer');
+    if(!c) return;
+    if(!expenseRecords.length){ c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No records.</p>'; return; }
+    var h = '<table class="ledger-table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>';
+    expenseRecords.forEach(function(e){
+      h += '<tr><td>'+escapeHtml(e.date||'')+'</td><td>'+escapeHtml(e.description||'')+'</td><td class="debit">UGX '+(e.amount||0).toLocaleString()+'</td><td>'+escapeHtml(e.category||'')+'</td></tr>';
+    });
+    h += '</tbody></table>';
+    c.innerHTML = h;
+  }catch(e){}
+}
+function resetExpenseForm(){
+  ['expenseDesc','expenseAmount'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+}
+async function recordExpense(){
+  var d = (document.getElementById('expenseDesc')?.value||'').trim();
+  var a = parseFloat(document.getElementById('expenseAmount')?.value);
+  if(!d||!a){ showToast('Enter description and amount','warning'); return; }
+  try{
+    var r = await api({
+      action:'saveExpense',
+      school:getActiveSchool(),
+      expense:JSON.stringify({
+        id:'EXP-'+Date.now().toString().slice(-8),
+        description:d, amount:a,
+        category:document.getElementById('expenseCategory').value,
+        date:document.getElementById('expenseDate').value||getTodayDate(),
+        time:getCurrentTime(), narration:''
+      })
+    });
+    if(r && r.success){ showToast('Expense recorded','success'); resetExpenseForm(); loadExpenses(); }
+    else showToast((r && r.message)||'Failed','error');
+  }catch(e){ showToast(e.message,'error'); }
+}
+
+/* ============================================================
+   REPORTS
+   ============================================================ */
+async function loadReports(){
+  var cls = document.getElementById('reportClassSelect')?.value;
+  var container = document.getElementById('reportResults');
+  if(!cls){ showToast('Select a class','warning'); return; }
+  var sheetId = getClassSheetId(cls);
+  if(!sheetId){ showToast('Sheet not configured','warning'); return; }
+  if(container) container.innerHTML='<p style="color:#999;text-align:center;padding:20px">Loading…</p>';
+  try{
+    var r = await api({action:'getAllData', sheetId:sheetId, className:cls});
+    var students = (r && r.success && r.data && r.data.sheetData) ? (r.data.sheetData.students||[]) : [];
+    if(!students.length){ if(container) container.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>'; return; }
+    var h='';
+    students.forEach(function(st){
+      h += '<div class="mini-report-card"><div style="font-weight:700;color:#1a3b5c;font-size:16px">'+escapeHtml(st.studentName)+'</div>'+
+           '<div style="font-size:12px;color:#666;margin-bottom:6px">ID: '+escapeHtml(st.studentId)+' • '+escapeHtml(cls)+'</div>';
+      var subs = Object.keys(st.scores||{});
+      if(!subs.length){
+        h += '<div style="color:#999;font-style:italic">No scores yet.</div>';
+      }else{
+        subs.forEach(function(sub){
+          var sv = st.scores[sub];
+          h += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #ccc"><span>'+escapeHtml(sub)+'</span><span>AOI: '+(sv.aoi||0)+' | EOT: '+(sv.eot||0)+'</span></div>';
+        });
+      }
+      h += '</div>';
+    });
+    if(container) container.innerHTML = h;
+  }catch(e){
+    if(container) container.innerHTML='<p style="color:#c1121f;text-align:center;padding:20px">'+e.message+'</p>';
+  }
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function loadSettings(){
+  var school = getActiveSchool();
+  var s = {};
+  try{ s = JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}'); }catch(e){}
+  var set = function(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; };
+  set('settingsSchoolName', s.schoolName||school);
+  set('settingsSchoolMotto', s.schoolMotto||'');
+  set('settingsSchoolPhone', s.schoolPhone||'');
+  set('settingsSchoolEmail', s.schoolEmail||'');
+  CLASSES.forEach(function(cls){
+    var e = document.getElementById(CLASS_IDS[cls]);
+    if(e){ e.value = localStorage.getItem('classLink_'+cls+'_'+school)||''; validateClassLink(cls); }
   });
 }
 async function saveSchoolSettings(){
-  var school=getActiveSchool();
-  var s={
-    schoolName:document.getElementById('settingsSchoolName').value.trim(),
-    schoolMotto:document.getElementById('settingsSchoolMotto').value.trim(),
-    schoolPhone:document.getElementById('settingsSchoolPhone').value.trim(),
-    schoolEmail:document.getElementById('settingsSchoolEmail').value.trim()
+  var school = getActiveSchool();
+  var s = {
+    schoolName: (document.getElementById('settingsSchoolName')?.value||'').trim(),
+    schoolMotto: (document.getElementById('settingsSchoolMotto')?.value||'').trim(),
+    schoolPhone: (document.getElementById('settingsSchoolPhone')?.value||'').trim(),
+    schoolEmail: (document.getElementById('settingsSchoolEmail')?.value||'').trim()
   };
-  localStorage.setItem('schoolSettings_'+school,JSON.stringify(s));
-  try{await api({action:'saveSchoolSettings',school:school,settings:JSON.stringify(s)});}catch(e){}
+  localStorage.setItem('schoolSettings_'+school, JSON.stringify(s));
+  try{ await api({action:'saveSchoolSettings', school:school, settings:JSON.stringify(s)}); }catch(e){}
   showToast('School settings saved','success');
+  await loadDashboard();
 }
 function validateClassLink(cls){
-  var e=document.getElementById(CLASS_IDS[cls]),st=document.getElementById('status'+cls);
-  if(!e||!st)return;
-  var id=extractSheetIdFromUrl(e.value.trim());
-  var school=getActiveSchool();
+  var e = document.getElementById(CLASS_IDS[cls]);
+  var st = document.getElementById('status'+cls);
+  if(!e||!st) return;
+  var id = extractSheetIdFromUrl(e.value.trim());
+  var school = getActiveSchool();
   if(id){
-    localStorage.setItem('classLink_'+cls+'_'+school,e.value.trim());
-    st.innerHTML='✅ Saved';st.style.color='#2d6a4f';st.style.fontWeight='700';
+    localStorage.setItem('classLink_'+cls+'_'+school, e.value.trim());
+    st.innerHTML='✅ Saved'; st.style.color='#2d6a4f'; st.style.fontWeight='700';
   }else{
-    st.innerHTML='⏳ Not configured';st.style.color='#c1121f';st.style.fontWeight='400';
+    st.innerHTML='⏳ Not configured'; st.style.color='#c1121f'; st.style.fontWeight='400';
   }
 }
 async function saveAllClassLinks(){
-  var school=getActiveSchool();
+  var school = getActiveSchool();
   for(var i=0;i<CLASSES.length;i++){
-    var cls=CLASSES[i];
-    var e=document.getElementById(CLASS_IDS[cls]);
-    if(!e)continue;
-    var url=e.value.trim();
-    localStorage.setItem('classLink_'+cls+'_'+school,url);
+    var cls = CLASSES[i];
+    var e = document.getElementById(CLASS_IDS[cls]);
+    if(!e) continue;
+    var url = e.value.trim();
+    localStorage.setItem('classLink_'+cls+'_'+school, url);
     validateClassLink(cls);
-    var sheetId=extractSheetIdFromUrl(url);
+    var sheetId = extractSheetIdFromUrl(url);
     if(sheetId){
-      try{await api({action:'saveClassLink',school:school,className:cls,sheetId:sheetId});}catch(err){}
+      try{ await api({action:'saveClassLink', school:school, className:cls, sheetId:sheetId}); }catch(err){}
     }
   }
   showToast('Class links saved','success');
 }
 
-/* ─── User accounts ─── */
+/* ============================================================
+   USER ACCOUNTS
+   ============================================================ */
 function toggleTeacherAssignments(){
-  var role=document.getElementById('newUserRole').value;
-  document.getElementById('teacherSection').style.display=(role==='teacher')?'block':'none';
+  var role = document.getElementById('newUserRole')?.value||'teacher';
+  var t = document.getElementById('teacherSection');
+  if(t) t.style.display = role==='teacher' ? 'block' : 'none';
 }
 function addTeacherAssignment(){
-  var cls=document.getElementById('assignClass').value;
-  var subj=document.getElementById('assignSubject').value.trim();
-  if(!cls||!subj){showToast('Select class and enter subject','warning');return;}
-  if(pendingAssignments.some(function(a){return a.class===cls&&a.subject.toLowerCase()===subj.toLowerCase();})){
-    showToast('Already added','warning');return;
+  var cls = document.getElementById('assignClass')?.value;
+  var subj = (document.getElementById('assignSubject')?.value||'').trim();
+  if(!cls||!subj){ showToast('Select class and enter subject','warning'); return; }
+  if(pendingAssignments.some(function(a){ return a.class===cls && a.subject.toLowerCase()===subj.toLowerCase(); })){
+    showToast('Already added','warning'); return;
   }
-  pendingAssignments.push({class:cls,subject:subj});
+  pendingAssignments.push({class:cls, subject:subj});
   document.getElementById('assignSubject').value='';
   renderPendingAssignments();
 }
-function removeTeacherAssignment(idx){pendingAssignments.splice(idx,1);renderPendingAssignments();}
+function removeTeacherAssignment(idx){
+  pendingAssignments.splice(idx,1);
+  renderPendingAssignments();
+}
 function renderPendingAssignments(){
-  var box=document.getElementById('assignmentList');
-  if(!box)return;
-  if(pendingAssignments.length===0){box.innerHTML='<em style="color:#999">No assignments yet.</em>';return;}
+  var box = document.getElementById('assignmentList');
+  if(!box) return;
+  if(!pendingAssignments.length){ box.innerHTML='<em style="color:#999">No assignments yet.</em>'; return; }
   var h='';
   pendingAssignments.forEach(function(a,i){
-    h+='<div class="assign-chip"><span><strong>'+escapeHtml(a.class)+'</strong> — '+escapeHtml(a.subject)+'</span><button type="button" class="btn btn-danger btn-sm" style="padding:2px 8px;min-height:26px;font-size:11px" onclick="removeTeacherAssignment('+i+')">✖</button></div>';
+    h += '<div class="assign-chip">'+
+      '<span><strong>'+escapeHtml(a.class)+'</strong> — '+escapeHtml(a.subject)+'</span>'+
+      '<button type="button" class="btn btn-danger btn-sm" style="padding:2px 8px;min-height:26px;font-size:11px" onclick="removeTeacherAssignment('+i+')">✖</button>'+
+    '</div>';
   });
-  box.innerHTML=h;
+  box.innerHTML = h;
 }
 function generateStaffId(role){
-  var p={teacher:'TCH',bursar:'BUR',gateman:'GAT',parent:'PAR',nurse:'NUR',storekeeper:'STK',admin:'ADM'}[role]||'USR';
+  var p = {teacher:'TCH',bursar:'BUR',gateman:'GAT',parent:'PAR',nurse:'NUR',storekeeper:'STK',admin:'ADM'}[role]||'USR';
   return p+'-'+Math.floor(1000+Math.random()*9000);
 }
 function generatePassword(){
   var ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var p='';for(var i=0;i<8;i++)p+=ch.charAt(Math.floor(Math.random()*ch.length));
-  var pw=document.getElementById('newUserPassword');
-  var pc=document.getElementById('newUserPasswordConfirm');
-  if(pw)pw.value=p;
-  if(pc)pc.value=p;
+  var p='';
+  for(var i=0;i<8;i++) p += ch.charAt(Math.floor(Math.random()*ch.length));
+  var pw = document.getElementById('newUserPassword');
+  var pc = document.getElementById('newUserPasswordConfirm');
+  if(pw) pw.value=p;
+  if(pc) pc.value=p;
   return p;
 }
 async function createUserAccount(){
-  var school=getActiveSchool();
-  var name=(document.getElementById('newUserName').value||'').trim();
-  var username=(document.getElementById('newUserUsername').value||'').trim();
-  var password=document.getElementById('newUserPassword').value||generatePassword();
-  var pc=document.getElementById('newUserPasswordConfirm').value||'';
-  var role=document.getElementById('newUserRole').value;
-  var staffId=(document.getElementById('newUserStaffId').value||'').trim()||generateStaffId(role);
-  var phone=(document.getElementById('newUserPhone').value||'').trim();
-  var email=(document.getElementById('newUserEmail').value||'').trim();
-  var quals=(document.getElementById('newUserQuals').value||'').trim();
+  var school = getActiveSchool();
+  var name     = (document.getElementById('newUserName')?.value||'').trim();
+  var username = (document.getElementById('newUserUsername')?.value||'').trim();
+  var password = document.getElementById('newUserPassword')?.value || generatePassword();
+  var pc       = document.getElementById('newUserPasswordConfirm')?.value||'';
+  var role     = document.getElementById('newUserRole')?.value||'teacher';
 
-  if(!school||!name||!username){showToast('Fill required fields','warning');return;}
-  if(pc&&password!==pc){showToast('Passwords do not match','error');return;}
+  var staffId = (document.getElementById('newUserStaffId')?.value||'').trim() || generateStaffId(role);
+  var phone   = (document.getElementById('newUserPhone')?.value||'').trim();
+  var email   = (document.getElementById('newUserEmail')?.value||'').trim();
+  var quals   = (document.getElementById('newUserQuals')?.value||'').trim();
 
-  var salary=0,otherRoles=[],assignments=[];
+  if(!school||!name||!username){ showToast('Fill required fields','warning'); return; }
+  if(pc && password!==pc){ showToast('Passwords do not match','error'); return; }
+
+  var salary=0, otherRoles=[], assignments=[];
   if(role==='teacher'){
-    salary=parseFloat(document.getElementById('newUserSalary').value)||0;
-    var raw=(document.getElementById('newUserOtherRoles').value||'').trim();
-    otherRoles=raw?raw.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
-    assignments=pendingAssignments.slice();
+    salary = parseFloat(document.getElementById('newUserSalary')?.value)||0;
+    var raw = (document.getElementById('newUserOtherRoles')?.value||'').trim();
+    otherRoles = raw ? raw.split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+    assignments = pendingAssignments.slice();
+    if(!assignments.length && !confirm('This teacher has no class assignments. Continue?')) return;
   }
 
   try{
-    var r=await api({
+    var r = await api({
       action:'createUserAccount',
       sheetId:ACCOUNTS_SHEET_ID,
       school:school, name:name, username:username, password:password, role:role,
@@ -593,187 +1129,133 @@ async function createUserAccount(){
       childId:''
     });
 
-    if(r&&r.success){
-      var txt='Account Created\n\nName: '+name+'\nStaff ID: '+staffId+'\nUsername: '+username+'\nPassword: '+password+'\nRole: '+(ROLE_NAMES[role]||role)+'\n';
+    if(r && r.success){
+      var txt = 'Account Created\n\nName: '+name+'\nStaff ID: '+staffId+'\nUsername: '+username+'\nPassword: '+password+'\nRole: '+(ROLE_NAMES[role]||role)+'\n';
       if(role==='teacher'){
-        txt+='Salary: UGX '+salary.toLocaleString()+'\n';
-        txt+='Assignments: '+(assignments.map(function(a){return a.class+'/'+a.subject;}).join(', ')||'None')+'\n';
+        txt += 'Salary: UGX '+salary.toLocaleString()+'\n';
+        txt += 'Assignments: '+(assignments.map(function(a){return a.class+'/'+a.subject;}).join(', ')||'None')+'\n';
       }
-      txt+='\nTab: '+(r.data.sheetTab||'?')+'  Row: '+(r.data.row||'?');
-      document.getElementById('newUserCredsBox').innerHTML='<div style="background:#d4edda;padding:15px;border-radius:8px"><b>✅ Created — row '+(r.data.row||'?')+'</b><pre style="white-space:pre-wrap;font-family:monospace;margin:10px 0;background:#fff;padding:10px;font-size:12px">'+escapeHtml(txt)+'</pre></div>';
+      txt += '\nTab: '+(r.data.sheetTab||'?')+'  Row: '+(r.data.row||'?');
+      var box = document.getElementById('newUserCredsBox');
+      if(box) box.innerHTML = '<div style="background:#d4edda;padding:15px;border-radius:8px"><b>✅ Created — row '+(r.data.row||'?')+'</b><pre style="white-space:pre-wrap;font-family:monospace;margin:10px 0;background:#fff;padding:10px;font-size:12px">'+escapeHtml(txt)+'</pre></div>';
       showToast('✅ Account created (row '+(r.data.row||'?')+')','success');
-      ['newUserName','newUserUsername','newUserPassword','newUserPasswordConfirm','newUserStaffId','newUserPhone','newUserEmail','newUserQuals','newUserSalary','newUserOtherRoles','assignSubject'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-      document.getElementById('assignClass').value='';
-      pendingAssignments=[];renderPendingAssignments();
+
+      ['newUserName','newUserUsername','newUserPassword','newUserPasswordConfirm','newUserStaffId','newUserPhone','newUserEmail','newUserQuals','newUserSalary','newUserOtherRoles','assignSubject'].forEach(function(id){
+        var el = document.getElementById(id); if(el) el.value='';
+      });
+      var clsSel = document.getElementById('assignClass'); if(clsSel) clsSel.value='';
+      pendingAssignments = [];
+      renderPendingAssignments();
       loadUserAccounts();
     }else{
-      showToast((r&&r.message)||'Creation failed','error');
-      document.getElementById('newUserCredsBox').innerHTML='<div style="background:#f8d7da;padding:15px;border-radius:8px;color:#721c24"><b>❌ '+(r&&r.message||'Error')+'</b></div>';
+      showToast((r && r.message)||'Creation failed','error');
+      var b = document.getElementById('newUserCredsBox');
+      if(b) b.innerHTML = '<div style="background:#f8d7da;padding:15px;border-radius:8px;color:#721c24"><b>❌ '+(r && r.message||'Error')+'</b></div>';
     }
   }catch(e){
     showToast(e.message,'error');
   }
 }
 async function loadUserAccounts(){
-  var school=getActiveSchool();
-  var c=document.getElementById('userAccountsList');
-  if(!c)return;
+  var school = getActiveSchool();
+  var c = document.getElementById('userAccountsList');
+  if(!c) return;
   try{
-    var r=await api({action:'getAllAccounts',sheetId:ACCOUNTS_SHEET_ID,school:school});
-    var sa=(r&&r.success&&r.data)?(r.data.accounts||[]):[];
-    if(sa.length===0){c.innerHTML='<p style="color:#999;font-size:13px">No accounts yet.</p>';return;}
-    var h='<div style="overflow-x:auto"><table class="ledger-table"><thead><tr><th>Staff ID</th><th>Username</th><th>Name</th><th>Role</th><th>Salary</th><th>Actions</th></tr></thead><tbody>';
+    var r = await api({action:'getAllAccounts', sheetId:ACCOUNTS_SHEET_ID, school:school});
+    var sa = (r && r.success && r.data) ? (r.data.accounts||[]) : [];
+    if(!sa.length){ c.innerHTML='<p style="color:#999;font-size:13px">No accounts yet.</p>'; return; }
+    var h = '<div style="overflow-x:auto"><table class="ledger-table"><thead><tr><th>Staff ID</th><th>Username</th><th>Name</th><th>Role</th><th>Salary</th><th>Actions</th></tr></thead><tbody>';
     sa.forEach(function(a){
-      var salaryTxt=a.salary?'UGX '+parseFloat(a.salary).toLocaleString():'—';
-      h+='<tr><td><strong>'+escapeHtml(a.staffId||'—')+'</strong></td><td><strong>'+escapeHtml(a.username)+'</strong></td><td>'+escapeHtml(a.name)+'</td><td>'+(ROLE_NAMES[a.role]||a.role)+'</td><td>'+salaryTxt+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+escapeHtml(a.username).replace(/'/g,"\\'")+'\')">Delete</button></td></tr>';
+      var salaryTxt = a.salary ? 'UGX '+parseFloat(a.salary).toLocaleString() : '—';
+      h += '<tr>'+
+        '<td><strong>'+escapeHtml(a.staffId||'—')+'</strong></td>'+
+        '<td><strong>'+escapeHtml(a.username)+'</strong></td>'+
+        '<td>'+escapeHtml(a.name)+'</td>'+
+        '<td>'+(ROLE_NAMES[a.role]||a.role)+'</td>'+
+        '<td>'+salaryTxt+'</td>'+
+        '<td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+escapeHtml(a.username).replace(/'/g,"\\'")+'\')">Delete</button></td>'+
+      '</tr>';
     });
-    h+='</tbody></table></div>';
-    c.innerHTML=h;
+    h += '</tbody></table></div>';
+    c.innerHTML = h;
   }catch(e){
-    c.innerHTML='<p style="color:#c1121f;font-size:13px">'+e.message+'</p>';
+    c.innerHTML = '<p style="color:#c1121f;font-size:13px">'+e.message+'</p>';
   }
 }
 async function deleteAccount(username){
-  if(!confirm('Delete '+username+'?'))return;
+  if(!confirm('Delete '+username+'?')) return;
   try{
-    var r=await api({action:'deleteAccount',sheetId:ACCOUNTS_SHEET_ID,school:getActiveSchool(),username:username});
-    if(r&&r.success){showToast('Deleted','success');loadUserAccounts();}
-    else showToast((r&&r.message)||'Delete failed','error');
-  }catch(e){showToast(e.message,'error');}
+    var r = await api({action:'deleteAccount', sheetId:ACCOUNTS_SHEET_ID, school:getActiveSchool(), username:username});
+    if(r && r.success){ showToast('Deleted','success'); loadUserAccounts(); }
+    else showToast((r && r.message)||'Delete failed','error');
+  }catch(e){ showToast(e.message,'error'); }
 }
 async function checkAccountsSheet(){
   try{
-    var r=await api({action:'debugAccounts',sheetId:ACCOUNTS_SHEET_ID});
-    if(r&&r.success){
-      var d=r.data;
+    var r = await api({action:'debugAccounts', sheetId:ACCOUNTS_SHEET_ID});
+    if(r && r.success){
+      var d = r.data;
       alert('Sheet: '+d.sheetName+'\nRows: '+d.lastRow+'\nCols: '+d.lastCol+'\nHeader:\n'+(d.header||[]).join(' | '));
     }else{
-      alert('Debug failed: '+((r&&r.message)||'Unknown'));
+      alert('Debug failed: '+((r && r.message)||'Unknown'));
     }
-  }catch(e){alert(e.message);}
+  }catch(e){ alert(e.message); }
 }
 
-/* ─── Stubs for sections not fully implemented in this build ─── */
-function resetRegisterForm(){document.getElementById('regStudentName').value='';document.getElementById('regStudentId').value='';document.getElementById('regSuccess').style.display='none';}
-async function registerStudent(){
-  var cls=document.getElementById('regClassSelect').value;
-  var sn=document.getElementById('regStudentName').value.trim();
-  if(!cls||!sn){showToast('Fill class and name','warning');return;}
-  var sheetId=getClassSheetId(cls);
-  if(!sheetId){showToast('Class sheet not configured','warning');return;}
-  var sid=document.getElementById('regStudentId').value.trim();
-  var btn=document.getElementById('regSubmitBtn');
-  if(btn){btn.disabled=true;btn.textContent='Registering…';}
-  try{
-    var r=await api({action:'registerStudent',sheetId:sheetId,school:getActiveSchool(),className:cls,studentId:sid,studentName:sn,sex:'',stream:'',residence:'Day',parentName:'',parentPhone:'',parentEmail:'',term:'III',year:'2026'});
-    if(btn){btn.disabled=false;btn.textContent='📤 Register';}
-    if(r&&r.success){
-      document.getElementById('regSuccess').style.display='block';
-      document.getElementById('regSuccessMsg').textContent='Student ID: '+(r.data.studentId||sid);
-      showToast('Registered','success');
-    }else showToast((r&&r.message)||'Failed','error');
-  }catch(e){if(btn){btn.disabled=false;btn.textContent='📤 Register';}showToast(e.message,'error');}
+/* ============================================================
+   CHAT (placeholder)
+   ============================================================ */
+function loadChatUsers(){
+  var c = document.getElementById('chatUserList');
+  if(c) c.innerHTML='<p style="color:#999;text-align:center;padding:10px">Coming soon.</p>';
 }
-function resetScoresForm(){document.getElementById('scoreTableBody').innerHTML='<tr><td colspan="4" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';}
-async function postScores(){showToast('Open the teacher page to post scores','info');}
-function markAllManual(st){manualAttStudents.forEach(function(s){s.status=st;});renderManualAttGrid();}
-function resetManualAttendance(){manualAttStudents.forEach(function(s){s.status='present';});renderManualAttGrid();}
-async function loadManualAttendanceStudents(){
-  var cls=document.getElementById('manualAttClassSelect').value;
-  if(!cls){return;}
-  var sheetId=getClassSheetId(cls);
-  if(!sheetId){showToast('Sheet not configured','warning');return;}
-  manualAttClass=cls;
-  var r=await api({action:'getStudents',sheetId:sheetId,school:getActiveSchool(),className:cls});
-  var st=(r&&r.success&&r.data)?(r.data.students||[]):[];
-  manualAttStudents=st.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:'present'};});
-  renderManualAttGrid();
-}
-function renderManualAttGrid(){
-  var g=document.getElementById('manualAttGrid');if(!g)return;
-  if(!manualAttStudents.length){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No students.</p>';return;}
-  var h='';
-  manualAttStudents.forEach(function(s){
-    h+='<div class="attendance-check-item"><input type="checkbox" '+(s.status==='present'?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\',this.checked)" /><label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label></div>';
-  });
-  g.innerHTML=h;
-}
-function toggleManualStudent(id,c){var s=manualAttStudents.find(function(x){return x.studentId===id;});if(s)s.status=c?'present':'absent';}
-async function saveManualAttendance(){
-  if(!manualAttClass||!manualAttStudents.length){showToast('Load students first','warning');return;}
-  var sheetId=getClassSheetId(manualAttClass);
-  var records=manualAttStudents.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:s.status,class:manualAttClass};});
-  var btn=document.getElementById('manualAttSaveBtn');
-  if(btn){btn.disabled=true;btn.textContent='Saving…';}
-  try{
-    var r=await api({action:'saveManualAttendance',sheetId:sheetId,school:getActiveSchool(),className:manualAttClass,date:document.getElementById('manualAttDate').value||getTodayDate(),term:'III',year:'2026',records:JSON.stringify(records),markedBy:authSession.name,markedByRole:'admin'});
-    if(btn){btn.disabled=false;btn.textContent='💾 Save';}
-    if(r&&r.success)showToast('Attendance saved','success');
-    else showToast((r&&r.message)||'Failed','error');
-  }catch(e){if(btn){btn.disabled=false;btn.textContent='💾 Save';}showToast(e.message,'error');}
-}
-function resetFeesForm(){document.getElementById('feesStudentId').value='';document.getElementById('feesAmount').value='';}
-async function recordFeePayment(){
-  var sid=document.getElementById('feesStudentId').value.trim();
-  var amt=parseFloat(document.getElementById('feesAmount').value);
-  if(!sid||!amt){showToast('Fill student ID and amount','warning');return;}
-  var r=await api({action:'saveFeeRecord',school:getActiveSchool(),record:JSON.stringify({id:'RCP-'+Date.now().toString().slice(-8),studentId:sid,amount:amt,method:document.getElementById('feesMethod').value,term:'III',year:'2026',date:getTodayDate(),time:new Date().toLocaleTimeString(),narration:''})});
-  if(r&&r.success){showToast('Payment recorded','success');resetFeesForm();}
-  else showToast((r&&r.message)||'Failed','error');
-}
-function resetExpenseForm(){document.getElementById('expenseDesc').value='';document.getElementById('expenseAmount').value='';}
-async function recordExpense(){
-  var d=document.getElementById('expenseDesc').value.trim();
-  var a=parseFloat(document.getElementById('expenseAmount').value);
-  if(!d||!a){showToast('Fill description and amount','warning');return;}
-  var r=await api({action:'saveExpense',school:getActiveSchool(),expense:JSON.stringify({id:'EXP-'+Date.now().toString().slice(-8),description:d,amount:a,category:document.getElementById('expenseCategory').value,date:document.getElementById('expenseDate').value||getTodayDate(),time:new Date().toLocaleTimeString(),narration:''})});
-  if(r&&r.success){showToast('Expense recorded','success');resetExpenseForm();}
-  else showToast((r&&r.message)||'Failed','error');
-}
-async function loadReports(){
-  var cls=document.getElementById('reportClassSelect').value;
-  if(!cls){showToast('Select a class','warning');return;}
-  document.getElementById('reportResults').innerHTML='<p style="color:#999;text-align:center;padding:20px">Coming soon — use teacher page for score reports.</p>';
-}
+function sendMessage(){}
 
-/* ─── Logout ─── */
-function appLogout(){
-  sessionStorage.removeItem('authSession');
-  window.location.replace('index.html');
-}
-
-/* ─── Init ─── */
+/* ============================================================
+   INIT
+   ============================================================ */
 function initAdmin(){
-  try{authSession=JSON.parse(sessionStorage.getItem('authSession')||'null');}catch(e){authSession=null;}
-  var role=String((authSession&&authSession.role)||'').toLowerCase();
-  if(!authSession||(role!=='admin'&&role!=='superadmin')){
-    sessionStorage.removeItem('authSession');
-    window.location.replace('index.html');
+  try{
+    authSession = JSON.parse(sessionStorage.getItem('authSession')||'null');
+  }catch(e){
+    authSession = null;
+  }
+
+  var role = String((authSession && authSession.role)||'').trim().toLowerCase();
+
+  if(!authSession || !authSession.username || (role!=='admin' && role!=='superadmin')){
+    try{ sessionStorage.removeItem('authSession'); }catch(e){}
+    window.location.replace('index.html?fresh=1');
     return;
   }
 
-  document.getElementById('navUserName').textContent=authSession.name||authSession.username||'Admin';
-  document.getElementById('navUserAvatar').textContent=((authSession.name||'A').charAt(0)).toUpperCase();
+  // Header info
+  var nameEl = document.getElementById('navUserName');
+  if(nameEl) nameEl.textContent = authSession.name || authSession.username || 'Admin';
+  var avEl = document.getElementById('navUserAvatar');
+  if(avEl) avEl.textContent = (authSession.name||'A').charAt(0).toUpperCase();
 
-  // Populate class dropdowns
+  // Class dropdowns
   ['regClassSelect','scoreClassSelect','manualAttClassSelect','reportClassSelect'].forEach(function(id){
-    var s=document.getElementById(id);
-    if(!s)return;
+    var s = document.getElementById(id);
+    if(!s) return;
     s.innerHTML='<option value="">Select a Class</option>';
     CLASSES.forEach(function(cls){
-      var o=document.createElement('option');o.value=cls;o.textContent=cls;s.appendChild(o);
+      var o = document.createElement('option'); o.value=cls; o.textContent=cls; s.appendChild(o);
     });
   });
 
-  // Init dates
-  var today=getTodayDate();
-  ['manualAttDate','expenseDate'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=today;});
+  // Dates
+  var today = getTodayDate();
+  ['manualAttDate','expenseDate'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today; });
 
+  // Initial loads
   loadSettings();
   loadDashboard();
   loadUserAccounts();
 }
-document.addEventListener('DOMContentLoaded',initAdmin);
+
+document.addEventListener('DOMContentLoaded', initAdmin);
 </script>
 </body>
 </html>
