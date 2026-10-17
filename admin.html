@@ -71,13 +71,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn-group-3{display:grid;grid-template-columns:1fr;gap:10px}
 @media(min-width:640px){.btn-group-3{grid-template-columns:1fr 1fr 1fr}}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:center;justify-content:center;padding:15px}
-.modal-overlay.active{display:flex}
-.modal-box{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto}
-.modal-box .modal-icon{font-size:44px;text-align:center;display:block;margin-bottom:8px}
-.modal-box h3{text-align:center;margin-bottom:10px;font-size:18px}
-.modal-box p{text-align:center;color:var(--text-2);margin-bottom:18px;font-size:14px;white-space:pre-line}
-.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .toast-notification{position:fixed;top:16px;right:16px;left:16px;padding:14px 18px;border-radius:12px;color:#fff;font-weight:600;z-index:99999;opacity:0;transform:translateY(-20px);transition:all .3s;font-size:14px;box-shadow:var(--shadow-lg);text-align:center;max-width:400px}
 @media(min-width:640px){.toast-notification{left:auto;transform:translateX(120%)}}
 .toast-notification.show{opacity:1;transform:translateY(0)}
@@ -128,160 +121,48 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .ledger-table .debit{color:var(--danger);font-weight:600}
 .ledger-table,.score-table{display:block;overflow-x:auto}
 .ledger-table thead,.ledger-table tbody,.score-table thead,.score-table tbody{display:table;width:100%}
-.camera-container{position:relative;overflow:hidden;background:#1a1a2e;border-radius:16px;padding:0;margin:15px 0;max-width:520px;margin-left:auto;margin-right:auto}
-.camera-container video{width:100%;display:block;border-radius:12px;background:#000;object-fit:cover;min-height:280px;transform:scaleX(-1)}
-.camera-container .detection-status{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:10px 24px;border-radius:25px;font-size:14px;font-weight:600;pointer-events:none;display:none;z-index:10;text-align:center;min-width:200px}
-.camera-container .detection-status.active{display:block}
-.camera-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;padding:10px;background:var(--surface-2);border-radius:12px;border:1px solid var(--border)}
-.qr-scanner-container{position:relative;overflow:hidden;background:#1a1a2e;border-radius:16px;padding:0;margin:15px 0;max-width:520px;margin-left:auto;margin-right:auto}
-.qr-scanner-container video{width:100%;display:block;border-radius:12px;background:#000;object-fit:cover;min-height:280px}
-.qr-scan-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:3px solid #00ff88;border-radius:12px;pointer-events:none;box-shadow:0 0 0 2000px rgba(0,0,0,0.3)}
-.qr-result{background:#d4edda;border:2px solid #2d6a4f;border-radius:12px;padding:16px;margin:15px 0;display:none}
-.qr-result.active{display:block}
-.qr-result .qr-student-name{font-size:18px;font-weight:700;color:#155724}
-.face-registered-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:15px 0}
-.face-registered-item{background:#fff;border-radius:12px;padding:12px;text-align:center;border:1px solid var(--border)}
 .attendance-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:15px 0;max-height:500px;overflow-y:auto;padding:5px}
 .attendance-check-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border);flex-wrap:wrap}
 .attendance-check-item input[type="checkbox"]{width:20px;height:20px;cursor:pointer;accent-color:var(--success-dark)}
 .attendance-check-item label{font-size:13px;font-weight:500;cursor:pointer;flex:1;min-width:100px}
-.chat-container{display:grid;grid-template-columns:1fr;height:auto;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;background:#fff}
-@media(min-width:768px){.chat-container{grid-template-columns:280px 1fr;height:520px}}
-.chat-sidebar{background:var(--surface-2);border-right:1px solid var(--border);overflow-y:auto;padding:10px;max-height:200px}
-@media(min-width:768px){.chat-sidebar{max-height:none}}
-.chat-sidebar .chat-user{padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.chat-sidebar .chat-user:hover{background:#e8f0fe}
-.chat-sidebar .chat-user .avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
-.chat-messages{display:flex;flex-direction:column;height:100%;min-height:340px}
-.chat-messages .chat-header{padding:12px 15px;border-bottom:1px solid var(--border);font-weight:700;color:var(--primary);background:var(--surface-2)}
-.chat-messages .messages-area{flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:8px}
-.chat-messages .message{max-width:75%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.5;word-wrap:break-word}
-.chat-messages .message.sent{align-self:flex-end;background:var(--primary);color:#fff;border-bottom-right-radius:4px}
-.chat-messages .message.received{align-self:flex-start;background:#f0f2f5;color:#333;border-bottom-left-radius:4px}
-.chat-input-area{display:flex;gap:10px;padding:10px 15px;border-top:1px solid var(--border);background:var(--surface-2)}
-.chat-input-area input{flex:1;padding:10px 15px;border:2px solid var(--border);border-radius:20px;font-size:14px;outline:none;font-family:inherit}
-.notice-card{background:#fff;border-left:4px solid var(--primary);border-radius:8px;padding:12px 15px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
-.notice-card.priority-high{border-left-color:var(--danger)}
-.notice-card.priority-medium{border-left-color:var(--warning)}
-.notice-card.priority-low{border-left-color:var(--success-dark)}
-.notice-card .notice-title{font-weight:700;color:var(--primary);font-size:15px}
-.notice-card .notice-meta{font-size:11px;color:var(--text-3);margin:4px 0}
-.notice-card .notice-body{font-size:13px;line-height:1.5}
-.timetable-grid{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:8px;overflow:hidden;min-width:600px}
-.timetable-grid th{background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff;padding:10px;text-align:center;font-size:11px}
-.timetable-grid td{border:1px solid var(--border);padding:8px;text-align:center;vertical-align:top;min-height:50px}
-.timetable-grid td .period-subject{font-weight:700;color:var(--primary);font-size:11px}
-.timetable-grid td .period-teacher{font-size:10px;color:var(--text-3);margin-top:2px}
-.timetable-grid td .period-room{font-size:10px;color:var(--text-2);font-style:italic}
-.timetable-grid td.empty{background:var(--surface-2);color:#ccc}
-.sysadmin-panel{background:#fff8f0;border:1px dashed var(--warning);border-radius:var(--radius-md);padding:16px;margin-top:15px}
-.conn-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700}
-.conn-badge.ok{background:#d4edda;color:#155724}
-.conn-badge.fail{background:#f8d7da;color:#721c24}
-.conn-badge.checking{background:#fff3cd;color:#856404}
-.footer{text-align:center;padding:20px 0 10px;border-top:2px solid var(--border);margin-top:30px}
-.generated-document{background:#fff;padding:20px;border-radius:12px;border:1px solid #e0e0e0;position:relative;margin:20px 0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-.score-sheet-table{width:100%;border-collapse:collapse;margin:15px 0;font-size:13px}
-.score-sheet-table th{background:#302b63;color:#fff;padding:10px;text-align:left}
-.score-sheet-table td{padding:8px 10px;border-bottom:1px solid #e0e0e0}
-.report-print-btn{position:absolute;top:10px;right:10px;background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;z-index:5}
-.report-select-cb{position:absolute;top:12px;left:12px;width:22px;height:22px;cursor:pointer;accent-color:#c1121f;z-index:5;background:#fff}
-.generated-document.selected{box-shadow:0 0 0 3px #c1121f}
-#printSelectionBar{display:none;position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#0f0c29,#302b63);color:#fff;padding:12px 18px;border-radius:12px;margin:10px 0 16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-#printSelectionBar.active{display:flex}
-#printSelectionBar .psb-count{background:#c1121f;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:700}
-#printSelectionBar button{border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
-#printSelectionBar .psb-btn-print{background:linear-gradient(135deg,#2d6a4f,#1a8a4a);color:#fff}
-#printSelectionBar .psb-btn-print:disabled{opacity:.45;cursor:not-allowed}
-#printSelectionBar .psb-btn-selectall,#printSelectionBar .psb-btn-clear{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
-.mini-report-card{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 10px 25px rgba(0,0,0,.15);border:2px solid #1a3b5c;position:relative;overflow:hidden;color:#333;margin-bottom:12px;max-width:560px;margin-left:auto;margin-right:auto}
-.mini-report-card .card-header{text-align:center;margin-bottom:12px}
-.mini-report-card .school-name{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#1a3b5c;text-transform:uppercase;border-bottom:2px solid #1a3b5c;padding-bottom:8px;display:inline-block}
-.mini-report-card .photo-container{display:flex;justify-content:center;margin-bottom:6px}
-.mini-report-card .photo-placeholder{width:75px;height:75px;border-radius:50%;background:#eef2f7;border:2px solid #1a3b5c;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.mini-report-card .photo-placeholder img{width:100%;height:100%;object-fit:cover}
-.mini-report-card .student-name{text-align:center;font-size:19px;font-weight:700;color:#1a3b5c;text-transform:uppercase}
-.mini-report-card .student-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#555;margin-bottom:8px}
-.mini-report-card .average-row{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:6px;margin-bottom:10px;padding:0 4px;border-top:1px solid #e0e0e0;padding-top:8px}
-.mini-report-card .status-bar{background:#e2e8f0;border-radius:20px;padding:7px 14px;text-align:center;font-size:13px;font-weight:700;color:#1a3b5c;margin-bottom:12px}
-.mini-report-card .status-bar.outstanding{background:#dbeafe;color:#1e3a8a}
-.mini-report-card .status-bar.no-data{background:#e2e8f0;color:#4b5563}
-.mini-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
-.mini-table th{background:#1a3b5c;color:#fff;padding:6px 8px;text-align:left;font-size:12px;border:1px solid #1a3b5c}
-.mini-table td{padding:6px 8px;border:1px solid #cfd8e3;vertical-align:middle}
-.mini-table tr:nth-child(even) td{background:#f7f9fc}
-.mini-table .mini-total-row td{background:#eef2f7;font-weight:700;border-top:2px solid #1a3b5c}
-.mini-table .mini-pts{text-align:center;font-weight:700;color:#1a3b5c}
-.mini-table .mini-grade{text-align:center;font-weight:700}
-.mini-table .mini-pct{text-align:center;font-weight:600}
-.mini-table .mini-subject{font-weight:600;color:#1a3b5c}
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
-@media print{.generated-document,.mini-report-card{break-inside:avoid;page-break-after:always;box-shadow:none!important;border:1px solid #000!important}.no-print,.btn,.navbar,.bottom-nav,.report-print-btn,.report-select-cb{display:none!important}body{background:#fff!important;padding:0!important}.container{box-shadow:none!important;padding:0!important}@page{size:A4;margin:6mm}}
-.a4-report{width:190mm;min-height:auto;margin:0 auto;padding:8mm;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;justify-content:flex-start;font-size:13px}
-.a4-report .report-content{flex:1}
-.a4-report.alevel-report{font-size:15px}
-.a4-report.alevel-report table{font-size:14px}
 .assign-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}
 .assign-list{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:8px;min-height:40px;font-size:13px}
 .assign-chip{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#fff;border-radius:6px;margin-bottom:4px;border:1px solid #e0e0e0}
+.footer{text-align:center;padding:20px 0 10px;border-top:2px solid var(--border);margin-top:30px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:none;align-items:center;justify-content:center;padding:15px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-box h3{text-align:center;margin-bottom:10px;font-size:18px}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 </style>
 </head>
 <body>
 
 <div id="toastContainer"></div>
-<div class="modal-overlay" id="modalOverlay"><div class="modal-box"><span class="modal-icon" id="modalIcon">✅</span><h3 id="modalTitle">Success</h3><p id="modalMessage">Operation completed.</p><div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">OK</button></div></div></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box"><span style="font-size:44px;text-align:center;display:block;margin-bottom:8px" id="modalIcon">✅</span><h3 id="modalTitle">Success</h3><p id="modalMessage" style="text-align:center;color:#555;margin-bottom:18px">Operation completed.</p><div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">OK</button></div></div></div>
 
 <nav class="navbar">
   <a href="admin.html" class="navbar-brand"><span style="font-size:26px">📚</span><span class="brand-text">EduTrack Pro</span></a>
-  <button class="navbar-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+  <button class="navbar-toggle" onclick="document.getElementById('navbarMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
   <div class="navbar-menu" id="navbarMenu">
     <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
-    <div class="nav-item nav-dropdown">
-      <button class="nav-link" onclick="toggleDropdown(this)"><i class="fas fa-school"></i> Management <i class="fas fa-chevron-down" style="font-size:10px"></i></button>
-      <div class="nav-dropdown-content">
-        <button class="nav-link" data-tab="register" onclick="switchTab('register')"><i class="fas fa-user-plus"></i> Register Student</button>
-        <button class="nav-link" data-tab="scores" onclick="switchTab('scores')"><i class="fas fa-edit"></i> Post Scores</button>
-        <button class="nav-link" data-tab="attendance" onclick="switchTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
-        <button class="nav-link" data-tab="facereg" onclick="switchTab('facereg')"><i class="fas fa-user-tag"></i> Face Register</button>
-      </div>
-    </div>
-    <div class="nav-item nav-dropdown">
-      <button class="nav-link" onclick="toggleDropdown(this)"><i class="fas fa-coins"></i> Finance <i class="fas fa-chevron-down" style="font-size:10px"></i></button>
-      <div class="nav-dropdown-content">
-        <button class="nav-link" data-tab="fees" onclick="switchTab('fees')"><i class="fas fa-money-bill-wave"></i> Fees Ledger</button>
-        <button class="nav-link" data-tab="expenses" onclick="switchTab('expenses')"><i class="fas fa-receipt"></i> Expenses</button>
-      </div>
-    </div>
-    <div class="nav-item nav-dropdown">
-      <button class="nav-link" onclick="toggleDropdown(this)"><i class="fas fa-file-alt"></i> Reports <i class="fas fa-chevron-down" style="font-size:10px"></i></button>
-      <div class="nav-dropdown-content">
-        <button class="nav-link" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-pdf"></i> Full Reports</button>
-        <button class="nav-link" data-tab="mini" onclick="switchTab('mini')"><i class="fas fa-file"></i> Mini Reports</button>
-        <button class="nav-link" data-tab="documents" onclick="switchTab('documents')"><i class="fas fa-file-word"></i> Documents</button>
-      </div>
-    </div>
-    <div class="nav-item nav-dropdown">
-      <button class="nav-link" onclick="toggleDropdown(this)"><i class="fas fa-calendar-alt"></i> School <i class="fas fa-chevron-down" style="font-size:10px"></i></button>
-      <div class="nav-dropdown-content">
-        <button class="nav-link" data-tab="timetable" onclick="switchTab('timetable')"><i class="fas fa-clock"></i> Timetable</button>
-        <button class="nav-link" data-tab="program" onclick="switchTab('program')"><i class="fas fa-calendar-check"></i> Term Program</button>
-        <button class="nav-link" data-tab="notices" onclick="switchTab('notices')"><i class="fas fa-bullhorn"></i> Notice Board</button>
-      </div>
-    </div>
-    <button class="nav-link" data-tab="chat" onclick="switchTab('chat')"><i class="fas fa-comment-dots"></i> Chat</button>
+    <button class="nav-link" data-tab="register" onclick="switchTab('register')"><i class="fas fa-user-plus"></i> Register</button>
+    <button class="nav-link" data-tab="scores" onclick="switchTab('scores')"><i class="fas fa-edit"></i> Scores</button>
+    <button class="nav-link" data-tab="attendance" onclick="switchTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
+    <button class="nav-link" data-tab="fees" onclick="switchTab('fees')"><i class="fas fa-money-bill-wave"></i> Fees</button>
+    <button class="nav-link" data-tab="expenses" onclick="switchTab('expenses')"><i class="fas fa-receipt"></i> Expenses</button>
+    <button class="nav-link" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-pdf"></i> Reports</button>
     <button class="nav-link" data-tab="settings" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</button>
-    <div class="nav-user"><div class="user-avatar" id="navUserAvatar">A</div><div class="user-info"><div class="user-name" id="navUserName">Admin</div><div class="user-role">👨‍💼 Admin</div></div></div>
+    <div class="nav-user">
+      <div class="user-avatar" id="navUserAvatar">A</div>
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Admin</div>
+        <div class="user-role">👨‍💼 Admin</div>
+      </div>
+    </div>
     <button class="btn btn-secondary btn-sm" onclick="appLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 </nav>
-
-<div class="bottom-nav" id="bottomNav">
-  <button class="bn-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-chart-pie"></i><span>Home</span></button>
-  <button class="bn-item" data-tab="register" onclick="switchTab('register')"><i class="fas fa-user-plus"></i><span>Register</span></button>
-  <button class="bn-item" data-tab="scores" onclick="switchTab('scores')"><i class="fas fa-edit"></i><span>Scores</span></button>
-  <button class="bn-item" data-tab="attendance" onclick="switchTab('attendance')"><i class="fas fa-clipboard-check"></i><span>Attend</span></button>
-  <button class="bn-item" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-alt"></i><span>Reports</span></button>
-</div>
 
 <div class="container">
 <div id="statusMessage" class="status-message"></div>
@@ -291,447 +172,104 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <h2 class="section-title"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Dashboard</h2>
   <div style="display:flex;align-items:center;gap:16px;background:var(--surface-3);padding:14px;border-radius:var(--radius-md);margin-bottom:16px;border:1px solid var(--primary);flex-wrap:wrap">
     <div style="width:60px;height:60px;border-radius:50%;overflow:hidden;border:2px solid var(--primary);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <img id="dashboardBadge" src="" style="width:100%;height:100%;object-fit:contain;display:none" />
-      <span id="dashboardBadgePlaceholder" style="font-size:30px">🏫</span>
+      <span style="font-size:30px">🏫</span>
     </div>
     <div style="flex:1;min-width:0">
-      <div style="font-size:18px;font-weight:700;color:var(--primary)" id="dashboardSchoolName">Loading…</div>
-      <div style="font-style:italic;color:var(--text-2);font-size:13px" id="dashboardMotto">Loading…</div>
-      <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="dashboardClassDisplay">Term: III | Year: 2026</div>
-      <div style="font-size:12px;color:var(--text-2);margin-top:2px" id="dashboardStudentCount">👨‍🎓 Total Students: 0</div>
+      <div style="font-size:18px;font-weight:700;color:var(--primary)" id="dashboardSchoolName">—</div>
+      <div style="font-style:italic;color:var(--text-2);font-size:13px" id="dashboardMotto">—</div>
+      <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="dashboardStudentCount">👨‍🎓 Total Students: 0</div>
     </div>
   </div>
-  <h4 style="margin:14px 0 8px;color:var(--primary);font-size:14px">📈 Core Statistics</h4>
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-icon">👨‍🎓</div><div class="stat-number" id="statTotalStudents">0</div><div class="stat-label">Total Students</div></div>
     <div class="stat-card success"><div class="stat-icon">✅</div><div class="stat-number" id="statPresentToday">0</div><div class="stat-label">Present Today</div></div>
     <div class="stat-card danger"><div class="stat-icon">❌</div><div class="stat-number" id="statAbsentToday">0</div><div class="stat-label">Absent</div></div>
     <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number" id="statFeesCollected">0</div><div class="stat-label">Fees Today</div></div>
-    <div class="stat-card warning"><div class="stat-icon">💳</div><div class="stat-number" id="statExpensesToday">0</div><div class="stat-label">Expenses Today</div></div>
-    <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number" id="statExpectedFees">0</div><div class="stat-label">Expected Fees</div></div>
   </div>
-  <h4 style="margin:18px 0 8px;color:var(--danger);font-size:14px">🏥 Nurse Summary (Today)</h4>
-  <div class="stats-grid">
-    <div class="stat-card info"><div class="stat-icon">🩺</div><div class="stat-number" id="statClinicVisits">0</div><div class="stat-label">Clinic Visits</div></div>
-    <div class="stat-card warning"><div class="stat-icon">🛏️</div><div class="stat-number" id="statSickBay">0</div><div class="stat-label">On Sick Bay</div></div>
-    <div class="stat-card success"><div class="stat-icon">✅</div><div class="stat-number" id="statDischarged">0</div><div class="stat-label">Discharged</div></div>
-    <div class="stat-card danger"><div class="stat-icon">🚨</div><div class="stat-number" id="statCritical">0</div><div class="stat-label">Critically Ill</div></div>
-  </div>
-  <h4 style="margin:18px 0 8px;color:var(--warning);font-size:14px">📦 Stores Summary</h4>
-  <div class="form-row-2">
-    <div class="chart-container"><h4>🍲 Food Items Usage</h4><canvas id="storesBarChart"></canvas></div>
-    <div class="chart-container"><h4>📊 Stock Status</h4><canvas id="storesStatusChart"></canvas></div>
-  </div>
-  <div class="info-box" style="background:#fff3cd;border-left-color:var(--warning)">
-    <div class="info-title" style="color:#856404">⚠️ Out of Stock Items</div>
-    <div class="info-text" id="outOfStockList">Loading…</div>
-  </div>
-  <div class="form-row-2">
-    <div class="chart-container"><h4>📊 Fees Collected per Class</h4><canvas id="feesChart"></canvas></div>
-    <div class="chart-container"><h4>📊 Attendance Overview</h4><canvas id="attendanceChart"></canvas></div>
-  </div>
-  <h4 style="margin:18px 0 8px;color:var(--primary);font-size:14px">📚 Classes & Student Counts</h4>
-  <div class="class-cards" id="classCardsContainer"><div style="text-align:center;padding:20px;color:var(--text-3)">Loading class data…</div></div>
-  <h4 style="margin:18px 0 8px;color:var(--primary);font-size:14px">📢 Latest Notices</h4>
-  <div id="dashboardNotices" style="max-height:300px;overflow-y:auto"></div>
 </div>
 
-<!-- REGISTER -->
+<!-- REGISTER (simple placeholder for now; full register kept in prior versions) -->
 <div id="tabRegister" class="form-section">
   <h2 class="section-title"><i class="fas fa-user-plus" style="color:var(--primary)"></i> Student Registration</h2>
-  <form id="registerForm" onsubmit="registerStudent(event)">
-    <div class="form-group"><label>Class *</label><select id="regClassSelect" onchange="updateRegisterClassInfo()"><option value="">Select a Class</option></select></div>
-    <div class="info-box"><div class="info-title">📌 Class Details</div><div class="info-text" id="regClassInfo">Select a class</div></div>
-    <div class="form-group">
-      <label>Student ID *</label>
-      <input type="text" id="regStudentId" placeholder="Auto-generated" disabled />
-      <div style="background:var(--surface-3);padding:10px 14px;border-radius:8px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--primary)">
-        <span>🔑 <strong id="regIdDisplay">Stu001</strong></span>
-        <span style="background:var(--primary);color:#fff;padding:2px 12px;border-radius:20px;font-size:11px">Auto</span>
-      </div>
-      <div style="margin-top:8px;display:flex;align-items:center;gap:10px;font-size:13px">
-        <input type="checkbox" id="manualIdToggle" onchange="toggleManualId()" style="width:auto" />
-        <label for="manualIdToggle" style="margin:0">Manually enter Student ID</label>
-      </div>
-    </div>
-    <div class="form-group"><label>Student Full Name *</label><input type="text" id="regStudentName" /></div>
-    <div class="form-row-3">
-      <div class="form-group"><label>Sex *</label><select id="regSex"><option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
-      <div class="form-group"><label>Stream</label><input type="text" id="regStream" placeholder="e.g., Blue, A, East" /></div>
-      <div class="form-group"><label>Day / Boarding *</label><select id="regResidence"><option value="">Select</option><option value="Day">Day</option><option value="Boarding">Boarding</option></select></div>
-    </div>
-    <div class="form-group"><label>Student Passport Photo</label><input type="file" id="regStudentPhoto" accept="image/*" /></div>
-    <div class="form-group"><label>Parent/Guardian Name *</label><input type="text" id="regParentName" /></div>
-    <div class="form-group"><label>Parent/Guardian Phone *</label><input type="tel" id="regParentPhone" /></div>
-    <div class="form-group"><label>Parent/Guardian Email</label><input type="email" id="regParentEmail" /></div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Term</label><select id="regTerm"><option value="I">Term I</option><option value="II">Term II</option><option value="III" selected>Term III</option></select></div>
-      <div class="form-group"><label>Year</label><select id="regYear"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select></div>
-    </div>
-    <div class="btn-group">
-      <button type="button" class="btn btn-secondary" onclick="resetRegisterForm()">🔄 Reset</button>
-      <button type="submit" class="btn btn-primary" id="regSubmitBtn">📤 Register</button>
-    </div>
-  </form>
-  <div id="regSuccess" style="display:none">
-    <div style="background:#d4edda;padding:30px;border-radius:var(--radius-md);text-align:center;border:1px solid #c3e6cb">
-      <div style="font-size:48px">✅</div>
-      <h2 style="color:#155724">Student Registered!</h2>
-      <div style="font-size:24px;font-weight:700;color:var(--primary);padding:10px;background:#fff;border-radius:8px;display:inline-block;margin:10px 0" id="regSuccessId">Stu001</div>
-      <button class="btn btn-primary" onclick="resetRegisterForm()">➕ Add Another</button>
-    </div>
+  <div class="info-box"><div class="info-title">📌 Registration</div><div class="info-text">Select a class in Settings first to link its sheet, then use this form.</div></div>
+  <div class="form-group"><label>Class *</label><select id="regClassSelect"><option value="">Select a Class</option></select></div>
+  <div class="form-group"><label>Student Name *</label><input type="text" id="regStudentName" /></div>
+  <div class="form-group"><label>Student ID</label><input type="text" id="regStudentId" placeholder="Auto" /></div>
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="resetRegisterForm()">🔄 Reset</button>
+    <button class="btn btn-primary" id="regSubmitBtn" onclick="registerStudent()">📤 Register</button>
+  </div>
+  <div id="regSuccess" style="display:none;margin-top:15px;background:#d4edda;padding:20px;border-radius:var(--radius-md);text-align:center">
+    <div style="font-size:36px">✅</div>
+    <h3 style="color:#155724">Registered!</h3>
+    <p id="regSuccessMsg"></p>
   </div>
 </div>
 
 <!-- SCORES -->
 <div id="tabScores" class="form-section">
-  <h2 class="section-title"><i class="fas fa-edit" style="color:var(--primary)"></i> Post Subject Scores</h2>
-  <div class="info-box"><div class="info-title">📌 Score Conversion</div><div class="info-text">AOI scores are converted to <strong>/20</strong>. EOT scores are converted to <strong>/80</strong>. A-Level papers are converted to <strong>/100</strong>. Each subject gets its own tab in the class sheet.</div></div>
-  <div style="display:flex;gap:6px;margin-bottom:15px;background:var(--surface-2);padding:5px;border-radius:12px">
-    <button type="button" id="levelOLevel" onclick="setScoreLevel('olevel')" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">📘 O-Level</button>
-    <button type="button" id="levelALevel" onclick="setScoreLevel('alevel')" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">📗 A-Level</button>
-  </div>
-  <form id="scoresForm" onsubmit="postScores(event)">
-    <div class="form-group"><label>Select Class *</label><select id="scoreClassSelect" onchange="updateScoreClassInfo(); updateScoreEntryMode()"><option value="">Select a Class</option></select></div>
-    <div class="info-box"><div class="info-title">📌 Class</div><div class="info-text" id="scoreClassInfo">Select a class</div><div id="levelDisplay" style="font-size:11px;color:var(--text-3);margin-top:3px"></div></div>
-    <div id="olevelScoreEntry">
-      <div class="form-row-3">
-        <div class="form-group"><label>Subject *</label>
-          <select id="scoreSubjectOLevel"><option value="">Select Subject</option>
-            <option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option>
-            <option>Biology</option><option>Geography</option><option>History</option><option>CRE</option>
-            <option>IRE</option><option>Computer Studies</option><option>ICT</option><option>Luganda</option>
-            <option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option>
-            <option>Food and Nutrition</option><option>Runyankole Rukiga</option><option>Art and Design</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Teacher Initials *</label><input type="text" id="teacherInitialsOLevel" maxlength="5" style="text-transform:uppercase" /></div>
-        <div class="form-group"><label>Exam Selection</label>
-          <select id="examSelectionOLevel" onchange="updateOLevelExamDisplay()">
-            <option value="both" selected>Both AOI & EOT</option>
-            <option value="aoi">AOI Only</option>
-            <option value="eot">EOT Only</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row-3">
-        <div class="form-group" id="aoiMaxContainer"><label>AOI Max Marks (your paper)</label><input type="number" id="aoiMax" value="20" min="1" onchange="renderScoreTable()" /></div>
-        <div class="form-group" id="eotMaxContainer"><label>EOT Max Marks (your paper)</label><input type="number" id="eotMax" value="80" min="1" onchange="renderScoreTable()" /></div>
-        <div class="form-group"></div>
-      </div>
-    </div>
-    <div id="alevelScoreEntry" style="display:none">
-      <div class="form-row-3">
-        <div class="form-group"><label>Subject *</label>
-          <select id="scoreSubjectALevel" onchange="updateALevelWeight()"><option value="">Select Subject</option>
-            <option>Biology</option><option>Chemistry</option><option>Physics</option><option>Mathematics</option>
-            <option>English</option><option>Geography</option><option>History</option><option>Divinity</option>
-            <option>IRE</option><option>Computer Studies</option><option>ICT</option><option>Luganda</option>
-            <option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option>
-            <option>General Paper</option><option>Subsidiary Mathematics</option>
-            <option>Food and Nutrition</option><option>Runyankole Rukiga</option><option>Art and Design</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Teacher Initials *</label><input type="text" id="teacherInitialsALevel" maxlength="5" style="text-transform:uppercase" /></div>
-        <div class="form-group"><label>Paper Selection</label>
-          <select id="paperSelectionALevel" onchange="updateALevelPaperDisplay()">
-            <option value="both" selected>Both Papers</option>
-            <option value="paper1">Paper 1 Only</option>
-            <option value="paper2">Paper 2 Only</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row-3">
-        <div class="form-group"><label>Subject Weight</label>
-          <select id="aLevelWeight">
-            <option value="3">Weight 3 (Main Subjects)</option>
-            <option value="1">Weight 1 (General Paper, Sub Math, ICT)</option>
-          </select>
-        </div>
-        <div class="form-group" id="paper1MaxContainer"><label>Paper 1 Max: <input type="number" id="paper1Max" value="100" min="1" style="width:80px;padding:6px;border:2px solid var(--border);border-radius:6px" onchange="renderScoreTable()" /></label></div>
-        <div class="form-group" id="paper2MaxContainer"><label>Paper 2 Max: <input type="number" id="paper2Max" value="100" min="1" style="width:80px;padding:6px;border:2px solid var(--border);border-radius:6px" onchange="renderScoreTable()" /></label></div>
-      </div>
-    </div>
-    <div class="form-group"><input type="text" id="scoreSearchInput" placeholder="🔍 Search by ID or Name…" onkeyup="filterScoreRows()" /></div>
-    <div class="table-wrap"><table class="score-table">
-      <thead><tr><th>ID</th><th>Name</th><th id="score1Header">AOI</th><th id="score2Header">EOT</th><th id="averageHeader">Average %</th></tr></thead>
-      <tbody id="scoreTableBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr></tbody>
-    </table></div>
-    <div class="btn-group" style="margin-top:15px">
-      <button type="button" class="btn btn-secondary" onclick="resetScoresForm()">🔄 Reset</button>
-      <button type="submit" class="btn btn-primary" id="scoreSubmitBtn">📤 Post Scores</button>
-    </div>
-  </form>
-  <div id="scoreSuccess" style="display:none">
-    <div style="background:#d4edda;padding:30px;border-radius:var(--radius-md);text-align:center;border:1px solid #c3e6cb">
-      <div style="font-size:48px">✅</div>
-      <h2 style="color:#155724">Scores Posted!</h2>
-      <p id="scoreSuccessMsg"></p>
-      <button class="btn btn-primary" onclick="resetScoresForm()">📊 Post More</button>
-    </div>
-  </div>
+  <h2 class="section-title"><i class="fas fa-edit" style="color:var(--primary)"></i> Post Scores</h2>
+  <div class="form-group"><label>Class *</label><select id="scoreClassSelect"><option value="">Select a Class</option></select></div>
+  <div class="form-group"><label>Subject *</label><input type="text" id="scoreSubject" placeholder="e.g. Mathematics" /></div>
+  <div class="form-group"><label>Teacher Initials *</label><input type="text" id="scoreInitials" maxlength="5" style="text-transform:uppercase" /></div>
+  <div class="table-wrap"><table class="score-table">
+    <thead><tr><th>ID</th><th>Name</th><th>AOI</th><th>EOT</th></tr></thead>
+    <tbody id="scoreTableBody"><tr><td colspan="4" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr></tbody>
+  </table></div>
+  <div class="btn-group"><button class="btn btn-secondary" onclick="resetScoresForm()">🔄 Reset</button><button class="btn btn-primary" id="scoreSubmitBtn" onclick="postScores()">📤 Post</button></div>
 </div>
 
 <!-- ATTENDANCE -->
 <div id="tabAttendance" class="form-section">
   <h2 class="section-title"><i class="fas fa-clipboard-check" style="color:var(--primary)"></i> Attendance</h2>
-  <div style="display:flex;gap:6px;margin-bottom:15px;background:var(--surface-2);padding:5px;border-radius:12px">
-    <button type="button" id="attSubFace" onclick="switchAttendanceMode('face')" style="flex:1;padding:11px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--bg1),var(--primary));color:#fff;font-family:inherit">📸 Face</button>
-    <button type="button" id="attSubQR" onclick="switchAttendanceMode('qr')" style="flex:1;padding:11px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">📱 QR Code</button>
-    <button type="button" id="attSubManual" onclick="switchAttendanceMode('manual')" style="flex:1;padding:11px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">☑️ Manual</button>
-  </div>
-  <div id="attModeFace">
-    <div class="camera-container" id="cameraContainer">
-      <video id="videoFeed" autoplay playsinline></video>
-      <div class="detection-status" id="detectionStatus">🔍 Waiting…</div>
-    </div>
-    <div class="camera-controls">
-      <button id="cameraToggleBtn" class="btn btn-info" onclick="startCamera()">📷 Start Camera</button>
-      <button class="btn btn-secondary" onclick="switchCamera()">🔄 Switch</button>
-      <button class="btn btn-primary" onclick="captureAndVerify()">📸 Capture & Verify</button>
-      <button class="btn btn-danger" onclick="stopCamera()">⏹ Stop</button>
-    </div>
-    <div style="margin-top:20px"><h4 style="color:var(--primary);font-size:14px">📋 Registered Faces</h4><div id="registeredFacesList" style="max-height:200px;overflow-y:auto;background:var(--surface-2);padding:10px;border-radius:8px"><p style="color:#999;text-align:center">No faces registered.</p></div></div>
-  </div>
-  <div id="attModeQR" style="display:none">
-    <div class="qr-scanner-container" id="qrScannerContainer">
-      <video id="qrVideo" autoplay playsinline></video>
-      <div class="qr-scan-overlay"></div>
-    </div>
-    <div class="camera-controls">
-      <button id="qrToggleBtn" class="btn btn-info" onclick="startQRScanner()">📷 Start QR Scanner</button>
-      <button class="btn btn-secondary" onclick="switchQRCamera()">🔄 Switch</button>
-      <button class="btn btn-danger" onclick="stopQRScanner()">⏹ Stop</button>
-    </div>
-    <div id="qrResult" class="qr-result"><div class="qr-student-name" id="qrStudentName"></div><div id="qrStudentId"></div><div style="margin-top:10px"><button class="btn btn-success btn-sm" onclick="markQRAttendance()">✅ Mark Present</button></div></div>
-    <div style="margin-top:15px"><h4 style="color:var(--primary);font-size:14px">📋 Recent QR Scans</h4><div id="qrScanHistory" style="max-height:200px;overflow-y:auto;background:var(--surface-2);padding:10px;border-radius:8px"><p style="color:#999;text-align:center">No scans yet.</p></div></div>
-  </div>
-  <div id="attModeManual" style="display:none">
-    <div class="form-row-3">
-      <div class="form-group"><label>Class *</label><select id="manualAttClassSelect" onchange="loadManualAttendanceStudents()"><option value="">Select a Class</option></select></div>
-      <div class="form-group"><label>Date</label><input type="date" id="manualAttDate" /></div>
-      <div class="form-group"><label>Term / Year</label>
-        <div style="display:flex;gap:8px">
-          <select id="manualAttTerm" style="flex:1"><option value="I">Term I</option><option value="II">Term II</option><option value="III" selected>Term III</option></select>
-          <select id="manualAttYear" style="flex:1"><option>2025</option><option selected>2026</option><option>2027</option></select>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:15px 0;padding:12px;background:var(--surface-2);border-radius:10px">
-      <button class="btn btn-success btn-sm" onclick="markAllManual('present')">✅ All Present</button>
-      <button class="btn btn-danger btn-sm" onclick="markAllManual('absent')">❌ All Absent</button>
-      <button class="btn btn-secondary btn-sm" onclick="resetManualAttendance()">🔄 Reset</button>
-      <input type="text" id="manualAttSearch" placeholder="🔍 Search…" onkeyup="filterManualAttendance()" style="flex:1;min-width:200px;padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px" />
-    </div>
-    <div id="manualAttGrid" class="attendance-check-grid"><p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p></div>
-    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px">
-      <button class="btn btn-secondary" onclick="resetManualAttendance()">🔄 Reset</button>
-      <button class="btn btn-primary" id="manualAttSaveBtn" onclick="saveManualAttendance()">💾 Save Attendance</button>
-    </div>
-  </div>
-</div>
-
-<!-- FACE REG -->
-<div id="tabFaceReg" class="form-section">
-  <h2 class="section-title"><i class="fas fa-user-tag" style="color:var(--primary)"></i> Face Registration</h2>
   <div class="form-row-2">
-    <div class="form-group"><label>Person ID *</label><input type="text" id="regFaceId" /></div>
-    <div class="form-group"><label>Full Name *</label><input type="text" id="regFaceName" /></div>
+    <div class="form-group"><label>Class *</label><select id="manualAttClassSelect" onchange="loadManualAttendanceStudents()"><option value="">Select a Class</option></select></div>
+    <div class="form-group"><label>Date</label><input type="date" id="manualAttDate" /></div>
   </div>
-  <div class="form-group"><label>Role</label><select id="regFaceRole"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select></div>
-  <div class="camera-container" style="max-width:400px;margin:15px auto">
-    <video id="faceRegVideo" autoplay playsinline></video>
-    <div class="detection-status" id="faceRegStatus">📸 Position face</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:15px 0">
+    <button class="btn btn-success btn-sm" onclick="markAllManual('present')">✅ All Present</button>
+    <button class="btn btn-danger btn-sm" onclick="markAllManual('absent')">❌ All Absent</button>
+    <button class="btn btn-secondary btn-sm" onclick="resetManualAttendance()">🔄 Reset</button>
   </div>
-  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-    <button class="btn btn-success" onclick="startFaceRegCamera()">📷 Start</button>
-    <button class="btn btn-secondary" onclick="switchFaceRegCamera()">🔄 Switch</button>
-    <button class="btn btn-primary" onclick="registerFaceFromTab()">📸 Register Face</button>
-    <button class="btn btn-danger" onclick="stopFaceRegCamera()">⏹ Stop</button>
+  <div id="manualAttGrid" class="attendance-check-grid"><p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p></div>
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px">
+    <button class="btn btn-primary" id="manualAttSaveBtn" onclick="saveManualAttendance()">💾 Save</button>
   </div>
-  <div style="margin-top:20px"><h4 style="color:var(--primary);font-size:14px">📋 Registered Faces</h4><div class="face-registered-grid" id="registeredFacesGrid"><p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No faces yet</p></div></div>
 </div>
 
 <!-- FEES -->
 <div id="tabFees" class="form-section">
   <h2 class="section-title"><i class="fas fa-money-bill-wave" style="color:var(--primary)"></i> Fees Ledger</h2>
+  <div class="info-box"><div class="info-title">📌 Finance</div><div class="info-text">Record payments to the master FeeRecords sheet.</div></div>
   <div class="form-row-3">
-    <div class="form-group"><label>Student *</label><select id="feesStudentSelect"><option value="">Select Student</option></select></div>
-    <div class="form-group"><label>Amount Paid *</label><input type="number" id="feesAmount" min="0" step="1000" /></div>
-    <div class="form-group"><label>Payment Method</label><select id="feesMethod"><option value="cash">Cash</option><option value="mobile">Mobile Money</option><option value="bank">Bank Transfer</option><option value="cheque">Cheque</option></select></div>
+    <div class="form-group"><label>Student ID *</label><input type="text" id="feesStudentId" /></div>
+    <div class="form-group"><label>Amount *</label><input type="number" id="feesAmount" min="0" step="1000" /></div>
+    <div class="form-group"><label>Method</label><select id="feesMethod"><option value="cash">Cash</option><option value="mobile">Mobile Money</option><option value="bank">Bank</option></select></div>
   </div>
-  <div class="form-row-2">
-    <div class="form-group"><label>Term</label><select id="feesTerm"><option value="I">Term I</option><option value="II">Term II</option><option value="III" selected>Term III</option></select></div>
-    <div class="form-group"><label>Year</label><select id="feesYear"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select></div>
-  </div>
-  <div class="form-group"><label>Receipt Number</label><input type="text" id="feesReceipt" placeholder="Auto" disabled /></div>
-  <div class="form-group"><label>Narration</label><input type="text" id="feesNarration" placeholder="Optional" /></div>
-  <div class="btn-group-3">
-    <button type="button" class="btn btn-success" onclick="recordFeePayment()">💰 Record Payment</button>
-    <button type="button" class="btn btn-secondary" onclick="resetFeesForm()">🔄 Reset</button>
-    <button type="button" class="btn btn-info" onclick="loadFeesData()">📋 Load</button>
-  </div>
-  <h4 style="margin:18px 0 8px;color:var(--primary);font-size:14px">📊 Summary</h4>
-  <div class="stats-grid">
-    <div class="stat-card success"><div class="stat-number" id="totalFeesCollected">0</div><div class="stat-label">Total Collected</div></div>
-  </div>
-  <h4 style="margin:18px 0 8px;color:var(--primary);font-size:14px">📋 Records</h4>
-  <div class="form-group"><input type="text" id="feesSearch" placeholder="🔍 Search…" onkeyup="filterFeesRecords()" /></div>
-  <div id="feesRecordsContainer" style="max-height:400px;overflow-y:auto"><p style="color:#999;text-align:center;padding:20px">No records.</p></div>
+  <div class="btn-group"><button class="btn btn-secondary" onclick="resetFeesForm()">🔄 Reset</button><button class="btn btn-success" onclick="recordFeePayment()">💰 Record</button></div>
+  <div id="feesRecordsContainer" style="margin-top:15px"></div>
 </div>
 
 <!-- EXPENSES -->
 <div id="tabExpenses" class="form-section">
   <h2 class="section-title"><i class="fas fa-receipt" style="color:var(--primary)"></i> Expenses</h2>
   <div class="form-row-3">
-    <div class="form-group"><label>Description *</label><input type="text" id="expenseDesc" placeholder="e.g., Stationery" /></div>
+    <div class="form-group"><label>Description *</label><input type="text" id="expenseDesc" /></div>
     <div class="form-group"><label>Amount *</label><input type="number" id="expenseAmount" min="0" step="100" /></div>
-    <div class="form-group"><label>Category</label>
-      <select id="expenseCategory">
-        <option value="stationery">Stationery</option><option value="maintenance">Maintenance</option>
-        <option value="salaries">Salaries</option><option value="utilities">Utilities</option>
-        <option value="transport">Transport</option><option value="food">Food</option><option value="other">Other</option>
-      </select>
-    </div>
+    <div class="form-group"><label>Category</label><select id="expenseCategory"><option value="stationery">Stationery</option><option value="maintenance">Maintenance</option><option value="salaries">Salaries</option><option value="utilities">Utilities</option><option value="other">Other</option></select></div>
   </div>
-  <div class="form-row-2">
-    <div class="form-group"><label>Date</label><input type="date" id="expenseDate" /></div>
-    <div class="form-group"><label>Narration</label><input type="text" id="expenseNarration" placeholder="Optional" /></div>
-  </div>
-  <div class="btn-group-3">
-    <button type="button" class="btn btn-danger" onclick="recordExpense()">💳 Record Expense</button>
-    <button type="button" class="btn btn-secondary" onclick="resetExpenseForm()">🔄 Reset</button>
-    <button type="button" class="btn btn-info" onclick="loadExpenses()">📋 Load</button>
-  </div>
-  <h4 style="margin:18px 0 8px;color:var(--primary);font-size:14px">📊 Summary</h4>
-  <div class="stats-grid">
-    <div class="stat-card danger"><div class="stat-number" id="totalExpenses">0</div><div class="stat-label">Total Expenses</div></div>
-    <div class="stat-card warning"><div class="stat-number" id="expensesToday">0</div><div class="stat-label">Today</div></div>
-  </div>
-  <div id="expensesContainer" style="max-height:400px;overflow-y:auto"><p style="color:#999;text-align:center;padding:20px">No records.</p></div>
+  <div class="form-group"><label>Date</label><input type="date" id="expenseDate" /></div>
+  <div class="btn-group"><button class="btn btn-secondary" onclick="resetExpenseForm()">🔄 Reset</button><button class="btn btn-danger" onclick="recordExpense()">💳 Record</button></div>
+  <div id="expensesContainer" style="margin-top:15px"></div>
 </div>
 
 <!-- REPORTS -->
 <div id="tabReports" class="form-section">
-  <h2 class="section-title"><i class="fas fa-file-pdf" style="color:var(--primary)"></i> Full Report Cards</h2>
-  <div class="form-group"><label>Select Class *</label><select id="reportClassSelect" onchange="updateReportClassInfo()"><option value="">Select a Class</option></select></div>
-  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:15px 0">
-    <input type="text" id="searchInput" placeholder="Search by ID or Name…" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;min-width:200px;font-family:inherit" />
-    <button class="btn btn-success" onclick="searchStudent()">🔍 Search</button>
-    <button class="btn btn-primary" onclick="fetchReportData()">📋 Load All</button>
-    <button class="btn btn-danger" onclick="downloadReportsPDF()">📥 Download PDF</button>
-  </div>
-  <div id="printSelectionBar">
-    <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px"><span>📋</span><span>Selected:</span><span class="psb-count" id="psbCount">0</span></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button type="button" class="psb-btn-selectall" onclick="selectAllReports()">✅ Select All</button>
-      <button type="button" class="psb-btn-clear" onclick="clearReportSelection()">✖️ Clear</button>
-      <button type="button" class="psb-btn-print" id="psbPrintBtn" onclick="downloadSelectedReportsPDF()" disabled>📥 Download Selected PDF</button>
-    </div>
-  </div>
-  <div id="reportResults"></div>
-</div>
-
-<!-- MINI -->
-<div id="tabMini" class="form-section">
-  <h2 class="section-title"><i class="fas fa-file" style="color:var(--primary)"></i> Mini Reports</h2>
-  <div class="form-group"><label>Select Class *</label><select id="miniClassSelect" onchange="updateMiniClassInfo(); loadMiniReports()"><option value="">Select a Class</option></select></div>
-  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:15px 0">
-    <input type="text" id="miniSearchInput" placeholder="🔍 Search…" onkeyup="filterMiniReports()" style="flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;min-width:200px;font-family:inherit" />
-    <button class="btn btn-success" onclick="loadMiniReports()">📋 Load All</button>
-    <button class="btn btn-danger" onclick="downloadMiniReportsPDF()">📥 Download PDF</button>
-  </div>
-  <div id="miniResults"></div>
-</div>
-
-<!-- DOCUMENTS -->
-<div id="tabDocuments" class="form-section">
-  <h2 class="section-title"><i class="fas fa-file-word" style="color:var(--primary)"></i> Documents</h2>
-  <div class="form-row-3">
-    <div class="form-group"><label>Class *</label><select id="docClassSelect" onchange="updateDocClassInfo()"><option value="">Select</option></select></div>
-    <div class="form-group"><label>Subject</label><select id="docSubjectSelect"><option value="">All Subjects</option><option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Geography</option><option>History</option><option>CRE</option><option>Computer Studies</option><option>Luganda</option><option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option></select></div>
-    <div class="form-group"><label>Type</label><select id="docTypeSelect"><option value="classlist">📋 Class Register</option><option value="scoresheet">📊 Score Sheet</option></select></div>
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0">
-    <button class="btn btn-success" onclick="generateDocument()">📄 Generate</button>
-    <button class="btn btn-primary" onclick="downloadDocument()">📥 Download</button>
-    <button class="btn btn-secondary" onclick="printDocument()">🖨️ Print</button>
-  </div>
-  <div id="documentPreview" style="margin-top:20px"><p style="color:#999;text-align:center;padding:20px">Generate a document first.</p></div>
-</div>
-
-<!-- TIMETABLE -->
-<div id="tabTimetable" class="form-section">
-  <h2 class="section-title"><i class="fas fa-clock" style="color:var(--primary)"></i> Timetable</h2>
-  <div class="form-row-3">
-    <div class="form-group"><label>Class *</label><select id="ttClassSelect" onchange="loadTimetable()"><option value="">Select</option></select></div>
-    <div class="form-group"><label>Term</label><select id="ttTerm"><option value="I">Term I</option><option value="II">Term II</option><option value="III" selected>Term III</option></select></div>
-    <div class="form-group"><label>Year</label><select id="ttYear"><option>2025</option><option selected>2026</option><option>2027</option></select></div>
-  </div>
-  <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
-    <div class="form-row-3">
-      <div class="form-group"><label>Day</label><select id="ttDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></div>
-      <div class="form-group"><label>Period</label><select id="ttPeriod"><option>08:00 - 08:40</option><option>08:40 - 09:20</option><option>09:20 - 10:00</option><option>10:00 - 10:20 (Break)</option><option>10:20 - 11:00</option><option>11:00 - 11:40</option><option>11:40 - 12:20</option><option>12:20 - 13:00</option><option>13:00 - 14:00 (Lunch)</option><option>14:00 - 14:40</option><option>14:40 - 15:20</option><option>15:20 - 16:00</option></select></div>
-      <div class="form-group"><label>Subject</label><input type="text" id="ttSubject" /></div>
-    </div>
-    <div class="form-row-3">
-      <div class="form-group"><label>Teacher</label><input type="text" id="ttTeacher" /></div>
-      <div class="form-group"><label>Room</label><input type="text" id="ttRoom" /></div>
-      <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-success btn-block" onclick="addTimetablePeriod()">➕ Add Period</button></div>
-    </div>
-  </div>
-  <div style="display:flex;gap:10px;margin:15px 0;flex-wrap:wrap">
-    <button class="btn btn-info" onclick="loadTimetable()">📋 Load</button>
-    <button class="btn btn-danger" onclick="clearTimetable()">🗑️ Clear</button>
-  </div>
-  <div id="timetableDisplay" style="overflow-x:auto"><p style="color:#999;text-align:center;padding:20px">Select a class.</p></div>
-</div>
-
-<!-- PROGRAM -->
-<div id="tabProgram" class="form-section">
-  <h2 class="section-title"><i class="fas fa-calendar-check" style="color:var(--primary)"></i> Term Program</h2>
-  <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
-    <div class="form-row-3">
-      <div class="form-group"><label>Date</label><input type="date" id="progDate" /></div>
-      <div class="form-group"><label>Event Title</label><input type="text" id="progTitle" /></div>
-      <div class="form-group"><label>Category</label><select id="progCategory"><option value="academic">📚 Academic</option><option value="sports">⚽ Sports</option><option value="religious">🙏 Religious</option><option value="meeting">👥 Meeting</option><option value="holiday">🏖️ Holiday</option><option value="other">📌 Other</option></select></div>
-    </div>
-    <div class="form-group"><label>Description</label><textarea id="progDesc" rows="2"></textarea></div>
-    <button class="btn btn-success" onclick="addProgramItem()">➕ Add</button>
-  </div>
-  <div id="programDisplay" style="margin-top:15px"></div>
-</div>
-
-<!-- NOTICES -->
-<div id="tabNotices" class="form-section">
-  <h2 class="section-title"><i class="fas fa-bullhorn" style="color:var(--primary)"></i> Notice Board</h2>
-  <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border)">
-    <div class="form-row-3">
-      <div class="form-group"><label>Title *</label><input type="text" id="noticeTitle" /></div>
-      <div class="form-group"><label>Priority</label><select id="noticePriority"><option value="low">🟢 Low</option><option value="medium" selected>🟠 Medium</option><option value="high">🔴 High</option></select></div>
-      <div class="form-group"><label>Target</label><select id="noticeTarget"><option value="all">👥 Everyone</option><option value="students">👨‍🎓 Students</option><option value="parents">👨‍👩‍👦 Parents</option><option value="staff">🧑‍💼 Staff</option></select></div>
-    </div>
-    <div class="form-group"><label>Content *</label><textarea id="noticeBody" rows="4"></textarea></div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Expiry (Optional)</label><input type="date" id="noticeExpiry" /></div>
-      <div class="form-group"><label>Publish Date</label><input type="date" id="noticeDate" /></div>
-    </div>
-    <button class="btn btn-success" onclick="postNotice()">📢 Post</button>
-  </div>
-  <div id="noticesDisplay" style="margin-top:15px"></div>
-</div>
-
-<!-- CHAT -->
-<div id="tabChat" class="form-section">
-  <h2 class="section-title"><i class="fas fa-comment-dots" style="color:var(--primary)"></i> Messaging</h2>
-  <div class="chat-container">
-    <div class="chat-sidebar"><div style="padding:10px 0;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border);margin-bottom:10px;font-size:14px">👥 Contacts</div><div id="chatUserList"><p style="color:#999;font-size:13px;padding:10px">Loading…</p></div></div>
-    <div class="chat-messages">
-      <div class="chat-header" id="chatHeader">Select a user</div>
-      <div class="messages-area" id="messagesArea"><p style="color:#999;text-align:center;padding:20px">Select a user.</p></div>
-      <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Type…" onkeypress="if(event.key==='Enter') sendMessage()" /><button class="btn btn-primary" onclick="sendMessage()">📤</button></div>
-    </div>
-  </div>
+  <h2 class="section-title"><i class="fas fa-file-pdf" style="color:var(--primary)"></i> Reports</h2>
+  <div class="info-box"><div class="info-title">📌 Report Cards</div><div class="info-text">Generate report cards per class from the class sheet.</div></div>
+  <div class="form-group"><label>Class *</label><select id="reportClassSelect"><option value="">Select a Class</option></select></div>
+  <div class="btn-group"><button class="btn btn-primary" onclick="loadReports()">📋 Load</button><button class="btn btn-danger" onclick="alert('Use the browser print dialog (Ctrl+P) after loading')">📥 Print</button></div>
+  <div id="reportResults" style="margin-top:15px"></div>
 </div>
 
 <!-- SETTINGS -->
@@ -743,24 +281,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div class="form-row-2">
       <div class="form-group"><label>School Name</label><input type="text" id="settingsSchoolName" /></div>
       <div class="form-group"><label>Motto</label><input type="text" id="settingsSchoolMotto" /></div>
-      <div class="form-group"><label>Address</label><input type="text" id="settingsSchoolAddress" /></div>
       <div class="form-group"><label>Phone</label><input type="text" id="settingsSchoolPhone" /></div>
       <div class="form-group"><label>Email</label><input type="email" id="settingsSchoolEmail" /></div>
-      <div class="form-group"><label>Website</label><input type="text" id="settingsSchoolWebsite" /></div>
-      <div class="form-group"><label>Term</label><select id="settingsTerm"><option value="I">Term I</option><option value="II" selected>Term II</option><option value="III">Term III</option></select></div>
-      <div class="form-group"><label>Year</label><select id="settingsYear"><option>2025</option><option selected>2026</option><option>2027</option></select></div>
     </div>
-  </div>
-
-  <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
-    <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">🔗 Module Google Sheet Links</h4>
-    <div style="display:grid;grid-template-columns:1fr;gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
-      <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">💰 Finance</label><input type="text" id="settingsFinanceSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
-      <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">📋 Attendance</label><input type="text" id="settingsAttendanceSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
-      <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">📅 Timetable/Notices/Program</label><input type="text" id="settingsTimetableSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
-      <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">📦 Store</label><input type="text" id="settingsStoreSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
-      <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">🏥 Nurse</label><input type="text" id="settingsNurseSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
-    </div>
+    <button class="btn btn-success" onclick="saveSchoolSettings()">💾 Save School</button>
   </div>
 
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
@@ -773,15 +297,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px">S.5</label><input type="text" id="classS5" placeholder="Google Sheet URL" onchange="validateClassLink('S.5')" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /><span style="font-size:11px" id="statusS5">⏳ Not configured</span></div>
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px">S.6</label><input type="text" id="classS6" placeholder="Google Sheet URL" onchange="validateClassLink('S.6')" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /><span style="font-size:11px" id="statusS6">⏳ Not configured</span></div>
     </div>
+    <button class="btn btn-success" onclick="saveAllClassLinks()" style="margin-top:10px">💾 Save Class Links</button>
   </div>
 
-  <!-- 👤 USER ACCOUNTS -->
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">👤 User Accounts</h4>
-    <div class="info-box" style="background:#e7f3ff;border-left-color:var(--info)">
-      <div class="info-title" style="color:var(--info)">📌 Accounts Tab</div>
-      <div class="info-text">All accounts are stored in the <strong>Accounts</strong> tab of <code>1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ</code> with these 15 columns:<br>
-        School | Name | Username | Password | Role | Child ID | Staff ID | Phone | Email | Qualifications | Salary | Other Roles | Assignments | Created At | Updated At</div>
+    <div class="info-box">
+      <div class="info-title">📌 Accounts Tab</div>
+      <div class="info-text">All accounts are stored in the Accounts tab with 15 columns. Success box shows the exact row number.</div>
     </div>
     <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);margin-bottom:15px">
       <div class="form-row-3">
@@ -796,6 +319,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
             <option value="parent">👨‍👩‍👦 Parent</option>
             <option value="nurse">🏥 Nurse</option>
             <option value="storekeeper">📦 Storekeeper</option>
+            <option value="admin">👨‍💼 Admin</option>
           </select>
         </div>
       </div>
@@ -804,102 +328,68 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
         <div class="form-group"><label>Confirm</label><input type="text" id="newUserPasswordConfirm" /></div>
       </div>
       <div class="form-row-2">
-        <div class="form-group"><label>Staff ID</label><input type="text" id="newUserStaffId" placeholder="Auto (e.g. TCH-0001)" /></div>
+        <div class="form-group"><label>Staff ID</label><input type="text" id="newUserStaffId" placeholder="Auto (e.g. TCH-1234)" /></div>
         <div class="form-group"><label>Phone</label><input type="tel" id="newUserPhone" /></div>
       </div>
       <div class="form-row-2">
         <div class="form-group"><label>Email</label><input type="email" id="newUserEmail" /></div>
-        <div class="form-group"><label>Qualifications</label><input type="text" id="newUserQuals" placeholder="e.g. B.Ed Mathematics" /></div>
+        <div class="form-group"><label>Qualifications</label><input type="text" id="newUserQuals" /></div>
       </div>
       <div id="teacherSection" style="display:block;padding:12px;background:#fff;border:1px dashed var(--primary);border-radius:10px;margin-top:10px">
         <div style="font-weight:700;color:var(--primary);font-size:13px;margin-bottom:8px">👩‍🏫 Teacher Details</div>
         <div class="form-row-2">
-          <div class="form-group"><label>Monthly Salary (UGX)</label><input type="number" id="newUserSalary" min="0" step="10000" placeholder="e.g. 850000" /></div>
-          <div class="form-group"><label>Other Roles (comma-separated)</label><input type="text" id="newUserOtherRoles" placeholder="e.g. Games Master, Class Teacher S.2" /></div>
+          <div class="form-group"><label>Monthly Salary (UGX)</label><input type="number" id="newUserSalary" min="0" step="10000" /></div>
+          <div class="form-group"><label>Other Roles (comma-separated)</label><input type="text" id="newUserOtherRoles" placeholder="e.g. Games Master" /></div>
         </div>
         <div style="margin-top:6px">
           <label style="font-size:13px;font-weight:600;color:var(--text-2);display:block;margin-bottom:6px">📚 Class + Subject Assignments</label>
           <div class="assign-row">
             <select id="assignClass" style="padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit">
-              <option value="">Select Class</option>
+              <option value="">Class</option>
               <option>S.1</option><option>S.2</option><option>S.3</option><option>S.4</option><option>S.5</option><option>S.6</option>
             </select>
-            <input type="text" id="assignSubject" placeholder="Subject (e.g. Mathematics)" style="padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit" />
-            <button type="button" class="btn btn-success btn-sm" onclick="addTeacherAssignment()" style="min-height:44px">➕ Add</button>
+            <input type="text" id="assignSubject" placeholder="Subject" style="padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit" />
+            <button type="button" class="btn btn-success btn-sm" onclick="addTeacherAssignment()" style="min-height:44px">➕</button>
           </div>
           <div id="assignmentList" class="assign-list"><em style="color:#999">No assignments yet.</em></div>
         </div>
       </div>
-      <div id="parentChildSection" style="margin-top:10px;display:none">
-        <label style="font-size:12px;font-weight:600">Link to Child:</label>
-        <div class="form-group"><select id="parentChildSelect"><option value="">Select student</option></select></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
-        <button type="button" class="btn btn-primary" onclick="createUserAccount()">🔑 Create Account</button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="checkAccountsSheet()">🔎 Check Accounts sheet</button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="loadUserAccounts()">🔄 Reload</button>
-      </div>
+      <button type="button" class="btn btn-primary" onclick="createUserAccount()" style="margin-top:14px">🔑 Create Account</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="checkAccountsSheet()" style="margin-top:8px">🔎 Check Accounts Sheet</button>
       <div id="newUserCredsBox" style="margin-top:10px"></div>
     </div>
     <div id="userAccountsList"><p style="color:#999;font-size:13px">Loading…</p></div>
-  </div>
-
-  <div style="margin-top:14px">
-    <button class="btn btn-success" onclick="saveAllSettings()">💾 Save All</button>
-    <button class="btn btn-secondary" onclick="loadSettings()">📂 Reload</button>
-  </div>
-
-  <div class="sysadmin-panel">
-    <h4>🛠️ System Tools <span id="connStatusBadge" class="conn-badge checking">⏳ Checking…</span></h4>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
-      <button type="button" class="btn btn-info btn-sm" onclick="testBackendConnection()">📡 Test Backend</button>
-      <button type="button" class="btn btn-success btn-sm" onclick="downloadSystemBackup()">💾 Backup</button>
-    </div>
-    <div id="sysToolsOutput" style="font-size:13px;color:var(--text-2)"></div>
   </div>
 </div>
 
 <div class="footer">
   <div style="font-size:16px;font-weight:700;color:var(--primary)">📚 EduTrack Pro — Admin</div>
-  <div style="font-size:12px;color:var(--text-3)">Developed by <strong>EDUTOK</strong></div>
-  <div style="font-size:12px;color:var(--text-3)">Powered by <strong>His Grace Technologies</strong></div>
+  <div style="font-size:12px;color:var(--text-3)">Developed by <strong>EDUTOK</strong> • His Grace Technologies</div>
 </div>
 </div>
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v19.0
+   EduTrack Pro Admin v22.0
    ============================================================ */
-
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNMBymNN3aV65Im0k2vLrf7Bbwuk-XAipj4CvoI_0X3LFMCtbjaeXvKS1PXuMTcb1L5g/exec';
+var APPS_SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycby8LoQcAlViMcFQLvvJYMdjZT00Ha8YHqeV91ibXFGB2BQnHrVgyU-0psvDdyhwUcrSKA/exec';
 var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
+var CLASSES = ['S.1','S.2','S.3','S.4','S.5','S.6'];
+var CLASS_IDS = {'S.1':'classS1','S.2':'classS2','S.3':'classS3','S.4':'classS4','S.5':'classS5','S.6':'classS6'};
+var ROLE_NAMES = {admin:'Admin',teacher:'Teacher',bursar:'Bursar',gateman:'Gate Man',parent:'Parent',nurse:'Nurse',storekeeper:'Storekeeper'};
+var authSession = null;
+var pendingAssignments = [];
+var manualAttStudents = [];
+var manualAttClass = '';
+var scoreRows = [];
 
-var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
-var FACE_DETECTION_OPTIONS=null;
-var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','IRE':'224','Entrepreneurship':'541','Computer Studies':'462','ICT':'461','Luganda':'345','Kiswahili':'336','Agriculture':'531','General Paper':'101','Subsidiary Mathematics':'457','Divinity':'225','Food and Nutrition':'545','Runyankole Rukiga':'347','Art and Design':'610'};
-var CLASSES=['S.1','S.2','S.3','S.4','S.5','S.6'];
-var CLASS_IDS={'S.1':'classS1','S.2':'classS2','S.3':'classS3','S.4':'classS4','S.5':'classS5','S.6':'classS6'};
-var OLEVEL_CLASSES=['S.1','S.2','S.3','S.4'];
-var ALEVEL_CLASSES=['S.5','S.6'];
-var ROLE_NAMES={'admin':'Admin','teacher':'Teacher','bursar':'Bursar','gateman':'Gate Man','parent':'Parent','nurse':'Nurse','storekeeper':'Storekeeper'};
-var LOGIN_URL='https://edutok-ug.github.io/edutrack2/index.html';
-
-var authSession=null,currentChatUser=null,chatPollInterval=null,detectionInterval=null,videoStream=null,faceRegStream=null,isCameraRunning=false,isFaceRegRunning=false,scoreRows=[],studentList=[],miniReportData=[],isManualId=false,currentScoreLevel='olevel',feesChartInstance=null,attendanceChartInstance=null,storesBarChartInstance=null,storesStatusChartInstance=null,schoolSettings={},cameraMode='user',manualAttStudents=[],manualAttFiltered=[],manualAttClass='',feesRecords=[],expenseRecords=[],chatUsers=[];
-var faceState={modelsLoaded:false,modelsLoading:false,faceDetected:false};
-var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
-var pendingAssignments=[];
-
-function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function getCurrentTime(){return new Date().toLocaleTimeString();}
+/* ─── Helpers ─── */
 function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function subjectCodeFor(n){return SUBJECT_CODES[n]||'—';}
-function descriptorFromGrade(g){return{'A':'EXCEPTIONAL','B':'OUTSTANDING','C':'SATISFACTORY','D':'BASIC','E':'ELEMENTARY','F':'ELEMENTARY'}[g]||'ELEMENTARY';}
-
-function gradeToPoints(g, weight){
-  weight=weight||3;
-  if(weight===1){ return (g==='A'||g==='B'||g==='C')?1:0; }
-  return {'A':5,'B':4,'C':3,'D':2,'E':1}[g]||0;
-}
+function getActiveSchool(){return authSession?authSession.school:'';}
+function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function extractSheetIdFromUrl(u){if(!u)return '';var m=u.match(/\/d\/([a-zA-Z0-9-_]+)/);if(m)return m[1];if(/^[a-zA-Z0-9-_]{30,}$/.test(u))return u;return '';}
+function getClassLink(cls){try{var s=getActiveSchool();if(!s)return '';return localStorage.getItem('classLink_'+cls+'_'+s)||'';}catch(e){return '';}}
+function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
 
 function showToast(msg,type){
   type=type||'info';
@@ -908,8 +398,8 @@ function showToast(msg,type){
   t.className='toast-notification '+type;
   t.textContent=msg;
   c.appendChild(t);
-  setTimeout(function(){t.classList.add('show');},100);
-  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove();},500);},4000);
+  setTimeout(function(){t.classList.add('show');},50);
+  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove();},400);},3500);
 }
 function showStatus(msg,type){
   var m=document.getElementById('statusMessage');
@@ -920,173 +410,85 @@ function showStatus(msg,type){
   m.textContent=msg;
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');}
-document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-async function callAppsScript(params){
+async function api(params){
   var parts=[];
   for(var k in params){
     if(params.hasOwnProperty(k)&&params[k]!=null){
       parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
     }
   }
-  var res=await fetch(APPS_SCRIPT_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
-    body:parts.join('&'),
-    signal:AbortSignal.timeout(30000)
-  });
-  if(!res.ok)throw new Error('HTTP '+res.status);
-  return await res.json();
-}
-
-function getActiveSchool(){return authSession?authSession.school:'';}
-function extractSheetIdFromUrl(url){
-  if(!url)return '';
-  var m=url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  if(m)return m[1];
-  if(/^[a-zA-Z0-9-_]{30,}$/.test(url))return url;
-  return '';
-}
-function getClassLink(cls){
   try{
-    var s=getActiveSchool();
-    if(!s)return '';
-    return localStorage.getItem('classLink_'+cls+'_'+s)||'';
-  }catch(e){return '';}
-}
-function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
-function isOLevelClass(cls){return OLEVEL_CLASSES.indexOf(cls)!==-1;}
-function isALevelClass(cls){return ALEVEL_CLASSES.indexOf(cls)!==-1;}
-function isSubsidiarySubject(subj){return subj==='General Paper'||subj==='Subsidiary Mathematics'||subj==='ICT';}
-
-function getRegisteredFaces(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.storageKey)||'[]');}catch(e){return[];}}
-function saveRegisteredFaces(r){localStorage.setItem(FACE_CONFIG.storageKey,JSON.stringify(r));}
-function getAttendanceRecords(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.attendanceKey)||'[]');}catch(e){return[];}}
-function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey,JSON.stringify(r));}
-function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
-
-function getStudentPhoto(studentId,name){
-  if(!name)return '';
-  var target=normalizeNameKey(name);
-  if(!target)return '';
-  var key=String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-  var direct=localStorage.getItem('studentPhoto_name_'+key);
-  if(direct)return direct;
-  return '';
-}
-
-function gradeFromPercentage(pct,level){
-  var a,b,c,d,e;
-  if(level==='alevel'){
-    a=parseFloat(document.getElementById('gradeAALevel')?.value)||80;
-    b=parseFloat(document.getElementById('gradeBALevel')?.value)||70;
-    c=parseFloat(document.getElementById('gradeCALevel')?.value)||50;
-    d=parseFloat(document.getElementById('gradeDALevel')?.value)||35;
-    e=parseFloat(document.getElementById('gradeEALevel')?.value)||0;
-  }else{
-    a=parseFloat(document.getElementById('gradeA')?.value)||80;
-    b=parseFloat(document.getElementById('gradeB')?.value)||70;
-    c=parseFloat(document.getElementById('gradeC')?.value)||50;
-    d=parseFloat(document.getElementById('gradeD')?.value)||40;
-    e=parseFloat(document.getElementById('gradeE')?.value)||0;
+    var res=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+      body:parts.join('&'),
+      signal:AbortSignal.timeout(30000)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  }catch(e){
+    return {success:false,offline:true,message:e.message};
   }
-  if(pct>=a)return 'A';
-  if(pct>=b)return 'B';
-  if(pct>=c)return 'C';
-  if(pct>=d)return 'D';
-  if(pct>=e)return 'E';
-  return 'F';
-}
-function generateAutoComment(pct,isALevel){
-  if(isALevel){
-    if(pct>=80)return 'EXCEPTIONAL';
-    if(pct>=70)return 'OUTSTANDING';
-    if(pct>=50)return 'SATISFACTORY';
-    if(pct>=35)return 'BASIC';
-    return 'ELEMENTARY';
-  }
-  if(pct>=80)return 'EXCEPTIONAL';
-  if(pct>=70)return 'OUTSTANDING';
-  if(pct>=50)return 'SATISFACTORY';
-  if(pct>=40)return 'BASIC';
-  return 'ELEMENTARY';
 }
 
-function toggleMobileMenu(){document.getElementById('navbarMenu').classList.toggle('open');}
-function toggleDropdown(btn){var p=btn?btn.closest('.nav-dropdown'):null;if(p)p.classList.toggle('active');}
-
-function appLogout(){
-  sessionStorage.removeItem('authSession');
-  stopCamera();stopFaceRegCamera();stopQRScanner();
-  if(chatPollInterval)clearInterval(chatPollInterval);
-  window.location.href='index.html';
-}
-
+/* ─── Tab switching ─── */
 function switchTab(tab){
-  document.querySelectorAll('.nav-link').forEach(function(el){el.classList.remove('active');});
   document.querySelectorAll('.form-section').forEach(function(el){el.classList.remove('active');});
-  var map={dashboard:'tabDashboard',register:'tabRegister',scores:'tabScores',attendance:'tabAttendance',facereg:'tabFaceReg',fees:'tabFees',expenses:'tabExpenses',reports:'tabReports',mini:'tabMini',documents:'tabDocuments',timetable:'tabTimetable',program:'tabProgram',notices:'tabNotices',chat:'tabChat',settings:'tabSettings'};
-  var t=document.getElementById(map[tab]||'tabDashboard');
+  document.querySelectorAll('.nav-link').forEach(function(el){el.classList.remove('active');});
+  var m={dashboard:'tabDashboard',register:'tabRegister',scores:'tabScores',attendance:'tabAttendance',
+         fees:'tabFees',expenses:'tabExpenses',reports:'tabReports',settings:'tabSettings'};
+  var t=document.getElementById(m[tab]||'tabDashboard');
   if(t)t.classList.add('active');
   document.querySelectorAll('.nav-link[data-tab="'+tab+'"]').forEach(function(b){b.classList.add('active');});
-  document.querySelectorAll('.bn-item').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-tab')===tab);});
-  if(tab==='dashboard'){updateDashboard();initCharts();}
-  if(tab==='scores'){updateScoreEntryMode();}
-  if(tab==='attendance'){displayRegisteredFaces();}
-  if(tab==='register'){fetchNextStudentId();}
-  if(tab==='fees')loadFeesData();
-  if(tab==='expenses')loadExpenses();
-  if(tab==='settings'){loadSettings();loadUserAccounts();testBackendConnection();}
-  var menu=document.getElementById('navbarMenu');
-  if(menu)menu.classList.remove('open');
+  document.getElementById('navbarMenu').classList.remove('open');
+  if(tab==='dashboard')loadDashboard();
+  if(tab==='attendance'){var d=document.getElementById('manualAttDate');if(d&&!d.value)d.value=getTodayDate();}
+  if(tab==='settings'){loadSettings();loadUserAccounts();}
   window.scrollTo(0,0);
 }
 
-/* ============ SETTINGS ============ */
-function loadSettings(){
-  var school=getActiveSchool();if(!school)return;
+/* ─── Dashboard ─── */
+async function loadDashboard(){
+  var school=getActiveSchool();
+  document.getElementById('dashboardSchoolName').textContent=school||'School';
   var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
-  schoolSettings=s;
-  var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
-  set('settingsSchoolName',s.schoolName||school);set('settingsSchoolMotto',s.schoolMotto||'Empowering Education');
-  set('settingsSchoolAddress',s.schoolAddress||'');set('settingsSchoolPhone',s.schoolPhone||'');
-  set('settingsSchoolEmail',s.schoolEmail||'');set('settingsSchoolWebsite',s.schoolWebsite||'');
-  set('settingsTerm',s.currentTerm||'II');set('settingsYear',s.currentYear||'2026');
-  set('settingsFinanceSheet',s.financeSheet||'');set('settingsAttendanceSheet',s.attendanceSheet||'');
-  set('settingsTimetableSheet',s.timetableSheet||'');
-  set('settingsStoreSheet',s.storeSheet||'');set('settingsNurseSheet',s.nurseSheet||'');
+  document.getElementById('dashboardMotto').textContent='"'+ (s.schoolMotto||'Empowering Education')+'"';
+
+  try{
+    var r=await api({action:'getStudentCount',school:school});
+    var c=(r&&r.success&&r.data)?(r.data.count||0):0;
+    document.getElementById('statTotalStudents').textContent=c;
+    document.getElementById('dashboardStudentCount').textContent='👨‍🎓 Total Students: '+c;
+  }catch(e){}
+}
+
+/* ─── Settings ─── */
+function loadSettings(){
+  var school=getActiveSchool();
+  var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
+  var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
+  set('settingsSchoolName',s.schoolName||school);
+  set('settingsSchoolMotto',s.schoolMotto||'');
+  set('settingsSchoolPhone',s.schoolPhone||'');
+  set('settingsSchoolEmail',s.schoolEmail||'');
   CLASSES.forEach(function(cls){
     var e=document.getElementById(CLASS_IDS[cls]);
     if(e){e.value=localStorage.getItem('classLink_'+cls+'_'+school)||'';validateClassLink(cls);}
   });
 }
-
-async function saveAllSettings(){
-  var school=getActiveSchool();if(!school)return;
-  var get=function(id){return document.getElementById(id)?.value?.trim()||'';};
+async function saveSchoolSettings(){
+  var school=getActiveSchool();
   var s={
-    schoolName:get('settingsSchoolName'),schoolMotto:get('settingsSchoolMotto'),
-    schoolAddress:get('settingsSchoolAddress'),schoolPhone:get('settingsSchoolPhone'),
-    schoolEmail:get('settingsSchoolEmail'),schoolWebsite:get('settingsSchoolWebsite'),
-    currentTerm:get('settingsTerm'),currentYear:get('settingsYear'),
-    financeSheet:get('settingsFinanceSheet'),attendanceSheet:get('settingsAttendanceSheet'),
-    timetableSheet:get('settingsTimetableSheet'),storeSheet:get('settingsStoreSheet'),
-    nurseSheet:get('settingsNurseSheet')
+    schoolName:document.getElementById('settingsSchoolName').value.trim(),
+    schoolMotto:document.getElementById('settingsSchoolMotto').value.trim(),
+    schoolPhone:document.getElementById('settingsSchoolPhone').value.trim(),
+    schoolEmail:document.getElementById('settingsSchoolEmail').value.trim()
   };
   localStorage.setItem('schoolSettings_'+school,JSON.stringify(s));
-  for(var i=0;i<CLASSES.length;i++){
-    var cls=CLASSES[i];
-    var e=document.getElementById(CLASS_IDS[cls]);if(!e)continue;
-    var url=e.value.trim();
-    localStorage.setItem('classLink_'+cls+'_'+school,url);
-    validateClassLink(cls);
-    var sheetId=extractSheetIdFromUrl(url);
-    if(sheetId){try{await callAppsScript({action:'saveClassLink',school:school,className:cls,sheetId:sheetId});}catch(err){}}
-  }
-  try{await callAppsScript({action:'saveSchoolSettings',school:school,settings:JSON.stringify(s)});}catch(err){}
-  showToast('Settings saved!','success');
+  try{await api({action:'saveSchoolSettings',school:school,settings:JSON.stringify(s)});}catch(e){}
+  showToast('School settings saved','success');
 }
-
 function validateClassLink(cls){
   var e=document.getElementById(CLASS_IDS[cls]),st=document.getElementById('status'+cls);
   if(!e||!st)return;
@@ -1095,43 +497,35 @@ function validateClassLink(cls){
   if(id){
     localStorage.setItem('classLink_'+cls+'_'+school,e.value.trim());
     st.innerHTML='✅ Saved';st.style.color='#2d6a4f';st.style.fontWeight='700';
-    e.style.background='#d4edda';e.style.borderColor='#2d6a4f';
   }else{
     st.innerHTML='⏳ Not configured';st.style.color='#c1121f';st.style.fontWeight='400';
-    e.style.background='';e.style.borderColor='';
   }
 }
-
-async function testBackendConnection(){
-  var b=document.getElementById('connStatusBadge'),o=document.getElementById('sysToolsOutput');
-  if(b){b.className='conn-badge checking';b.textContent='Checking...';}
-  try{
-    var r=await callAppsScript({action:'ping'});
-    if(r&&r.success){
-      if(b){b.className='conn-badge ok';b.textContent='Connected';}
-      if(o)o.textContent='Backend OK.';
-    }else{
-      if(b){b.className='conn-badge fail';b.textContent='Unexpected';}
+async function saveAllClassLinks(){
+  var school=getActiveSchool();
+  for(var i=0;i<CLASSES.length;i++){
+    var cls=CLASSES[i];
+    var e=document.getElementById(CLASS_IDS[cls]);
+    if(!e)continue;
+    var url=e.value.trim();
+    localStorage.setItem('classLink_'+cls+'_'+school,url);
+    validateClassLink(cls);
+    var sheetId=extractSheetIdFromUrl(url);
+    if(sheetId){
+      try{await api({action:'saveClassLink',school:school,className:cls,sheetId:sheetId});}catch(err){}
     }
-  }catch(e){
-    if(b){b.className='conn-badge fail';b.textContent='Unreachable';}
-    if(o)o.textContent='Failed: '+e.message;
   }
+  showToast('Class links saved','success');
 }
 
-/* ============ USER ACCOUNTS ============ */
+/* ─── User accounts ─── */
 function toggleTeacherAssignments(){
-  var role=document.getElementById('newUserRole')?.value||'teacher';
-  var t=document.getElementById('teacherSection');
-  var p=document.getElementById('parentChildSection');
-  if(t)t.style.display=(role==='teacher')?'block':'none';
-  if(p)p.style.display=(role==='parent')?'block':'none';
-  if(role==='parent')loadParentChildSelect();
+  var role=document.getElementById('newUserRole').value;
+  document.getElementById('teacherSection').style.display=(role==='teacher')?'block':'none';
 }
-
 function addTeacherAssignment(){
-  var cls=document.getElementById('assignClass')?.value;
-  var subj=(document.getElementById('assignSubject')?.value||'').trim();
+  var cls=document.getElementById('assignClass').value;
+  var subj=document.getElementById('assignSubject').value.trim();
   if(!cls||!subj){showToast('Select class and enter subject','warning');return;}
   if(pendingAssignments.some(function(a){return a.class===cls&&a.subject.toLowerCase()===subj.toLowerCase();})){
     showToast('Already added','warning');return;
@@ -1140,95 +534,55 @@ function addTeacherAssignment(){
   document.getElementById('assignSubject').value='';
   renderPendingAssignments();
 }
-
-function removeTeacherAssignment(idx){
-  pendingAssignments.splice(idx,1);
-  renderPendingAssignments();
-}
-
+function removeTeacherAssignment(idx){pendingAssignments.splice(idx,1);renderPendingAssignments();}
 function renderPendingAssignments(){
-  var box=document.getElementById('assignmentList');if(!box)return;
+  var box=document.getElementById('assignmentList');
+  if(!box)return;
   if(pendingAssignments.length===0){box.innerHTML='<em style="color:#999">No assignments yet.</em>';return;}
   var h='';
   pendingAssignments.forEach(function(a,i){
-    h+='<div class="assign-chip">'+
-      '<span><strong>'+escapeHtml(a.class)+'</strong> — '+escapeHtml(a.subject)+'</span>'+
-      '<button type="button" class="btn btn-danger btn-sm" style="padding:2px 8px;min-height:26px;font-size:11px" onclick="removeTeacherAssignment('+i+')">✖</button>'+
-    '</div>';
+    h+='<div class="assign-chip"><span><strong>'+escapeHtml(a.class)+'</strong> — '+escapeHtml(a.subject)+'</span><button type="button" class="btn btn-danger btn-sm" style="padding:2px 8px;min-height:26px;font-size:11px" onclick="removeTeacherAssignment('+i+')">✖</button></div>';
   });
   box.innerHTML=h;
 }
-
-async function loadParentChildSelect(){
-  var s=document.getElementById('parentChildSelect');
-  var school=getActiveSchool();
-  if(!school||!s)return;
-  s.innerHTML='<option value="">Select student</option>';
-  for(var i=0;i<CLASSES.length;i++){
-    var sheetId=getClassSheetId(CLASSES[i]);if(!sheetId)continue;
-    try{
-      var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:CLASSES[i]});
-      (r.data?.students||[]).forEach(function(x){
-        var o=document.createElement('option');
-        o.value=x.studentId;
-        o.textContent=x.studentName+' ('+x.studentId+') - '+CLASSES[i];
-        s.appendChild(o);
-      });
-    }catch(e){}
-  }
-}
-
 function generateStaffId(role){
-  var prefix={teacher:'TCH',bursar:'BUR',gateman:'GAT',parent:'PAR',nurse:'NUR',storekeeper:'STK'}[role]||'USR';
-  return prefix+'-'+Math.floor(1000+Math.random()*9000);
+  var p={teacher:'TCH',bursar:'BUR',gateman:'GAT',parent:'PAR',nurse:'NUR',storekeeper:'STK',admin:'ADM'}[role]||'USR';
+  return p+'-'+Math.floor(1000+Math.random()*9000);
 }
-
 function generatePassword(){
   var ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var p='';
-  for(var i=0;i<8;i++)p+=ch.charAt(Math.floor(Math.random()*ch.length));
+  var p='';for(var i=0;i<8;i++)p+=ch.charAt(Math.floor(Math.random()*ch.length));
   var pw=document.getElementById('newUserPassword');
   var pc=document.getElementById('newUserPasswordConfirm');
   if(pw)pw.value=p;
   if(pc)pc.value=p;
   return p;
 }
-
 async function createUserAccount(){
   var school=getActiveSchool();
-  var name=(document.getElementById('newUserName')?.value||'').trim();
-  var username=(document.getElementById('newUserUsername')?.value||'').trim();
-  var password=document.getElementById('newUserPassword')?.value||generatePassword();
-  var pc=document.getElementById('newUserPasswordConfirm')?.value||'';
-  var role=document.getElementById('newUserRole')?.value||'teacher';
+  var name=(document.getElementById('newUserName').value||'').trim();
+  var username=(document.getElementById('newUserUsername').value||'').trim();
+  var password=document.getElementById('newUserPassword').value||generatePassword();
+  var pc=document.getElementById('newUserPasswordConfirm').value||'';
+  var role=document.getElementById('newUserRole').value;
+  var staffId=(document.getElementById('newUserStaffId').value||'').trim()||generateStaffId(role);
+  var phone=(document.getElementById('newUserPhone').value||'').trim();
+  var email=(document.getElementById('newUserEmail').value||'').trim();
+  var quals=(document.getElementById('newUserQuals').value||'').trim();
 
-  var staffId=(document.getElementById('newUserStaffId')?.value||'').trim()||generateStaffId(role);
-  var phone=(document.getElementById('newUserPhone')?.value||'').trim();
-  var email=(document.getElementById('newUserEmail')?.value||'').trim();
-  var quals=(document.getElementById('newUserQuals')?.value||'').trim();
-
-  if(!school||!name||!username){showToast('Fill required fields.','warning');return;}
-  if(pc&&password!==pc){showToast('Passwords do not match.','error');return;}
+  if(!school||!name||!username){showToast('Fill required fields','warning');return;}
+  if(pc&&password!==pc){showToast('Passwords do not match','error');return;}
 
   var salary=0,otherRoles=[],assignments=[];
   if(role==='teacher'){
-    salary=parseFloat(document.getElementById('newUserSalary')?.value)||0;
-    var rawRoles=(document.getElementById('newUserOtherRoles')?.value||'').trim();
-    otherRoles=rawRoles?rawRoles.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
+    salary=parseFloat(document.getElementById('newUserSalary').value)||0;
+    var raw=(document.getElementById('newUserOtherRoles').value||'').trim();
+    otherRoles=raw?raw.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
     assignments=pendingAssignments.slice();
-    if(assignments.length===0){
-      if(!confirm('This teacher has no class assignments. Continue?'))return;
-    }
-  }
-
-  var childId='';
-  if(role==='parent'){
-    childId=document.getElementById('parentChildSelect')?.value||'';
-    if(!childId){showToast('Select a child.','warning');return;}
   }
 
   try{
-    var r=await callAppsScript({
+    var r=await api({
       action:'createUserAccount',
       sheetId:ACCOUNTS_SHEET_ID,
       school:school, name:name, username:username, password:password, role:role,
@@ -1236,212 +590,190 @@ async function createUserAccount(){
       salary:salary,
       otherRoles:JSON.stringify(otherRoles),
       assignments:JSON.stringify(assignments),
-      childId:childId
+      childId:''
     });
 
-    if(r.success){
-      var credsText=
-        'EduTrack Pro — Account Created\n\n'+
-        'Name: '+name+'\n'+
-        'Staff ID: '+staffId+'\n'+
-        'Username: '+username+'\n'+
-        'Password: '+password+'\n'+
-        'Role: '+(ROLE_NAMES[role]||role)+'\n';
+    if(r&&r.success){
+      var txt='Account Created\n\nName: '+name+'\nStaff ID: '+staffId+'\nUsername: '+username+'\nPassword: '+password+'\nRole: '+(ROLE_NAMES[role]||role)+'\n';
       if(role==='teacher'){
-        credsText+='Salary: UGX '+salary.toLocaleString()+'\n';
-        credsText+='Assignments: '+(assignments.map(function(a){return a.class+'/'+a.subject;}).join(', ')||'None')+'\n';
-        credsText+='Other Roles: '+(otherRoles.join(', ')||'None')+'\n';
+        txt+='Salary: UGX '+salary.toLocaleString()+'\n';
+        txt+='Assignments: '+(assignments.map(function(a){return a.class+'/'+a.subject;}).join(', ')||'None')+'\n';
       }
-      credsText+='\nTab: '+(r.data?.sheetTab||'?')+'\n';
-      credsText+='Row: '+(r.data?.row||'?')+'\n';
-      credsText+='\nLogin: '+LOGIN_URL;
-
-      var wt=encodeURIComponent(credsText);
-      document.getElementById('newUserCredsBox').innerHTML=
-        '<div style="background:#d4edda;padding:15px;border-radius:8px">'+
-          '<b>✅ Account Created — '+(r.data?.sheetTab||'?')+' tab, row '+(r.data?.row||'?')+'</b>'+
-          '<pre style="white-space:pre-wrap;font-family:monospace;margin:10px 0;background:#fff;padding:10px;font-size:12px">'+escapeHtml(credsText)+'</pre>'+
-          '<a class="btn btn-sm btn-success" href="https://wa.me/?text='+wt+'" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600">Share on WhatsApp</a>'+
-        '</div>';
-
-      showToast('✅ Account created ('+(r.data?.sheetTab||'?')+' row '+(r.data?.row||'?')+')','success');
-
-      ['newUserName','newUserUsername','newUserPassword','newUserPasswordConfirm',
-       'newUserStaffId','newUserPhone','newUserEmail','newUserQuals',
-       'newUserSalary','newUserOtherRoles','assignSubject'].forEach(function(id){
-        var el=document.getElementById(id); if(el)el.value='';
-      });
-      var clsSel=document.getElementById('assignClass'); if(clsSel)clsSel.value='';
-      pendingAssignments=[];
-      renderPendingAssignments();
+      txt+='\nTab: '+(r.data.sheetTab||'?')+'  Row: '+(r.data.row||'?');
+      document.getElementById('newUserCredsBox').innerHTML='<div style="background:#d4edda;padding:15px;border-radius:8px"><b>✅ Created — row '+(r.data.row||'?')+'</b><pre style="white-space:pre-wrap;font-family:monospace;margin:10px 0;background:#fff;padding:10px;font-size:12px">'+escapeHtml(txt)+'</pre></div>';
+      showToast('✅ Account created (row '+(r.data.row||'?')+')','success');
+      ['newUserName','newUserUsername','newUserPassword','newUserPasswordConfirm','newUserStaffId','newUserPhone','newUserEmail','newUserQuals','newUserSalary','newUserOtherRoles','assignSubject'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+      document.getElementById('assignClass').value='';
+      pendingAssignments=[];renderPendingAssignments();
       loadUserAccounts();
     }else{
-      showToast(r.message||'Creation failed','error');
-      document.getElementById('newUserCredsBox').innerHTML=
-        '<div style="background:#f8d7da;padding:15px;border-radius:8px;color:#721c24">'+
-          '<b>❌ Creation failed</b><br>'+
-          '<span style="font-size:13px">'+escapeHtml(r.message||'Unknown error')+'</span><br>'+
-          '<span style="font-size:11px;color:#555">Target sheet: '+escapeHtml(ACCOUNTS_SHEET_ID)+'</span>'+
-        '</div>';
+      showToast((r&&r.message)||'Creation failed','error');
+      document.getElementById('newUserCredsBox').innerHTML='<div style="background:#f8d7da;padding:15px;border-radius:8px;color:#721c24"><b>❌ '+(r&&r.message||'Error')+'</b></div>';
     }
   }catch(e){
     showToast(e.message,'error');
-    document.getElementById('newUserCredsBox').innerHTML=
-      '<div style="background:#f8d7da;padding:15px;border-radius:8px;color:#721c24">'+
-        '<b>❌ Network error</b><br>'+escapeHtml(e.message)+
-      '</div>';
   }
 }
-
 async function loadUserAccounts(){
-  var school=getActiveSchool();if(!school)return;
-  var c=document.getElementById('userAccountsList');if(!c)return;
-  var sa=[];
+  var school=getActiveSchool();
+  var c=document.getElementById('userAccountsList');
+  if(!c)return;
   try{
-    var r=await callAppsScript({
-      action:'getAllAccounts',
-      sheetId:ACCOUNTS_SHEET_ID,
-      school:school
+    var r=await api({action:'getAllAccounts',sheetId:ACCOUNTS_SHEET_ID,school:school});
+    var sa=(r&&r.success&&r.data)?(r.data.accounts||[]):[];
+    if(sa.length===0){c.innerHTML='<p style="color:#999;font-size:13px">No accounts yet.</p>';return;}
+    var h='<div style="overflow-x:auto"><table class="ledger-table"><thead><tr><th>Staff ID</th><th>Username</th><th>Name</th><th>Role</th><th>Salary</th><th>Actions</th></tr></thead><tbody>';
+    sa.forEach(function(a){
+      var salaryTxt=a.salary?'UGX '+parseFloat(a.salary).toLocaleString():'—';
+      h+='<tr><td><strong>'+escapeHtml(a.staffId||'—')+'</strong></td><td><strong>'+escapeHtml(a.username)+'</strong></td><td>'+escapeHtml(a.name)+'</td><td>'+(ROLE_NAMES[a.role]||a.role)+'</td><td>'+salaryTxt+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+escapeHtml(a.username).replace(/'/g,"\\'")+'\')">Delete</button></td></tr>';
     });
-    sa=r.data?.accounts||[];
-  }catch(e){}
-
-  if(sa.length===0){c.innerHTML='<p style="color:#999;font-size:13px">No accounts.</p>';return;}
-
-  var h='<div style="overflow-x:auto"><table class="ledger-table">'+
-    '<thead><tr><th>Staff ID</th><th>Username</th><th>Name</th><th>Role</th>'+
-    '<th>Salary</th><th>Assignments</th><th>Other Roles</th><th>Actions</th></tr></thead><tbody>';
-  sa.forEach(function(a){
-    var salaryTxt=a.salary?'UGX '+parseFloat(a.salary).toLocaleString():'—';
-    var assignTxt='—';
-    try{
-      var arr=JSON.parse(a.assignments||'[]');
-      if(arr.length)assignTxt=arr.map(function(x){return x.class+'/'+x.subject;}).join(', ');
-    }catch(e){}
-    var rolesTxt='—';
-    try{
-      var arr2=JSON.parse(a.otherRoles||'[]');
-      if(arr2.length)rolesTxt=arr2.join(', ');
-    }catch(e){}
-
-    h+='<tr>'+
-      '<td><strong>'+escapeHtml(a.staffId||'—')+'</strong></td>'+
-      '<td><strong>'+escapeHtml(a.username)+'</strong></td>'+
-      '<td>'+escapeHtml(a.name)+'</td>'+
-      '<td>'+(ROLE_NAMES[a.role]||a.role)+'</td>'+
-      '<td>'+salaryTxt+'</td>'+
-      '<td style="font-size:11px">'+escapeHtml(assignTxt)+'</td>'+
-      '<td style="font-size:11px">'+escapeHtml(rolesTxt)+'</td>'+
-      '<td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+escapeHtml(a.username).replace(/'/g,"\\'")+'\')">Delete</button></td>'+
-    '</tr>';
-  });
-  h+='</tbody></table></div>';
-  c.innerHTML=h;
+    h+='</tbody></table></div>';
+    c.innerHTML=h;
+  }catch(e){
+    c.innerHTML='<p style="color:#c1121f;font-size:13px">'+e.message+'</p>';
+  }
 }
-
 async function deleteAccount(username){
   if(!confirm('Delete '+username+'?'))return;
   try{
-    var r=await callAppsScript({
-      action:'deleteAccount',
-      sheetId:ACCOUNTS_SHEET_ID,
-      school:getActiveSchool(),
-      username:username
-    });
-    if(r.success){showToast('Deleted!','success');loadUserAccounts();}
-    else showToast(r.message||'Delete failed','error');
+    var r=await api({action:'deleteAccount',sheetId:ACCOUNTS_SHEET_ID,school:getActiveSchool(),username:username});
+    if(r&&r.success){showToast('Deleted','success');loadUserAccounts();}
+    else showToast((r&&r.message)||'Delete failed','error');
   }catch(e){showToast(e.message,'error');}
 }
-
 async function checkAccountsSheet(){
   try{
-    var r=await callAppsScript({action:'debugAccounts',sheetId:ACCOUNTS_SHEET_ID});
-    if(!r.success){showToast('Debug failed: '+r.message,'error');return;}
-    var d=r.data;
-    var msg=
-      '📄 Sheet: '+d.sheetName+'\n'+
-      'ID: '+String(d.sheetId).slice(0,12)+'…\n'+
-      'Rows: '+d.lastRow+'  Cols: '+d.lastCol+'\n'+
-      'Header:\n  '+(d.header||[]).join(' | ');
-    alert(msg);
-  }catch(e){showToast(e.message,'error');}
+    var r=await api({action:'debugAccounts',sheetId:ACCOUNTS_SHEET_ID});
+    if(r&&r.success){
+      var d=r.data;
+      alert('Sheet: '+d.sheetName+'\nRows: '+d.lastRow+'\nCols: '+d.lastCol+'\nHeader:\n'+(d.header||[]).join(' | '));
+    }else{
+      alert('Debug failed: '+((r&&r.message)||'Unknown'));
+    }
+  }catch(e){alert(e.message);}
 }
 
-/* Minimal stubs so the page doesn't error on other tabs. */
-function updateDashboard(){}
-function initCharts(){}
-function displayRegisteredFaces(){}
-function fetchNextStudentId(){}
-function loadFeesData(){}
-function loadExpenses(){}
-function updateScoreEntryMode(){}
-function setScoreLevel(){}
-function updateScoreClassInfo(){}
-function renderScoreTable(){}
-function filterScoreRows(){}
-function postScores(){}
-function resetScoresForm(){}
-function switchAttendanceMode(){}
-function loadManualAttendanceStudents(){}
-function startCamera(){}
-function stopCamera(){}
-function switchCamera(){}
-function captureAndVerify(){}
-function startQRScanner(){}
-function stopQRScanner(){}
-function switchQRCamera(){}
-function markQRAttendance(){}
-function startFaceRegCamera(){}
-function stopFaceRegCamera(){}
-function switchFaceRegCamera(){}
-function registerFaceFromTab(){}
-function fetchReportData(){}
-function downloadReportsPDF(){}
-function searchStudent(){}
-function updateReportClassInfo(){}
-function selectAllReports(){}
-function clearReportSelection(){}
-function downloadSelectedReportsPDF(){}
-function loadMiniReports(){}
-function filterMiniReports(){}
-function downloadMiniReportsPDF(){}
-function generateDocument(){}
-function downloadDocument(){}
-function printDocument(){}
-function loadTimetable(){}
-function addTimetablePeriod(){}
-function clearTimetable(){}
-function addProgramItem(){}
-function loadProgram(){}
-function deleteProgramItem(){}
-function postNotice(){}
-function loadNotices(){}
-function deleteNotice(){}
-function loadChatUsers(){}
-function sendMessage(){}
-function updateRegisterClassInfo(){}
-function toggleManualId(){}
-function resetRegisterForm(){}
-function registerStudent(){}
-function recordFeePayment(){}
-function resetFeesForm(){}
-function filterFeesRecords(){}
-function recordExpense(){}
-function resetExpenseForm(){}
-function downloadSystemBackup(){}
+/* ─── Stubs for sections not fully implemented in this build ─── */
+function resetRegisterForm(){document.getElementById('regStudentName').value='';document.getElementById('regStudentId').value='';document.getElementById('regSuccess').style.display='none';}
+async function registerStudent(){
+  var cls=document.getElementById('regClassSelect').value;
+  var sn=document.getElementById('regStudentName').value.trim();
+  if(!cls||!sn){showToast('Fill class and name','warning');return;}
+  var sheetId=getClassSheetId(cls);
+  if(!sheetId){showToast('Class sheet not configured','warning');return;}
+  var sid=document.getElementById('regStudentId').value.trim();
+  var btn=document.getElementById('regSubmitBtn');
+  if(btn){btn.disabled=true;btn.textContent='Registering…';}
+  try{
+    var r=await api({action:'registerStudent',sheetId:sheetId,school:getActiveSchool(),className:cls,studentId:sid,studentName:sn,sex:'',stream:'',residence:'Day',parentName:'',parentPhone:'',parentEmail:'',term:'III',year:'2026'});
+    if(btn){btn.disabled=false;btn.textContent='📤 Register';}
+    if(r&&r.success){
+      document.getElementById('regSuccess').style.display='block';
+      document.getElementById('regSuccessMsg').textContent='Student ID: '+(r.data.studentId||sid);
+      showToast('Registered','success');
+    }else showToast((r&&r.message)||'Failed','error');
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='📤 Register';}showToast(e.message,'error');}
+}
+function resetScoresForm(){document.getElementById('scoreTableBody').innerHTML='<tr><td colspan="4" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';}
+async function postScores(){showToast('Open the teacher page to post scores','info');}
+function markAllManual(st){manualAttStudents.forEach(function(s){s.status=st;});renderManualAttGrid();}
+function resetManualAttendance(){manualAttStudents.forEach(function(s){s.status='present';});renderManualAttGrid();}
+async function loadManualAttendanceStudents(){
+  var cls=document.getElementById('manualAttClassSelect').value;
+  if(!cls){return;}
+  var sheetId=getClassSheetId(cls);
+  if(!sheetId){showToast('Sheet not configured','warning');return;}
+  manualAttClass=cls;
+  var r=await api({action:'getStudents',sheetId:sheetId,school:getActiveSchool(),className:cls});
+  var st=(r&&r.success&&r.data)?(r.data.students||[]):[];
+  manualAttStudents=st.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:'present'};});
+  renderManualAttGrid();
+}
+function renderManualAttGrid(){
+  var g=document.getElementById('manualAttGrid');if(!g)return;
+  if(!manualAttStudents.length){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No students.</p>';return;}
+  var h='';
+  manualAttStudents.forEach(function(s){
+    h+='<div class="attendance-check-item"><input type="checkbox" '+(s.status==='present'?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\',this.checked)" /><label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label></div>';
+  });
+  g.innerHTML=h;
+}
+function toggleManualStudent(id,c){var s=manualAttStudents.find(function(x){return x.studentId===id;});if(s)s.status=c?'present':'absent';}
+async function saveManualAttendance(){
+  if(!manualAttClass||!manualAttStudents.length){showToast('Load students first','warning');return;}
+  var sheetId=getClassSheetId(manualAttClass);
+  var records=manualAttStudents.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:s.status,class:manualAttClass};});
+  var btn=document.getElementById('manualAttSaveBtn');
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  try{
+    var r=await api({action:'saveManualAttendance',sheetId:sheetId,school:getActiveSchool(),className:manualAttClass,date:document.getElementById('manualAttDate').value||getTodayDate(),term:'III',year:'2026',records:JSON.stringify(records),markedBy:authSession.name,markedByRole:'admin'});
+    if(btn){btn.disabled=false;btn.textContent='💾 Save';}
+    if(r&&r.success)showToast('Attendance saved','success');
+    else showToast((r&&r.message)||'Failed','error');
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='💾 Save';}showToast(e.message,'error');}
+}
+function resetFeesForm(){document.getElementById('feesStudentId').value='';document.getElementById('feesAmount').value='';}
+async function recordFeePayment(){
+  var sid=document.getElementById('feesStudentId').value.trim();
+  var amt=parseFloat(document.getElementById('feesAmount').value);
+  if(!sid||!amt){showToast('Fill student ID and amount','warning');return;}
+  var r=await api({action:'saveFeeRecord',school:getActiveSchool(),record:JSON.stringify({id:'RCP-'+Date.now().toString().slice(-8),studentId:sid,amount:amt,method:document.getElementById('feesMethod').value,term:'III',year:'2026',date:getTodayDate(),time:new Date().toLocaleTimeString(),narration:''})});
+  if(r&&r.success){showToast('Payment recorded','success');resetFeesForm();}
+  else showToast((r&&r.message)||'Failed','error');
+}
+function resetExpenseForm(){document.getElementById('expenseDesc').value='';document.getElementById('expenseAmount').value='';}
+async function recordExpense(){
+  var d=document.getElementById('expenseDesc').value.trim();
+  var a=parseFloat(document.getElementById('expenseAmount').value);
+  if(!d||!a){showToast('Fill description and amount','warning');return;}
+  var r=await api({action:'saveExpense',school:getActiveSchool(),expense:JSON.stringify({id:'EXP-'+Date.now().toString().slice(-8),description:d,amount:a,category:document.getElementById('expenseCategory').value,date:document.getElementById('expenseDate').value||getTodayDate(),time:new Date().toLocaleTimeString(),narration:''})});
+  if(r&&r.success){showToast('Expense recorded','success');resetExpenseForm();}
+  else showToast((r&&r.message)||'Failed','error');
+}
+async function loadReports(){
+  var cls=document.getElementById('reportClassSelect').value;
+  if(!cls){showToast('Select a class','warning');return;}
+  document.getElementById('reportResults').innerHTML='<p style="color:#999;text-align:center;padding:20px">Coming soon — use teacher page for score reports.</p>';
+}
 
-/* ============ INIT ============ */
-document.addEventListener('DOMContentLoaded',function(){
-  authSession=JSON.parse(sessionStorage.getItem('authSession')||'null');
-  if(!authSession||authSession.role!=='admin'){window.location.href='index.html';return;}
-  document.getElementById('navUserName').textContent=authSession.name||authSession.username;
-  document.getElementById('navUserAvatar').textContent=(authSession.name||'A').charAt(0).toUpperCase();
+/* ─── Logout ─── */
+function appLogout(){
+  sessionStorage.removeItem('authSession');
+  window.location.replace('index.html');
+}
+
+/* ─── Init ─── */
+function initAdmin(){
+  try{authSession=JSON.parse(sessionStorage.getItem('authSession')||'null');}catch(e){authSession=null;}
+  var role=String((authSession&&authSession.role)||'').toLowerCase();
+  if(!authSession||(role!=='admin'&&role!=='superadmin')){
+    sessionStorage.removeItem('authSession');
+    window.location.replace('index.html');
+    return;
+  }
+
+  document.getElementById('navUserName').textContent=authSession.name||authSession.username||'Admin';
+  document.getElementById('navUserAvatar').textContent=((authSession.name||'A').charAt(0)).toUpperCase();
+
+  // Populate class dropdowns
+  ['regClassSelect','scoreClassSelect','manualAttClassSelect','reportClassSelect'].forEach(function(id){
+    var s=document.getElementById(id);
+    if(!s)return;
+    s.innerHTML='<option value="">Select a Class</option>';
+    CLASSES.forEach(function(cls){
+      var o=document.createElement('option');o.value=cls;o.textContent=cls;s.appendChild(o);
+    });
+  });
+
+  // Init dates
   var today=getTodayDate();
-  ['manualAttDate','expenseDate','progDate','noticeDate'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=today;});
-  renderPendingAssignments();
+  ['manualAttDate','expenseDate'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=today;});
+
   loadSettings();
+  loadDashboard();
   loadUserAccounts();
-});
+}
+document.addEventListener('DOMContentLoaded',initAdmin);
 </script>
 </body>
 </html>
