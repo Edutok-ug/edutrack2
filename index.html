@@ -236,380 +236,296 @@ table.data-table tr:hover td{background:var(--surface-2)}
 </div>
 
 <script>
-/* ============================================================
-   EduTrack Pro Teacher v22.0
-   ============================================================ */
-var APPS_SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycby8LoQcAlViMcFQLvvJYMdjZT00Ha8YHqeV91ibXFGB2BQnHrVgyU-0psvDdyhwUcrSKA/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8LoQcAlViMcFQLvvJYMdjZT00Ha8YHqeV91ibXFGB2BQnHrVgyU-0psvDdyhwUcrSKA/exec';
 var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
-var OLEVEL_CLASSES = ['S.1','S.2','S.3','S.4'];
-var ALEVEL_CLASSES = ['S.5','S.6'];
 
-var authSession = null;
-var teacherInfo = null;
-var manualAttStudents = [];
-var manualAttClass = '';
-var performanceChart = null;
+var ROLE_HOME = {
+  admin:'admin.html', bursar:'bursar.html', gateman:'gate.html',
+  teacher:'teacher.html', parent:'parent.html', student:'student.html',
+  nurse:'nurse.html', storekeeper:'store.html'
+};
 
-/* ─── Helpers ─── */
-function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function getActiveSchool(){return authSession?authSession.school:'';}
-function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function extractSheetIdFromUrl(u){if(!u)return '';var m=u.match(/\/d\/([a-zA-Z0-9-_]+)/);if(m)return m[1];if(/^[a-zA-Z0-9-_]{30,}$/.test(u))return u;return '';}
-function getClassLink(cls){try{var s=getActiveSchool();if(!s)return '';return localStorage.getItem('classLink_'+cls+'_'+s)||'';}catch(e){return '';}}
-function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
-function isOLevelClass(cls){return OLEVEL_CLASSES.indexOf(cls)!==-1;}
+var pendingAuthRole = 'admin';
+var pendingAuthMode = 'login';
+var isConnected = false;
 
-function showToast(msg,type){
-  type=type||'info';
-  var t=document.createElement('div');
-  t.className='toast-notification '+type;
-  t.textContent=msg;
-  document.getElementById('toastContainer').appendChild(t);
-  setTimeout(function(){t.classList.add('show');},20);
-  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove();},400);},3500);
+function showToast(msg, type){
+  type = type || 'info';
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast-notification ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 30);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 400); }, 3600);
+}
+function showAuthStatus(msg, type){
+  var el = document.getElementById('authStatus');
+  el.style.display = 'block';
+  el.className = 'status-msg ' + (type || 'info');
+  el.textContent = msg;
+}
+function togglePassword(id, btn){
+  var inp = document.getElementById(id);
+  if(!inp) return;
+  var show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.innerHTML = show ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
 }
 
-async function api(params){
-  var parts=[];
+async function callAppsScript(params){
+  var parts = [];
   for(var k in params){
-    if(params.hasOwnProperty(k)&&params[k]!=null){
-      parts.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]));
+    if(params.hasOwnProperty(k) && params[k] !== undefined && params[k] !== null){
+      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
     }
   }
-  try{
-    var res=await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
-      body:parts.join('&'),
-      signal:AbortSignal.timeout(30000)
-    });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    return await res.json();
-  }catch(e){
-    return {success:false,offline:true,message:e.message};
-  }
-}
-
-/* ─── Tab switching ─── */
-function switchTab(tab){
-  document.querySelectorAll('.form-section').forEach(function(el){el.classList.remove('active');});
-  document.querySelectorAll('.nav-link').forEach(function(el){el.classList.remove('active');});
-  var m={dashboard:'tabDashboard',attendance:'tabAttendance',classes:'tabClasses',students:'tabStudents',profile:'tabProfile'};
-  var t=document.getElementById(m[tab]||'tabDashboard');
-  if(t)t.classList.add('active');
-  document.querySelectorAll('.nav-link[data-tab="'+tab+'"]').forEach(function(b){b.classList.add('active');});
-  document.getElementById('navbarMenu').classList.remove('open');
-  window.scrollTo(0,0);
-}
-
-/* ─── Init ─── */
-async function initTeacher(){
-  try{authSession=JSON.parse(sessionStorage.getItem('authSession')||'null');}catch(e){authSession=null;}
-  if(!authSession||!authSession.username){
-    sessionStorage.removeItem('authSession');
-    window.location.replace('index.html');
-    return;
-  }
-
-  var role=String(authSession.role||'').trim().toLowerCase();
-  if(role!=='teacher'&&role!=='admin'&&role!=='superadmin'){
-    alert('This account is registered as "'+(authSession.role||'(blank)')+'". Log in with the correct role.');
-    sessionStorage.removeItem('authSession');
-    window.location.replace('index.html');
-    return;
-  }
-
-  var assignments=[];
-  try{
-    if(Array.isArray(authSession.assignments)) assignments=authSession.assignments;
-    else if(typeof authSession.assignments==='string'&&authSession.assignments.trim()) assignments=JSON.parse(authSession.assignments);
-  }catch(e){assignments=[];}
-
-  var otherRoles=[];
-  try{
-    if(Array.isArray(authSession.otherRoles)) otherRoles=authSession.otherRoles;
-    else if(typeof authSession.otherRoles==='string'&&authSession.otherRoles.trim()) otherRoles=JSON.parse(authSession.otherRoles);
-  }catch(e){otherRoles=[];}
-
-  teacherInfo={
-    staffId:authSession.staffId||authSession.username,
-    name:authSession.name||authSession.username,
-    subjects:assignments.map(function(a){return a.subject;}).filter(function(v,i,arr){return arr.indexOf(v)===i;}),
-    classes:assignments.map(function(a){return a.class;}).filter(function(v,i,arr){return arr.indexOf(v)===i;}),
-    assignments:assignments,
-    email:authSession.email||'',
-    phone:authSession.phone||'',
-    quals:authSession.qualifications||'',
-    salary:parseFloat(authSession.salary)||0,
-    otherRoles:otherRoles
-  };
-
-  // Populate UI
-  document.getElementById('navUserName').textContent=teacherInfo.name;
-  document.getElementById('navUserAvatar').textContent=(teacherInfo.name||'T').charAt(0).toUpperCase();
-  document.getElementById('navUserRole').textContent='Teacher';
-  document.getElementById('dashTeacherName').textContent=teacherInfo.name;
-
-  document.getElementById('teacherInfoBox').innerHTML=
-    '<div class="info-title">'+escapeHtml(teacherInfo.name)+' — '+escapeHtml(teacherInfo.staffId)+'</div>'+
-    '<div class="info-text"><strong>Subjects:</strong> '+escapeHtml(teacherInfo.subjects.join(', ')||'—')+' · <strong>Classes:</strong> '+escapeHtml(teacherInfo.classes.join(', ')||'—')+'</div>';
-
-  document.getElementById('dashSubtitle').textContent=teacherInfo.classes.length+' classes assigned';
-
-  document.getElementById('pfName').value=teacherInfo.name;
-  document.getElementById('pfStaffId').value=teacherInfo.staffId;
-  document.getElementById('pfPhone').value=teacherInfo.phone;
-  document.getElementById('pfEmail').value=teacherInfo.email;
-  document.getElementById('pfQuals').value=teacherInfo.quals;
-  document.getElementById('pfSubjects').value=teacherInfo.subjects.join(', ');
-  document.getElementById('pfClasses').value=teacherInfo.classes.join(', ');
-  document.getElementById('profileInitial').textContent=(teacherInfo.name||'T').charAt(0).toUpperCase();
-
-  // Populate class selects
-  ['manualAttClassSelect','studentsClassSelect'].forEach(function(id){
-    var sel=document.getElementById(id);
-    if(!sel)return;
-    sel.innerHTML='<option value="">Select a Class</option>';
-    teacherInfo.classes.forEach(function(cls){
-      var o=document.createElement('option');o.value=cls;o.textContent=cls;sel.appendChild(o);
-    });
-    if(teacherInfo.classes.length===0) sel.innerHTML='<option value="">No classes assigned</option>';
+  var res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+    body: parts.join('&'),
+    signal: AbortSignal.timeout(30000)
   });
-
-  // Date
-  var md=document.getElementById('manualAttDate');
-  if(md&&!md.value) md.value=getTodayDate();
-
-  // Load widgets (each wrapped so a failure doesn't blank the page)
-  try{await loadTeacherSalary();}catch(e){console.warn('salary:',e);}
-  try{await loadMyClasses();}catch(e){console.warn('classes:',e);}
-  try{await loadAttendanceSummary();}catch(e){console.warn('attendance:',e);}
-  try{await loadPerformanceData();}catch(e){console.warn('performance:',e);}
-
-  if(teacherInfo.assignments.length===0) showToast('⚠️ No class assignments found. Contact admin.','warning');
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
 }
 
-/* ─── Salary ─── */
-async function loadTeacherSalary(){
-  var salaryText='UGX 0', rolesText='None';
+function setAuthRole(role){
+  pendingAuthRole = role;
+  document.querySelectorAll('.role-btn').forEach(function(el){ el.classList.remove('active'); });
+  var btn = document.getElementById('roleBtn' + role.charAt(0).toUpperCase() + role.slice(1));
+  if(btn) btn.classList.add('active');
+  var mode = document.getElementById('authModeToggle');
+  var cg = document.getElementById('authChildGroup');
+  if(mode) mode.style.display = (role === 'admin') ? 'block' : 'none';
+  if(cg){
+    cg.style.display = (role === 'parent') ? 'block' : 'none';
+    if(role === 'parent') loadParentChildren();
+  }
+  setAuthMode(role !== 'admin' ? 'login' : pendingAuthMode);
+  if(role === 'admin') loadSchoolsForLogin();
+}
+
+function setAuthMode(mode){
+  pendingAuthMode = mode;
+  document.getElementById('modeBtnLogin').classList.toggle('active', mode === 'login');
+  document.getElementById('modeBtnSignup').classList.toggle('active', mode === 'signup');
+  document.getElementById('loginFields').style.display = (mode === 'login') ? 'block' : 'none';
+  document.getElementById('signupFields').style.display = (mode === 'signup') ? 'block' : 'none';
+  document.getElementById('authStatus').style.display = 'none';
+  if(mode === 'login') loadSchoolsForLogin();
+}
+
+async function testConnection(){
+  var s = document.getElementById('connectionStatus');
+  s.className = 'conn-status checking';
+  s.innerHTML = '<span class="dot"></span> Testing…';
   try{
-    var r=await api({action:'getTeacherAccount',sheetId:ACCOUNTS_SHEET_ID,school:getActiveSchool(),username:authSession.username});
-    if(r&&r.success&&r.data&&r.data.account){
-      var acc=r.data.account;
-      teacherInfo.salary=parseFloat(acc.salary)||0;
-      if(Array.isArray(acc.otherRoles)) teacherInfo.otherRoles=acc.otherRoles;
-      else if(typeof acc.otherRoles==='string'&&acc.otherRoles.trim()) try{teacherInfo.otherRoles=JSON.parse(acc.otherRoles);}catch(e){}
-      salaryText='UGX '+teacherInfo.salary.toLocaleString();
-      rolesText=(teacherInfo.otherRoles&&teacherInfo.otherRoles.length)?teacherInfo.otherRoles.join(', '):'None';
+    var r = await callAppsScript({ action: 'ping' });
+    if(r && r.success){
+      isConnected = true;
+      s.className = 'conn-status connected';
+      s.innerHTML = '<span class="dot"></span> Connected';
+      await loadSchoolsForLogin();
+      return true;
     }
-  }catch(e){
-    teacherInfo.salary=parseFloat(authSession.salary)||0;
-    salaryText='UGX '+teacherInfo.salary.toLocaleString();
-    rolesText=(teacherInfo.otherRoles&&teacherInfo.otherRoles.length)?teacherInfo.otherRoles.join(', '):'None';
+    s.className = 'conn-status disconnected';
+    s.innerHTML = '<span class="dot"></span> Error';
+    return false;
+  } catch(e){
+    console.error('Connection test failed:', e);
+    isConnected = false;
+    s.className = 'conn-status disconnected';
+    s.innerHTML = '<span class="dot"></span> Offline';
+    return false;
   }
-  var el;
-  el=document.getElementById('dsSalary'); if(el) el.textContent=salaryText;
-  el=document.getElementById('dsOtherRoles'); if(el) el.textContent=rolesText;
-  el=document.getElementById('pfSalary'); if(el) el.value=salaryText;
-  el=document.getElementById('pfOtherRoles'); if(el) el.value=rolesText;
 }
 
-/* ─── My classes ─── */
-async function loadMyClasses(){
-  var total=0;
-  var grid=document.getElementById('classesGrid');
-  var dash=document.getElementById('dashClassesList');
-  if(grid) grid.innerHTML='';
-  if(dash) dash.innerHTML='';
-
-  for(var i=0;i<teacherInfo.assignments.length;i++){
-    var a=teacherInfo.assignments[i];
-    var sheetId=getClassSheetId(a.class);
-    var count=0;
-    if(sheetId){
-      try{
-        var r=await api({action:'getStudents',sheetId:sheetId,school:getActiveSchool(),className:a.class});
-        count=(r&&r.success&&r.data)?(r.data.students||[]).length:0;
-      }catch(e){}
-    }
-    total+=count;
-    if(grid) grid.innerHTML+='<div class="stat-card" style="text-align:left"><div style="font-size:15px;font-weight:700;color:var(--student)">'+escapeHtml(a.class)+' — '+escapeHtml(a.subject)+'</div><div style="font-size:12px;color:var(--text-3);margin-top:4px">'+count+' students</div></div>';
-    if(dash) dash.innerHTML+='<div class="stat-card" style="text-align:left;margin-bottom:8px"><div style="font-weight:700;color:var(--student)">'+escapeHtml(a.class)+' — '+escapeHtml(a.subject)+'</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">'+count+' students</div></div>';
-  }
-
-  if(teacherInfo.assignments.length===0){
-    if(grid) grid.innerHTML='<div class="info-box"><div class="info-text">No classes assigned. Contact admin.</div></div>';
-    if(dash) dash.innerHTML='<div class="info-box"><div class="info-text">No classes assigned.</div></div>';
-  }
-
-  document.getElementById('dsMyClasses').textContent=teacherInfo.classes.length;
-  document.getElementById('dsMySubjects').textContent=teacherInfo.subjects.length;
-  document.getElementById('dsMyStudents').textContent=total;
-  document.getElementById('dsAssignments').textContent=teacherInfo.assignments.length;
-}
-
-/* ─── Attendance summary ─── */
-async function loadAttendanceSummary(){
-  var totalPresent=0,totalStudents=0;
-  var today=getTodayDate();
-  for(var i=0;i<teacherInfo.classes.length;i++){
-    var cls=teacherInfo.classes[i];
-    var sheetId=getClassSheetId(cls);
-    if(!sheetId) continue;
-    try{
-      var r=await api({action:'getStudents',sheetId:sheetId,school:getActiveSchool(),className:cls});
-      var students=(r&&r.success&&r.data)?(r.data.students||[]):[];
-      totalStudents+=students.length;
-      var ar=await api({action:'getManualAttendance',sheetId:sheetId,school:getActiveSchool(),className:cls,date:today});
-      var recs=(ar&&ar.success&&ar.data)?(ar.data.records||[]):[];
-      recs.forEach(function(rec){if(rec.status==='present')totalPresent++;});
-    }catch(e){}
-  }
-  var pct=totalStudents>0?Math.round((totalPresent/totalStudents)*100):0;
-  document.getElementById('dsAttendancePct').textContent=pct+'%';
-}
-
-/* ─── Performance ─── */
-async function loadPerformanceData(){
-  var teacherSubjects=teacherInfo.subjects;
-  if(teacherInfo.classes.length===0) return;
-  var cls=teacherInfo.classes[0];
-  var sheetId=getClassSheetId(cls);
-  if(!sheetId) return;
-
+async function loadSchoolsForLogin(){
+  if(!isConnected){ var ok = await testConnection(); if(!ok) return; }
   try{
-    var r=await api({action:'getAllData',sheetId:sheetId,className:cls});
-    var students=(r&&r.success&&r.data&&r.data.sheetData)?(r.data.sheetData.students||[]):[];
-    var subjScores={}, subjAvg={};
-    students.forEach(function(s){
-      var scores=s.scores||{};
-      Object.keys(scores).forEach(function(subj){
-        var sv=scores[subj]||{};
-        var pct=isOLevelClass(cls)
-          ? ((parseFloat(sv.aoi)||0)+(parseFloat(sv.eot)||0))
-          : ((parseFloat(sv.paper1)||0)+(parseFloat(sv.paper2)||0))/2;
-        if(!subjScores[subj]) subjScores[subj]=[];
-        subjScores[subj].push({name:s.studentName,pct:pct});
-        if(!subjAvg[subj]) subjAvg[subj]={sum:0,count:0};
-        subjAvg[subj].sum+=pct;subjAvg[subj].count++;
+    var r = await callAppsScript({
+      action: 'getAllAccounts',
+      sheetId: ACCOUNTS_SHEET_ID,
+      school: ''
+    });
+    var select = document.getElementById('authSchoolSelect');
+    if(!select) return;
+    select.innerHTML = '<option value="">Select your school</option>';
+    if(r && r.success && r.data && Array.isArray(r.data.accounts)){
+      var schools = [];
+      r.data.accounts.forEach(function(a){
+        var s = String(a.school || '').trim();
+        if(s && schools.indexOf(s) === -1) schools.push(s);
       });
+      schools.sort();
+      schools.forEach(function(sc){
+        var o = document.createElement('option');
+        o.value = sc; o.textContent = sc;
+        select.appendChild(o);
+      });
+    }
+  } catch(e){ console.warn('loadSchoolsForLogin error:', e); }
+}
+
+async function loadParentChildren(){
+  try{
+    if(!isConnected){ var ok = await testConnection(); if(!ok) return; }
+    var username = document.getElementById('authUsername')?.value?.trim() || '';
+    var school = document.getElementById('authSchoolSelect')?.value || '';
+    if(!username || !school) return;
+    var r = await callAppsScript({
+      action: 'getParentChildren',
+      sheetId: ACCOUNTS_SHEET_ID,
+      school: school, username: username
     });
+    var select = document.getElementById('authChildSelect');
+    if(select && r && r.success && r.data){
+      select.innerHTML = '<option value="">Select your child</option>';
+      (r.data.children || []).forEach(function(c){
+        var o = document.createElement('option');
+        o.value = c.studentId;
+        o.textContent = c.studentName + ' (' + c.class + ')';
+        select.appendChild(o);
+      });
+    }
+  } catch(e){}
+}
 
-    var labels=Object.keys(subjAvg);
-    var data=labels.map(function(l){return Math.round(subjAvg[l].sum/subjAvg[l].count);});
-    var colors=labels.map(function(l){return teacherSubjects.indexOf(l)!==-1?'#004085':'#adb5bd';});
+async function attemptLogin(){
+  if(!isConnected) await testConnection();
 
-    var ctx=document.getElementById('performanceChart').getContext('2d');
-    if(performanceChart) performanceChart.destroy();
-    performanceChart=new Chart(ctx,{
-      type:'bar',
-      data:{labels:labels,datasets:[{label:'Average %',data:data,backgroundColor:colors,borderRadius:6}]},
-      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}}}
+  var username = document.getElementById('authUsername').value.trim();
+  var password = document.getElementById('authPassword').value;
+  var school = document.getElementById('authSchoolSelect').value;
+  var childId = document.getElementById('authChildSelect').value;
+
+  if(!username || !password){ showAuthStatus('Enter username and password.', 'error'); return; }
+  if(!school){ showAuthStatus('Select a school.', 'error'); return; }
+  if(pendingAuthRole === 'parent' && !childId){ showAuthStatus('Select your child.', 'error'); return; }
+
+  var btn = document.getElementById('authLoginBtn');
+  btn.disabled = true; btn.innerHTML = '⏳ Signing in…';
+
+  try{
+    var r = await callAppsScript({
+      action: 'login',
+      sheetId: ACCOUNTS_SHEET_ID,
+      username: username, password: password, school: school
     });
+    btn.disabled = false; btn.innerHTML = '🔓 Login';
 
-    var primary=teacherSubjects[0];
-    var list=(subjScores[primary]||[]).slice().sort(function(a,b){return a.pct-b.pct;});
-    var weak=list.slice(0,3), strong=list.slice(-3).reverse();
-    document.getElementById('weakLearnersList').innerHTML=weak.length
-      ? weak.map(function(s){return '<div>🔻 '+escapeHtml(s.name)+' <span style="color:#c1121f">('+Math.round(s.pct)+'%)</span></div>';}).join('')
-      : '<div style="color:#999">No scores yet for '+escapeHtml(primary||'—')+'</div>';
-    document.getElementById('strongLearnersList').innerHTML=strong.length
-      ? strong.map(function(s){return '<div>🏆 '+escapeHtml(s.name)+' <span style="color:#1a8a4a">('+Math.round(s.pct)+'%)</span></div>';}).join('')
-      : '<div style="color:#999">No scores yet for '+escapeHtml(primary||'—')+'</div>';
-  }catch(e){
-    console.warn('performance:',e);
+    if(r && r.success && r.data && r.data.user){
+      var u = r.data.user;
+      var backendRole = String(u.role || '').toLowerCase();
+      if(backendRole && backendRole !== pendingAuthRole &&
+         !(pendingAuthRole === 'admin' && backendRole === 'superadmin')){
+        showAuthStatus(
+          '❌ This account is registered as "' + backendRole +
+          '", not "' + pendingAuthRole + '". Select the correct role.',
+          'error'
+        );
+        return;
+      }
+
+      var session = u;
+      session.school = school || session.school;
+      if(pendingAuthRole === 'parent') session.childId = childId;
+      sessionStorage.setItem('authSession', JSON.stringify(session));
+      showToast('✅ Welcome back, ' + (u.name || u.username) + '!', 'success');
+
+      var home = ROLE_HOME[backendRole || pendingAuthRole] || 'admin.html';
+      setTimeout(function(){ window.location.replace(home); }, 400);
+    } else {
+      showAuthStatus('❌ ' + ((r && r.message) || 'Invalid username, password, or school.'), 'error');
+    }
+  } catch(e){
+    btn.disabled = false; btn.innerHTML = '🔓 Login';
+    showAuthStatus('⚠️ Server error: ' + e.message, 'warning');
   }
 }
 
-/* ─── Attendance ─── */
-async function loadManualAttendanceStudents(){
-  var cls=document.getElementById('manualAttClassSelect').value;
-  var grid=document.getElementById('manualAttGrid');
-  if(!cls){grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p>';return;}
-  var sheetId=getClassSheetId(cls);
-  if(!sheetId){grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">Sheet not configured.</p>';return;}
-  grid.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Loading…</p>';
-  manualAttClass=cls;
-  try{
-    var r=await api({action:'getStudents',sheetId:sheetId,school:getActiveSchool(),className:cls});
-    var students=(r&&r.success&&r.data)?(r.data.students||[]):[];
-    manualAttStudents=students.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:'present'};});
-    renderManualAttGrid();
-  }catch(e){
-    grid.innerHTML='<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">'+e.message+'</p>';
-  }
-}
-function renderManualAttGrid(){
-  var g=document.getElementById('manualAttGrid');
-  if(!g)return;
-  if(!manualAttStudents.length){g.innerHTML='<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">No students.</p>';return;}
-  var h='';
-  manualAttStudents.forEach(function(s){
-    h+='<div class="attendance-check-item"><input type="checkbox" '+(s.status==='present'?'checked':'')+' onchange="toggleManualStudent(\''+s.studentId+'\',this.checked)" /><label><span style="font-size:11px;color:#888">'+s.studentId+'</span> '+s.studentName+'</label></div>';
-  });
-  g.innerHTML=h;
-}
-function toggleManualStudent(id,c){var s=manualAttStudents.find(function(x){return x.studentId===id;});if(s)s.status=c?'present':'absent';}
-function markAllManual(st){manualAttStudents.forEach(function(s){s.status=st;});renderManualAttGrid();}
-function resetManualAttendance(){manualAttStudents.forEach(function(s){s.status='present';});renderManualAttGrid();}
-async function saveManualAttendance(){
-  if(!manualAttClass||!manualAttStudents.length){showToast('Load students first','warning');return;}
-  var sheetId=getClassSheetId(manualAttClass);
-  var records=manualAttStudents.map(function(s){return{studentId:s.studentId,studentName:s.studentName,status:s.status,class:manualAttClass};});
-  var btn=document.getElementById('manualAttSaveBtn');
-  if(btn){btn.disabled=true;btn.textContent='Saving…';}
-  try{
-    var r=await api({action:'saveManualAttendance',sheetId:sheetId,school:getActiveSchool(),className:manualAttClass,date:document.getElementById('manualAttDate').value||getTodayDate(),term:'III',year:'2026',records:JSON.stringify(records),markedBy:authSession.name||authSession.username,markedByRole:'teacher'});
-    if(btn){btn.disabled=false;btn.textContent='💾 Save Attendance';}
-    if(r&&r.success){showToast('Attendance saved','success');loadAttendanceSummary();}
-    else showToast((r&&r.message)||'Failed','error');
-  }catch(e){if(btn){btn.disabled=false;btn.textContent='💾 Save Attendance';}showToast(e.message,'error');}
-}
+async function attemptAdminSignup(){
+  if(!isConnected) await testConnection();
 
-/* ─── Students ─── */
-async function loadStudentsForTab(){
-  var cls=document.getElementById('studentsClassSelect').value;
-  var body=document.getElementById('studentsBody');
-  if(!cls){body.innerHTML='<p style="color:#999;text-align:center;padding:20px">Select a class.</p>';return;}
-  var sheetId=getClassSheetId(cls);
-  if(!sheetId){body.innerHTML='<p style="color:#999;text-align:center;padding:20px">Sheet not configured.</p>';return;}
-  body.innerHTML='<p style="color:#999;text-align:center;padding:20px">Loading…</p>';
+  var name = document.getElementById('signupName').value.trim();
+  var username = document.getElementById('signupUsername').value.trim();
+  var password = document.getElementById('signupPassword').value;
+  var confirm = document.getElementById('signupPasswordConfirm').value;
+  var schoolName = document.getElementById('signupSchoolName').value.trim();
+  var phone = document.getElementById('signupSchoolPhone').value.trim();
+  var email = document.getElementById('signupSchoolEmail').value.trim();
+  var address = document.getElementById('signupSchoolAddress').value.trim();
+  var motto = document.getElementById('signupSchoolMotto').value.trim();
+
+  if(!name || !username || password.length < 6 || password !== confirm || !schoolName || !phone || !email){
+    showAuthStatus('Fill all required fields correctly (password ≥ 6 chars).', 'error'); return;
+  }
+  var btn = document.getElementById('authSignupBtn');
+  btn.disabled = true; btn.innerHTML = '⏳ Creating…';
+
   try{
-    var r=await api({action:'getStudents',sheetId:sheetId,school:getActiveSchool(),className:cls});
-    var students=(r&&r.success&&r.data)?(r.data.students||[]):[];
-    if(!students.length){body.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
-    var h='<div class="table-wrap"><table class="data-table"><thead><tr><th>#</th><th>ID</th><th>Name</th><th>Sex</th><th>Stream</th></tr></thead><tbody>';
-    students.forEach(function(s,i){
-      h+='<tr><td>'+(i+1)+'</td><td>'+escapeHtml(s.studentId||'')+'</td><td>'+escapeHtml(s.studentName||'')+'</td><td>'+escapeHtml(s.sex||'')+'</td><td>'+escapeHtml(s.stream||'')+'</td></tr>';
+    var r = await callAppsScript({
+      action: 'createSchoolAccount',
+      sheetId: ACCOUNTS_SHEET_ID,
+      name: name, username: username, password: password,
+      schoolName: schoolName, schoolPhone: phone, schoolEmail: email,
+      schoolAddress: address, schoolMotto: motto
     });
-    h+='</tbody></table></div>';
-    body.innerHTML=h;
-  }catch(e){
-    body.innerHTML='<p style="color:#c1121f;text-align:center;padding:20px">'+e.message+'</p>';
+    btn.disabled = false; btn.innerHTML = '✅ Create School Account';
+
+    if(r && r.success){
+      var session = (r.data && r.data.user) || {
+        name: name, username: username, role: 'admin', school: schoolName
+      };
+      session.school = schoolName;
+      sessionStorage.setItem('authSession', JSON.stringify(session));
+      showToast('✅ School account created!', 'success');
+      setTimeout(function(){ window.location.replace('admin.html'); }, 500);
+    } else {
+      showAuthStatus('❌ ' + ((r && r.message) || 'Signup failed.'), 'error');
+    }
+  } catch(e){
+    btn.disabled = false; btn.innerHTML = '✅ Create School Account';
+    showAuthStatus('⚠️ ' + e.message, 'warning');
   }
 }
 
-/* ─── Profile ─── */
-async function saveProfile(){
-  var updates={
-    phone:document.getElementById('pfPhone').value,
-    email:document.getElementById('pfEmail').value,
-    qualifications:document.getElementById('pfQuals').value
-  };
+/* ═══════════════════════════════════════════════════════════
+   DOMContentLoaded — validate session, else show login form
+   ═══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  var restored = false;
+
   try{
-    var r=await api({action:'updateTeacherProfile',sheetId:ACCOUNTS_SHEET_ID,school:getActiveSchool(),username:authSession.username,updates:JSON.stringify(updates)});
-    if(r&&r.success){showToast('✅ Profile updated','success');}
-    else showToast((r&&r.message)||'Failed','error');
-  }catch(e){showToast(e.message,'error');}
-}
+    var raw = sessionStorage.getItem('authSession');
+    if(raw){
+      var s = JSON.parse(raw);
+      var role = String((s && s.role) || '').trim().toLowerCase();
+      var home = ROLE_HOME[role];
 
-/* ─── Logout ─── */
-function appLogout(){
-  sessionStorage.removeItem('authSession');
-  window.location.replace('index.html');
-}
+      // Only redirect when the session is truly valid
+      if(home && s && s.username){
+        restored = true;
+        window.location.replace(home);
+        return;
+      }
 
-document.addEventListener('DOMContentLoaded',initTeacher);
+      // Bad session — clear and show login
+      console.warn('[login] Discarding invalid session:', s);
+      sessionStorage.removeItem('authSession');
+    }
+  }catch(e){
+    console.warn('[login] Session parse error:', e);
+    sessionStorage.removeItem('authSession');
+  }
+
+  if(!restored){
+    setAuthRole('admin');
+    setAuthMode('login');
+    setTimeout(testConnection, 400);
+  }
+});
 </script>
 </body>
 </html>
