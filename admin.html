@@ -207,7 +207,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mini-report-card .status-bar{background:#e2e8f0;border-radius:20px;padding:7px 14px;text-align:center;font-size:13px;font-weight:700;color:#1a3b5c;margin-bottom:12px}
 .mini-report-card .status-bar.outstanding{background:#dbeafe;color:#1e3a8a}
 .mini-report-card .status-bar.no-data{background:#e2e8f0;color:#4b5563}
-/* Mini report table */
 .mini-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
 .mini-table th{background:#1a3b5c;color:#fff;padding:6px 8px;text-align:left;font-size:12px;border:1px solid #1a3b5c}
 .mini-table td{padding:6px 8px;border:1px solid #cfd8e3;vertical-align:middle}
@@ -219,12 +218,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mini-table .mini-subject{font-weight:600;color:#1a3b5c}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
 @media print{.generated-document,.mini-report-card{break-inside:avoid;page-break-after:always;box-shadow:none!important;border:1px solid #000!important}.no-print,.btn,.navbar,.bottom-nav,.report-print-btn,.report-select-cb{display:none!important}body{background:#fff!important;padding:0!important}.container{box-shadow:none!important;padding:0!important}@page{size:A4;margin:6mm}}
-/* A4 report fit */
 .a4-report{width:190mm;min-height:auto;margin:0 auto;padding:8mm;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;justify-content:flex-start;font-size:13px}
 .a4-report .report-content{flex:1}
-/* A-Level specific larger fonts */
 .a4-report.alevel-report{font-size:15px}
 .a4-report.alevel-report table{font-size:14px}
+/* Assignment picker */
+.assign-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}
+.assign-list{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:8px;min-height:40px;font-size:13px}
+.assign-chip{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#fff;border-radius:6px;margin-bottom:4px;border:1px solid #e0e0e0}
 </style>
 </head>
 <body>
@@ -399,24 +400,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="form-row-3">
         <div class="form-group"><label>Subject *</label>
           <select id="scoreSubjectOLevel"><option value="">Select Subject</option>
-            <option>English</option>
-            <option>Mathematics</option>
-            <option>Physics</option>
-            <option>Chemistry</option>
-            <option>Biology</option>
-            <option>Geography</option>
-            <option>History</option>
-            <option>CRE</option>
-            <option>IRE</option>
-            <option>Computer Studies</option>
-            <option>ICT</option>
-            <option>Luganda</option>
-            <option>Kiswahili</option>
-            <option>Agriculture</option>
-            <option>Entrepreneurship</option>
-            <option>Food and Nutrition</option>
-            <option>Runyankole Rukiga</option>
-            <option>Art and Design</option>
+            <option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option>
+            <option>Biology</option><option>Geography</option><option>History</option><option>CRE</option>
+            <option>IRE</option><option>Computer Studies</option><option>ICT</option><option>Luganda</option>
+            <option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option>
+            <option>Food and Nutrition</option><option>Runyankole Rukiga</option><option>Art and Design</option>
           </select>
         </div>
         <div class="form-group"><label>Teacher Initials *</label><input type="text" id="teacherInitialsOLevel" maxlength="5" style="text-transform:uppercase" /></div>
@@ -438,26 +426,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="form-row-3">
         <div class="form-group"><label>Subject *</label>
           <select id="scoreSubjectALevel" onchange="updateALevelWeight()"><option value="">Select Subject</option>
-            <option>Biology</option>
-            <option>Chemistry</option>
-            <option>Physics</option>
-            <option>Mathematics</option>
-            <option>English</option>
-            <option>Geography</option>
-            <option>History</option>
-            <option>Divinity</option>
-            <option>IRE</option>
-            <option>Computer Studies</option>
-            <option>ICT</option>
-            <option>Luganda</option>
-            <option>Kiswahili</option>
-            <option>Agriculture</option>
-            <option>Entrepreneurship</option>
-            <option>General Paper</option>
-            <option>Subsidiary Mathematics</option>
-            <option>Food and Nutrition</option>
-            <option>Runyankole Rukiga</option>
-            <option>Art and Design</option>
+            <option>Biology</option><option>Chemistry</option><option>Physics</option><option>Mathematics</option>
+            <option>English</option><option>Geography</option><option>History</option><option>Divinity</option>
+            <option>IRE</option><option>Computer Studies</option><option>ICT</option><option>Luganda</option>
+            <option>Kiswahili</option><option>Agriculture</option><option>Entrepreneurship</option>
+            <option>General Paper</option><option>Subsidiary Mathematics</option>
+            <option>Food and Nutrition</option><option>Runyankole Rukiga</option><option>Art and Design</option>
           </select>
         </div>
         <div class="form-group"><label>Teacher Initials *</label><input type="text" id="teacherInitialsALevel" maxlength="5" style="text-transform:uppercase" /></div>
@@ -850,27 +824,79 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px">S.6</label><input type="text" id="classS6" placeholder="Google Sheet URL" onchange="validateClassLink('S.6')" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /><span style="font-size:11px" id="statusS6">⏳ Not configured</span></div>
     </div>
   </div>
+
+  <!-- 👤 USER ACCOUNTS (Enhanced to match teacher page) -->
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">👤 User Accounts</h4>
     <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);margin-bottom:15px">
       <div class="form-row-3">
         <div class="form-group"><label>Full Name</label><input type="text" id="newUserName" /></div>
         <div class="form-group"><label>Username</label><input type="text" id="newUserUsername" /></div>
-        <div class="form-group"><label>Role</label><select id="newUserRole" onchange="toggleTeacherAssignments()"><option value="teacher">👩‍🏫 Teacher</option><option value="bursar">💰 Bursar</option><option value="gateman">🚪 Gate Man</option><option value="parent">👨‍👩‍👦 Parent</option><option value="nurse">🏥 Nurse</option><option value="storekeeper">📦 Storekeeper</option></select></div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="newUserRole" onchange="toggleTeacherAssignments()">
+            <option value="teacher">👩‍🏫 Teacher</option>
+            <option value="bursar">💰 Bursar</option>
+            <option value="gateman">🚪 Gate Man</option>
+            <option value="parent">👨‍👩‍👦 Parent</option>
+            <option value="nurse">🏥 Nurse</option>
+            <option value="storekeeper">📦 Storekeeper</option>
+          </select>
+        </div>
       </div>
+
       <div class="form-row-2">
         <div class="form-group"><label>Password</label><input type="text" id="newUserPassword" placeholder="Auto" /></div>
         <div class="form-group"><label>Confirm</label><input type="text" id="newUserPasswordConfirm" /></div>
       </div>
+
+      <div class="form-row-2">
+        <div class="form-group"><label>Staff ID</label><input type="text" id="newUserStaffId" placeholder="Auto (e.g. TCH-0001)" /></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="newUserPhone" /></div>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group"><label>Email</label><input type="email" id="newUserEmail" /></div>
+        <div class="form-group"><label>Qualifications</label><input type="text" id="newUserQuals" placeholder="e.g. B.Ed Mathematics" /></div>
+      </div>
+
+      <!-- Teacher-specific panel -->
+      <div id="teacherSection" style="display:block;padding:12px;background:#fff;border:1px dashed var(--primary);border-radius:10px;margin-top:10px">
+        <div style="font-weight:700;color:var(--primary);font-size:13px;margin-bottom:8px">👩‍🏫 Teacher Details</div>
+
+        <div class="form-row-2">
+          <div class="form-group"><label>Monthly Salary (UGX)</label><input type="number" id="newUserSalary" min="0" step="10000" placeholder="e.g. 850000" /></div>
+          <div class="form-group"><label>Other Roles (comma-separated)</label><input type="text" id="newUserOtherRoles" placeholder="e.g. Games Master, Class Teacher S.2" /></div>
+        </div>
+
+        <div style="margin-top:6px">
+          <label style="font-size:13px;font-weight:600;color:var(--text-2);display:block;margin-bottom:6px">📚 Class + Subject Assignments</label>
+          <div class="assign-row">
+            <select id="assignClass" style="padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit">
+              <option value="">Select Class</option>
+              <option>S.1</option><option>S.2</option><option>S.3</option><option>S.4</option><option>S.5</option><option>S.6</option>
+            </select>
+            <input type="text" id="assignSubject" placeholder="Subject (e.g. Mathematics)" style="padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit" />
+            <button type="button" class="btn btn-success btn-sm" onclick="addTeacherAssignment()" style="min-height:44px">➕ Add</button>
+          </div>
+          <div id="assignmentList" class="assign-list">
+            <em style="color:#999">No assignments yet.</em>
+          </div>
+        </div>
+      </div>
+
       <div id="parentChildSection" style="margin-top:10px;display:none">
         <label style="font-size:12px;font-weight:600">Link to Child:</label>
         <div class="form-group"><select id="parentChildSelect"><option value="">Select student</option></select></div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="createUserAccount()" style="margin-top:10px">🔑 Create Account</button>
+
+      <button type="button" class="btn btn-primary" onclick="createUserAccount()" style="margin-top:14px">🔑 Create Account</button>
       <div id="newUserCredsBox" style="margin-top:10px"></div>
     </div>
+
     <div id="userAccountsList"><p style="color:#999;font-size:13px">Loading…</p></div>
   </div>
+
   <div style="margin-top:14px">
     <button class="btn btn-success" onclick="saveAllSettings()">💾 Save All</button>
     <button class="btn btn-secondary" onclick="loadSettings()">📂 Reload</button>
@@ -891,11 +917,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div style="font-size:12px;color:var(--text-3)">Powered by <strong>His Grace Technologies</strong></div>
 </div>
 </div>
+
 <script>
 /* ============================================================
-   EduTrack Pro Admin v20.0
-   - Mini reports now use TABLE rows/columns
-   - A-Level mini reports show Points + Total Points
+   EduTrack Pro Admin v21.0
+   - User Accounts enhanced: teacher assignments/subjects/salary/other roles
+     are stored in the Accounts Sheet and retrieved by the teacher page.
    ============================================================ */
 
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwqGUBv3CxNAY4G2gOnDcJ1WfSL3kk681U1NMWi0AyGp5Mor0r7KPNBDfmU7E8CN7K7wA/exec';
@@ -912,6 +939,7 @@ var LOGIN_URL='https://edutok-ug.github.io/edutrack2/index.html';
 var authSession=null,currentChatUser=null,chatPollInterval=null,detectionInterval=null,videoStream=null,faceRegStream=null,isCameraRunning=false,isFaceRegRunning=false,scoreRows=[],studentList=[],miniReportData=[],isManualId=false,currentScoreLevel='olevel',feesChartInstance=null,attendanceChartInstance=null,storesBarChartInstance=null,storesStatusChartInstance=null,schoolSettings={},cameraMode='user',manualAttStudents=[],manualAttFiltered=[],manualAttClass='',feesRecords=[],expenseRecords=[],chatUsers=[];
 var faceState={modelsLoaded:false,modelsLoading:false,faceDetected:false};
 var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
+var pendingAssignments=[];
 
 /* ============ UTILITIES ============ */
 function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -1455,7 +1483,6 @@ function enforceMax(inputEl,maxVal){
   if(v<0)inputEl.value=0;
 }
 
-/* ============ RENDER SCORE TABLE ============ */
 function renderScoreTable(){
   var tbody=document.getElementById('scoreTableBody');if(!tbody)return;
   var q=document.getElementById('scoreSearchInput')?.value?.toLowerCase()||'';
@@ -1619,7 +1646,6 @@ function updateScoreClassInfo(){
   if(lvl)lvl.textContent=level;
 }
 
-/* POST SCORES */
 async function postScores(e){
   e.preventDefault();
   showStatus('','');
@@ -2202,7 +2228,6 @@ async function fetchReportData(search){
     document.getElementById('reportResults').innerHTML='<p style="color:#c1121f;text-align:center">'+e.message+'</p>';
   }
 }
-/* ============ FULL REPORT RENDER ============ */
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
@@ -2231,11 +2256,7 @@ function renderReportResults(students){
         var p1=parseFloat(sv.paper1)||0;
         var p2=parseFloat(sv.paper2)||0;
         var isSubsidiary = isSubsidiarySubject(subj);
-        if(isSubsidiary){
-          var single = p1 || p2;
-          p1 = single;
-          p2 = single;
-        }
+        if(isSubsidiary){ var single = p1 || p2; p1 = single; p2 = single; }
         var avg=(p1+p2)/2;
         var grade=gradeFromPercentage(avg,'alevel');
         if(grade==='F') grade='E';
@@ -2354,7 +2375,6 @@ function renderReportResults(students){
   },50);
 }
 
-/* Fetch fee balance from finance sheet if link exists */
 async function fetchStudentFeeBalance(studentId) {
   var school = getActiveSchool();
   var settings = {};
@@ -2381,7 +2401,6 @@ function updatePrintSelectionBar(){
 function selectAllReports(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=true;var c=cb.closest('.generated-document');if(c)c.classList.add('selected');});updatePrintSelectionBar();}
 function clearReportSelection(){document.querySelectorAll('#reportResults .report-select-cb').forEach(function(cb){cb.checked=false;var c=cb.closest('.generated-document');if(c)c.classList.remove('selected');});updatePrintSelectionBar();}
 
-/* ============ PDF / PRINT ============ */
 function _buildPdfWrap(html){
   var w=document.createElement('div');
   w.style.cssText='width:210mm;padding:0;background:#fff;font-family:Arial,sans-serif';
@@ -2396,7 +2415,6 @@ function _runPdf(wrap,filename){
   html2pdf().set({margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,letterRendering:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(wrap).save().then(function(){showToast('PDF downloaded!','success');}).catch(function(err){showToast('PDF error: '+err.message,'error');});
 }
 
-/* PRINT — A4 layout */
 function _runPrint(html){
   var styles='<style>@page{size:A4;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}.generated-document{width:190mm;margin:0 auto;padding:8mm;border:1px solid #c1121f;background:#fff;box-sizing:border-box;page-break-after:always}.generated-document:last-child{page-break-after:auto}img{max-width:100%;page-break-inside:avoid}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{page-break-inside:avoid}</style>';
   var w=window.open('','_blank');
@@ -2461,7 +2479,7 @@ function downloadSelectedReportsPDF(){
   _runPdf(w,b.name+'-Selected-'+getTodayDate()+'.pdf');
 }
 
-/* ============ MINI REPORTS — TABLE FORMAT + A-Level Points ============ */
+/* ============ MINI REPORTS ============ */
 function updateMiniClassInfo(){var cls=document.getElementById('miniClassSelect')?.value;var i=document.getElementById('miniClassInfo');if(i)i.textContent=cls||'Select a class';}
 async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
@@ -2494,7 +2512,6 @@ function renderMiniReports(){
       subjects.forEach(function(sub){
         var sv=s.scores[sub]||{};
         if(isALevel){
-          // A-Level: Paper 1 only, converted to 100, graded + points
           var p1=parseFloat(sv.paper1)||0;
           var pct=Math.round(p1);
           var grade=gradeFromPercentage(pct,'alevel');
@@ -2511,7 +2528,6 @@ function renderMiniReports(){
             '<td class="mini-pts">'+pts+'</td>'+
             '</tr>';
         } else {
-          // O-Level: AOI converted to 100, graded
           var aoi=parseFloat(sv.aoi)||0;
           var pct=Math.round((aoi/20)*100);
           var grade=gradeFromPercentage(pct,'olevel');
@@ -2533,12 +2549,10 @@ function renderMiniReports(){
     var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:og});
 
-    // Build table header (A-Level has Weight & Points columns)
     var tableHeader = isALevel
       ? '<thead><tr><th>Subject</th><th>Paper 1 (%)</th><th>Grade</th><th>Wt</th><th>Pts</th></tr></thead>'
       : '<thead><tr><th>Subject</th><th>AOI → 100</th><th>Grade</th></tr></thead>';
 
-    // Total points row for A-Level
     var totalRow = '';
     if(isALevel){
       totalRow = '<tr class="mini-total-row"><td colspan="4" style="text-align:right">TOTAL POINTS:</td><td class="mini-pts">'+totalPoints+'</td></tr>';
@@ -2778,7 +2792,6 @@ function deleteNotice(id){
   loadNotices();
 }
 
-/* ============ CLASS SELECTORS ============ */
 function loadClassSelectors(){
   ['regClassSelect','scoreClassSelect','miniClassSelect','reportClassSelect','docClassSelect','ttClassSelect'].forEach(function(id){
     var s=document.getElementById(id);if(!s)return;
@@ -2945,14 +2958,50 @@ function downloadSystemBackup(){
   showToast('Backup downloaded','success');
 }
 
-/* ============ USER ACCOUNTS ============ */
+/* ============ USER ACCOUNTS (Enhanced) ============ */
 function toggleTeacherAssignments(){
-  var r=document.getElementById('newUserRole')?.value;
-  var t=document.getElementById('teacherAssignmentSection'),p=document.getElementById('parentChildSection');
-  if(t)t.style.display=r==='teacher'?'block':'none';
-  if(p)p.style.display=r==='parent'?'block':'none';
-  if(r==='parent')loadParentChildSelect();
+  var role=document.getElementById('newUserRole')?.value||'teacher';
+  var teacherSection=document.getElementById('teacherSection');
+  var parentSection=document.getElementById('parentChildSection');
+  if(teacherSection)teacherSection.style.display=(role==='teacher')?'block':'none';
+  if(parentSection)parentSection.style.display=(role==='parent')?'block':'none';
+  if(role==='parent')loadParentChildSelect();
 }
+
+function addTeacherAssignment(){
+  var cls=document.getElementById('assignClass')?.value;
+  var subj=(document.getElementById('assignSubject')?.value||'').trim();
+  if(!cls||!subj){showToast('Select class and enter subject','warning');return;}
+  if(pendingAssignments.some(function(a){return a.class===cls&&a.subject.toLowerCase()===subj.toLowerCase();})){
+    showToast('Already added','warning');return;
+  }
+  pendingAssignments.push({class:cls,subject:subj});
+  document.getElementById('assignSubject').value='';
+  renderPendingAssignments();
+}
+
+function removeTeacherAssignment(idx){
+  pendingAssignments.splice(idx,1);
+  renderPendingAssignments();
+}
+
+function renderPendingAssignments(){
+  var box=document.getElementById('assignmentList');
+  if(!box)return;
+  if(pendingAssignments.length===0){
+    box.innerHTML='<em style="color:#999">No assignments yet.</em>';
+    return;
+  }
+  var h='';
+  pendingAssignments.forEach(function(a,i){
+    h+='<div class="assign-chip">'+
+      '<span><strong>'+escapeHtml(a.class)+'</strong> — '+escapeHtml(a.subject)+'</span>'+
+      '<button type="button" class="btn btn-danger btn-sm" style="padding:2px 8px;min-height:26px;font-size:11px" onclick="removeTeacherAssignment('+i+')">✖</button>'+
+    '</div>';
+  });
+  box.innerHTML=h;
+}
+
 async function loadParentChildSelect(){
   var s=document.getElementById('parentChildSelect');
   var school=getActiveSchool();
@@ -2971,42 +3020,160 @@ async function loadParentChildSelect(){
     }catch(e){}
   }
 }
+
+function generateStaffId(role){
+  var prefix={teacher:'TCH',bursar:'BUR',gateman:'GAT',parent:'PAR',nurse:'NUR',storekeeper:'STK'}[role]||'USR';
+  return prefix+'-'+Math.floor(1000+Math.random()*9000);
+}
+
 async function createUserAccount(){
   var school=getActiveSchool();
-  var name=document.getElementById('newUserName')?.value?.trim();
-  var username=document.getElementById('newUserUsername')?.value?.trim();
+  var name=(document.getElementById('newUserName')?.value||'').trim();
+  var username=(document.getElementById('newUserUsername')?.value||'').trim();
   var password=document.getElementById('newUserPassword')?.value||generatePassword();
   var pc=document.getElementById('newUserPasswordConfirm')?.value||'';
   var role=document.getElementById('newUserRole')?.value||'teacher';
-  if(!school||!name||!username){showToast('Fill required.','warning');return;}
+
+  var staffId=(document.getElementById('newUserStaffId')?.value||'').trim()||generateStaffId(role);
+  var phone=(document.getElementById('newUserPhone')?.value||'').trim();
+  var email=(document.getElementById('newUserEmail')?.value||'').trim();
+  var quals=(document.getElementById('newUserQuals')?.value||'').trim();
+
+  if(!school||!name||!username){showToast('Fill required fields.','warning');return;}
   if(pc&&password!==pc){showToast('Passwords do not match.','error');return;}
-  var childId=role==='parent'?(document.getElementById('parentChildSelect')?.value||''):'';
-  if(role==='parent'&&!childId){showToast('Select a child.','warning');return;}
+
+  var salary=0;
+  var otherRoles=[];
+  var assignments=[];
+
+  if(role==='teacher'){
+    salary=parseFloat(document.getElementById('newUserSalary')?.value)||0;
+    var rawRoles=(document.getElementById('newUserOtherRoles')?.value||'').trim();
+    otherRoles=rawRoles?rawRoles.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
+    assignments=pendingAssignments.slice();
+    if(assignments.length===0){
+      if(!confirm('This teacher has no class assignments. Continue?'))return;
+    }
+  }
+
+  var childId='';
+  if(role==='parent'){
+    childId=document.getElementById('parentChildSelect')?.value||'';
+    if(!childId){showToast('Select a child.','warning');return;}
+  }
+
   try{
-    var r=await callAppsScript({action:'createUserAccount',school:school,name:name,username:username,password:password,role:role,childId:childId});
+    var r=await callAppsScript({
+      action:'createUserAccount',
+      school:school,
+      name:name,
+      username:username,
+      password:password,
+      role:role,
+      staffId:staffId,
+      phone:phone,
+      email:email,
+      qualifications:quals,
+      salary:salary,
+      otherRoles:JSON.stringify(otherRoles),
+      assignments:JSON.stringify(assignments),
+      childId:childId
+    });
+
     if(r.success){
-      var ct='EduTrack Pro\n\nName: '+name+'\nUsername: '+username+'\nPassword: '+password+'\nRole: '+(ROLE_NAMES[role]||role)+'\nLogin: '+LOGIN_URL;
-      var wt=encodeURIComponent(ct);
-      document.getElementById('newUserCredsBox').innerHTML='<div style="background:#d4edda;padding:15px;border-radius:8px"><b>Account Created</b><pre style="white-space:pre-wrap;font-family:monospace;margin:10px 0;background:#fff;padding:10px;font-size:12px">'+escapeHtml(ct)+'</pre><a class="btn btn-sm btn-success" href="https://wa.me/?text='+wt+'" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600">Share on WhatsApp</a></div>';
-      showToast('Created!','success');
+      var credsText=
+        'EduTrack Pro — Account Created\n\n'+
+        'Name: '+name+'\n'+
+        'Staff ID: '+staffId+'\n'+
+        'Username: '+username+'\n'+
+        'Password: '+password+'\n'+
+        'Role: '+(ROLE_NAMES[role]||role)+'\n';
+      if(role==='teacher'){
+        credsText+='Salary: UGX '+salary.toLocaleString()+'\n';
+        credsText+='Assignments: '+(assignments.map(function(a){return a.class+'/'+a.subject;}).join(', ')||'None')+'\n';
+        credsText+='Other Roles: '+(otherRoles.join(', ')||'None')+'\n';
+      }
+      credsText+='\nLogin: '+LOGIN_URL;
+
+      var wt=encodeURIComponent(credsText);
+      document.getElementById('newUserCredsBox').innerHTML=
+        '<div style="background:#d4edda;padding:15px;border-radius:8px">'+
+          '<b>✅ Account Created</b>'+
+          '<pre style="white-space:pre-wrap;font-family:monospace;margin:10px 0;background:#fff;padding:10px;font-size:12px">'+escapeHtml(credsText)+'</pre>'+
+          '<a class="btn btn-sm btn-success" href="https://wa.me/?text='+wt+'" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600">Share on WhatsApp</a>'+
+        '</div>';
+
+      showToast('✅ Account created!','success');
+
+      ['newUserName','newUserUsername','newUserPassword','newUserPasswordConfirm','newUserStaffId','newUserPhone','newUserEmail','newUserQuals','newUserSalary','newUserOtherRoles','assignSubject'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el)el.value='';
+      });
+      var clsSel=document.getElementById('assignClass');if(clsSel)clsSel.value='';
+      pendingAssignments=[];
+      renderPendingAssignments();
+
       loadUserAccounts();
-    }else showToast(r.message,'error');
-  }catch(e){showToast(e.message,'error');}
+    }else{
+      showToast(r.message||'Creation failed','error');
+    }
+  }catch(e){
+    showToast(e.message,'error');
+  }
 }
-function generatePassword(){var ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';var p='';for(var i=0;i<8;i++)p+=ch.charAt(Math.floor(Math.random()*ch.length));document.getElementById('newUserPassword').value=p;document.getElementById('newUserPasswordConfirm').value=p;return p;}
+
+function generatePassword(){
+  var ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var p='';
+  for(var i=0;i<8;i++)p+=ch.charAt(Math.floor(Math.random()*ch.length));
+  var pw=document.getElementById('newUserPassword');
+  var pc=document.getElementById('newUserPasswordConfirm');
+  if(pw)pw.value=p;
+  if(pc)pc.value=p;
+  return p;
+}
+
 async function loadUserAccounts(){
   var school=getActiveSchool();if(!school)return;
   var c=document.getElementById('userAccountsList');if(!c)return;
   var sa=[];
-  try{var r=await callAppsScript({action:'getAllAccounts',school:school});sa=r.data?.accounts||[];}catch(e){}
+  try{
+    var r=await callAppsScript({action:'getAllAccounts',school:school});
+    sa=r.data?.accounts||[];
+  }catch(e){}
+
   if(sa.length===0){c.innerHTML='<p style="color:#999;font-size:13px">No accounts.</p>';return;}
-  var h='<table class="ledger-table"><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody>';
+
+  var h='<div style="overflow-x:auto"><table class="ledger-table">'+
+    '<thead><tr><th>Staff ID</th><th>Username</th><th>Name</th><th>Role</th><th>Salary</th><th>Assignments</th><th>Other Roles</th><th>Actions</th></tr></thead><tbody>';
   sa.forEach(function(a){
-    h+='<tr><td><strong>'+escapeHtml(a.username)+'</strong></td><td>'+escapeHtml(a.name)+'</td><td>'+(ROLE_NAMES[a.role]||a.role)+'</td><td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+a.username+'\')">Delete</button></td></tr>';
+    var salaryTxt=a.salary?'UGX '+parseFloat(a.salary).toLocaleString():'—';
+    var assignTxt='—';
+    try{
+      var arr=JSON.parse(a.assignments||'[]');
+      if(arr.length)assignTxt=arr.map(function(x){return x.class+'/'+x.subject;}).join(', ');
+    }catch(e){}
+    var rolesTxt='—';
+    try{
+      var arr2=JSON.parse(a.otherRoles||'[]');
+      if(arr2.length)rolesTxt=arr2.join(', ');
+    }catch(e){}
+
+    h+='<tr>'+
+      '<td><strong>'+escapeHtml(a.staffId||'—')+'</strong></td>'+
+      '<td><strong>'+escapeHtml(a.username)+'</strong></td>'+
+      '<td>'+escapeHtml(a.name)+'</td>'+
+      '<td>'+(ROLE_NAMES[a.role]||a.role)+'</td>'+
+      '<td>'+salaryTxt+'</td>'+
+      '<td style="font-size:11px">'+escapeHtml(assignTxt)+'</td>'+
+      '<td style="font-size:11px">'+escapeHtml(rolesTxt)+'</td>'+
+      '<td><button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+escapeHtml(a.username).replace(/'/g,"\\'")+'\')">Delete</button></td>'+
+    '</tr>';
   });
-  h+='</tbody></table>';
+  h+='</tbody></table></div>';
   c.innerHTML=h;
 }
+
 async function deleteAccount(username){
   if(!confirm('Delete '+username+'?'))return;
   try{
@@ -3036,6 +3203,7 @@ document.addEventListener('DOMContentLoaded',function(){
   ['manualAttDate','expenseDate','progDate','noticeDate'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=today;});
   loadClassSelectors();
   loadSettings();
+  renderPendingAssignments();
   updateDashboard();
   initCharts();
   loadUserAccounts();
