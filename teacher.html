@@ -456,17 +456,15 @@ table.data-table tr:hover td{background:var(--surface-2)}
     <button class="btn btn-primary btn-block" onclick="saveProfile()">💾 Save Profile</button>
   </div>
 </div>
-
 <script>
-/* ============================================================
-   EduTrack Pro Teacher v22.0
+  /* ============================================================
+   EduTrack Pro Teacher v23.0
    ============================================================ */
 
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYr92g4M9DaEk3kfdsuvWSp8Y6gEWgU3ES4DvOn1afois68qbs8toCLxaSQtFWPK-ORQ/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8LoQcAlViMcFQLvvJYMdjZT00Ha8YHqeV91ibXFGB2BQnHrVgyU-0psvDdyhwUcrSKA/exec';
 var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
 var OLEVEL_CLASSES = ['S.1','S.2','S.3','S.4'];
 var ALEVEL_CLASSES = ['S.5','S.6'];
-var SUBJECT_CODES = {'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','IRE':'224','Entrepreneurship':'541','Computer Studies':'462','ICT':'461','Luganda':'345','Kiswahili':'336','Agriculture':'531','General Paper':'101','Subsidiary Mathematics':'457','Divinity':'225','Food and Nutrition':'545','Runyankole Rukiga':'347','Art and Design':'610'};
 
 var authSession = null;
 var teacherInfo = null;
@@ -636,9 +634,10 @@ async function initTeacher(){
   // GPS
   initGPS();
 
-  // Attendance summary
+  // Load Summary & Performance Data
   await loadAttendanceSummary();
   await loadPerformanceData();
+
   loadTeacherTimetable();
   loadTeacherProgram();
   loadTeacherNotices();
@@ -1094,89 +1093,96 @@ async function saveQRAttendance(){
 }
 
 /* ============================================================
-   PERFORMANCE DATA
+   PERFORMANCE DATA — Weak/Strong Learners & Chart
    ============================================================ */
 async function loadPerformanceData(){
   var teacherSubjects = teacherInfo.subjects;
   var teacherClasses = teacherInfo.classes;
   if(teacherClasses.length === 0) return;
 
-  var cls = teacherClasses[0];
-  var sheetId = getClassSheetId(cls);
-  if(!sheetId) return;
+  var subjectScores = {}; 
+  
+  // Fetch data for every assigned class
+  for(var i=0; i<teacherClasses.length; i++){
+    var cls = teacherClasses[i];
+    var sheetId = getClassSheetId(cls);
+    if(!sheetId) continue;
 
-  var subjectAverages = {};
-  var subjectStudentScores = {}; 
+    try{
+      var r = await api({action:'getAllData', sheetId: sheetId, className: cls});
+      var students = r?.data?.sheetData?.students || [];
 
-  try{
-    var r = await api({action:'getAllData', sheetId: sheetId, className: cls});
-    var students = r?.data?.sheetData?.students || [];
-
-    students.forEach(function(s){
-      var scores = s.scores || {};
-      Object.keys(scores).forEach(function(subj){
-        var sv = scores[subj] || {};
-        var pct = 0;
-        if(isOLevelClass(cls)){
-          var aoi = parseFloat(sv.aoi) || 0;
-          var eot = parseFloat(sv.eot) || 0;
-          pct = aoi + eot;
-        } else {
-          var p1 = parseFloat(sv.paper1) || 0;
-          var p2 = parseFloat(sv.paper2) || 0;
-          pct = (p1 + p2) / 2;
-        }
-        if(!subjectStudentScores[subj]) subjectStudentScores[subj] = [];
-        subjectStudentScores[subj].push({ name: s.studentName, pct: pct });
-        if(!subjectAverages[subj]) subjectAverages[subj] = { sum: 0, count: 0 };
-        subjectAverages[subj].sum += pct;
-        subjectAverages[subj].count += 1;
+      students.forEach(function(s){
+        var scores = s.scores || {};
+        Object.keys(scores).forEach(function(subj){
+          var sv = scores[subj] || {};
+          var pct = 0;
+          
+          if(isOLevelClass(cls)){
+            var aoi = parseFloat(sv.aoi) || 0;
+            var eot = parseFloat(sv.eot) || 0;
+            pct = (aoi * 5) + (eot * 1.25); 
+          } else {
+            var p1 = parseFloat(sv.paper1) || 0;
+            var p2 = parseFloat(sv.paper2) || 0;
+            pct = (p1 + p2) / 2;
+          }
+          
+          if(!subjectScores[subj]) subjectScores[subj] = [];
+          subjectScores[subj].push({
+            name: s.studentName,
+            class: cls,
+            pct: pct
+          });
+        });
       });
+    } catch(e){}
+  }
+
+  // 1. Chart Data
+  var chartLabels = [], chartData = [], chartColors = [];
+  Object.keys(subjectScores).forEach(function(subj){
+    var scores = subjectScores[subj];
+    var sum = scores.reduce(function(acc, curr){ return acc + curr.pct; }, 0);
+    var avg = scores.length > 0 ? (sum / scores.length) : 0;
+    
+    chartLabels.push(subj);
+    chartData.push(Math.round(avg));
+    chartColors.push(teacherSubjects.indexOf(subj) !== -1 ? '#004085' : '#adb5bd');
+  });
+
+  var ctx = document.getElementById('performanceChart')?.getContext('2d');
+  if(ctx){
+    if(performanceChart) performanceChart.destroy();
+    performanceChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: chartLabels,
+        datasets: [{ label: 'Average %', data: chartData, backgroundColor: chartColors, borderRadius: 6 }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
     });
+  }
 
-    var avgMap = {};
-    Object.keys(subjectAverages).forEach(function(k){
-      avgMap[k] = Math.round(subjectAverages[k].sum / subjectAverages[k].count);
-    });
+  // 2. Weak & Strong Learners
+  var primarySubject = teacherSubjects[0];
+  var primaryScores = subjectScores[primarySubject] || [];
+  primaryScores.sort(function(a, b){ return a.pct - b.pct; });
 
-    var labels = Object.keys(avgMap);
-    var data = labels.map(function(l){ return avgMap[l]; });
-    var bgColors = labels.map(function(l){
-      return teacherSubjects.indexOf(l) !== -1 ? '#004085' : '#adb5bd';
-    });
+  var weak = primaryScores.slice(0, 3);
+  var strong = primaryScores.slice(-3).reverse();
 
-    var ctx = document.getElementById('performanceChart')?.getContext('2d');
-    if(ctx){
-      if(performanceChart) performanceChart.destroy();
-      performanceChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{ label: 'Average %', data: data, backgroundColor: bgColors, borderRadius: 6 }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
-      });
-    }
+  document.getElementById('weakLearnersList').innerHTML = weak.length
+    ? weak.map(function(s){
+        return '<div style="padding:4px 0; border-bottom:1px dashed #eee;">🔻 ' + escapeHtml(s.name) + ' <span style="color:#c1121f">(' + Math.round(s.pct) + '%)</span></div>';
+      }).join('')
+    : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubject) + '</div>';
 
-    var primarySubject = teacherSubjects[0];
-    var scoresList = subjectStudentScores[primarySubject] || [];
-    scoresList.sort(function(a,b){ return a.pct - b.pct; });
-    var weak = scoresList.slice(0, 3);
-    var strong = scoresList.slice(-3).reverse();
-
-    document.getElementById('weakLearnersList').innerHTML = weak.length
-      ? weak.map(function(s){
-          return '<div>🔻 ' + escapeHtml(s.name) + ' <span style="color:#c1121f">(' + Math.round(s.pct) + '%)</span></div>';
-        }).join('')
-      : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubject) + '</div>';
-
-    document.getElementById('strongLearnersList').innerHTML = strong.length
-      ? strong.map(function(s){
-          return '<div>🏆 ' + escapeHtml(s.name) + ' <span style="color:#1a8a4a">(' + Math.round(s.pct) + '%)</span></div>';
-        }).join('')
-      : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubject) + '</div>';
-
-  } catch(e){}
+  document.getElementById('strongLearnersList').innerHTML = strong.length
+    ? strong.map(function(s){
+        return '<div style="padding:4px 0; border-bottom:1px dashed #eee;">🏆 ' + escapeHtml(s.name) + ' <span style="color:#1a8a4a">(' + Math.round(s.pct) + '%)</span></div>';
+      }).join('')
+    : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubject) + '</div>';
 }
 
 /* ============ STUDENTS TAB ============ */
@@ -1724,6 +1730,7 @@ window.addEventListener('beforeunload', function(){
 });
 
 document.addEventListener('DOMContentLoaded', initTeacher);
+
 </script>
 </body>
 </html>
