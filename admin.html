@@ -222,10 +222,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .a4-report .report-content{flex:1}
 .a4-report.alevel-report{font-size:15px}
 .a4-report.alevel-report table{font-size:14px}
-/* Assignment picker */
 .assign-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}
 .assign-list{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:8px;min-height:40px;font-size:13px}
 .assign-chip{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#fff;border-radius:6px;margin-bottom:4px;border:1px solid #e0e0e0}
+.photo-thumb{width:60px;height:75px;object-fit:cover;border:2px solid #c1121f;border-radius:4px;background:#f0f0f0}
 </style>
 </head>
 <body>
@@ -362,7 +362,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="form-group"><label>Stream</label><input type="text" id="regStream" placeholder="e.g., Blue, A, East" /></div>
       <div class="form-group"><label>Day / Boarding *</label><select id="regResidence"><option value="">Select</option><option value="Day">Day</option><option value="Boarding">Boarding</option></select></div>
     </div>
-    <div class="form-group"><label>Student Passport Photo</label><input type="file" id="regStudentPhoto" accept="image/*" /></div>
+    <div class="form-group"><label>Student Passport Photo (uploads to Google Drive)</label><input type="file" id="regStudentPhoto" accept="image/*" /></div>
     <div class="form-group"><label>Parent/Guardian Name *</label><input type="text" id="regParentName" /></div>
     <div class="form-group"><label>Parent/Guardian Phone *</label><input type="tel" id="regParentPhone" /></div>
     <div class="form-group"><label>Parent/Guardian Email</label><input type="email" id="regParentEmail" /></div>
@@ -813,6 +813,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="text-align:center"><label style="font-size:11px">A-E</label><input type="number" id="gradeEALevel" value="0" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
     </div>
   </div>
+
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📚 Class Google Sheets</h4>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
@@ -825,7 +826,41 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     </div>
   </div>
 
-  <!-- 👤 USER ACCOUNTS (Enhanced to match teacher page) -->
+  <!-- DRIVE FOLDERS (new) -->
+  <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+    <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📁 Google Drive Photo Storage</h4>
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md)">
+      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">
+        Photos uploaded via Register and Upload Staff Photo are stored in <strong>EduTrack Pro/S.1..S.6/Staff</strong> in your Google Drive,
+        and their URLs are recorded in the class sheet's <em>Photos</em> tab (ID | Name | Image URL).
+      </p>
+      <button class="btn btn-info btn-sm" onclick="ensureDriveFoldersUI()">🛠️ Ensure Folder Structure</button>
+      <div id="driveFoldersResult" style="margin-top:10px;font-size:13px"></div>
+    </div>
+  </div>
+
+  <!-- UPLOAD STAFF PHOTO (new) -->
+  <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+    <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📷 Upload Staff / Student Photo</h4>
+    <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md)">
+      <div class="form-row-3">
+        <div class="form-group"><label>ID *</label><input type="text" id="photoUploadId" /></div>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="photoUploadName" /></div>
+        <div class="form-group"><label>Class</label>
+          <select id="photoUploadClass">
+            <option value="Staff">Staff</option>
+            <option>S.1</option><option>S.2</option><option>S.3</option>
+            <option>S.4</option><option>S.5</option><option>S.6</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Photo File *</label><input type="file" id="photoUploadFile" accept="image/*" /></div>
+      <button class="btn btn-primary" onclick="uploadStaffPhoto()">📤 Upload to Drive</button>
+      <div id="photoUploadResult" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- 👤 USER ACCOUNTS -->
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">👤 User Accounts</h4>
     <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);margin-bottom:15px">
@@ -860,15 +895,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
         <div class="form-group"><label>Qualifications</label><input type="text" id="newUserQuals" placeholder="e.g. B.Ed Mathematics" /></div>
       </div>
 
-      <!-- Teacher-specific panel -->
       <div id="teacherSection" style="display:block;padding:12px;background:#fff;border:1px dashed var(--primary);border-radius:10px;margin-top:10px">
         <div style="font-weight:700;color:var(--primary);font-size:13px;margin-bottom:8px">👩‍🏫 Teacher Details</div>
-
         <div class="form-row-2">
           <div class="form-group"><label>Monthly Salary (UGX)</label><input type="number" id="newUserSalary" min="0" step="10000" placeholder="e.g. 850000" /></div>
           <div class="form-group"><label>Other Roles (comma-separated)</label><input type="text" id="newUserOtherRoles" placeholder="e.g. Games Master, Class Teacher S.2" /></div>
         </div>
-
         <div style="margin-top:6px">
           <label style="font-size:13px;font-weight:600;color:var(--text-2);display:block;margin-bottom:6px">📚 Class + Subject Assignments</label>
           <div class="assign-row">
@@ -879,9 +911,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
             <input type="text" id="assignSubject" placeholder="Subject (e.g. Mathematics)" style="padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit" />
             <button type="button" class="btn btn-success btn-sm" onclick="addTeacherAssignment()" style="min-height:44px">➕ Add</button>
           </div>
-          <div id="assignmentList" class="assign-list">
-            <em style="color:#999">No assignments yet.</em>
-          </div>
+          <div id="assignmentList" class="assign-list"><em style="color:#999">No assignments yet.</em></div>
         </div>
       </div>
 
@@ -920,12 +950,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v21.0
-   - User Accounts enhanced: teacher assignments/subjects/salary/other roles
-     are stored in the Accounts Sheet and retrieved by the teacher page.
+   EduTrack Pro Admin v28.0
+   - Photos stored in Google Drive via Apps Script (uploadPhoto)
+   - Photo URLs cached in class sheet's "Photos" tab (getAllPhotos)
+   - Settings + class links round-trip through SchoolSettings/SchoolClassLinks
    ============================================================ */
 
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycby8j68Zymj_uDbk8GMz7UlHZJJdkbElVg4L8fU51PcW-hZJ4QnTj5sTspVP0bi9fF3Qig/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzH-Z3MeZ0w77GkiWeuiAiNEIWkuNaSTL8ugajBILxUsqFCwJY8nyKHWPbjOlKa-22UVg/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','IRE':'224','Entrepreneurship':'541','Computer Studies':'462','ICT':'461','Luganda':'345','Kiswahili':'336','Agriculture':'531','General Paper':'101','Subsidiary Mathematics':'457','Divinity':'225','Food and Nutrition':'545','Runyankole Rukiga':'347','Art and Design':'610'};
@@ -941,12 +972,18 @@ var faceState={modelsLoaded:false,modelsLoading:false,faceDetected:false};
 var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
 var pendingAssignments=[];
 
+/* In-memory cache of Drive-hosted photo URLs. Populated by loadPhotoCache(). */
+var PHOTO_CACHE = { byId: {}, byName: {}, loaded: false, loading: null };
+/* Set true while class links are being hydrated from the sheet, to avoid double-writes. */
+var CLASS_LINKS_HYDRATING = false;
+
 /* ============ UTILITIES ============ */
 function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function getCurrentTime(){return new Date().toLocaleTimeString();}
 function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function subjectCodeFor(n){return SUBJECT_CODES[n]||'—';}
 function descriptorFromGrade(g){return{'A':'EXCEPTIONAL','B':'OUTSTANDING','C':'SATISFACTORY','D':'BASIC','E':'ELEMENTARY','F':'ELEMENTARY'}[g]||'ELEMENTARY';}
+function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
 
 function gradeToPoints(g, weight){
   weight = weight || 3;
@@ -954,8 +991,7 @@ function gradeToPoints(g, weight){
     if(g === 'A' || g === 'B' || g === 'C') return 1;
     return 0;
   }
-  var pts = {'A':5, 'B':4, 'C':3, 'D':2, 'E':1}[g] || 0;
-  return pts;
+  return {'A':5, 'B':4, 'C':3, 'D':2, 'E':1}[g] || 0;
 }
 
 function showToast(msg,type){
@@ -1022,39 +1058,86 @@ function saveRegisteredFaces(r){localStorage.setItem(FACE_CONFIG.storageKey,JSON
 function getAttendanceRecords(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.attendanceKey)||'[]');}catch(e){return[];}}
 function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey,JSON.stringify(r));}
 
-function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
+/* ============ PHOTO CACHE (Drive-backed) ============ */
+async function loadPhotoCache(force){
+  if (PHOTO_CACHE.loaded && !force) return PHOTO_CACHE;
+  if (PHOTO_CACHE.loading) return PHOTO_CACHE.loading;
+  var school = getActiveSchool();
+  if (!school){ PHOTO_CACHE.loaded=true; return PHOTO_CACHE; }
+  PHOTO_CACHE.loading = callAppsScript({action:'getAllPhotos', school: school})
+    .then(function(r){
+      if (r && r.success && r.data){
+        PHOTO_CACHE.byId = r.data.byId || {};
+        PHOTO_CACHE.byName = r.data.byName || {};
+        PHOTO_CACHE.loaded = true;
+      }
+      PHOTO_CACHE.loading = null;
+      return PHOTO_CACHE;
+    })
+    .catch(function(e){
+      console.warn('loadPhotoCache:', e);
+      PHOTO_CACHE.loading = null;
+      return PHOTO_CACHE;
+    });
+  return PHOTO_CACHE.loading;
+}
 
-function getStudentPhoto(studentId,name){
-  if(!name)return '';
-  var target=normalizeNameKey(name);
-  if(!target)return '';
-  var key=String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-  var direct=localStorage.getItem('studentPhoto_name_'+key);
-  if(direct)return direct;
-  for(var i=0;i<localStorage.length;i++){
-    var k=localStorage.key(i);
-    if(k&&k.startsWith('studentPhoto_name_')){
-      var nk=normalizeNameKey(k.replace('studentPhoto_name_',''));
-      if(nk===target)return localStorage.getItem(k)||'';
-    }
-    if(k&&k.startsWith('studentPhotoName_')){
-      var nv=normalizeNameKey(localStorage.getItem(k)||'');
-      if(nv===target){
-        var sid=k.replace('studentPhotoName_','');
-        var p=localStorage.getItem('studentPhoto_'+sid);
-        if(p)return p;
-      }
-    }
-    if(k&&k.startsWith('studentPhotoFile_')){
-      var fn=normalizeNameKey(String(localStorage.getItem(k)||'').replace(/\.[^.]+$/,''));
-      if(fn===target){
-        var sid2=k.replace('studentPhotoFile_','');
-        var p2=localStorage.getItem('studentPhoto_'+sid2);
-        if(p2)return p2;
-      }
-    }
+function getStudentPhoto(studentId, name){
+  var id = String(studentId||'');
+  if (id && PHOTO_CACHE.byId[id]) return PHOTO_CACHE.byId[id];
+  if (name) {
+    var nk = normalizeNameKey(name);
+    if (PHOTO_CACHE.byName[nk]) return PHOTO_CACHE.byName[nk];
+  }
+  // Fast fallback: last-known URL cached locally after upload
+  if (id) {
+    var u = localStorage.getItem('photoUrl_id_'+id);
+    if (u) return u;
+  }
+  if (name) {
+    var k = String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+    var u2 = localStorage.getItem('photoUrl_name_'+k);
+    if (u2) return u2;
   }
   return '';
+}
+
+function rememberPhotoUrl(id, name, url){
+  if (!url) return;
+  if (id) {
+    PHOTO_CACHE.byId[String(id)] = url;
+    localStorage.setItem('photoUrl_id_'+id, url);
+  }
+  if (name) {
+    PHOTO_CACHE.byName[normalizeNameKey(name)] = url;
+    var k = String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+    localStorage.setItem('photoUrl_name_'+k, url);
+  }
+}
+
+async function uploadPhotoToDrive(opts){
+  /* opts: {file, id, name, className} */
+  if (!opts || !opts.file) return '';
+  var base64 = await new Promise(function(res, rej){
+    var r = new FileReader();
+    r.onload = function(e){ res(e.target.result); };
+    r.onerror = rej;
+    r.readAsDataURL(opts.file);
+  });
+  var resp = await callAppsScript({
+    action: 'uploadPhoto',
+    school: getActiveSchool(),
+    className: opts.className || 'Staff',
+    id: opts.id,
+    name: opts.name,
+    base64: base64,
+    mimeType: opts.file.type || 'image/jpeg'
+  });
+  if (resp.success && resp.data && resp.data.url){
+    rememberPhotoUrl(opts.id, opts.name, resp.data.url);
+    return resp.data.url;
+  }
+  throw new Error((resp && resp.message) || 'Upload failed');
 }
 
 /* ============ GRADING ============ */
@@ -1113,7 +1196,6 @@ function getSchoolBranding(){
     termEndDate:s.termEndDate||''
   };
 }
-
 function getCustomTeacherComment(){
   var school=getActiveSchool();
   var s={};
@@ -1176,8 +1258,9 @@ function switchTab(tab){
   if(tab==='register'){fetchNextStudentId();updateRegisterClassInfo();}
   if(tab==='fees')loadFeesData();
   if(tab==='expenses')loadExpenses();
-  if(tab==='reports'){clearReportSelection();fetchReportData();}
-  if(tab==='mini')loadMiniReports();
+  if(tab==='reports'){clearReportSelection();loadPhotoCache().then(fetchReportData);}
+  if(tab==='mini'){loadPhotoCache().then(loadMiniReports);}
+  if(tab==='documents'){loadPhotoCache();}
   if(tab==='timetable'){var sel=document.getElementById('ttClassSelect');if(sel&&!sel.value)loadTimetable();}
   if(tab==='program')loadProgram();
   if(tab==='notices')loadNotices();
@@ -1420,22 +1503,20 @@ async function registerStudent(e){
   if(!school||!cls||!sn||!sex||!residence){showStatus('Fill all required fields.','error');return;}
   var sheetId=getClassSheetId(cls);
   if(!sheetId){showStatus('Sheet not configured.','error');return;}
-  var photoInput=document.getElementById('regStudentPhoto');
-  if(photoInput&&photoInput.files[0]){
-    var file=photoInput.files[0];
-    var reader=new FileReader();
-    reader.onload=function(ev){
-      var nk=String(sn).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-      localStorage.setItem('studentPhoto_name_'+nk,ev.target.result);
-      localStorage.setItem('studentPhoto_'+sid,ev.target.result);
-      localStorage.setItem('studentPhotoName_'+sid,sn);
-      localStorage.setItem('studentPhotoFile_'+sid,file.name||'');
-    };
-    reader.readAsDataURL(file);
-  }
   var btn=document.getElementById('regSubmitBtn');
   if(btn){btn.disabled=true;btn.textContent='Registering...';}
   try{
+    // 1. Upload photo to Drive first (if provided)
+    var photoInput=document.getElementById('regStudentPhoto');
+    if(photoInput&&photoInput.files[0]){
+      try{
+        await uploadPhotoToDrive({file:photoInput.files[0], id:sid, name:sn, className:cls});
+      }catch(pe2){
+        console.warn('Photo upload failed:', pe2);
+        showToast('Photo upload failed — student still being saved.','warning');
+      }
+    }
+    // 2. Save student
     var r=await callAppsScript({action:'registerStudent',sheetId:sheetId,school:school,className:cls,studentId:sid,studentName:sn,parentName:pn,parentPhone:pp,parentEmail:pe,sex:sex,stream:stream,residence:residence,term:term,year:year});
     if(btn){btn.disabled=false;btn.textContent='Register';}
     if(r.success){
@@ -1445,9 +1526,9 @@ async function registerStudent(e){
       showToast('Registered!','success');
       updateStudentCount();updateClassCards();
     }else showStatus(r.message,'error');
-  }catch(e){
+  }catch(e2){
     if(btn){btn.disabled=false;btn.textContent='Register';}
-    showStatus(e.message,'error');
+    showStatus(e2.message,'error');
   }
 }
 
@@ -1722,10 +1803,10 @@ async function postScores(e){
       showStatus('❌ '+(r.message||'Unknown'),'error');
       showToast('Failed: '+(r.message||'Unknown'),'error');
     }
-  }catch(e){
+  }catch(e2){
     if(btn){btn.disabled=false;btn.textContent='Post Scores';}
-    showStatus('❌ '+e.message,'error');
-    showToast('Error: '+e.message,'error');
+    showStatus('❌ '+e2.message,'error');
+    showToast('Error: '+e2.message,'error');
   }
 }
 function resetScoresForm(){
@@ -2207,6 +2288,7 @@ async function fetchReportData(search){
   var sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
   try{
+    await loadPhotoCache();
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
     console.log('Loaded',students.length,'students');
@@ -2485,6 +2567,7 @@ async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
   try{
+    await loadPhotoCache();
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     miniReportData=r.data?.sheetData?.students||[];
     renderMiniReports();
@@ -2606,6 +2689,7 @@ async function generateDocument(){
   var sheetId=getClassSheetId(cls);
   if(!sheetId){showToast('Sheet not configured.','warning');return;}
   try{
+    await loadPhotoCache();
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
     var b=getSchoolBranding();
@@ -2876,7 +2960,97 @@ function loadSettings(){
   if(badge&&document.getElementById('settingsBadgePreview'))document.getElementById('settingsBadgePreview').innerHTML='<img src="'+badge+'" style="width:100%;height:100%;object-fit:contain" />';
   var sig=localStorage.getItem('headTeacherSignature');
   if(sig&&document.getElementById('signaturePreview'))document.getElementById('signaturePreview').innerHTML='<img src="'+sig+'" style="width:100%;height:100%;object-fit:contain" />';
+
+  // Pull latest settings + class links from sheet (source of truth)
+  refreshSettingsFromSheet(school);
 }
+
+async function refreshSettingsFromSheet(school){
+  try{
+    var r=await callAppsScript({action:'getSchoolSettings', school:school});
+    if(r.success && r.data && r.data.settings){
+      var sheetS = r.data.settings;
+      // Map the flat sheet row back to our camelCase keys
+      var mapped = {
+        schoolName: sheetS['School Name']||'',
+        schoolMotto: sheetS['Motto']||'',
+        schoolAddress: sheetS['Address']||'',
+        schoolPhone: sheetS['Phone']||'',
+        schoolEmail: sheetS['Email']||'',
+        schoolWebsite: sheetS['Website']||'',
+        latitude: sheetS['Latitude']||'',
+        longitude: sheetS['Longitude']||'',
+        currentTerm: sheetS['Current Term']||'',
+        currentYear: sheetS['Current Year']||'',
+        expectedFeesThisTerm: sheetS['Expected Fees']||'',
+        termStartDate: sheetS['Term Start']||'',
+        termEndDate: sheetS['Term End']||'',
+        nextTermStart: sheetS['Next Term Start']||'',
+        nextTermEnd: sheetS['Next Term End']||'',
+        financeSheet: sheetS['Finance Sheet']||'',
+        attendanceSheet: sheetS['Attendance Sheet']||'',
+        timetableSheet: sheetS['Timetable Sheet']||'',
+        storeSheet: sheetS['Store Sheet']||'',
+        nurseSheet: sheetS['Nurse Sheet']||'',
+        gradeA: sheetS['Grade A']||80,
+        gradeB: sheetS['Grade B']||70,
+        gradeC: sheetS['Grade C']||50,
+        gradeD: sheetS['Grade D']||40,
+        gradeE: sheetS['Grade E']||0,
+        gradeAALevel: sheetS['Grade A ALevel']||80,
+        gradeBALevel: sheetS['Grade B ALevel']||70,
+        gradeCALevel: sheetS['Grade C ALevel']||50,
+        gradeDALevel: sheetS['Grade D ALevel']||35,
+        gradeEALevel: sheetS['Grade E ALevel']||0,
+        teacherCustomComment: sheetS['Teacher Custom Comment']||'',
+        headCustomComment: sheetS['Head Custom Comment']||'',
+        driveRoot: sheetS['Drive Root']||''
+      };
+      // Fill any blank local values from the sheet, without clobbering user edits
+      var merged = Object.assign({}, mapped, JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}'));
+      Object.keys(mapped).forEach(function(k){
+        if (!merged[k] || merged[k]==='') merged[k]=mapped[k];
+      });
+      localStorage.setItem('schoolSettings_'+school, JSON.stringify(mapped));
+      // Re-apply visible fields
+      var set=function(id,v){var e=document.getElementById(id);if(e&&(!e.value||e.value===''))e.value=v;};
+      set('settingsSchoolName', mapped.schoolName);
+      set('settingsSchoolMotto', mapped.schoolMotto);
+      set('settingsSchoolAddress', mapped.schoolAddress);
+      set('settingsSchoolPhone', mapped.schoolPhone);
+      set('settingsSchoolEmail', mapped.schoolEmail);
+      set('settingsSchoolWebsite', mapped.schoolWebsite);
+      set('gradeA', mapped.gradeA);
+      set('gradeB', mapped.gradeB);
+      set('gradeC', mapped.gradeC);
+      set('gradeD', mapped.gradeD);
+      set('gradeE', mapped.gradeE);
+      set('gradeAALevel', mapped.gradeAALevel);
+      set('gradeBALevel', mapped.gradeBALevel);
+      set('gradeCALevel', mapped.gradeCALevel);
+      set('gradeDALevel', mapped.gradeDALevel);
+      set('gradeEALevel', mapped.gradeEALevel);
+    }
+  }catch(e){ console.warn('refreshSettingsFromSheet:', e); }
+
+  // Class links: hydrate from sheet if any input is blank
+  try{
+    var cr=await callAppsScript({action:'getClassLinks', school:school});
+    if(cr.success && cr.data && cr.data.links){
+      CLASS_LINKS_HYDRATING = true;
+      cr.data.links.forEach(function(l){
+        var cls=l.className;
+        var url=l.sheetUrl || (l.sheetId ? ('https://docs.google.com/spreadsheets/d/'+l.sheetId+'/edit') : '');
+        if(!url) return;
+        localStorage.setItem('classLink_'+cls+'_'+school, url);
+        var el=document.getElementById(CLASS_IDS[cls]);
+        if(el && !el.value){ el.value=url; validateClassLink(cls); }
+      });
+      CLASS_LINKS_HYDRATING = false;
+    }
+  }catch(e){ CLASS_LINKS_HYDRATING=false; console.warn('getClassLinks:', e); }
+}
+
 async function saveAllSettings(){
   var school=getActiveSchool();if(!school)return;
   var get=function(id){return document.getElementById(id)?.value?.trim()||'';};
@@ -2894,16 +3068,30 @@ async function saveAllSettings(){
     headCustomComment:get('settingsHeadComment')
   };
   localStorage.setItem('schoolSettings_'+school,JSON.stringify(s));
+  // Persist class links to the SchoolClassLinks sheet AND local cache
   for(var i=0;i<CLASSES.length;i++){
     var cls=CLASSES[i];
     var e=document.getElementById(CLASS_IDS[cls]);if(!e)continue;
     var url=e.value.trim();
     localStorage.setItem('classLink_'+cls+'_'+school,url);
     validateClassLink(cls);
-    var sheetId=extractSheetIdFromUrl(url);
-    if(sheetId){try{await callAppsScript({action:'saveClassLink',school:school,className:cls,sheetId:sheetId});}catch(err){}}
+    if(url){
+      var sheetId=extractSheetIdFromUrl(url);
+      try{
+        await callAppsScript({
+          action:'saveClassLink',
+          school:school,
+          className:cls,
+          sheetId:sheetId,
+          sheetUrl:url
+        });
+      }catch(err){ console.warn('saveClassLink failed',cls,err); }
+    }
   }
-  try{await callAppsScript({action:'saveSchoolSettings',school:school,settings:JSON.stringify(s)});}catch(err){}
+  try{
+    var r = await callAppsScript({action:'saveSchoolSettings',school:school,settings:JSON.stringify(s)});
+    if (!r.success) console.warn('saveSchoolSettings response:', r);
+  }catch(err){ console.warn('saveSchoolSettings failed',err); }
   showToast('Settings saved!','success');
 }
 function validateClassLink(cls){
@@ -2958,7 +3146,56 @@ function downloadSystemBackup(){
   showToast('Backup downloaded','success');
 }
 
-/* ============ USER ACCOUNTS (Enhanced) ============ */
+/* ============ DRIVE FOLDERS ============ */
+async function ensureDriveFoldersUI(){
+  var out = document.getElementById('driveFoldersResult');
+  if(!out) return;
+  out.innerHTML = 'Creating Drive folders…';
+  try{
+    var r = await callAppsScript({action:'ensureDriveFolders', school: getActiveSchool()});
+    if (r.success && r.data){
+      var h = '<div style="background:#d4edda;padding:10px;border-radius:8px">'+
+        '<b>✅ Root folder:</b> <a href="'+r.data.root.url+'" target="_blank">Open in Drive</a><br>'+
+        '<div style="margin-top:6px"><b>Subfolders:</b></div>';
+      Object.keys(r.data.folders).forEach(function(k){
+        h += '<a href="'+r.data.folders[k].url+'" target="_blank" style="display:inline-block;margin:3px 4px;padding:3px 10px;background:#302b63;color:#fff;border-radius:6px;font-size:11px;text-decoration:none">'+k+'</a>';
+      });
+      h += '</div>';
+      out.innerHTML = h;
+      showToast('Drive folders ready!','success');
+    } else {
+      out.innerHTML = '<span style="color:#c1121f">Failed: '+(r.message||'unknown')+'</span>';
+    }
+  } catch(e){
+    out.innerHTML = '<span style="color:#c1121f">Error: '+e.message+'</span>';
+  }
+}
+
+async function uploadStaffPhoto(){
+  var id = document.getElementById('photoUploadId').value.trim();
+  var name = document.getElementById('photoUploadName').value.trim();
+  var cls = document.getElementById('photoUploadClass').value;
+  var file = document.getElementById('photoUploadFile').files[0];
+  var out = document.getElementById('photoUploadResult');
+  if (!id || !name || !file){ showToast('Fill ID, name and choose a file.','warning'); return; }
+  out.innerHTML = 'Uploading…';
+  try{
+    var url = await uploadPhotoToDrive({file:file, id:id, name:name, className:cls});
+    out.innerHTML = '<div style="background:#d4edda;padding:10px;border-radius:8px;font-size:13px">'+
+      '<b>✅ Uploaded to Drive!</b><br>'+
+      '<img src="'+url+'" style="max-width:120px;margin-top:6px;border:1px solid #ccc;border-radius:4px" /><br>'+
+      '<a href="'+url+'" target="_blank" style="font-size:12px">View image</a>'+
+    '</div>';
+    showToast('Photo uploaded!','success');
+    // Refresh report/class views if open
+    if (document.getElementById('tabReports').classList.contains('active')) fetchReportData();
+    if (document.getElementById('tabMini').classList.contains('active')) loadMiniReports();
+  }catch(e){
+    out.innerHTML = '<span style="color:#c1121f">Failed: '+e.message+'</span>';
+  }
+}
+
+/* ============ USER ACCOUNTS ============ */
 function toggleTeacherAssignments(){
   var role=document.getElementById('newUserRole')?.value||'teacher';
   var teacherSection=document.getElementById('teacherSection');
@@ -3209,6 +3446,8 @@ document.addEventListener('DOMContentLoaded',function(){
   loadUserAccounts();
   loadFeesStudents();
   loadNotices();
+  loadPhotoCache(); // warm the Drive photo cache
+
   document.getElementById('settingsBadgeUpload')?.addEventListener('change',function(e){
     var f=e.target.files[0];if(f){
       var r=new FileReader();
