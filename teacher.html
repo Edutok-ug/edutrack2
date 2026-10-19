@@ -458,10 +458,10 @@ table.data-table tr:hover td{background:var(--surface-2)}
 </div>
 <script>
   /* ============================================================
-   EduTrack Pro Teacher v23.0
+   EduTrack Pro Teacher v24.0 (Cloud-Driven Class Links)
    ============================================================ */
 
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYr92g4M9DaEk3kfdsuvWSp8Y6gEWgU3ES4DvOn1afois68qbs8toCLxaSQtFWPK-ORQ/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxXbL2BTUwsyBds0pk8SrNzbr40-73d2X-c9rvHX3o7wqaPUjB9covo10PwiWu36xVNQ/exec';
 var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
 var OLEVEL_CLASSES = ['S.1','S.2','S.3','S.4'];
 var ALEVEL_CLASSES = ['S.5','S.6'];
@@ -471,6 +471,9 @@ var teacherInfo = null;
 var myClasses = [];
 var teacherSalary = 0;
 var teacherOtherRoles = [];
+
+// GLOBAL MAP: Stores { "S.1": "sheetId123", "S.2": "sheetId456" } fetched from Google Sheets
+var classLinksMap = {}; 
 
 /* Score posting */
 var trScoreRows = [];
@@ -504,21 +507,17 @@ function escapeHtml(v){
   });
 }
 function getActiveSchool(){ return authSession ? authSession.school : ''; }
-function extractSheetIdFromUrl(url){
-  if(!url) return '';
-  var m = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-  if(m) return m[1];
-  if(/^[a-zA-Z0-9-_]{30,}$/.test(url)) return url;
-  return '';
-}
+
+// DEPRECATED: getClassLink is no longer used for fetching. Kept only if other parts of the app need it.
 function getClassLink(cls){
-  try{
-    var s = getActiveSchool();
-    if(!s) return '';
-    return localStorage.getItem('classLink_'+cls+'_'+s) || '';
-  }catch(e){ return ''; }
+  return classLinksMap[cls] || '';
 }
-function getClassSheetId(cls){ return extractSheetIdFromUrl(getClassLink(cls)); }
+
+// UPDATED: Strictly reads from the global classLinksMap populated from the Google Sheet
+function getClassSheetId(cls){ 
+  return classLinksMap[cls] || ''; 
+}
+
 function isOLevelClass(cls){ return OLEVEL_CLASSES.indexOf(cls) !== -1; }
 function isALevelClass(cls){ return ALEVEL_CLASSES.indexOf(cls) !== -1; }
 function trIsSubsidiarySubject(subj){ return subj === 'General Paper' || subj === 'Subsidiary Mathematics' || subj === 'ICT'; }
@@ -609,7 +608,7 @@ async function initTeacher(){
   document.getElementById('pfClasses').value = teacherInfo.classes.join(', ');
   document.getElementById('profileInitial').textContent = teacherInfo.name.charAt(0).toUpperCase();
 
-  // Sync class links from Google Sheets
+  // MUST BE AWAITED: Fetch links from Google Sheet before doing anything else
   await syncClassLinks();
 
   // Load salary from Accounts Sheet
@@ -618,7 +617,7 @@ async function initTeacher(){
   // Populate all class selects
   populateAllClassSelects();
 
-  // Load my classes
+  // Load my classes (this will now successfully read from classLinksMap)
   await loadMyClasses();
   renderClasses();
   renderDashboardClasses();
@@ -648,11 +647,15 @@ async function syncClassLinks(){
   try{
     var r = await api({ action: 'getClassLinks', school: getActiveSchool() });
     if(r && r.success && r.data && r.data.links){
+      classLinksMap = {}; // Reset the map
       r.data.links.forEach(function(l){
         if(l.className && l.sheetId){
-          localStorage.setItem('classLink_' + l.className + '_' + getActiveSchool(), l.sheetId);
+          classLinksMap[l.className] = l.sheetId;
         }
       });
+      console.log("Class links loaded from Google Sheet:", classLinksMap);
+    } else {
+      console.warn("Failed to load class links from Google Sheet.");
     }
   } catch(e){ console.warn('Class link sync failed:', e); }
 }
@@ -728,7 +731,7 @@ async function loadMyClasses(){
   myClasses = [];
   for(var i=0; i<teacherInfo.assignments.length; i++){
     var a = teacherInfo.assignments[i];
-    var sheetId = getClassSheetId(a.class);
+    var sheetId = getClassSheetId(a.class); // Reads from classLinksMap
     var count = 0;
     if(sheetId){
       try{
@@ -769,7 +772,7 @@ async function loadAttendanceSummary(){
 
   for(var i=0; i<teacherInfo.classes.length; i++){
     var cls = teacherInfo.classes[i];
-    var sheetId = getClassSheetId(cls);
+    var sheetId = getClassSheetId(cls); // Reads from classLinksMap
     if(!sheetId) continue;
     try{
       var r = await api({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: cls});
@@ -842,7 +845,7 @@ async function loadManualAttendanceStudents(){
   var grid = document.getElementById('manualAttGrid');
   if(!grid) return;
   if(!cls){ grid.innerHTML = '<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p>'; return; }
-  var sheetId = getClassSheetId(cls);
+  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
   if(!sheetId){ grid.innerHTML = '<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">Sheet not configured.</p>'; return; }
 
   grid.innerHTML = '<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Loading…</p>';
@@ -908,7 +911,7 @@ async function saveManualAttendance(){
     showToast('Load students first.', 'warning'); return;
   }
   var school = getActiveSchool();
-  var sheetId = getClassSheetId(manualAttClass);
+  var sheetId = getClassSheetId(manualAttClass); // Reads from classLinksMap
   var records = manualAttStudents.map(function(s){
     return {studentId: s.studentId, studentName: s.studentName, status: s.status, class: manualAttClass};
   });
@@ -948,7 +951,7 @@ async function loadQRClassStudents(){
   var cls = document.getElementById('qrAttClassSelect')?.value;
   if(!cls){ qrAttStudents = []; qrAttClass = ''; return; }
   qrAttClass = cls;
-  var sheetId = getClassSheetId(cls);
+  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
   if(!sheetId){ qrAttStudents = []; return; }
   try{
     var r = await api({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: cls});
@@ -1052,7 +1055,7 @@ function renderQRScanHistory(){
 async function saveQRAttendance(){
   if(!qrAttClass || qrScanHistory.length === 0){ showToast('Scan students first', 'warning'); return; }
   var school = getActiveSchool();
-  var sheetId = getClassSheetId(qrAttClass);
+  var sheetId = getClassSheetId(qrAttClass); // Reads from classLinksMap
   var scannedIds = qrScanHistory.map(function(r){ return r.id; });
   var records = qrAttStudents.map(function(s){
     return {
@@ -1105,7 +1108,7 @@ async function loadPerformanceData(){
   // Fetch data for every assigned class
   for(var i=0; i<teacherClasses.length; i++){
     var cls = teacherClasses[i];
-    var sheetId = getClassSheetId(cls);
+    var sheetId = getClassSheetId(cls); // Reads from classLinksMap
     if(!sheetId) continue;
 
     try{
@@ -1190,7 +1193,7 @@ async function loadStudentsForTab(){
   var cls = document.getElementById('studentsClassSelect')?.value;
   var body = document.getElementById('studentsBody');
   if(!cls){ body.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Select a class.</p>'; return; }
-  var sheetId = getClassSheetId(cls);
+  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
   if(!sheetId){ body.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Sheet not configured.</p>'; return; }
   body.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Loading…</p>';
   try{
@@ -1338,7 +1341,7 @@ async function trLoadStudents(){
   var school = getActiveSchool();
   var tbody = document.getElementById('trScoreTableBody');
   if(!cls){ if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr>'; return; }
-  var sheetId = getClassSheetId(cls);
+  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
   if(!sheetId){ if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">❌ Class sheet not configured.</td></tr>'; return; }
   if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Loading students…</td></tr>';
   try{
@@ -1472,7 +1475,7 @@ async function trPostScores(e){
   var initials = (trCurrentScoreLevel === 'olevel'
     ? document.getElementById('trTeacherInitialsOLevel')?.value
     : document.getElementById('trTeacherInitialsALevel')?.value) || '';
-  var sheetId = getClassSheetId(cls);
+  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
 
   if(!cls){ showToast('❌ Select a class.', 'error'); return; }
   if(!sheetId){ showToast('❌ Class sheet not configured.', 'error'); return; }
