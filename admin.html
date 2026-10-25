@@ -736,7 +736,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
       <div id="settingsBadgePreview" style="width:80px;height:80px;border:2px dashed var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface-2)"><span style="font-size:11px;color:#999">Upload</span></div>
       <input type="file" id="settingsBadgeUpload" accept="image/*" style="flex:1;padding:10px;min-width:200px" />
-      <button class="btn btn-warning btn-sm" onclick="clearSettingsBadge()">🗑️</button>
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
@@ -744,7 +743,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
       <div id="signaturePreview" style="width:150px;height:60px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface-2)"><span style="font-size:11px;color:#999">Upload</span></div>
       <input type="file" id="signatureUpload" accept="image/*" style="flex:1;padding:10px;min-width:200px" />
-      <button class="btn btn-warning btn-sm" onclick="clearSignature()">🗑️</button>
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
@@ -806,7 +804,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📁 Google Drive Photo Storage</h4>
     <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md)">
-      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">Photos are stored in <strong>EduTrack Pro/&lt;Your School&gt;/{S.1..S.6, Staff, Signatures, School Badge}</strong> in Google Drive.</p>
+      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">Photos are stored in <strong>EduTrack Pro/&lt;Your School&gt;/{S.1..S.6, Staff, Signatures, School Badge}</strong>.</p>
       <button class="btn btn-info btn-sm" onclick="ensureDriveFoldersUI()">🛠️ Ensure Folder Structure</button>
       <div id="driveFoldersResult" style="margin-top:10px;font-size:13px"></div>
     </div>
@@ -928,9 +926,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v31.0 — Cloud-First
+   EduTrack Pro Admin v32.0 — Photos are class-scoped, sheet-only
    ============================================================ */
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbySBwRmGoh-5TJgUVtGCQDlU7205EZ4wTaPuCE4R2-XLjSDfz50BhXDUGdMajVIWAIDrw/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycby8j68Zymj_uDbk8GMz7UlHZJJdkbElVg4L8fU51PcW-hZJ4QnTj5sTspVP0bi9fF3Qig/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'112','Mathematics':'456','Physics':'535','Chemistry':'545','Biology':'553','Geography':'273','History':'241','CRE':'223','IRE':'224','Entrepreneurship':'541','Computer Studies':'462','ICT':'461','Luganda':'345','Kiswahili':'336','Agriculture':'531','General Paper':'101','Subsidiary Mathematics':'457','Divinity':'225','Food and Nutrition':'545','Runyankole Rukiga':'347','Art and Design':'610'};
@@ -947,7 +945,6 @@ var isCameraRunning=false,isFaceRegRunning=false;
 var scoreRows=[],studentList=[],miniReportData=[];
 var isManualId=false,currentScoreLevel='olevel';
 var feesChartInstance=null,attendanceChartInstance=null;
-var storesBarChartInstance=null,storesStatusChartInstance=null;
 var schoolSettings={};
 var cameraMode='user';
 var manualAttStudents=[],manualAttFiltered=[],manualAttClass='';
@@ -955,8 +952,10 @@ var feesRecords=[],expenseRecords=[],chatUsers=[];
 var faceState={modelsLoaded:false,modelsLoading:false,faceDetected:false};
 var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
 var pendingAssignments=[];
-var PHOTO_CACHE={byId:{},byName:{},loaded:false,loading:null};
-var __classPhotos=[];
+
+/* CLASS-SCOPED photo cache: PHOTO_CACHE.byClass['S.1'] = {byId, byName} */
+var PHOTO_CACHE = { byClass:{}, loading:{} };
+var __classPhotos = [];
 
 /* ============ UTILITIES ============ */
 function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -1011,46 +1010,76 @@ function saveRegisteredFaces(r){localStorage.setItem(FACE_CONFIG.storageKey,JSON
 function getAttendanceRecords(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.attendanceKey)||'[]');}catch(e){return[];}}
 function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey,JSON.stringify(r));}
 
-/* ============ PHOTO CACHE ============ */
-async function loadPhotoCache(force){
-  if(PHOTO_CACHE.loaded && !force) return PHOTO_CACHE;
-  if(PHOTO_CACHE.loading) return PHOTO_CACHE.loading;
+/* ============ CLASS-SCOPED PHOTO CACHE (Photos tab only) ============ */
+async function loadClassPhotosIntoCache(className){
+  className=String(className||'').trim();
+  if(!className) return;
+  if(PHOTO_CACHE.loading[className]) return PHOTO_CACHE.loading[className];
   var school=getActiveSchool();
-  if(!school){PHOTO_CACHE.loaded=true;return PHOTO_CACHE;}
-  PHOTO_CACHE.loading=callAppsScript({action:'getAllPhotos',school:school})
-    .then(function(r){
-      if(r&&r.success&&r.data){PHOTO_CACHE.byId=r.data.byId||{};PHOTO_CACHE.byName=r.data.byName||{};PHOTO_CACHE.loaded=true;}
-      PHOTO_CACHE.loading=null;return PHOTO_CACHE;
-    }).catch(function(e){console.warn('loadPhotoCache:',e);PHOTO_CACHE.loading=null;return PHOTO_CACHE;});
-  return PHOTO_CACHE.loading;
+  if(!school) return;
+  PHOTO_CACHE.loading[className]=callAppsScript({
+    action:'getPhotosForClass',
+    school:school,
+    className:className
+  }).then(function(r){
+    if(r && r.success && r.data){
+      PHOTO_CACHE.byClass[className]={byId:r.data.byId||{}, byName:r.data.byName||{}};
+    } else {
+      PHOTO_CACHE.byClass[className]={byId:{}, byName:{}};
+    }
+    PHOTO_CACHE.loading[className]=null;
+    return PHOTO_CACHE.byClass[className];
+  }).catch(function(e){
+    console.warn('loadClassPhotosIntoCache',className,e);
+    PHOTO_CACHE.byClass[className]={byId:{}, byName:{}};
+    PHOTO_CACHE.loading[className]=null;
+    return PHOTO_CACHE.byClass[className];
+  });
+  return PHOTO_CACHE.loading[className];
 }
 function getStudentPhoto(studentId,name,className){
-  var id=String(studentId||'');
-  if(id && PHOTO_CACHE.byId[id]) return PHOTO_CACHE.byId[id];
-  if(name){var nk=normalizeNameKey(name);if(PHOTO_CACHE.byName[nk])return PHOTO_CACHE.byName[nk];}
-  if(id){var u=localStorage.getItem('photoUrl_id_'+id);if(u)return u;}
-  if(name){var k=String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');var u2=localStorage.getItem('photoUrl_name_'+k);if(u2)return u2;}
-  if(id||name){
-    callAppsScript({action:'getPhotoUrl',school:getActiveSchool(),className:className||'',id:id,name:name||''})
-      .then(function(r){if(r.success&&r.data&&r.data.url)rememberPhotoUrl(id,name,r.data.url);})
-      .catch(function(){});
+  var cls=String(className||'').trim();
+  if(!cls) return '';
+  var cache=PHOTO_CACHE.byClass[cls];
+  if(!cache) return '';
+  var id=String(studentId||'').trim();
+  if(id && cache.byId[id]) return cache.byId[id];
+  if(name){
+    var nk=normalizeNameKey(name);
+    if(nk && cache.byName[nk]) return cache.byName[nk];
   }
   return '';
 }
-function rememberPhotoUrl(id,name,url){
-  if(!url)return;
-  if(id){PHOTO_CACHE.byId[String(id)]=url;localStorage.setItem('photoUrl_id_'+id,url);}
-  if(name){
-    PHOTO_CACHE.byName[normalizeNameKey(name)]=url;
-    var k=String(name).toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-    localStorage.setItem('photoUrl_name_'+k,url);
-  }
+function invalidateClassPhotosCache(className){
+  if(className) delete PHOTO_CACHE.byClass[className];
+  else PHOTO_CACHE.byClass={};
 }
 async function uploadPhotoToDrive(opts){
   if(!opts||!opts.file)return '';
-  var base64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result);};r.onerror=rej;r.readAsDataURL(opts.file);});
-  var resp=await callAppsScript({action:'uploadPhoto',school:getActiveSchool(),className:opts.className||'Staff',id:opts.id,name:opts.name,base64:base64,mimeType:opts.file.type||'image/jpeg'});
-  if(resp.success&&resp.data&&resp.data.url){rememberPhotoUrl(opts.id,opts.name,resp.data.url);return resp.data.url;}
+  var base64=await new Promise(function(res,rej){
+    var r=new FileReader();
+    r.onload=function(e){res(e.target.result);};
+    r.onerror=rej;r.readAsDataURL(opts.file);
+  });
+  var resp=await callAppsScript({
+    action:'uploadPhoto',
+    school:getActiveSchool(),
+    className:opts.className||'Staff',
+    id:opts.id,
+    name:opts.name,
+    base64:base64,
+    mimeType:opts.file.type||'image/jpeg'
+  });
+  if(resp.success&&resp.data&&resp.data.url){
+    var cls=opts.className||'Staff';
+    var cache=PHOTO_CACHE.byClass[cls]||(PHOTO_CACHE.byClass[cls]={byId:{},byName:{}});
+    if(opts.id) cache.byId[String(opts.id)]=resp.data.url;
+    if(opts.name){
+      var nk=normalizeNameKey(opts.name);
+      if(nk) cache.byName[nk]=resp.data.url;
+    }
+    return resp.data.url;
+  }
   throw new Error((resp&&resp.message)||'Upload failed');
 }
 
@@ -1065,8 +1094,8 @@ function getSchoolBranding(){
     address:s.schoolAddress||'',
     phone:s.schoolPhone||'',
     email:s.schoolEmail||'',
-    badge:s.schoolBadgeUrl||localStorage.getItem('reportCardBadge')||'',
-    signature:s.headSignatureUrl||localStorage.getItem('headTeacherSignature')||'',
+    badge:s.schoolBadgeUrl||'',
+    signature:s.headSignatureUrl||'',
     termStartDate:s.termStartDate||'',
     termEndDate:s.termEndDate||''
   };
@@ -1102,11 +1131,7 @@ function generateAutoComment(pct,isALevel){
   }
 }
 
-function qrToImage(el){
-  if(!el)return '';
-  var c=el.querySelector('canvas');if(c){try{return c.toDataURL('image/png');}catch(e){return '';}}
-  var i=el.querySelector('img');if(i&&i.src)return i.src;return '';
-}
+function qrToImage(el){if(!el)return '';var c=el.querySelector('canvas');if(c){try{return c.toDataURL('image/png');}catch(e){return '';}}var i=el.querySelector('img');if(i&&i.src)return i.src;return '';}
 function materializeQRCodes(root){
   if(!root)return;
   root.querySelectorAll('[data-qr]').forEach(function(el){
@@ -1139,9 +1164,8 @@ function switchTab(tab){
   if(tab==='register'){fetchNextStudentId();updateRegisterClassInfo();}
   if(tab==='fees')loadFeesData();
   if(tab==='expenses')loadExpenses();
-  if(tab==='reports'){clearReportSelection();loadPhotoCache().then(fetchReportData);}
-  if(tab==='mini'){loadPhotoCache().then(loadMiniReports);}
-  if(tab==='documents'){loadPhotoCache();}
+  if(tab==='reports'){clearReportSelection();fetchReportData();}
+  if(tab==='mini'){loadMiniReports();}
   if(tab==='timetable'){var sel=document.getElementById('ttClassSelect');if(sel&&!sel.value)loadTimetable();}
   if(tab==='program')loadProgram();
   if(tab==='notices')loadNotices();
@@ -1154,15 +1178,13 @@ function switchTab(tab){
 
 /* ============ DASHBOARD ============ */
 async function updateDashboard(){
-  var school=getActiveSchool();
-  if(!school) return;
+  var school=getActiveSchool();if(!school)return;
   await refreshBrandingFromSheet();
-  var s={};
-  try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
+  var s={};try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
   var dn=document.getElementById('dashboardSchoolName');if(dn)dn.textContent=s.schoolName||school;
   var dm=document.getElementById('dashboardMotto');if(dm)dm.textContent='"'+(s.schoolMotto||'Empowering Education')+'"';
   var dcd=document.getElementById('dashboardClassDisplay');if(dcd)dcd.textContent='Term: '+(s.currentTerm||'—')+' | Year: '+(s.currentYear||'—');
-  var badge=s.schoolBadgeUrl||localStorage.getItem('reportCardBadge');
+  var badge=s.schoolBadgeUrl;
   if(badge){
     var bEl=document.getElementById('dashboardBadge');
     if(bEl){bEl.src=badge;bEl.style.display='block';}
@@ -1170,7 +1192,6 @@ async function updateDashboard(){
   }
   updateStudentCount();updateDashboardFinanceCards();updateDashboardAttendanceStats();updateExpectedFeesCard();updateClassCards();loadDashboardNotices();
 }
-
 async function refreshBrandingFromSheet(){
   var school=getActiveSchool();if(!school)return;
   try{
@@ -1202,8 +1223,6 @@ async function refreshBrandingFromSheet(){
         classSignatureUrls:raw['Class Signature URLs']||'{}'
       };
       localStorage.setItem('schoolSettings_'+school,JSON.stringify(mapped));
-      if(mapped.schoolBadgeUrl)localStorage.setItem('reportCardBadge',mapped.schoolBadgeUrl);
-      if(mapped.headSignatureUrl)localStorage.setItem('headTeacherSignature',mapped.headSignatureUrl);
       try{
         var sigMap=JSON.parse(mapped.classSignatureUrls||'{}');
         Object.keys(sigMap).forEach(function(k){localStorage.setItem('classTeacherSig_'+k,sigMap[k]);});
@@ -1211,7 +1230,6 @@ async function refreshBrandingFromSheet(){
     }
   }catch(e){console.warn('refreshBrandingFromSheet:',e);}
 }
-
 async function updateStudentCount(){
   var school=getActiveSchool();if(!school)return;
   try{
@@ -1223,15 +1241,13 @@ async function updateStudentCount(){
     }
   }catch(e){}
 }
-
 async function updateClassCards(){
   var school=getActiveSchool();if(!school)return;
   var c=document.getElementById('classCardsContainer');if(!c)return;
   try{
     var counts={};
     for(var i=0;i<CLASSES.length;i++){
-      var cls=CLASSES[i];
-      var sheetId=getClassSheetId(cls);
+      var cls=CLASSES[i];var sheetId=getClassSheetId(cls);
       if(sheetId){
         try{
           var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});
@@ -1244,7 +1260,6 @@ async function updateClassCards(){
     c.innerHTML=h||'<p style="color:#999;text-align:center">No classes.</p>';
   }catch(e){}
 }
-
 async function updateDashboardFinanceCards(){
   var school=getActiveSchool();if(!school)return;
   try{
@@ -1259,7 +1274,6 @@ async function updateDashboardFinanceCards(){
     var ee=document.getElementById('statExpensesToday');if(ee)ee.textContent='UGX '+te.toLocaleString();
   }catch(e){}
 }
-
 async function updateDashboardAttendanceStats(){
   var school=getActiveSchool();if(!school)return;
   var today=getTodayDate();
@@ -1279,14 +1293,12 @@ async function updateDashboardAttendanceStats(){
     }
   }catch(e){console.warn('attendance summary:',e);}
 }
-
 function updateExpectedFeesCard(){
   var school=getActiveSchool();if(!school)return;
   var s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');
   var el=document.getElementById('statExpectedFees');
   if(el)el.textContent='UGX '+((s.expectedFeesThisTerm||0)).toLocaleString();
 }
-
 async function loadDashboardNotices(){
   var c=document.getElementById('dashboardNotices');if(!c)return;
   try{
@@ -1299,7 +1311,6 @@ async function loadDashboardNotices(){
     c.innerHTML=h;
   }catch(e){c.innerHTML='<p style="color:#999;text-align:center">Error loading notices.</p>';}
 }
-
 function initCharts(){
   try{
     if(typeof Chart==='undefined')return;
@@ -1375,9 +1386,15 @@ async function registerStudent(e){
   if(btn){btn.disabled=true;btn.textContent='Registering...';}
   try{
     var photoInput=document.getElementById('regStudentPhoto');
-    if(photoInput&&photoInput.files[0]){
-      try{await uploadPhotoToDrive({file:photoInput.files[0],id:sid,name:sn,className:cls});}
-      catch(pe2){console.warn('Photo upload failed:',pe2);showToast('Photo upload failed — student still being saved.','warning');}
+    if(photoInput && photoInput.files[0]){
+      try{
+        await uploadPhotoToDrive({file:photoInput.files[0],id:sid,name:sn,className:cls});
+        invalidateClassPhotosCache(cls);
+        await loadClassPhotosIntoCache(cls);
+      }catch(pe2){
+        console.warn('Photo upload failed:',pe2);
+        showToast('Photo upload failed — student still being saved.','warning');
+      }
     }
     var r=await callAppsScript({action:'registerStudent',sheetId:sheetId,school:school,className:cls,studentId:sid,studentName:sn,parentName:pn,parentPhone:pp,parentEmail:pe,sex:sex,stream:stream,residence:residence,term:term,year:year});
     if(btn){btn.disabled=false;btn.textContent='Register';}
@@ -2024,7 +2041,8 @@ async function fetchReportData(search){
   var sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
   try{
-    await loadPhotoCache();
+    // Load ONLY this class's Photos tab into its own cache slot
+    await loadClassPhotosIntoCache(cls);
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
     var daysData={};
@@ -2048,14 +2066,16 @@ function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No students.</p>';return;}
   var branding=getSchoolBranding();
+  var cls=document.getElementById('reportClassSelect')?.value||'';
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var customTeacherComment=getCustomTeacherComment();
   var customHeadComment=getCustomHeadComment();
   var h='';
   students.forEach(function(stu){
-    var cls=stu.class||'',scores=stu.scores||{},subjects=Object.keys(scores).sort();
+    var stuClass=stu.class||cls;
+    var scores=stu.scores||{},subjects=Object.keys(scores).sort();
     var rows='',totalPctSum=0,count=0,totalPointsSum=0;
-    var isALevel=isALevelClass(cls);
+    var isALevel=isALevelClass(stuClass);
     var cellFontSize = isALevel ? 14 : 12;
     var cellPad = isALevel ? '8px 6px' : '6px 4px';
     var headers=isALevel
@@ -2097,12 +2117,13 @@ function renderReportResults(students){
     var hMotiv={'A':'Exceptional results!','B':'Very good performance!','C':'Satisfactory progress.','D':'We are here to support you.','E':'Believe in yourself.'};
     var teacherCommentFinal=customTeacherComment?(customTeacherComment+' — '+(tMotiv[overallGrade]||'')):(tMotiv[overallGrade]||autoComment);
     var headCommentFinal=customHeadComment?(customHeadComment+' — '+(hMotiv[overallGrade]||'')):(hMotiv[overallGrade]||autoComment);
-    var photo=getStudentPhoto(stu.studentId,stu.studentName,cls);
+    // STRICT class-scoped photo lookup
+    var photo=getStudentPhoto(stu.studentId, stu.studentName, stuClass);
     var photoSize=isALevel?'90px':'80px',photoHeight=isALevel?'110px':'100px';
     var photoHtml=photo?'<img src="'+photo+'" style="width:'+photoSize+';height:'+photoHeight+';object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:'+photoSize+';height:'+photoHeight+';border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">PHOTO</div>';
-    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:cls,term:term,year:year,avg:overallAvg.toFixed(1),grade:overallGrade});
+    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:stuClass,term:term,year:year,avg:overallAvg.toFixed(1),grade:overallGrade});
     var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px;display:inline-block;vertical-align:middle" />':'....................';
-    var ctSig=localStorage.getItem('classTeacherSig_'+cls)?'<img src="'+localStorage.getItem('classTeacherSig_'+cls)+'" style="height:30px;display:inline-block;vertical-align:middle" />':'....................';
+    var ctSig=localStorage.getItem('classTeacherSig_'+stuClass)?'<img src="'+localStorage.getItem('classTeacherSig_'+stuClass)+'" style="height:30px;display:inline-block;vertical-align:middle" />':'....................';
     var footerFontSize=isALevel?14:12;
     var footerHtml;
     if(isALevel){
@@ -2128,7 +2149,7 @@ function renderReportResults(students){
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:'+infoFontSize+'px;padding:6px;background:#f8f9fa;border-radius:4px;border:1px solid #ddd">'+
             '<div><strong>NAME:</strong> '+escapeHtml(stu.studentName||'')+'</div>'+
             '<div><strong>ID:</strong> '+escapeHtml(stu.studentId||'')+'</div>'+
-            '<div><strong>CLASS:</strong> '+escapeHtml(cls)+'</div>'+
+            '<div><strong>CLASS:</strong> '+escapeHtml(stuClass)+'</div>'+
             '<div><strong>STREAM:</strong> '+escapeHtml(stu.stream||'—')+'</div>'+
             '<div><strong>SEX:</strong> '+escapeHtml(stu.sex||'—')+'</div>'+
             '<div><strong>RESIDENCE:</strong> '+escapeHtml(stu.residence||'—')+'</div>'+
@@ -2165,8 +2186,7 @@ function renderReportResults(students){
 }
 async function fetchStudentFeeBalance(studentId){
   var school=getActiveSchool();
-  var settings={};
-  try{settings=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
+  var settings={};try{settings=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
   var financeSheetUrl=settings.financeSheet||'';
   if(!financeSheetUrl)return 'N/A';
   var financeSheetId=extractSheetIdFromUrl(financeSheetUrl);
@@ -2243,7 +2263,8 @@ async function loadMiniReports(){
   var cls=document.getElementById('miniClassSelect')?.value,sheetId=getClassSheetId(cls);
   if(!cls||!sheetId){showToast('Select a class.','warning');return;}
   try{
-    await loadPhotoCache();
+    // STRICT: load only this class's Photos tab
+    await loadClassPhotosIntoCache(cls);
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     miniReportData=r.data?.sheetData?.students||[];
     renderMiniReports();
@@ -2285,7 +2306,8 @@ function renderMiniReports(){
     var og=count>0?gradeFromPercentage(avg,isALevel?'alevel':'olevel'):null;
     if(isALevel && og==='F') og='E';
     var status=count===0?'<div class="status-bar no-data">No Data</div>':(og==='A'?'<div class="status-bar outstanding">OUTSTANDING</div>':'<div class="status-bar">'+descriptorFromGrade(og)+'</div>');
-    var photo=getStudentPhoto(s.studentId,s.studentName,cls);
+    // STRICT class-scoped photo lookup
+    var photo=getStudentPhoto(s.studentId, s.studentName, cls);
     var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:og});
     var tableHeader=isALevel?'<thead><tr><th>Subject</th><th>Paper 1</th><th>Grade</th><th>Wt</th><th>Pts</th></tr></thead>':'<thead><tr><th>Subject</th><th>AOI → 100</th><th>Grade</th></tr></thead>';
@@ -2334,7 +2356,8 @@ async function generateDocument(){
   var sheetId=getClassSheetId(cls);
   if(!sheetId){showToast('Sheet not configured.','warning');return;}
   try{
-    await loadPhotoCache();
+    // STRICT: load only this class's Photos tab
+    await loadClassPhotosIntoCache(cls);
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
     var b=getSchoolBranding();
@@ -2344,7 +2367,7 @@ async function generateDocument(){
     if(type==='classlist'){
       tbl='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>SEX</th><th>STREAM</th><th>RESIDENCE</th><th>PARENT</th><th>PHONE</th><th>EMAIL</th></tr></thead><tbody>';
       students.forEach(function(s,i){
-        var p=getStudentPhoto(s.studentId,s.studentName,cls);
+        var p=getStudentPhoto(s.studentId, s.studentName, cls);
         var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
         tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+escapeHtml(s.sex||'')+'</td><td>'+escapeHtml(s.stream||'')+'</td><td>'+escapeHtml(s.residence||'')+'</td><td>'+escapeHtml(s.parentName||'')+'</td><td>'+escapeHtml(s.parentPhone||'')+'</td><td>'+escapeHtml(s.parentEmail||'')+'</td></tr>';
       });
@@ -2363,7 +2386,7 @@ async function generateDocument(){
           var weight=sv.weight?parseInt(sv.weight):(isSub?1:3);
           var pts=gradeToPoints(g,weight);
           var init=(sv.teacherInitials||'').toUpperCase()||'—';
-          var p=getStudentPhoto(s.studentId,s.studentName,cls);
+          var p=getStudentPhoto(s.studentId, s.studentName, cls);
           var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
           tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+p1.toFixed(1)+'</td><td>'+p2.toFixed(1)+'</td><td>'+avg+'</td><td>'+g+'</td><td>'+weight+'</td><td>'+pts+'</td><td>'+escapeHtml(init)+'</td></tr>';
         });
@@ -2377,7 +2400,7 @@ async function generateDocument(){
           var total=aoi+eot;
           var g=gradeFromPercentage((total/100)*100,'olevel');
           var init=(sv.teacherInitials||'').toUpperCase()||'—';
-          var p=getStudentPhoto(s.studentId,s.studentName,cls);
+          var p=getStudentPhoto(s.studentId, s.studentName, cls);
           var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
           tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+aoi+'</td><td>'+eot+'</td><td>'+total.toFixed(1)+'</td><td>'+g+'</td><td>'+escapeHtml(init)+'</td></tr>';
         });
@@ -2594,8 +2617,7 @@ function startChatPolling(){
 async function loadSettings(){
   var school=getActiveSchool();if(!school)return;
   await refreshBrandingFromSheet();
-  var s={};
-  try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
+  var s={};try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
   schoolSettings=s;
   var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
   set('settingsSchoolName',s.schoolName||school);
@@ -2633,12 +2655,11 @@ async function loadSettings(){
       });
     }
   }catch(e){}
-  var badge=localStorage.getItem('reportCardBadge');
+  var badge=s.schoolBadgeUrl;
   if(badge&&document.getElementById('settingsBadgePreview'))document.getElementById('settingsBadgePreview').innerHTML='<img src="'+badge+'" style="width:100%;height:100%;object-fit:contain" />';
-  var sig=localStorage.getItem('headTeacherSignature');
+  var sig=s.headSignatureUrl;
   if(sig&&document.getElementById('signaturePreview'))document.getElementById('signaturePreview').innerHTML='<img src="'+sig+'" style="width:100%;height:100%;object-fit:contain" />';
 }
-
 async function saveAllSettings(){
   var school=getActiveSchool();if(!school)return;
   var get=function(id){return document.getElementById(id)?.value?.trim()||'';};
@@ -2660,8 +2681,8 @@ async function saveAllSettings(){
     timetableSheet:get('settingsTimetableSheet'),storeSheet:get('settingsStoreSheet'),
     nurseSheet:get('settingsNurseSheet'),
     teacherCustomComment:get('settingsTeacherComment'),headCustomComment:get('settingsHeadComment'),
-    schoolBadgeUrl:localStorage.getItem('reportCardBadge')||'',
-    headSignatureUrl:localStorage.getItem('headTeacherSignature')||'',
+    schoolBadgeUrl:(function(){try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').schoolBadgeUrl||'';}catch(e){return '';}})(),
+    headSignatureUrl:(function(){try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').headSignatureUrl||'';}catch(e){return '';}})(),
     classSignatureUrls:JSON.stringify(sigMap),
     driveRoot:(function(){try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').driveRoot||'';}catch(e){return '';}})()
   };
@@ -2698,9 +2719,6 @@ function validateClassLink(cls){
     e.style.background='';e.style.borderColor='';
   }
 }
-function clearSettingsBadge(){localStorage.removeItem('reportCardBadge');if(document.getElementById('settingsBadgePreview'))document.getElementById('settingsBadgePreview').innerHTML='<span style="font-size:11px;color:#999;text-align:center">Upload<br/>Badge</span>';showToast('Removed','info');}
-function clearSignature(){localStorage.removeItem('headTeacherSignature');if(document.getElementById('signaturePreview'))document.getElementById('signaturePreview').innerHTML='<span style="font-size:11px;color:#999;text-align:center">Upload<br/>Signature</span>';showToast('Removed','info');}
-
 async function testBackendConnection(){
   var b=document.getElementById('connStatusBadge'),o=document.getElementById('sysToolsOutput');
   if(b){b.className='conn-badge checking';b.textContent='Checking...';}
@@ -2715,9 +2733,7 @@ function downloadSystemBackup(){
   var backup={
     exportedAt:new Date().toISOString(),school:school,
     schoolSettings:JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}'),
-    classLinks:{},registeredFaces:getRegisteredFaces(),
-    reportCardBadge:localStorage.getItem('reportCardBadge')||'',
-    headTeacherSignature:localStorage.getItem('headTeacherSignature')||''
+    classLinks:{},registeredFaces:getRegisteredFaces()
   };
   CLASSES.forEach(function(cls){backup.classLinks[cls]=localStorage.getItem('classLink_'+cls+'_'+school)||'';});
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
@@ -2756,8 +2772,10 @@ async function uploadStaffPhoto(){
     var url = await uploadPhotoToDrive({file:file, id:id, name:name, className:cls});
     out.innerHTML = '<div style="background:#d4edda;padding:10px;border-radius:8px;font-size:13px"><b>✅ Uploaded!</b><br><img src="'+url+'" style="max-width:120px;margin-top:6px;border:1px solid #ccc;border-radius:4px" /><br><a href="'+url+'" target="_blank" style="font-size:12px">View image</a></div>';
     showToast('Photo uploaded!','success');
-    if (document.getElementById('tabReports').classList.contains('active')) fetchReportData();
-    if (document.getElementById('tabMini').classList.contains('active')) loadMiniReports();
+    invalidateClassPhotosCache(cls);
+    await loadClassPhotosIntoCache(cls);
+    if (document.getElementById('tabReports').classList.contains('active') && document.getElementById('reportClassSelect').value === cls) fetchReportData();
+    if (document.getElementById('tabMini').classList.contains('active') && document.getElementById('miniClassSelect').value === cls) loadMiniReports();
   }catch(e){out.innerHTML = '<span style="color:#c1121f">Failed: '+e.message+'</span>';}
 }
 async function loadClassPhotos(){
@@ -2806,8 +2824,8 @@ async function adminDeletePhoto(className, id){
     var r = await callAppsScript({action:'deletePhoto', school: getActiveSchool(), className: className, id: id});
     if(r.success){
       showToast('Photo deleted','success');
-      delete PHOTO_CACHE.byId[id];
-      localStorage.removeItem('photoUrl_id_'+id);
+      invalidateClassPhotosCache(className);
+      await loadClassPhotosIntoCache(className);
       loadClassPhotos();
     } else showToast(r.message||'Delete failed','error');
   } catch(e){showToast(e.message,'error');}
@@ -2956,7 +2974,6 @@ document.addEventListener('DOMContentLoaded',async function(){
   initCharts();
   loadUserAccounts();
   loadFeesStudents();
-  loadPhotoCache();
 
   document.getElementById('settingsBadgeUpload')?.addEventListener('change', async function(e){
     var f=e.target.files[0];if(!f)return;
@@ -2964,7 +2981,6 @@ document.addEventListener('DOMContentLoaded',async function(){
     try{
       var r=await callAppsScript({action:'uploadSchoolBadge',school:getActiveSchool(),base64:base64,mimeType:f.type});
       if(r.success&&r.data.url){
-        localStorage.setItem('reportCardBadge',r.data.url);
         var s=JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
         s.schoolBadgeUrl=r.data.url;
         localStorage.setItem('schoolSettings_'+getActiveSchool(),JSON.stringify(s));
@@ -2980,7 +2996,6 @@ document.addEventListener('DOMContentLoaded',async function(){
     try{
       var r=await callAppsScript({action:'uploadSignature',school:getActiveSchool(),kind:'head',base64:base64,mimeType:f.type});
       if(r.success&&r.data.url){
-        localStorage.setItem('headTeacherSignature',r.data.url);
         var s=JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
         s.headSignatureUrl=r.data.url;
         localStorage.setItem('schoolSettings_'+getActiveSchool(),JSON.stringify(s));
