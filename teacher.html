@@ -155,6 +155,10 @@ table.data-table tr:hover td{background:var(--surface-2)}
 .chat-messages .message.received{align-self:flex-start;background:#f0f2f5;color:#333;border-bottom-left-radius:4px}
 .chat-input-area{display:flex;gap:10px;padding:10px 15px;border-top:1px solid var(--border);background:var(--surface-2)}
 .chat-input-area input{flex:1;padding:10px 15px;border:2px solid var(--border);border-radius:20px;font-size:14px;outline:none;font-family:inherit}
+
+.aoi-tick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;padding:10px;background:#fff;border:1px dashed var(--student);border-radius:10px}
+.aoi-tick-grid label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-2)}
+.aoi-tick-grid input[type="checkbox"]{width:18px;height:18px;accent-color:var(--student)}
 </style>
 </head>
 <body>
@@ -317,11 +321,11 @@ table.data-table tr:hover td{background:var(--surface-2)}
   <!-- SUBMIT RESULTS -->
   <div id="tabSubmitresults" class="form-section">
     <h2 class="section-title"><i class="fas fa-upload" style="color:var(--student)"></i> Submit Subject Results</h2>
-    <p class="section-desc">Post AOI and EOT scores for students in your assigned classes only.</p>
+    <p class="section-desc">Post scores for students in your assigned classes only. You can enter AOI 1–4 and EOT in any combination.</p>
 
     <div class="info-box">
       <div class="info-title">📌 Information</div>
-      <div class="info-text">O-Level: AOI converted to <strong>/20</strong>, EOT to <strong>/80</strong>. A-Level: papers converted to <strong>/100</strong>. Only classes and subjects assigned to you appear below.</div>
+      <div class="info-text">O-Level: Each AOI is converted to <strong>/20</strong> and EOT to <strong>/80</strong>. Tick which assessments you are submitting. A-Level: papers converted to <strong>/100</strong>.</div>
     </div>
 
     <div style="display:flex;gap:6px;margin-bottom:15px;background:var(--surface-2);padding:5px;border-radius:12px">
@@ -344,11 +348,27 @@ table.data-table tr:hover td{background:var(--surface-2)}
         <div class="form-row-3">
           <div class="form-group"><label>Subject *</label><select id="trScoreSubjectOLevel"><option value="">Select subject…</option></select></div>
           <div class="form-group"><label>Teacher Initials *</label><input type="text" id="trTeacherInitialsOLevel" maxlength="5" style="text-transform:uppercase" /></div>
-          <div class="form-group"><label>Exam Selection</label><select id="trScoreTypeOLevel" onchange="trUpdateOLevelExamDisplay()"><option value="BOTH" selected>Both AOI & EOT</option><option value="AOI">AOI Only</option><option value="EOT">EOT Only</option></select></div>
+          <div class="form-group"><label>Which assessments?</label>
+            <div style="padding:8px;background:#fff;border:1px dashed var(--student);border-radius:8px">
+              <div class="aoi-tick-grid" style="border:none;padding:0;background:transparent">
+                <label><input type="checkbox" id="trChkAOI1" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 1</label>
+                <label><input type="checkbox" id="trChkAOI2" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 2</label>
+                <label><input type="checkbox" id="trChkAOI3" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 3</label>
+                <label><input type="checkbox" id="trChkAOI4" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 4</label>
+                <label><input type="checkbox" id="trChkEOT" checked onchange="trUpdateOLevelExamDisplay()" /> EOT</label>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-row-3">
-          <div class="form-group" id="trAoiMaxContainer"><label>AOI Max Marks</label><input type="number" id="trAoiMax" value="20" min="1" onchange="trRenderScoreTable()" /></div>
-          <div class="form-group" id="trEotMaxContainer"><label>EOT Max Marks</label><input type="number" id="trEotMax" value="80" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group" id="trAoi1MaxContainer"><label>AOI 1 Max</label><input type="number" id="trAoi1Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group" id="trAoi2MaxContainer"><label>AOI 2 Max</label><input type="number" id="trAoi2Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group" id="trAoi3MaxContainer"><label>AOI 3 Max</label><input type="number" id="trAoi3Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group" id="trAoi4MaxContainer"><label>AOI 4 Max</label><input type="number" id="trAoi4Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group" id="trEotMaxContainer"><label>EOT Max</label><input type="number" id="trEotMax" value="80" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group"></div>
         </div>
       </div>
 
@@ -370,7 +390,7 @@ table.data-table tr:hover td{background:var(--surface-2)}
 
       <div class="table-wrap">
         <table class="score-table">
-          <thead><tr><th>ID</th><th>Name</th><th id="trScore1Header">AOI</th><th id="trScore2Header">EOT</th><th id="trAverageHeader">Average %</th></tr></thead>
+          <thead><tr id="trScoreTableHead"><th>ID</th><th>Name</th><th>AOI</th><th>EOT</th><th>Average %</th></tr></thead>
           <tbody id="trScoreTableBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr></tbody>
         </table>
       </div>
@@ -458,7 +478,7 @@ table.data-table tr:hover td{background:var(--surface-2)}
 </div>
 <script>
   /* ============================================================
-   EduTrack Pro Teacher v24.0 (Cloud-Driven Class Links)
+   EduTrack Pro Teacher v25.0 — Multi-AOI Support (AOI 1–4 + EOT)
    ============================================================ */
 
 var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxXbL2BTUwsyBds0pk8SrNzbr40-73d2X-c9rvHX3o7wqaPUjB9covo10PwiWu36xVNQ/exec';
@@ -472,13 +492,14 @@ var myClasses = [];
 var teacherSalary = 0;
 var teacherOtherRoles = [];
 
-// GLOBAL MAP: Stores { "S.1": "sheetId123", "S.2": "sheetId456" } fetched from Google Sheets
-var classLinksMap = {}; 
+var classLinksMap = {};
 
 /* Score posting */
 var trScoreRows = [];
 var trStudentList = [];
 var trCurrentScoreLevel = 'olevel';
+var trEnabledAOIs = ['aoi1','aoi2','aoi3','aoi4'];
+var trEnabledEOT = true;
 
 /* Attendance state */
 var manualAttStudents = [];
@@ -507,16 +528,8 @@ function escapeHtml(v){
   });
 }
 function getActiveSchool(){ return authSession ? authSession.school : ''; }
-
-// DEPRECATED: getClassLink is no longer used for fetching. Kept only if other parts of the app need it.
-function getClassLink(cls){
-  return classLinksMap[cls] || '';
-}
-
-// UPDATED: Strictly reads from the global classLinksMap populated from the Google Sheet
-function getClassSheetId(cls){ 
-  return classLinksMap[cls] || ''; 
-}
+function getClassLink(cls){ return classLinksMap[cls] || ''; }
+function getClassSheetId(cls){ return classLinksMap[cls] || ''; }
 
 function isOLevelClass(cls){ return OLEVEL_CLASSES.indexOf(cls) !== -1; }
 function isALevelClass(cls){ return ALEVEL_CLASSES.indexOf(cls) !== -1; }
@@ -598,7 +611,6 @@ async function initTeacher(){
 
   document.getElementById('dashSubtitle').textContent = teacherInfo.classes.length + ' classes assigned';
 
-  // Profile base
   document.getElementById('pfName').value = teacherInfo.name;
   document.getElementById('pfStaffId').value = teacherInfo.staffId;
   document.getElementById('pfPhone').value = teacherInfo.phone;
@@ -608,16 +620,9 @@ async function initTeacher(){
   document.getElementById('pfClasses').value = teacherInfo.classes.join(', ');
   document.getElementById('profileInitial').textContent = teacherInfo.name.charAt(0).toUpperCase();
 
-  // MUST BE AWAITED: Fetch links from Google Sheet before doing anything else
   await syncClassLinks();
-
-  // Load salary from Accounts Sheet
   await loadTeacherSalary();
-
-  // Populate all class selects
   populateAllClassSelects();
-
-  // Load my classes (this will now successfully read from classLinksMap)
   await loadMyClasses();
   renderClasses();
   renderDashboardClasses();
@@ -626,20 +631,20 @@ async function initTeacher(){
   document.getElementById('dsMySubjects').textContent = teacherInfo.subjects.length;
   document.getElementById('dsAssignments').textContent = teacherInfo.assignments.length;
 
-  // Init date
   var md = document.getElementById('manualAttDate');
   if(md && !md.value) md.value = getTodayDate();
 
-  // GPS
   initGPS();
 
-  // Load Summary & Performance Data
   await loadAttendanceSummary();
   await loadPerformanceData();
 
   loadTeacherTimetable();
   loadTeacherProgram();
   loadTeacherNotices();
+
+  // Initialize AOI UI state
+  trSyncAoiTogglesFromCheckboxes();
 }
 
 /* ============ SYNC CLASS LINKS ============ */
@@ -647,15 +652,13 @@ async function syncClassLinks(){
   try{
     var r = await api({ action: 'getClassLinks', school: getActiveSchool() });
     if(r && r.success && r.data && r.data.links){
-      classLinksMap = {}; // Reset the map
+      classLinksMap = {};
       r.data.links.forEach(function(l){
         if(l.className && l.sheetId){
           classLinksMap[l.className] = l.sheetId;
         }
       });
-      console.log("Class links loaded from Google Sheet:", classLinksMap);
-    } else {
-      console.warn("Failed to load class links from Google Sheet.");
+      console.log("Class links loaded:", classLinksMap);
     }
   } catch(e){ console.warn('Class link sync failed:', e); }
 }
@@ -731,7 +734,7 @@ async function loadMyClasses(){
   myClasses = [];
   for(var i=0; i<teacherInfo.assignments.length; i++){
     var a = teacherInfo.assignments[i];
-    var sheetId = getClassSheetId(a.class); // Reads from classLinksMap
+    var sheetId = getClassSheetId(a.class);
     var count = 0;
     if(sheetId){
       try{
@@ -772,7 +775,7 @@ async function loadAttendanceSummary(){
 
   for(var i=0; i<teacherInfo.classes.length; i++){
     var cls = teacherInfo.classes[i];
-    var sheetId = getClassSheetId(cls); // Reads from classLinksMap
+    var sheetId = getClassSheetId(cls);
     if(!sheetId) continue;
     try{
       var r = await api({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: cls});
@@ -845,7 +848,7 @@ async function loadManualAttendanceStudents(){
   var grid = document.getElementById('manualAttGrid');
   if(!grid) return;
   if(!cls){ grid.innerHTML = '<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Select a class.</p>'; return; }
-  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
+  var sheetId = getClassSheetId(cls);
   if(!sheetId){ grid.innerHTML = '<p style="text-align:center;padding:20px;color:#c1121f;grid-column:1/-1">Sheet not configured.</p>'; return; }
 
   grid.innerHTML = '<p style="text-align:center;padding:20px;color:#999;grid-column:1/-1">Loading…</p>';
@@ -911,7 +914,7 @@ async function saveManualAttendance(){
     showToast('Load students first.', 'warning'); return;
   }
   var school = getActiveSchool();
-  var sheetId = getClassSheetId(manualAttClass); // Reads from classLinksMap
+  var sheetId = getClassSheetId(manualAttClass);
   var records = manualAttStudents.map(function(s){
     return {studentId: s.studentId, studentName: s.studentName, status: s.status, class: manualAttClass};
   });
@@ -951,7 +954,7 @@ async function loadQRClassStudents(){
   var cls = document.getElementById('qrAttClassSelect')?.value;
   if(!cls){ qrAttStudents = []; qrAttClass = ''; return; }
   qrAttClass = cls;
-  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
+  var sheetId = getClassSheetId(cls);
   if(!sheetId){ qrAttStudents = []; return; }
   try{
     var r = await api({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: cls});
@@ -1022,7 +1025,7 @@ function handleQRCode(data){
   document.getElementById('qrResult').classList.add('active');
   document.getElementById('qrResult').dataset.studentId = studentId;
   document.getElementById('qrResult').dataset.studentName = student.studentName;
-  
+
   setTimeout(function(){
     if(document.getElementById('qrResult').classList.contains('active')) markQRAttendance();
   }, 2000);
@@ -1055,7 +1058,7 @@ function renderQRScanHistory(){
 async function saveQRAttendance(){
   if(!qrAttClass || qrScanHistory.length === 0){ showToast('Scan students first', 'warning'); return; }
   var school = getActiveSchool();
-  var sheetId = getClassSheetId(qrAttClass); // Reads from classLinksMap
+  var sheetId = getClassSheetId(qrAttClass);
   var scannedIds = qrScanHistory.map(function(r){ return r.id; });
   var records = qrAttStudents.map(function(s){
     return {
@@ -1097,18 +1100,41 @@ async function saveQRAttendance(){
 
 /* ============================================================
    PERFORMANCE DATA — Weak/Strong Learners & Chart
+   Uses all AOI1-4 (with legacy `aoi` fallback) and EOT for O-Level.
    ============================================================ */
+function calcOLvlPctFromScores(sv){
+  // Legacy fallback: if only `aoi` exists, treat as AOI 1
+  if(sv.aoi1 === undefined && sv.aoi !== undefined && sv.aoi !== '') sv.aoi1 = sv.aoi;
+
+  var aoiVals = [];
+  ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+    var v = parseFloat(sv[k]);
+    if(!isNaN(v)) aoiVals.push(v);
+  });
+  var aoiAvg20 = aoiVals.length ? (aoiVals.reduce(function(a,b){return a+b;},0)/aoiVals.length) : 0;
+  var aoiPct = (aoiAvg20/20)*100;
+
+  var eot = parseFloat(sv.eot);
+  var hasEot = (sv.eot !== undefined && sv.eot !== '' && !isNaN(eot));
+
+  var pcts = [];
+  if(aoiVals.length>0) pcts.push(aoiPct);
+  if(hasEot) pcts.push((eot/80)*100);
+
+  if(pcts.length === 0) return 0;
+  return pcts.reduce(function(a,b){return a+b;},0)/pcts.length;
+}
+
 async function loadPerformanceData(){
   var teacherSubjects = teacherInfo.subjects;
   var teacherClasses = teacherInfo.classes;
   if(teacherClasses.length === 0) return;
 
-  var subjectScores = {}; 
-  
-  // Fetch data for every assigned class
+  var subjectScores = {};
+
   for(var i=0; i<teacherClasses.length; i++){
     var cls = teacherClasses[i];
-    var sheetId = getClassSheetId(cls); // Reads from classLinksMap
+    var sheetId = getClassSheetId(cls);
     if(!sheetId) continue;
 
     try{
@@ -1120,35 +1146,25 @@ async function loadPerformanceData(){
         Object.keys(scores).forEach(function(subj){
           var sv = scores[subj] || {};
           var pct = 0;
-          
           if(isOLevelClass(cls)){
-            var aoi = parseFloat(sv.aoi) || 0;
-            var eot = parseFloat(sv.eot) || 0;
-            pct = (aoi * 5) + (eot * 1.25); 
+            pct = calcOLvlPctFromScores(sv);
           } else {
             var p1 = parseFloat(sv.paper1) || 0;
             var p2 = parseFloat(sv.paper2) || 0;
             pct = (p1 + p2) / 2;
           }
-          
           if(!subjectScores[subj]) subjectScores[subj] = [];
-          subjectScores[subj].push({
-            name: s.studentName,
-            class: cls,
-            pct: pct
-          });
+          subjectScores[subj].push({name: s.studentName, class: cls, pct: pct});
         });
       });
     } catch(e){}
   }
 
-  // 1. Chart Data
   var chartLabels = [], chartData = [], chartColors = [];
   Object.keys(subjectScores).forEach(function(subj){
     var scores = subjectScores[subj];
     var sum = scores.reduce(function(acc, curr){ return acc + curr.pct; }, 0);
     var avg = scores.length > 0 ? (sum / scores.length) : 0;
-    
     chartLabels.push(subj);
     chartData.push(Math.round(avg));
     chartColors.push(teacherSubjects.indexOf(subj) !== -1 ? '#004085' : '#adb5bd');
@@ -1167,7 +1183,6 @@ async function loadPerformanceData(){
     });
   }
 
-  // 2. Weak & Strong Learners
   var primarySubject = teacherSubjects[0];
   var primaryScores = subjectScores[primarySubject] || [];
   primaryScores.sort(function(a, b){ return a.pct - b.pct; });
@@ -1193,7 +1208,7 @@ async function loadStudentsForTab(){
   var cls = document.getElementById('studentsClassSelect')?.value;
   var body = document.getElementById('studentsBody');
   if(!cls){ body.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Select a class.</p>'; return; }
-  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
+  var sheetId = getClassSheetId(cls);
   if(!sheetId){ body.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Sheet not configured.</p>'; return; }
   body.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Loading…</p>';
   try{
@@ -1212,7 +1227,7 @@ async function loadStudentsForTab(){
 }
 
 /* ============================================================
-   SCORE SUBMISSION
+   SCORE SUBMISSION — Multi-AOI
    ============================================================ */
 function trEnforceMax(inputEl, maxVal){
   var v = parseFloat(inputEl.value);
@@ -1273,7 +1288,7 @@ function trSetScoreLevel(level){
     document.getElementById('trOlevelScoreEntry').style.display = 'none';
     document.getElementById('trAlevelScoreEntry').style.display = 'block';
   }
-  trUpdateScoreEntryModeHeaders();
+  trRenderScoreTable();
   trLoadStudents();
 }
 
@@ -1287,34 +1302,39 @@ function trUpdateScoreEntryMode(){
   trSetScoreLevel(trCurrentScoreLevel);
 }
 
-function trUpdateScoreEntryModeHeaders(){
-  var h1 = document.getElementById('trScore1Header');
-  var h2 = document.getElementById('trScore2Header');
-  var hAvg = document.getElementById('trAverageHeader');
+/* === NEW: Sync enabled AOIs from checkboxes === */
+function trSyncAoiTogglesFromCheckboxes(){
+  var c1 = document.getElementById('trChkAOI1');
+  var c2 = document.getElementById('trChkAOI2');
+  var c3 = document.getElementById('trChkAOI3');
+  var c4 = document.getElementById('trChkAOI4');
+  var ce = document.getElementById('trChkEOT');
 
-  if(trCurrentScoreLevel === 'olevel'){
-    var ex = document.getElementById('trScoreTypeOLevel')?.value || 'BOTH';
-    if(ex === 'AOI'){ if(h1) h1.textContent = 'AOI'; if(h2) h2.textContent = '—'; }
-    else if(ex === 'EOT'){ if(h1) h1.textContent = '—'; if(h2) h2.textContent = 'EOT'; }
-    else { if(h1) h1.textContent = 'AOI'; if(h2) h2.textContent = 'EOT'; }
-    if(hAvg) hAvg.textContent = 'Average %';
-  } else {
-    var ps = document.getElementById('trPaperSelectionALevel')?.value || 'both';
-    if(ps === 'paper1'){ if(h1) h1.textContent = 'Paper 1'; if(h2) h2.textContent = '—'; }
-    else if(ps === 'paper2'){ if(h1) h1.textContent = '—'; if(h2) h2.textContent = 'Paper 2'; }
-    else { if(h1) h1.textContent = 'Paper 1'; if(h2) h2.textContent = 'Paper 2'; }
-    if(hAvg) hAvg.textContent = 'Average %';
-  }
+  trEnabledAOIs = [];
+  if(c1 && c1.checked) trEnabledAOIs.push('aoi1');
+  if(c2 && c2.checked) trEnabledAOIs.push('aoi2');
+  if(c3 && c3.checked) trEnabledAOIs.push('aoi3');
+  if(c4 && c4.checked) trEnabledAOIs.push('aoi4');
+  trEnabledEOT = !!(ce && ce.checked);
 }
 
 function trUpdateOLevelExamDisplay(){
-  var ex = document.getElementById('trScoreTypeOLevel')?.value || 'BOTH';
-  var aoiC = document.getElementById('trAoiMaxContainer');
+  trSyncAoiTogglesFromCheckboxes();
+
+  // Show/hide max fields
+  var map = {
+    aoi1:'trAoi1MaxContainer',
+    aoi2:'trAoi2MaxContainer',
+    aoi3:'trAoi3MaxContainer',
+    aoi4:'trAoi4MaxContainer'
+  };
+  ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+    var el = document.getElementById(map[k]);
+    if(el) el.style.display = trEnabledAOIs.indexOf(k) !== -1 ? 'block' : 'none';
+  });
   var eotC = document.getElementById('trEotMaxContainer');
-  if(ex === 'AOI'){ if(aoiC) aoiC.style.display='block'; if(eotC) eotC.style.display='none'; }
-  else if(ex === 'EOT'){ if(aoiC) aoiC.style.display='none'; if(eotC) eotC.style.display='block'; }
-  else { if(aoiC) aoiC.style.display='block'; if(eotC) eotC.style.display='block'; }
-  trUpdateScoreEntryModeHeaders();
+  if(eotC) eotC.style.display = trEnabledEOT ? 'block' : 'none';
+
   trRenderScoreTable();
 }
 
@@ -1325,7 +1345,6 @@ function trUpdateALevelPaperDisplay(){
   if(ps === 'paper1'){ if(p1C) p1C.style.display='block'; if(p2C) p2C.style.display='none'; }
   else if(ps === 'paper2'){ if(p1C) p1C.style.display='none'; if(p2C) p2C.style.display='block'; }
   else { if(p1C) p1C.style.display='block'; if(p2C) p2C.style.display='block'; }
-  trUpdateScoreEntryModeHeaders();
   trRenderScoreTable();
 }
 
@@ -1340,27 +1359,50 @@ async function trLoadStudents(){
   var cls = document.getElementById('trScoreClassSelect')?.value;
   var school = getActiveSchool();
   var tbody = document.getElementById('trScoreTableBody');
-  if(!cls){ if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr>'; return; }
-  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
-  if(!sheetId){ if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">❌ Class sheet not configured.</td></tr>'; return; }
-  if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Loading students…</td></tr>';
+  if(!cls){ if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr>'; return; }
+  var sheetId = getClassSheetId(cls);
+  if(!sheetId){ if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">❌ Class sheet not configured.</td></tr>'; return; }
+  if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">⏳ Loading students…</td></tr>';
   try{
     var r = await api({action:'getStudents', sheetId: sheetId, school: school, className: cls});
     if(r && r.success && r.data){
       trStudentList = r.data.students || [];
-      trScoreRows = trStudentList.map(function(s){ return Object.assign({}, s, {score1:'', score2:''}); });
+      trScoreRows = trStudentList.map(function(s){
+        return Object.assign({}, s, {
+          aoi1:'',aoi2:'',aoi3:'',aoi4:'',eot:'',
+          paper1:'',paper2:''
+        });
+      });
       trRenderScoreTable();
     } else {
-      if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">❌ ' + (r.message || 'Unable to load students') + '</td></tr>';
+      if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">❌ ' + (r.message || 'Unable to load students') + '</td></tr>';
     }
   } catch(e){
-    if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">❌ ' + e.message + '</td></tr>';
+    if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">❌ ' + e.message + '</td></tr>';
   }
 }
 
+/* Build dynamic header + rows */
 function trRenderScoreTable(){
   var tbody = document.getElementById('trScoreTableBody');
-  if(!tbody) return;
+  var thead = document.getElementById('trScoreTableHead');
+  if(!tbody || !thead) return;
+
+  // Build header
+  var hh = '<th>ID</th><th>Name</th>';
+  if(trCurrentScoreLevel === 'olevel'){
+    if(trEnabledAOIs.indexOf('aoi1') !== -1) hh += '<th>AOI 1</th>';
+    if(trEnabledAOIs.indexOf('aoi2') !== -1) hh += '<th>AOI 2</th>';
+    if(trEnabledAOIs.indexOf('aoi3') !== -1) hh += '<th>AOI 3</th>';
+    if(trEnabledAOIs.indexOf('aoi4') !== -1) hh += '<th>AOI 4</th>';
+    if(trEnabledEOT) hh += '<th>EOT</th>';
+  } else {
+    var ps = document.getElementById('trPaperSelectionALevel')?.value || 'both';
+    if(ps === 'both' || ps === 'paper1') hh += '<th>Paper 1</th>';
+    if(ps === 'both' || ps === 'paper2') hh += '<th>Paper 2</th>';
+  }
+  hh += '<th>Average %</th>';
+  thead.innerHTML = hh;
 
   var q = (document.getElementById('trScoreSearchInput')?.value || '').toLowerCase();
   var filtered = q ? trScoreRows.filter(function(s){
@@ -1368,82 +1410,122 @@ function trRenderScoreTable(){
   }) : trScoreRows;
 
   if(filtered.length === 0){
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">No students.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:30px">No students.</td></tr>';
     return;
   }
 
-  var showCol1 = true, showCol2 = true, max1 = 0, max2 = 0;
-  if(trCurrentScoreLevel === 'olevel'){
-    var ex = document.getElementById('trScoreTypeOLevel')?.value || 'BOTH';
-    max1 = parseFloat(document.getElementById('trAoiMax')?.value) || 20;
-    max2 = parseFloat(document.getElementById('trEotMax')?.value) || 80;
-    if(ex === 'AOI') showCol2 = false;
-    else if(ex === 'EOT') showCol1 = false;
-  } else {
-    var ps = document.getElementById('trPaperSelectionALevel')?.value || 'both';
-    max1 = parseFloat(document.getElementById('trPaper1Max')?.value) || 100;
-    max2 = parseFloat(document.getElementById('trPaper2Max')?.value) || 100;
-    if(ps === 'paper1') showCol2 = false;
-    else if(ps === 'paper2') showCol1 = false;
-  }
+  // Max values
+  var aoiMaxes = {
+    aoi1: parseFloat(document.getElementById('trAoi1Max')?.value) || 20,
+    aoi2: parseFloat(document.getElementById('trAoi2Max')?.value) || 20,
+    aoi3: parseFloat(document.getElementById('trAoi3Max')?.value) || 20,
+    aoi4: parseFloat(document.getElementById('trAoi4Max')?.value) || 20
+  };
+  var eotMax = parseFloat(document.getElementById('trEotMax')?.value) || 80;
+  var p1Max = parseFloat(document.getElementById('trPaper1Max')?.value) || 100;
+  var p2Max = parseFloat(document.getElementById('trPaper2Max')?.value) || 100;
+  var ps = document.getElementById('trPaperSelectionALevel')?.value || 'both';
 
   var h = '';
   filtered.forEach(function(s){
     var idx = trScoreRows.indexOf(s);
-    var s1 = s.score1 || '', s2 = s.score2 || '';
-
     h += '<tr>' +
       '<td style="font-weight:600;font-size:12px">' + escapeHtml(s.studentId||'') + '</td>' +
       '<td>' + escapeHtml(s.studentName||'') + '</td>';
 
-    if(showCol1){
-      h += '<td><input type="number" id="trScore1_'+idx+'" value="'+s1+'" min="0" max="'+max1+'" step="0.5" oninput="trEnforceMax(this,'+max1+')" onchange="trUpdateScore('+idx+')" /></td>';
+    if(trCurrentScoreLevel === 'olevel'){
+      ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+        if(trEnabledAOIs.indexOf(k) === -1) return;
+        var m = aoiMaxes[k];
+        h += '<td><input type="number" id="trScore_'+k+'_'+idx+'" value="'+(s[k]||'')+'" min="0" max="'+m+'" step="0.5" oninput="trEnforceMax(this,'+m+')" onchange="trUpdateScore('+idx+')" /></td>';
+      });
+      if(trEnabledEOT){
+        h += '<td><input type="number" id="trScore_eot_'+idx+'" value="'+(s.eot||'')+'" min="0" max="'+eotMax+'" step="0.5" oninput="trEnforceMax(this,'+eotMax+')" onchange="trUpdateScore('+idx+')" /></td>';
+      }
     } else {
-      h += '<td><span style="color:#ccc">—</span></td>';
+      if(ps === 'both' || ps === 'paper1'){
+        h += '<td><input type="number" id="trScore_paper1_'+idx+'" value="'+(s.paper1||'')+'" min="0" max="'+p1Max+'" step="0.5" oninput="trEnforceMax(this,'+p1Max+')" onchange="trUpdateScore('+idx+')" /></td>';
+      }
+      if(ps === 'both' || ps === 'paper2'){
+        h += '<td><input type="number" id="trScore_paper2_'+idx+'" value="'+(s.paper2||'')+'" min="0" max="'+p2Max+'" step="0.5" oninput="trEnforceMax(this,'+p2Max+')" onchange="trUpdateScore('+idx+')" /></td>';
+      }
     }
 
-    if(showCol2){
-      h += '<td><input type="number" id="trScore2_'+idx+'" value="'+s2+'" min="0" max="'+max2+'" step="0.5" oninput="trEnforceMax(this,'+max2+')" onchange="trUpdateScore('+idx+')" /></td>';
-    } else {
-      h += '<td><span style="color:#ccc">—</span></td>';
-    }
-
-    h += '<td style="font-weight:600;color:var(--student)" id="trAvg_'+idx+'">' + trComputeAvgDisplay(s, max1, max2) + '</td></tr>';
+    h += '<td style="font-weight:600;color:var(--student)" id="trAvg_'+idx+'">—</td></tr>';
   });
   tbody.innerHTML = h;
+
+  // Fill initial averages
+  trScoreRows.forEach(function(_, i){ trUpdateScore(i, true); });
 }
 
-function trComputeAvgDisplay(s, max1, max2){
-  var n1 = parseFloat(s.score1) || 0;
-  var n2 = parseFloat(s.score2) || 0;
-
+function trComputeAverageDisplay(row){
   if(trCurrentScoreLevel === 'olevel'){
-    var ex = document.getElementById('trScoreTypeOLevel')?.value || 'BOTH';
-    if(ex === 'AOI') return ((n1/max1)*100).toFixed(1) + '%';
-    if(ex === 'EOT') return ((n2/max2)*100).toFixed(1) + '%';
-    if(n1 === 0 && n2 === 0) return '—';
-    return (((n1/max1)*100 + (n2/max2)*100)/2).toFixed(1) + '%';
+    var aoiMaxes = {
+      aoi1: parseFloat(document.getElementById('trAoi1Max')?.value) || 20,
+      aoi2: parseFloat(document.getElementById('trAoi2Max')?.value) || 20,
+      aoi3: parseFloat(document.getElementById('trAoi3Max')?.value) || 20,
+      aoi4: parseFloat(document.getElementById('trAoi4Max')?.value) || 20
+    };
+    var eotMax = parseFloat(document.getElementById('trEotMax')?.value) || 80;
+
+    var aoiVals = [];
+    ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+      if(trEnabledAOIs.indexOf(k) === -1) return;
+      var v = parseFloat(row[k]);
+      if(!isNaN(v)) aoiVals.push((v/aoiMaxes[k])*100);
+    });
+    var aoiPct = aoiVals.length ? (aoiVals.reduce(function(a,b){return a+b;},0)/aoiVals.length) : 0;
+
+    var pcts = [];
+    if(aoiVals.length>0) pcts.push(aoiPct);
+    if(trEnabledEOT){
+      var eot = parseFloat(row.eot);
+      if(!isNaN(eot)) pcts.push((eot/eotMax)*100);
+    }
+    if(pcts.length === 0) return '—';
+    return (pcts.reduce(function(a,b){return a+b;},0)/pcts.length).toFixed(1) + '%';
   } else {
+    var p1Max = parseFloat(document.getElementById('trPaper1Max')?.value) || 100;
+    var p2Max = parseFloat(document.getElementById('trPaper2Max')?.value) || 100;
     var ps = document.getElementById('trPaperSelectionALevel')?.value || 'both';
-    if(ps === 'paper1') return ((n1/max1)*100).toFixed(1) + '%';
-    if(ps === 'paper2') return ((n2/max2)*100).toFixed(1) + '%';
-    if(n1 === 0 && n2 === 0) return '—';
-    return (((n1/max1)*100 + (n2/max2)*100)/2).toFixed(1) + '%';
+    var pcts2 = [];
+    if(ps === 'both' || ps === 'paper1'){
+      var p1 = parseFloat(row.paper1);
+      if(!isNaN(p1)) pcts2.push((p1/p1Max)*100);
+    }
+    if(ps === 'both' || ps === 'paper2'){
+      var p2 = parseFloat(row.paper2);
+      if(!isNaN(p2)) pcts2.push((p2/p2Max)*100);
+    }
+    if(pcts2.length === 0) return '—';
+    return (pcts2.reduce(function(a,b){return a+b;},0)/pcts2.length).toFixed(1) + '%';
   }
 }
 
-function trUpdateScore(i){
-  var n1 = parseFloat(document.getElementById('trScore1_'+i)?.value) || 0;
-  var n2 = parseFloat(document.getElementById('trScore2_'+i)?.value) || 0;
-  if(trScoreRows[i]){ trScoreRows[i].score1 = n1; trScoreRows[i].score2 = n2; }
-  var max1 = trCurrentScoreLevel === 'olevel'
-    ? (parseFloat(document.getElementById('trAoiMax')?.value) || 20)
-    : (parseFloat(document.getElementById('trPaper1Max')?.value) || 100);
-  var max2 = trCurrentScoreLevel === 'olevel'
-    ? (parseFloat(document.getElementById('trEotMax')?.value) || 80)
-    : (parseFloat(document.getElementById('trPaper2Max')?.value) || 100);
+function trUpdateScore(i, silent){
+  var row = trScoreRows[i];
+  if(!row) return;
+
+  if(trCurrentScoreLevel === 'olevel'){
+    ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+      if(trEnabledAOIs.indexOf(k) === -1) return;
+      var el = document.getElementById('trScore_'+k+'_'+i);
+      if(el) row[k] = parseFloat(el.value) || '';
+    });
+    if(trEnabledEOT){
+      var elE = document.getElementById('trScore_eot_'+i);
+      if(elE) row.eot = parseFloat(elE.value) || '';
+    }
+  } else {
+    var elP1 = document.getElementById('trScore_paper1_'+i);
+    if(elP1) row.paper1 = parseFloat(elP1.value) || '';
+    var elP2 = document.getElementById('trScore_paper2_'+i);
+    if(elP2) row.paper2 = parseFloat(elP2.value) || '';
+  }
+
   var e = document.getElementById('trAvg_'+i);
-  if(e) e.textContent = trComputeAvgDisplay(trScoreRows[i], max1, max2);
+  if(e) e.textContent = trComputeAverageDisplay(row);
 }
 
 function trFilterScoreRows(){ trRenderScoreTable(); }
@@ -1452,7 +1534,7 @@ function trResetScoresForm(){
   document.getElementById('trScoresForm').style.display = 'block';
   document.getElementById('trScoreSuccess').style.display = 'none';
   document.getElementById('trScoreClassSelect').value = '';
-  document.getElementById('trScoreTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr>';
+  document.getElementById('trScoreTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr>';
   document.getElementById('trScoreClassInfo').textContent = 'Select a class';
   document.getElementById('trLevelDisplay').textContent = '';
   trScoreRows = [];
@@ -1475,7 +1557,7 @@ async function trPostScores(e){
   var initials = (trCurrentScoreLevel === 'olevel'
     ? document.getElementById('trTeacherInitialsOLevel')?.value
     : document.getElementById('trTeacherInitialsALevel')?.value) || '';
-  var sheetId = getClassSheetId(cls); // Reads from classLinksMap
+  var sheetId = getClassSheetId(cls);
 
   if(!cls){ showToast('❌ Select a class.', 'error'); return; }
   if(!sheetId){ showToast('❌ Class sheet not configured.', 'error'); return; }
@@ -1487,24 +1569,51 @@ async function trPostScores(e){
   var scores = [], has = false;
 
   if(trCurrentScoreLevel === 'olevel'){
-    var aoiMax = parseFloat(document.getElementById('trAoiMax')?.value) || 20;
+    var aoiMaxes = {
+      aoi1: parseFloat(document.getElementById('trAoi1Max')?.value) || 20,
+      aoi2: parseFloat(document.getElementById('trAoi2Max')?.value) || 20,
+      aoi3: parseFloat(document.getElementById('trAoi3Max')?.value) || 20,
+      aoi4: parseFloat(document.getElementById('trAoi4Max')?.value) || 20
+    };
     var eotMax = parseFloat(document.getElementById('trEotMax')?.value) || 80;
-    var examSel = document.getElementById('trScoreTypeOLevel')?.value || 'BOTH';
+
+    if(trEnabledAOIs.length === 0 && !trEnabledEOT){
+      showToast('❌ Tick at least one assessment (AOI 1–4 or EOT).', 'error');
+      return;
+    }
 
     trScoreRows.forEach(function(s){
-      var rA = s.score1, rE = s.score2;
-      var nA = parseFloat(rA), nE = parseFloat(rE);
-      var hA = !isNaN(nA) && rA !== '' && rA !== null && rA !== undefined;
-      var hE = !isNaN(nE) && rE !== '' && rE !== null && rE !== undefined;
-      if(examSel === 'AOI') hE = false;
-      if(examSel === 'EOT') hA = false;
-      if(!hA && !hE) return;
-      has = true;
       var entry = {studentId: s.studentId, studentName: s.studentName, teacherInitials: initials, postedBy: authSession.username, postedByName: authSession.name};
-      if(hA) entry.aoi = Math.round((nA/aoiMax)*20*10)/10;
-      if(hE) entry.eot = Math.round((nE/eotMax)*80*10)/10;
-      entry.total = (entry.aoi||0) + (entry.eot||0);
-      entry.scoreValue = entry.total;
+      var any = false;
+
+      trEnabledAOIs.forEach(function(k){
+        var v = parseFloat(s[k]);
+        if(!isNaN(v)){
+          entry[k] = Math.round((v/aoiMaxes[k])*20*10)/10;
+          any = true;
+        }
+      });
+      // legacy mirror for backward-compatible sheets
+      if(entry.aoi1 !== undefined) entry.aoi = entry.aoi1;
+
+      if(trEnabledEOT){
+        var eot = parseFloat(s.eot);
+        if(!isNaN(eot)){
+          entry.eot = Math.round((eot/eotMax)*80*10)/10;
+          any = true;
+        }
+      }
+
+      if(!any) return;
+      has = true;
+
+      // total = sum of *scaled* values (each already /20 or /80)
+      var total = 0;
+      trEnabledAOIs.forEach(function(k){ if(entry[k]) total += entry[k]; });
+      if(trEnabledEOT && entry.eot) total += entry.eot;
+      entry.total = total;
+      entry.scoreValue = total;
+
       scores.push(entry);
     });
   } else {
@@ -1514,7 +1623,7 @@ async function trPostScores(e){
     var weight = document.getElementById('trSubjectWeightALevel')?.value || '3';
 
     trScoreRows.forEach(function(s){
-      var r1 = s.score1, r2 = s.score2;
+      var r1 = s.paper1, r2 = s.paper2;
       var n1 = parseFloat(r1), n2 = parseFloat(r2);
       var h1 = !isNaN(n1) && r1 !== '' && r1 !== null && r1 !== undefined;
       var h2 = !isNaN(n2) && r2 !== '' && r2 !== null && r2 !== undefined;
@@ -1542,8 +1651,9 @@ async function trPostScores(e){
       subject: subj,
       level: trCurrentScoreLevel,
       scores: JSON.stringify(scores),
+      // Inform the backend which AOIs are being submitted (for O-Level)
       scoreType: trCurrentScoreLevel === 'olevel'
-        ? (document.getElementById('trScoreTypeOLevel')?.value || 'BOTH')
+        ? 'CUSTOM:' + trEnabledAOIs.join(',') + (trEnabledEOT ? ',eot' : '')
         : (document.getElementById('trPaperSelectionALevel')?.value || 'both'),
       teacherId: authSession.username,
       teacherName: authSession.name,
@@ -1557,7 +1667,11 @@ async function trPostScores(e){
       document.getElementById('trScoresForm').style.display = 'none';
       document.getElementById('trScoreSuccessMsg').innerHTML =
         '📄 Tab: <strong>' + escapeHtml(r.data?.tabName || subj) + '</strong><br>' +
-        '➕ Added: ' + (r.data?.added || 0) + ' | 🔄 Updated: ' + (r.data?.updated || 0);
+        '➕ Added: ' + (r.data?.added || 0) + ' | 🔄 Updated: ' + (r.data?.updated || 0) +
+        '<br><span style="font-size:12px;color:#555">Submitted: ' +
+          (trEnabledAOIs.map(function(k){return k.toUpperCase().replace('AOI','AOI ');}).join(', ') +
+          (trEnabledEOT ? ', EOT' : '')) +
+        '</span>';
       showToast('✅ Posted!', 'success');
       loadPerformanceData();
     } else {
@@ -1686,10 +1800,10 @@ async function sendMessage(){
   var input = document.getElementById('chatInput');
   var msg = input.value.trim();
   if(!msg || !currentChatUser) return;
-  
+
   input.value = '';
   document.getElementById('messagesArea').innerHTML += '<div class="message sent" style="opacity:0.7">'+escapeHtml(msg)+'</div>';
-  
+
   try {
     await api({
       action: 'saveChatMessage',
