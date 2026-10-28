@@ -223,6 +223,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .assign-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}
 .assign-list{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:8px;min-height:40px;font-size:13px}
 .assign-chip{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#fff;border-radius:6px;margin-bottom:4px;border:1px solid #e0e0e0}
+.aoi-tick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;padding:10px;background:#fff;border:1px dashed var(--primary);border-radius:10px}
+.aoi-tick-grid label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-2);padding:6px 4px}
+.aoi-tick-grid input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
 </style>
 </head>
 <body>
@@ -372,7 +375,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <!-- SCORES -->
 <div id="tabScores" class="form-section">
   <h2 class="section-title"><i class="fas fa-edit" style="color:var(--primary)"></i> Post Subject Scores</h2>
-  <div class="info-box"><div class="info-title">📌 Score Conversion</div><div class="info-text">O-Level: AOI scores are converted to <strong>/20</strong> each. EOT scores are converted to <strong>/80</strong>. A-Level papers are converted to <strong>/100</strong>.</div></div>
+  <div class="info-box"><div class="info-title">📌 Score Entry Rules</div><div class="info-text">O-Level: tick which assessments you're entering (AOI 1–4 and/or EOT). Each AOI is converted to <strong>/20</strong>, EOT to <strong>/80</strong>. A-Level: papers converted to <strong>/100</strong>. Only ticked assessments appear in the table and are posted (existing values for other AOIs are preserved).</div></div>
   <div style="display:flex;gap:6px;margin-bottom:15px;background:var(--surface-2);padding:5px;border-radius:12px">
     <button type="button" id="levelOLevel" onclick="setScoreLevel('olevel')" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">📘 O-Level</button>
     <button type="button" id="levelALevel" onclick="setScoreLevel('alevel')" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;cursor:pointer;background:none;color:#666;font-family:inherit">📗 A-Level</button>
@@ -380,8 +383,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <form id="scoresForm" onsubmit="postScores(event)">
     <div class="form-group"><label>Select Class *</label><select id="scoreClassSelect" onchange="updateScoreClassInfo(); updateScoreEntryMode()"><option value="">Select a Class</option></select></div>
     <div class="info-box"><div class="info-title">📌 Class</div><div class="info-text" id="scoreClassInfo">Select a class</div><div id="levelDisplay" style="font-size:11px;color:var(--text-3);margin-top:3px"></div></div>
+
     <div id="olevelScoreEntry">
-      <div class="form-row-3">
+      <div class="form-row-2">
         <div class="form-group"><label>Subject *</label>
           <select id="scoreSubjectOLevel"><option value="">Select Subject</option>
             <option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option>
@@ -392,25 +396,29 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
           </select>
         </div>
         <div class="form-group"><label>Teacher Initials *</label><input type="text" id="teacherInitialsOLevel" maxlength="5" style="text-transform:uppercase" /></div>
-        <div class="form-group"><label>Exam Selection</label>
-          <select id="examSelectionOLevel" onchange="updateOLevelExamDisplay()">
-            <option value="both" selected>All AOIs & EOT</option>
-            <option value="aoi">AOIs Only</option>
-            <option value="eot">EOT Only</option>
-          </select>
+      </div>
+      <div class="form-group">
+        <label>Which assessments are you entering? <span style="color:var(--danger)">*</span></label>
+        <div class="aoi-tick-grid">
+          <label><input type="checkbox" id="admChkAOI1" onchange="updateOLevelExamDisplay()" /> AOI 1</label>
+          <label><input type="checkbox" id="admChkAOI2" onchange="updateOLevelExamDisplay()" /> AOI 2</label>
+          <label><input type="checkbox" id="admChkAOI3" onchange="updateOLevelExamDisplay()" /> AOI 3</label>
+          <label><input type="checkbox" id="admChkAOI4" onchange="updateOLevelExamDisplay()" /> AOI 4</label>
+          <label><input type="checkbox" id="admChkEOT" onchange="updateOLevelExamDisplay()" /> EOT</label>
         </div>
       </div>
       <div class="form-row-3">
-        <div class="form-group" id="aoi1MaxContainer"><label>AOI 1 Max</label><input type="number" id="aoi1Max" value="20" min="1" onchange="renderScoreTable()" /></div>
-        <div class="form-group" id="aoi2MaxContainer"><label>AOI 2 Max</label><input type="number" id="aoi2Max" value="20" min="1" onchange="renderScoreTable()" /></div>
-        <div class="form-group" id="aoi3MaxContainer"><label>AOI 3 Max</label><input type="number" id="aoi3Max" value="20" min="1" onchange="renderScoreTable()" /></div>
+        <div class="form-group admMaxBox" id="aoi1MaxContainer" style="display:none"><label>AOI 1 Max</label><input type="number" id="aoi1Max" value="20" min="1" onchange="renderScoreTable()" /></div>
+        <div class="form-group admMaxBox" id="aoi2MaxContainer" style="display:none"><label>AOI 2 Max</label><input type="number" id="aoi2Max" value="20" min="1" onchange="renderScoreTable()" /></div>
+        <div class="form-group admMaxBox" id="aoi3MaxContainer" style="display:none"><label>AOI 3 Max</label><input type="number" id="aoi3Max" value="20" min="1" onchange="renderScoreTable()" /></div>
       </div>
       <div class="form-row-3">
-        <div class="form-group" id="aoi4MaxContainer"><label>AOI 4 Max</label><input type="number" id="aoi4Max" value="20" min="1" onchange="renderScoreTable()" /></div>
-        <div class="form-group" id="eotMaxContainer"><label>EOT Max Marks</label><input type="number" id="eotMax" value="80" min="1" onchange="renderScoreTable()" /></div>
+        <div class="form-group admMaxBox" id="aoi4MaxContainer" style="display:none"><label>AOI 4 Max</label><input type="number" id="aoi4Max" value="20" min="1" onchange="renderScoreTable()" /></div>
+        <div class="form-group admMaxBox" id="eotMaxContainer" style="display:none"><label>EOT Max</label><input type="number" id="eotMax" value="80" min="1" onchange="renderScoreTable()" /></div>
         <div class="form-group"></div>
       </div>
     </div>
+
     <div id="alevelScoreEntry" style="display:none">
       <div class="form-row-3">
         <div class="form-group"><label>Subject *</label>
@@ -442,8 +450,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     </div>
     <div class="form-group"><input type="text" id="scoreSearchInput" placeholder="🔍 Search by ID or Name…" onkeyup="filterScoreRows()" /></div>
     <div class="table-wrap"><table class="score-table">
-      <thead><tr id="scoreTableHead"></tr></thead>
-      <tbody id="scoreTableBody"><tr><td colspan="7" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr></tbody>
+      <thead><tr id="scoreTableHead"><th>ID</th><th>Name</th><th>Average %</th></tr></thead>
+      <tbody id="scoreTableBody"><tr><td colspan="3" style="text-align:center;color:#999;padding:30px">⏳ Select a class + tick assessments.</td></tr></tbody>
     </table></div>
     <div class="btn-group" style="margin-top:15px">
       <button type="button" class="btn btn-secondary" onclick="resetScoresForm()">🔄 Reset</button>
@@ -840,10 +848,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📝 Exams Included in Reports (O-Level)</h4>
     <div style="padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
-      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">
-        Tick which assessments should appear on O-Level report cards and be used for averages.
-        Un-ticked assessments are hidden from reports and excluded from averages.
-      </p>
+      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">Tick which assessments should appear on O-Level report cards and be used for averages. Un-ticked assessments are hidden from reports and excluded from averages.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><input type="checkbox" id="examIncludeAOI1" checked /> Include AOI 1</label>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><input type="checkbox" id="examIncludeAOI2" checked /> Include AOI 2</label>
@@ -851,9 +856,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><input type="checkbox" id="examIncludeAOI4" checked /> Include AOI 4</label>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><input type="checkbox" id="examIncludeEOT" checked /> Include EOT</label>
       </div>
-      <p style="font-size:11px;color:var(--text-3);margin-top:10px">
-        Note: A-Level papers (Paper 1 / Paper 2) are always included per subject.
-      </p>
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
@@ -992,12 +994,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v40.0 — SECONDARY
-   Adds:
-   - Promote Students tab (from primary)
-   - 4-AOI O-Level entry (AOI1..AOI4 + EOT)
-   - Exams Included in Reports toggles (AOI1..AOI4 + EOT)
-   - Legacy `aoi` column treated as AOI 1
+   EduTrack Pro Admin v41.0 — SECONDARY
+   - Score form matches teacher (AOI-driven tick grid)
+   - Class links loaded from cloud at startup (like teacher)
+   - Dashboard student total from class sheets
    ============================================================ */
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbylzuodE2MPrJlNUUtBq8D-plkPjTIa4w5SApDhK2yv_Pijeqs_ANcG20iFbLPVP_m3/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
@@ -1027,6 +1027,13 @@ var promoteData=[];
 
 var PHOTO_CACHE = { byClass:{}, loading:{} };
 var __classPhotos = [];
+
+/* NEW — class link cache for this session, exactly like teacher page */
+var classLinksMap = {};
+
+/* Score-form AOI tick state (mirrors teacher) */
+var admEnabledAOIs = [];
+var admEnabledEOT  = false;
 
 /* ============ UTILITIES ============ */
 function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -1071,8 +1078,17 @@ async function callAppsScript(params){
 
 function getActiveSchool(){return authSession?authSession.school:'';}
 function extractSheetIdFromUrl(url){if(!url)return '';var m=url.match(/\/d\/([a-zA-Z0-9-_]+)/);if(m)return m[1];if(/^[a-zA-Z0-9-_]{30,}$/.test(url))return url;return '';}
-function getClassLink(cls){try{var s=getActiveSchool();if(!s)return '';return localStorage.getItem('classLink_'+cls+'_'+s)||'';}catch(e){return '';}}
-function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
+
+/* NEW: read class sheet id from classLinksMap first, then localStorage */
+function getClassLink(cls){
+  var fromMap = classLinksMap[cls];
+  if(fromMap) return fromMap;
+  try{var s=getActiveSchool();if(!s)return '';return localStorage.getItem('classLink_'+cls+'_'+s)||'';}catch(e){return '';}
+}
+function getClassSheetId(cls){
+  var v = getClassLink(cls);
+  return extractSheetIdFromUrl(v) || (classLinksMap[cls] || '');
+}
 function isOLevelClass(cls){return OLEVEL_CLASSES.indexOf(cls)!==-1;}
 function isALevelClass(cls){return ALEVEL_CLASSES.indexOf(cls)!==-1;}
 function isSubsidiarySubject(subj){return subj==='General Paper'||subj==='Subsidiary Mathematics'||subj==='ICT';}
@@ -1081,6 +1097,34 @@ function getRegisteredFaces(){try{return JSON.parse(localStorage.getItem(FACE_CO
 function saveRegisteredFaces(r){localStorage.setItem(FACE_CONFIG.storageKey,JSON.stringify(r));}
 function getAttendanceRecords(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.attendanceKey)||'[]');}catch(e){return[];}}
 function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey,JSON.stringify(r));}
+
+/* ============ CLASS LINKS SYNC (mirrors teacher page) ============ */
+async function syncClassLinks(){
+  classLinksMap = {};
+  try{
+    var r = await callAppsScript({ action:'getClassLinks', school: getActiveSchool() });
+    if(r && r.success && r.data && r.data.links){
+      r.data.links.forEach(function(l){
+        if(l.className && l.sheetId){
+          classLinksMap[l.className] = l.sheetId;
+        }
+      });
+      /* also persist into localStorage for other admin sub-pages */
+      var school = getActiveSchool();
+      r.data.links.forEach(function(l){
+        if(l.className && (l.sheetUrl || l.sheetId)){
+          var url = l.sheetUrl || ('https://docs.google.com/spreadsheets/d/' + l.sheetId + '/edit');
+          localStorage.setItem('classLink_'+l.className+'_'+school, url);
+        }
+      });
+      console.log('[admin] classLinksMap =', classLinksMap);
+    } else {
+      console.warn('[admin] getClassLinks empty:', r);
+    }
+  } catch(e){
+    console.warn('[admin] syncClassLinks failed:', e);
+  }
+}
 
 /* ============ CLASS-SCOPED PHOTO CACHE ============ */
 async function loadClassPhotosIntoCache(className){
@@ -1313,17 +1357,43 @@ async function refreshBrandingFromSheet(){
     }
   }catch(e){console.warn('refreshBrandingFromSheet:',e);}
 }
+
+/* NEW: Student count computed client-side from class sheets (matches teacher approach) */
 async function updateStudentCount(){
   var school=getActiveSchool();if(!school)return;
-  try{
-    var r=await callAppsScript({action:'getStudentCount',school:school});
-    if(r.success&&r.data){
-      var c=r.data.count||0;
-      var s=document.getElementById('statTotalStudents');if(s)s.textContent=c;
-      var d=document.getElementById('dashboardStudentCount');if(d)d.textContent='Total Students: '+c;
+
+  var total = 0;
+  var counts = {};
+  for(var i=0;i<CLASSES.length;i++){
+    var cls = CLASSES[i];
+    var sheetId = getClassSheetId(cls);
+    if(!sheetId){ counts[cls] = 0; continue; }
+    try{
+      var r = await callAppsScript({action:'getStudents', sheetId:sheetId, school:school, className:cls});
+      var n = (r && r.success && r.data) ? (r.data.students || []).length : 0;
+      counts[cls] = n;
+      total += n;
+    } catch(e){
+      counts[cls] = 0;
     }
-  }catch(e){}
+  }
+
+  var s=document.getElementById('statTotalStudents');if(s)s.textContent=total;
+  var d=document.getElementById('dashboardStudentCount');if(d)d.textContent='Total Students: '+total;
+
+  /* keep class cards in sync too */
+  var c=document.getElementById('classCardsContainer');
+  if(c){
+    var h='';
+    for(var cl in counts){
+      if(counts.hasOwnProperty(cl)){
+        h+='<div class="class-card"><div class="class-name">'+cl+'</div><div class="class-count">'+counts[cl]+'</div><div class="class-label">Students</div></div>';
+      }
+    }
+    c.innerHTML=h||'<p style="color:#999;text-align:center">No classes configured.</p>';
+  }
 }
+
 async function updateClassCards(){
   var school=getActiveSchool();if(!school)return;
   var c=document.getElementById('classCardsContainer');if(!c)return;
@@ -1494,23 +1564,27 @@ async function registerStudent(e){
   }
 }
 
-/* ============ SCORES ============ */
+/* ============ SCORES (AOI-driven, mirrors teacher) ============ */
 async function loadStudents(){
   var cls=document.getElementById('scoreClassSelect')?.value;
   var school=getActiveSchool();
   var tbody=document.getElementById('scoreTableBody');
   if(!cls){if(tbody)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';return;}
   var sheetId=getClassSheetId(cls);
-  if(!sheetId){if(tbody)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">Sheet not configured.</td></tr>';return;}
+  if(!sheetId){
+    if(tbody)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#c1121f;padding:30px">Class sheet not configured. Go to Settings → Class Google Sheets and paste the class URL, then save.</td></tr>';
+    return;
+  }
+  if(tbody) tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">Loading students…</td></tr>';
   try{
     var r=await callAppsScript({action:'getStudents',sheetId:sheetId,school:school,className:cls});
     if(r.success&&r.data){
       studentList=r.data.students||[];
       scoreRows=studentList.map(function(s){return Object.assign({},s,{aoi1:'',aoi2:'',aoi3:'',aoi4:'',eot:'',paper1:'',paper2:''});});
       renderScoreTable();
-    }else if(tbody)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">'+(r.message||'')+'</td></tr>';
+    }else if(tbody)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">'+(r.message||'No students')+'</td></tr>';
   }catch(e){
-    if(tbody)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">'+e.message+'</td></tr>';
+    if(tbody)tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#c1121f;padding:30px">'+e.message+'</td></tr>';
   }
 }
 function enforceMax(inputEl,maxVal){
@@ -1518,13 +1592,40 @@ function enforceMax(inputEl,maxVal){
   if(v>maxVal){inputEl.value=maxVal;inputEl.style.borderColor='#c1121f';inputEl.style.background='#fff5f5';showToast('Maximum score is '+maxVal+'.','warning');setTimeout(function(){inputEl.style.borderColor='';inputEl.style.background='';},1500);}
   if(v<0)inputEl.value=0;
 }
+
+function admSyncAoiTogglesFromCheckboxes(){
+  var c1=document.getElementById('admChkAOI1');
+  var c2=document.getElementById('admChkAOI2');
+  var c3=document.getElementById('admChkAOI3');
+  var c4=document.getElementById('admChkAOI4');
+  var ce=document.getElementById('admChkEOT');
+  admEnabledAOIs=[];
+  if(c1&&c1.checked) admEnabledAOIs.push('aoi1');
+  if(c2&&c2.checked) admEnabledAOIs.push('aoi2');
+  if(c3&&c3.checked) admEnabledAOIs.push('aoi3');
+  if(c4&&c4.checked) admEnabledAOIs.push('aoi4');
+  admEnabledEOT = !!(ce && ce.checked);
+}
+
+/* Show/hide max fields + rebuild score table whenever a tick changes */
+function updateOLevelExamDisplay(){
+  admSyncAoiTogglesFromCheckboxes();
+  var map={aoi1:'aoi1MaxContainer',aoi2:'aoi2MaxContainer',aoi3:'aoi3MaxContainer',aoi4:'aoi4MaxContainer'};
+  ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+    var el=document.getElementById(map[k]);
+    if(el) el.style.display = admEnabledAOIs.indexOf(k)!==-1 ? 'block' : 'none';
+  });
+  var eotC=document.getElementById('eotMaxContainer');
+  if(eotC) eotC.style.display = admEnabledEOT ? 'block' : 'none';
+  renderScoreTable();
+}
+
 function renderScoreTable(){
   var tbody=document.getElementById('scoreTableBody');if(!tbody)return;
   var thead=document.getElementById('scoreTableHead');if(!thead)return;
   var q=document.getElementById('scoreSearchInput')?.value?.toLowerCase()||'';
   var filtered=q?scoreRows.filter(function(s){return(s.studentId||'').toLowerCase().includes(q)||(s.studentName||'').toLowerCase().includes(q);}):scoreRows;
 
-  var examSelO=document.getElementById('examSelectionOLevel')?.value||'both';
   var paperSelA=document.getElementById('paperSelectionALevel')?.value||'both';
 
   var aoi1Max=parseFloat(document.getElementById('aoi1Max')?.value)||20;
@@ -1535,15 +1636,14 @@ function renderScoreTable(){
   var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
   var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
 
-  // Build header
+  // Header
   var hh='<th>ID</th><th>Name</th>';
   if(currentScoreLevel==='olevel'){
-    if(examSelO==='both'||examSelO==='aoi'){
-      hh+='<th>AOI 1</th><th>AOI 2</th><th>AOI 3</th><th>AOI 4</th>';
-    }
-    if(examSelO==='both'||examSelO==='eot'){
-      hh+='<th>EOT</th>';
-    }
+    if(admEnabledAOIs.indexOf('aoi1')!==-1) hh+='<th>AOI 1</th>';
+    if(admEnabledAOIs.indexOf('aoi2')!==-1) hh+='<th>AOI 2</th>';
+    if(admEnabledAOIs.indexOf('aoi3')!==-1) hh+='<th>AOI 3</th>';
+    if(admEnabledAOIs.indexOf('aoi4')!==-1) hh+='<th>AOI 4</th>';
+    if(admEnabledEOT) hh+='<th>EOT</th>';
   }else{
     if(paperSelA==='both'||paperSelA==='paper1') hh+='<th>Paper 1</th>';
     if(paperSelA==='both'||paperSelA==='paper2') hh+='<th>Paper 2</th>';
@@ -1551,19 +1651,19 @@ function renderScoreTable(){
   hh+='<th>Average %</th>';
   thead.innerHTML=hh;
 
-  if(filtered.length===0){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:#999;padding:30px">No students.</td></tr>';return;}
+  if(filtered.length===0){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:#999;padding:30px">No students loaded.</td></tr>';return;}
+
   var h='';
   filtered.forEach(function(s){
     var idx=scoreRows.indexOf(s);
     h+='<tr><td style="font-weight:600;font-size:12px">'+(s.studentId||'')+'</td><td>'+(s.studentName||'')+'</td>';
     if(currentScoreLevel==='olevel'){
-      if(examSelO==='both'||examSelO==='aoi'){
-        ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k,max){
-          var m=[aoi1Max,aoi2Max,aoi3Max,aoi4Max][['aoi1','aoi2','aoi3','aoi4'].indexOf(k)];
-          h+='<td><input type="number" id="'+k+'_'+idx+'" value="'+(s[k]||'')+'" min="0" max="'+m+'" step="0.5" oninput="enforceMax(this,'+m+')" onchange="updateScore('+idx+')" /></td>';
-        });
-      }
-      if(examSelO==='both'||examSelO==='eot'){
+      ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+        if(admEnabledAOIs.indexOf(k)===-1) return;
+        var m={aoi1:aoi1Max,aoi2:aoi2Max,aoi3:aoi3Max,aoi4:aoi4Max}[k];
+        h+='<td><input type="number" id="'+k+'_'+idx+'" value="'+(s[k]||'')+'" min="0" max="'+m+'" step="0.5" oninput="enforceMax(this,'+m+')" onchange="updateScore('+idx+')" /></td>';
+      });
+      if(admEnabledEOT){
         h+='<td><input type="number" id="eot_'+idx+'" value="'+(s.eot||'')+'" min="0" max="'+eotMaxO+'" step="0.5" oninput="enforceMax(this,'+eotMaxO+')" onchange="updateScore('+idx+')" /></td>';
       }
     }else{
@@ -1577,8 +1677,6 @@ function renderScoreTable(){
     h+='<td style="font-weight:600;color:#302b63" id="avg_'+idx+'">—</td></tr>';
   });
   tbody.innerHTML=h;
-
-  // compute averages for existing values
   scoreRows.forEach(function(_,i){ updateScore(i); });
 }
 function updateScore(i){
@@ -1591,45 +1689,49 @@ function updateScore(i){
     var aoi3Max=parseFloat(document.getElementById('aoi3Max')?.value)||20;
     var aoi4Max=parseFloat(document.getElementById('aoi4Max')?.value)||20;
     var eotMaxO=parseFloat(document.getElementById('eotMax')?.value)||80;
-    var examSelO=document.getElementById('examSelectionOLevel')?.value||'both';
 
-    var vals=[];
-    if(examSelO==='both'||examSelO==='aoi'){
-      var a1=parseFloat(document.getElementById('aoi1_'+i)?.value);
-      var a2=parseFloat(document.getElementById('aoi2_'+i)?.value);
-      var a3=parseFloat(document.getElementById('aoi3_'+i)?.value);
-      var a4=parseFloat(document.getElementById('aoi4_'+i)?.value);
-      if(!isNaN(a1)) vals.push((a1/aoi1Max)*100);
-      if(!isNaN(a2)) vals.push((a2/aoi2Max)*100);
-      if(!isNaN(a3)) vals.push((a3/aoi3Max)*100);
-      if(!isNaN(a4)) vals.push((a4/aoi4Max)*100);
+    var aoiVals=[];
+    ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
+      if(admEnabledAOIs.indexOf(k)===-1) return;
+      var elK=document.getElementById(k+'_'+i);
+      if(!elK) return;
+      var v=parseFloat(elK.value);
+      row[k] = elK.value==='' ? '' : v;
+      if(!isNaN(v)) aoiVals.push((v/{aoi1:aoi1Max,aoi2:aoi2Max,aoi3:aoi3Max,aoi4:aoi4Max}[k])*100);
+    });
+    var pcts = [];
+    if(aoiVals.length>0) pcts.push(aoiVals.reduce(function(a,b){return a+b;},0)/aoiVals.length);
+    if(admEnabledEOT){
+      var elE=document.getElementById('eot_'+i);
+      if(elE){
+        var eot=parseFloat(elE.value);
+        row.eot = elE.value==='' ? '' : eot;
+        if(!isNaN(eot)) pcts.push((eot/eotMaxO)*100);
+      }
     }
-    if(examSelO==='both'||examSelO==='eot'){
-      var eot=parseFloat(document.getElementById('eot_'+i)?.value);
-      if(!isNaN(eot)) vals.push((eot/eotMaxO)*100);
-    }
-    row.aoi1=parseFloat(document.getElementById('aoi1_'+i)?.value)||'';
-    row.aoi2=parseFloat(document.getElementById('aoi2_'+i)?.value)||'';
-    row.aoi3=parseFloat(document.getElementById('aoi3_'+i)?.value)||'';
-    row.aoi4=parseFloat(document.getElementById('aoi4_'+i)?.value)||'';
-    row.eot=parseFloat(document.getElementById('eot_'+i)?.value)||'';
-    if(el) el.textContent = vals.length ? (vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1)+'%' : '—';
+    if(el) el.textContent = pcts.length ? (pcts.reduce(function(a,b){return a+b;},0)/pcts.length).toFixed(1)+'%' : '—';
   }else{
     var p1Max=parseFloat(document.getElementById('paper1Max')?.value)||100;
     var p2Max=parseFloat(document.getElementById('paper2Max')?.value)||100;
     var paperSelA=document.getElementById('paperSelectionALevel')?.value||'both';
-    var vals2=[];
+    var pcts2=[];
     if(paperSelA==='both'||paperSelA==='paper1'){
-      var p1=parseFloat(document.getElementById('paper1_'+i)?.value);
-      if(!isNaN(p1)) vals2.push((p1/p1Max)*100);
+      var elP1=document.getElementById('paper1_'+i);
+      if(elP1){
+        var p1=parseFloat(elP1.value);
+        row.paper1 = elP1.value==='' ? '' : p1;
+        if(!isNaN(p1)) pcts2.push((p1/p1Max)*100);
+      }
     }
     if(paperSelA==='both'||paperSelA==='paper2'){
-      var p2=parseFloat(document.getElementById('paper2_'+i)?.value);
-      if(!isNaN(p2)) vals2.push((p2/p2Max)*100);
+      var elP2=document.getElementById('paper2_'+i);
+      if(elP2){
+        var p2=parseFloat(elP2.value);
+        row.paper2 = elP2.value==='' ? '' : p2;
+        if(!isNaN(p2)) pcts2.push((p2/p2Max)*100);
+      }
     }
-    row.paper1=parseFloat(document.getElementById('paper1_'+i)?.value)||'';
-    row.paper2=parseFloat(document.getElementById('paper2_'+i)?.value)||'';
-    if(el) el.textContent = vals2.length ? (vals2.reduce(function(a,b){return a+b;},0)/vals2.length).toFixed(1)+'%' : '—';
+    if(el) el.textContent = pcts2.length ? (pcts2.reduce(function(a,b){return a+b;},0)/pcts2.length).toFixed(1)+'%' : '—';
   }
 }
 function filterScoreRows(){renderScoreTable();}
@@ -1654,6 +1756,7 @@ function setScoreLevel(level){
     var oe2=document.getElementById('olevelScoreEntry');if(oe2)oe2.style.display='none';
     var ae2=document.getElementById('alevelScoreEntry');if(ae2)ae2.style.display='block';
   }
+  renderScoreTable();
   loadStudents();
 }
 function updateALevelPaperDisplay(){
@@ -1669,20 +1772,6 @@ function updateALevelWeight(){
   var wSel=document.getElementById('aLevelWeight');if(!wSel)return;
   wSel.value=isSubsidiarySubject(subj)?'1':'3';
 }
-function updateOLevelExamDisplay(){
-  var ex=document.getElementById('examSelectionOLevel')?.value||'both';
-  var containers=['aoi1MaxContainer','aoi2MaxContainer','aoi3MaxContainer','aoi4MaxContainer','eotMaxContainer'];
-  if(ex==='aoi'){
-    ['aoi1MaxContainer','aoi2MaxContainer','aoi3MaxContainer','aoi4MaxContainer'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='block';});
-    var ec=document.getElementById('eotMaxContainer');if(ec)ec.style.display='none';
-  }else if(ex==='eot'){
-    ['aoi1MaxContainer','aoi2MaxContainer','aoi3MaxContainer','aoi4MaxContainer'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});
-    var ec2=document.getElementById('eotMaxContainer');if(ec2)ec2.style.display='block';
-  }else{
-    containers.forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='block';});
-  }
-  renderScoreTable();
-}
 function updateScoreClassInfo(){
   var cls=document.getElementById('scoreClassSelect')?.value;
   var info=document.getElementById('scoreClassInfo'),lvl=document.getElementById('levelDisplay');
@@ -1691,8 +1780,9 @@ function updateScoreClassInfo(){
   if(info)info.innerHTML='<strong>'+cls+'</strong>';
   if(lvl)lvl.textContent=level;
 }
+
 async function postScores(e){
-  e.preventDefault();showStatus('','');
+  e.preventDefault();showStatus('');
   var cls=document.getElementById('scoreClassSelect')?.value;
   var subj=document.getElementById('scoreSubjectOLevel')?.value||document.getElementById('scoreSubjectALevel')?.value;
   var initials=document.getElementById('teacherInitialsOLevel')?.value||document.getElementById('teacherInitialsALevel')?.value||'';
@@ -1702,31 +1792,34 @@ async function postScores(e){
   if(!subj){showStatus('❌ Select a subject.','error');return;}
   if(!initials||!initials.trim()){showStatus('❌ Teacher initials required.','error');return;}
   if(!scoreRows||scoreRows.length===0){showStatus('❌ No students loaded.','error');return;}
+
   var scores=[],has=false;
 
   if(currentScoreLevel==='olevel'){
-    var aoi1Max=parseFloat(document.getElementById('aoi1Max')?.value)||20;
-    var aoi2Max=parseFloat(document.getElementById('aoi2Max')?.value)||20;
-    var aoi3Max=parseFloat(document.getElementById('aoi3Max')?.value)||20;
-    var aoi4Max=parseFloat(document.getElementById('aoi4Max')?.value)||20;
+    if(admEnabledAOIs.length===0 && !admEnabledEOT){
+      showStatus('❌ Tick at least one assessment (AOI 1–4 or EOT).','error');
+      return;
+    }
+    var aoiMaxes={aoi1:parseFloat(document.getElementById('aoi1Max')?.value)||20,
+                  aoi2:parseFloat(document.getElementById('aoi2Max')?.value)||20,
+                  aoi3:parseFloat(document.getElementById('aoi3Max')?.value)||20,
+                  aoi4:parseFloat(document.getElementById('aoi4Max')?.value)||20};
     var eotMaxO=parseFloat(document.getElementById('eotMax')?.value)||80;
-    var examSelO=document.getElementById('examSelectionOLevel')?.value||'both';
 
     scoreRows.forEach(function(s){
       var entry={studentId:s.studentId,studentName:s.studentName,teacherInitials:initials};
       var hAny=false;
-      if(examSelO==='both'||examSelO==='aoi'){
-        var a1=parseFloat(s.aoi1),a2=parseFloat(s.aoi2),a3=parseFloat(s.aoi3),a4=parseFloat(s.aoi4);
-        if(!isNaN(a1)&&s.aoi1!==''){entry.aoi1=Math.round((a1/aoi1Max)*20*10)/10;hAny=true;}
-        if(!isNaN(a2)&&s.aoi2!==''){entry.aoi2=Math.round((a2/aoi2Max)*20*10)/10;hAny=true;}
-        if(!isNaN(a3)&&s.aoi3!==''){entry.aoi3=Math.round((a3/aoi3Max)*20*10)/10;hAny=true;}
-        if(!isNaN(a4)&&s.aoi4!==''){entry.aoi4=Math.round((a4/aoi4Max)*20*10)/10;hAny=true;}
-        // legacy: also mirror AOI 1 to `aoi` for backwards-compat sheets
-        if(entry.aoi1!==undefined) entry.aoi=entry.aoi1;
-      }
-      if(examSelO==='both'||examSelO==='eot'){
+      admEnabledAOIs.forEach(function(k){
+        var v=parseFloat(s[k]);
+        if(!isNaN(v)){
+          entry[k]=Math.round((v/aoiMaxes[k])*20*10)/10;
+          hAny=true;
+        }
+      });
+      if(entry.aoi1!==undefined) entry.aoi=entry.aoi1; // legacy mirror
+      if(admEnabledEOT){
         var eotV=parseFloat(s.eot);
-        if(!isNaN(eotV)&&s.eot!==''){entry.eot=Math.round((eotV/eotMaxO)*80*10)/10;hAny=true;}
+        if(!isNaN(eotV)){entry.eot=Math.round((eotV/eotMaxO)*80*10)/10;hAny=true;}
       }
       if(hAny){scores.push(entry);has=true;}
     });
@@ -1758,7 +1851,8 @@ async function postScores(e){
     if(r.success){
       document.getElementById('scoreSuccess').style.display='block';
       document.getElementById('scoresForm').style.display='none';
-      document.getElementById('scoreSuccessMsg').innerHTML='📄 Tab: <strong>'+(r.data.tabName||subj)+'</strong><br>➕ Added: '+(r.data.added||0)+' | 🔄 Updated: '+(r.data.updated||0);
+      document.getElementById('scoreSuccessMsg').innerHTML='📄 Tab: <strong>'+(r.data.tabName||subj)+'</strong><br>➕ Added: '+(r.data.added||0)+' | 🔄 Updated: '+(r.data.updated||0)+
+        '<br><span style="font-size:12px;color:#555">Submitted: '+(admEnabledAOIs.map(function(k){return k.toUpperCase().replace('AOI','AOI ');}).join(', ')+(admEnabledEOT?', EOT':''))+'</span>';
       showToast('✅ Posted!','success');
     }else{showStatus('❌ '+(r.message||'Unknown'),'error');showToast('Failed: '+(r.message||'Unknown'),'error');}
   }catch(e2){
@@ -1770,8 +1864,8 @@ function resetScoresForm(){
   document.getElementById('scoresForm').style.display='block';
   document.getElementById('scoreSuccess').style.display='none';
   document.getElementById('scoreClassSelect').value='';
-  document.getElementById('scoreTableBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">Select a class.</td></tr>';
-  scoreRows=[];showStatus('','');
+  document.getElementById('scoreTableBody').innerHTML='<tr><td colspan="3" style="text-align:center;color:#999;padding:30px">Select a class + tick assessments.</td></tr>';
+  scoreRows=[];showStatus('');
 }
 
 /* ============ ATTENDANCE ============ */
@@ -2140,7 +2234,7 @@ function updateFeesSummary(){
 }
 function resetFeesForm(){
   ['feesStudentSelect','feesAmount','feesNarration','feesReceipt'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-  var m=document.getElementById('feesMethod');if(m)m.value='cash';showStatus('','');
+  var m=document.getElementById('feesMethod');if(m)m.value='cash';showStatus('');
 }
 function filterFeesRecords(){renderFeesRecords();}
 
@@ -2186,7 +2280,7 @@ function resetExpenseForm(){
   ['expenseDesc','expenseAmount','expenseNarration'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
   var c=document.getElementById('expenseCategory');if(c)c.value='stationery';
   var d=document.getElementById('expenseDate');if(d)d.value=getTodayDate();
-  showStatus('','');
+  showStatus('');
 }
 
 /* ============ REPORTS ============ */
@@ -2274,7 +2368,6 @@ function renderReportResults(students){
         rows+='<tr><td style="padding:'+cellPad+';border:1px solid #666;font-size:'+cellFontSize+'px">'+code+' '+subj+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center">'+p1.toFixed(1)+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center">'+p2.toFixed(1)+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center;font-weight:700">'+avg.toFixed(1)+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center">'+weight+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center;font-weight:700">'+pts+'</td><td style="padding:'+cellPad+';border:1px solid #666;font-size:'+(cellFontSize-1)+'px">'+desc+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center;font-size:'+(cellFontSize-1)+'px">'+init+'</td></tr>';
         totalPctSum+=avg;count++;totalPointsSum+=pts;
       }else{
-        // O-Level: AOI1..AOI4 + EOT with per-assessment toggle
         var aoiKeys=[
           {key:'aoi1', on: branding.examIncludeAOI1},
           {key:'aoi2', on: branding.examIncludeAOI2},
@@ -2283,7 +2376,6 @@ function renderReportResults(students){
         ];
         var includeEot=branding.examIncludeEOT;
 
-        // legacy fallback: if only `aoi` exists, treat as AOI 1
         if(sv.aoi1===undefined && sv.aoi!==undefined && sv.aoi!=='') sv.aoi1=sv.aoi;
 
         var aoiVals=[];
@@ -2525,7 +2617,6 @@ function renderMiniReports(){
           totalPoints+=pts;if(p1>0){sumPct+=pct;count++;}
           tableRows+='<tr><td class="mini-subject">'+escapeHtml(sub)+'</td><td class="mini-pct">'+pct+'%</td><td class="mini-grade">'+grade+'</td><td class="mini-pts">'+weight+'</td><td class="mini-pts">'+pts+'</td></tr>';
         }else{
-          // aggregate AOI1..AOI4 with toggles, legacy `aoi`→AOI1
           if(sv.aoi1===undefined && sv.aoi!==undefined && sv.aoi!=='') sv.aoi1=sv.aoi;
           var keys=[
             {key:'aoi1',on:branding.examIncludeAOI1},
@@ -2754,7 +2845,6 @@ async function doPromote(){
     if(r&&r.success){
       showToast('✅ '+(r.data.moved||selected.length)+' students promoted to '+toClass,'success');
       updateStudentCount();
-      updateClassCards();
       await loadPromotePupils();
     }else{
       showToast('❌ '+((r&&r.message)||'Promotion failed'),'error');
@@ -2996,6 +3086,7 @@ async function loadSettings(){
         var url=l.sheetUrl||(l.sheetId?('https://docs.google.com/spreadsheets/d/'+l.sheetId+'/edit'):'');
         if(!url)return;
         localStorage.setItem('classLink_'+l.className+'_'+school,url);
+        classLinksMap[l.className] = l.sheetId;
         var el=document.getElementById(CLASS_IDS[l.className]);
         if(el){el.value=url;validateClassLink(l.className);}
       });
@@ -3043,6 +3134,7 @@ async function saveAllSettings(){
     var e=document.getElementById(CLASS_IDS[cls]);if(!e)continue;
     var url=e.value.trim();
     localStorage.setItem('classLink_'+cls+'_'+school,url);
+    classLinksMap[cls] = extractSheetIdFromUrl(url);
     validateClassLink(cls);
     if(url){
       var sheetId=extractSheetIdFromUrl(url);
@@ -3063,6 +3155,7 @@ function validateClassLink(cls){
   var school=getActiveSchool();
   if(id){
     localStorage.setItem('classLink_'+cls+'_'+school,e.value.trim());
+    classLinksMap[cls] = id;
     st.innerHTML='Saved';st.style.color='#2d6a4f';st.style.fontWeight='700';
     e.style.background='#d4edda';e.style.borderColor='#2d6a4f';
   }else{
@@ -3319,13 +3412,25 @@ document.addEventListener('DOMContentLoaded',async function(){
   ['manualAttDate','expenseDate','progDate','noticeDate'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=today;});
   loadClassSelectors();
   renderPendingAssignments();
+
+  /* 1) Load class links first — before any student/scores/dashboard actions */
+  await syncClassLinks();
+
+  /* 2) Then branding + settings */
   await refreshBrandingFromSheet();
   await loadSettings();
+
+  /* 3) Dashboard + counts */
   updateDashboard();
   initCharts();
   loadUserAccounts();
   loadFeesStudents();
 
+  /* 4) AOI tick defaults (all off — user must tick) */
+  admSyncAoiTogglesFromCheckboxes();
+  updateOLevelExamDisplay();
+
+  /* 5) Upload handlers */
   document.getElementById('settingsBadgeUpload')?.addEventListener('change', async function(e){
     var f=e.target.files[0];if(!f)return;
     var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(ev){res(ev.target.result);};r.readAsDataURL(f);});
@@ -3336,7 +3441,7 @@ document.addEventListener('DOMContentLoaded',async function(){
         s.schoolBadgeUrl=r.data.url;
         localStorage.setItem('schoolSettings_'+getActiveSchool(),JSON.stringify(s));
         document.getElementById('settingsBadgePreview').innerHTML='<img src="'+r.data.url+'" style="width:100%;height:100%;object-fit:contain" />';
-        showToast('Badge uploaded','success');
+        showToast('Badge uploaded — click Save All','info');
       }else showToast((r&&r.message)||'Badge upload failed','error');
     }catch(err){showToast(err.message,'error');}
   });
@@ -3351,7 +3456,7 @@ document.addEventListener('DOMContentLoaded',async function(){
         s.headSignatureUrl=r.data.url;
         localStorage.setItem('schoolSettings_'+getActiveSchool(),JSON.stringify(s));
         document.getElementById('signaturePreview').innerHTML='<img src="'+r.data.url+'" style="width:100%;height:100%;object-fit:contain" />';
-        showToast('Signature uploaded','success');
+        showToast('Signature uploaded — click Save All','info');
       }else showToast((r&&r.message)||'Signature upload failed','error');
     }catch(err){showToast(err.message,'error');}
   });
