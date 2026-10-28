@@ -26,8 +26,13 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 @media(min-width:768px){body{padding:20px}}
 
 .navbar{background:rgba(255,255,255,.98);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:1000;border-bottom:3px solid var(--student)}
-.navbar-brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--student);text-decoration:none;font-family:Georgia,serif}
-.navbar-brand .brand-text{background:linear-gradient(135deg,var(--student-dark),var(--student));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.navbar-brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:var(--student);text-decoration:none;font-family:Georgia,serif}
+.navbar-brand .brand-badge{width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid var(--student);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.navbar-brand .brand-badge img{width:100%;height:100%;object-fit:contain}
+.navbar-brand .brand-badge .placeholder{font-size:20px}
+.navbar-brand .brand-text{display:flex;flex-direction:column;line-height:1.15}
+.navbar-brand .brand-school{font-size:15px;color:var(--student);font-weight:700}
+.navbar-brand .brand-sub{font-size:10px;color:var(--text-3);font-weight:500}
 .navbar-toggle{display:none;background:none;border:none;font-size:22px;color:var(--student);cursor:pointer;padding:6px}
 @media(max-width:900px){.navbar-toggle{display:block}}
 .navbar-menu{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
@@ -156,9 +161,10 @@ table.data-table tr:hover td{background:var(--surface-2)}
 .chat-input-area{display:flex;gap:10px;padding:10px 15px;border-top:1px solid var(--border);background:var(--surface-2)}
 .chat-input-area input{flex:1;padding:10px 15px;border:2px solid var(--border);border-radius:20px;font-size:14px;outline:none;font-family:inherit}
 
-.aoi-tick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;padding:10px;background:#fff;border:1px dashed var(--student);border-radius:10px}
-.aoi-tick-grid label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-2)}
-.aoi-tick-grid input[type="checkbox"]{width:18px;height:18px;accent-color:var(--student)}
+/* AOI tick grid */
+.aoi-tick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;padding:10px;background:#fff;border:1px dashed var(--student);border-radius:10px}
+.aoi-tick-grid label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-2);padding:6px 4px}
+.aoi-tick-grid input[type="checkbox"]{width:18px;height:18px;accent-color:var(--student);cursor:pointer}
 </style>
 </head>
 <body>
@@ -166,7 +172,15 @@ table.data-table tr:hover td{background:var(--surface-2)}
 <div id="toastContainer"></div>
 
 <nav class="navbar">
-  <a href="teacher.html" class="navbar-brand"><span style="font-size:26px">👩‍🏫</span><span class="brand-text">EduTrack Teacher</span></a>
+  <a href="teacher.html" class="navbar-brand">
+    <div class="brand-badge" id="navBadge">
+      <span class="placeholder">🏫</span>
+    </div>
+    <div class="brand-text">
+      <span class="brand-school" id="navSchoolName">EduTrack Teacher</span>
+      <span class="brand-sub">Teacher Portal</span>
+    </div>
+  </a>
   <button class="navbar-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
   <div class="navbar-menu" id="navbarMenu">
     <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
@@ -224,18 +238,31 @@ table.data-table tr:hover td{background:var(--surface-2)}
         <div style="font-size:28px; font-weight:700; color:var(--success);" id="dsAttendancePct">0%</div>
       </div>
     </div>
+
+    <!-- Subject performance comparison — per class -->
     <div class="chart-container">
-      <h4>📈 Class Performance vs Other Subjects (Average %)</h4>
+      <h4 id="perfChartTitle">📈 Subject Performance Comparison</h4>
+      <div class="form-row-2" style="margin-bottom:10px">
+        <div class="form-group" style="margin:0">
+          <label style="font-size:12px">Class (for comparison)</label>
+          <select id="perfClassSelect" onchange="loadPerformanceData()"></select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label style="font-size:12px">Your Subject (highlight)</label>
+          <select id="perfSubjectSelect" onchange="loadPerformanceData()"></select>
+        </div>
+      </div>
       <canvas id="performanceChart"></canvas>
-      <p style="font-size:11px;color:var(--text-3);margin-top:6px">Your subject is highlighted in blue. Other subjects are shown in grey.</p>
+      <p style="font-size:11px;color:var(--text-3);margin-top:6px">Your selected subject is highlighted in blue. Other subjects from the same class are shown in grey.</p>
     </div>
+
     <div class="stats-grid" style="grid-template-columns:1fr 1fr;gap:12px">
       <div class="stat-card" style="text-align:left;background:#fff5f5;border-color:#f5c6cb">
-        <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:6px">🔻 Weak Learners</div>
+        <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:6px">🔻 Weak Learners <span style="font-weight:400;font-size:11px;color:var(--text-3)" id="weakSource"></span></div>
         <div id="weakLearnersList" style="font-size:12px;line-height:1.6">Loading…</div>
       </div>
       <div class="stat-card" style="text-align:left;background:#f0fff4;border-color:#c3e6cb">
-        <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:6px">🏆 Strong Learners</div>
+        <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:6px">🏆 Strong Learners <span style="font-weight:400;font-size:11px;color:var(--text-3)" id="strongSource"></span></div>
         <div id="strongLearnersList" style="font-size:12px;line-height:1.6">Loading…</div>
       </div>
     </div>
@@ -246,7 +273,7 @@ table.data-table tr:hover td{background:var(--surface-2)}
   <!-- ATTENDANCE -->
   <div id="tabAttendance" class="form-section">
     <h2 class="section-title"><i class="fas fa-check-circle" style="color:var(--student)"></i> Take Attendance</h2>
-    <p class="section-desc">Mark attendance using QR scan, face recognition, or manual checkboxes.</p>
+    <p class="section-desc">Mark attendance using QR scan or manual checkboxes.</p>
 
     <div class="info-box" id="gpsStatus">
       <div class="info-title">📍 GPS Location</div>
@@ -321,11 +348,11 @@ table.data-table tr:hover td{background:var(--surface-2)}
   <!-- SUBMIT RESULTS -->
   <div id="tabSubmitresults" class="form-section">
     <h2 class="section-title"><i class="fas fa-upload" style="color:var(--student)"></i> Submit Subject Results</h2>
-    <p class="section-desc">Post scores for students in your assigned classes only. You can enter AOI 1–4 and EOT in any combination.</p>
+    <p class="section-desc">Tick which assessments you're entering. The form will show inputs for the ticked assessments only.</p>
 
     <div class="info-box">
       <div class="info-title">📌 Information</div>
-      <div class="info-text">O-Level: Each AOI is converted to <strong>/20</strong> and EOT to <strong>/80</strong>. Tick which assessments you are submitting. A-Level: papers converted to <strong>/100</strong>.</div>
+      <div class="info-text">O-Level: each AOI is converted to <strong>/20</strong>, EOT to <strong>/80</strong>. A-Level: papers converted to <strong>/100</strong>. Only your assigned classes/subjects appear below.</div>
     </div>
 
     <div style="display:flex;gap:6px;margin-bottom:15px;background:var(--surface-2);padding:5px;border-radius:12px">
@@ -345,30 +372,26 @@ table.data-table tr:hover td{background:var(--surface-2)}
 
       <!-- O-LEVEL -->
       <div id="trOlevelScoreEntry">
-        <div class="form-row-3">
+        <div class="form-row-2">
           <div class="form-group"><label>Subject *</label><select id="trScoreSubjectOLevel"><option value="">Select subject…</option></select></div>
           <div class="form-group"><label>Teacher Initials *</label><input type="text" id="trTeacherInitialsOLevel" maxlength="5" style="text-transform:uppercase" /></div>
-          <div class="form-group"><label>Which assessments?</label>
-            <div style="padding:8px;background:#fff;border:1px dashed var(--student);border-radius:8px">
-              <div class="aoi-tick-grid" style="border:none;padding:0;background:transparent">
-                <label><input type="checkbox" id="trChkAOI1" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 1</label>
-                <label><input type="checkbox" id="trChkAOI2" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 2</label>
-                <label><input type="checkbox" id="trChkAOI3" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 3</label>
-                <label><input type="checkbox" id="trChkAOI4" checked onchange="trUpdateOLevelExamDisplay()" /> AOI 4</label>
-                <label><input type="checkbox" id="trChkEOT" checked onchange="trUpdateOLevelExamDisplay()" /> EOT</label>
-              </div>
-            </div>
+        </div>
+        <div class="form-group">
+          <label>Which assessments are you submitting? <span style="color:var(--danger)">*</span></label>
+          <div class="aoi-tick-grid">
+            <label><input type="checkbox" id="trChkAOI1" onchange="trUpdateOLevelExamDisplay()" /> AOI 1</label>
+            <label><input type="checkbox" id="trChkAOI2" onchange="trUpdateOLevelExamDisplay()" /> AOI 2</label>
+            <label><input type="checkbox" id="trChkAOI3" onchange="trUpdateOLevelExamDisplay()" /> AOI 3</label>
+            <label><input type="checkbox" id="trChkAOI4" onchange="trUpdateOLevelExamDisplay()" /> AOI 4</label>
+            <label><input type="checkbox" id="trChkEOT" onchange="trUpdateOLevelExamDisplay()" /> EOT</label>
           </div>
         </div>
-        <div class="form-row-3">
-          <div class="form-group" id="trAoi1MaxContainer"><label>AOI 1 Max</label><input type="number" id="trAoi1Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
-          <div class="form-group" id="trAoi2MaxContainer"><label>AOI 2 Max</label><input type="number" id="trAoi2Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
-          <div class="form-group" id="trAoi3MaxContainer"><label>AOI 3 Max</label><input type="number" id="trAoi3Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
-        </div>
-        <div class="form-row-3">
-          <div class="form-group" id="trAoi4MaxContainer"><label>AOI 4 Max</label><input type="number" id="trAoi4Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
-          <div class="form-group" id="trEotMaxContainer"><label>EOT Max</label><input type="number" id="trEotMax" value="80" min="1" onchange="trRenderScoreTable()" /></div>
-          <div class="form-group"></div>
+        <div class="form-row-3" id="trMaxInputsRow">
+          <div class="form-group trMaxBox" id="trAoi1MaxContainer" style="display:none"><label>AOI 1 Max</label><input type="number" id="trAoi1Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group trMaxBox" id="trAoi2MaxContainer" style="display:none"><label>AOI 2 Max</label><input type="number" id="trAoi2Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group trMaxBox" id="trAoi3MaxContainer" style="display:none"><label>AOI 3 Max</label><input type="number" id="trAoi3Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group trMaxBox" id="trAoi4MaxContainer" style="display:none"><label>AOI 4 Max</label><input type="number" id="trAoi4Max" value="20" min="1" onchange="trRenderScoreTable()" /></div>
+          <div class="form-group trMaxBox" id="trEotMaxContainer" style="display:none"><label>EOT Max</label><input type="number" id="trEotMax" value="80" min="1" onchange="trRenderScoreTable()" /></div>
         </div>
       </div>
 
@@ -380,7 +403,7 @@ table.data-table tr:hover td{background:var(--surface-2)}
           <div class="form-group"><label>Paper Selection</label><select id="trPaperSelectionALevel" onchange="trUpdateALevelPaperDisplay()"><option value="both" selected>Both Papers</option><option value="paper1">Paper 1 Only</option><option value="paper2">Paper 2 Only</option></select></div>
         </div>
         <div class="form-row-3">
-          <div class="form-group"><label>Subject Weight</label><select id="trSubjectWeightALevel"><option value="3">Weight 3 (Main Subjects)</option><option value="1">Weight 1 (Subsidiary)</option></select></div>
+          <div class="form-group"><label>Subject Weight</label><select id="trSubjectWeightALevel"><option value="3">Weight 3 (Main)</option><option value="1">Weight 1 (Subsidiary)</option></select></div>
           <div class="form-group" id="trPaper1MaxContainer"><label>Paper 1 Max: <input type="number" id="trPaper1Max" value="100" min="1" style="width:80px;padding:6px;border:2px solid var(--border);border-radius:6px" onchange="trRenderScoreTable()" /></label></div>
           <div class="form-group" id="trPaper2MaxContainer"><label>Paper 2 Max: <input type="number" id="trPaper2Max" value="100" min="1" style="width:80px;padding:6px;border:2px solid var(--border);border-radius:6px" onchange="trRenderScoreTable()" /></label></div>
         </div>
@@ -390,8 +413,8 @@ table.data-table tr:hover td{background:var(--surface-2)}
 
       <div class="table-wrap">
         <table class="score-table">
-          <thead><tr id="trScoreTableHead"><th>ID</th><th>Name</th><th>AOI</th><th>EOT</th><th>Average %</th></tr></thead>
-          <tbody id="trScoreTableBody"><tr><td colspan="5" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr></tbody>
+          <thead><tr id="trScoreTableHead"><th>ID</th><th>Name</th><th>Average %</th></tr></thead>
+          <tbody id="trScoreTableBody"><tr><td colspan="3" style="text-align:center;color:#999;padding:30px">⏳ Select a class + tick assessments.</td></tr></tbody>
         </table>
       </div>
 
@@ -454,7 +477,7 @@ table.data-table tr:hover td{background:var(--surface-2)}
   <div id="tabProfile" class="form-section">
     <h2 class="section-title"><i class="fas fa-user" style="color:var(--student)"></i> My Profile</h2>
     <div style="text-align:center;margin:14px 0">
-      <div style="width:100px;height:100px;border-radius:50%;background:var(--student);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto;overflow:hidden" id="profileAvatar">
+      <div style="width:100px;height:100px;border-radius:50%;background:var(--student);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto;overflow:hidden">
         <span id="profileInitial">T</span>
       </div>
     </div>
@@ -476,12 +499,14 @@ table.data-table tr:hover td{background:var(--surface-2)}
     <button class="btn btn-primary btn-block" onclick="saveProfile()">💾 Save Profile</button>
   </div>
 </div>
+
 <script>
-  /* ============================================================
-   EduTrack Pro Teacher v25.0 — Multi-AOI Support (AOI 1–4 + EOT)
+/* ============================================================
+   EduTrack Pro Teacher v26.0 — School-scoped, AOI-driven form,
+   subject comparison & weak/strong from the specific class+subject
    ============================================================ */
 
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-FH90Ibu14BBXGQr574swn7Km8g2R-NfmhOA71cKTNVaEzXHkMoU-pKVtB5BNVDUtZg/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxXbL2BTUwsyBds0pk8SrNzbr40-73d2X-c9rvHX3o7wqaPUjB9covo10PwiWu36xVNQ/exec';
 var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ';
 var OLEVEL_CLASSES = ['S.1','S.2','S.3','S.4'];
 var ALEVEL_CLASSES = ['S.5','S.6'];
@@ -491,17 +516,19 @@ var teacherInfo = null;
 var myClasses = [];
 var teacherSalary = 0;
 var teacherOtherRoles = [];
+var schoolSettings = {};
 
+/* { "S.1": "sheetId123", ... } — loaded from current school's settings */
 var classLinksMap = {};
 
 /* Score posting */
 var trScoreRows = [];
 var trStudentList = [];
 var trCurrentScoreLevel = 'olevel';
-var trEnabledAOIs = ['aoi1','aoi2','aoi3','aoi4'];
-var trEnabledEOT = true;
+var trEnabledAOIs = [];  // e.g. ['aoi1','aoi3']
+var trEnabledEOT = false;
 
-/* Attendance state */
+/* Attendance */
 var manualAttStudents = [];
 var manualAttFiltered = [];
 var manualAttClass = '';
@@ -514,7 +541,7 @@ var qrScanInterval = null;
 var cameraMode = 'user';
 var gpsCoords = null;
 
-/* Chat state */
+/* Chat */
 var currentChatUser = null;
 var chatPollInterval = null;
 
@@ -528,9 +555,7 @@ function escapeHtml(v){
   });
 }
 function getActiveSchool(){ return authSession ? authSession.school : ''; }
-function getClassLink(cls){ return classLinksMap[cls] || ''; }
 function getClassSheetId(cls){ return classLinksMap[cls] || ''; }
-
 function isOLevelClass(cls){ return OLEVEL_CLASSES.indexOf(cls) !== -1; }
 function isALevelClass(cls){ return ALEVEL_CLASSES.indexOf(cls) !== -1; }
 function trIsSubsidiarySubject(subj){ return subj === 'General Paper' || subj === 'Subsidiary Mathematics' || subj === 'ICT'; }
@@ -620,9 +645,19 @@ async function initTeacher(){
   document.getElementById('pfClasses').value = teacherInfo.classes.join(', ');
   document.getElementById('profileInitial').textContent = teacherInfo.name.charAt(0).toUpperCase();
 
+  // 1) School settings (name + badge) for THIS school
+  await loadSchoolSettings();
+
+  // 2) Class links for THIS school only
   await syncClassLinks();
+
+  // 3) Salary
   await loadTeacherSalary();
+
+  // 4) Class selects
   populateAllClassSelects();
+
+  // 5) My classes
   await loadMyClasses();
   renderClasses();
   renderDashboardClasses();
@@ -636,6 +671,9 @@ async function initTeacher(){
 
   initGPS();
 
+  // Populate the performance comparison selects
+  populatePerformanceSelectors();
+
   await loadAttendanceSummary();
   await loadPerformanceData();
 
@@ -643,22 +681,44 @@ async function initTeacher(){
   loadTeacherProgram();
   loadTeacherNotices();
 
-  // Initialize AOI UI state
   trSyncAoiTogglesFromCheckboxes();
 }
 
-/* ============ SYNC CLASS LINKS ============ */
-async function syncClassLinks(){
+/* ============ SCHOOL SETTINGS (name + badge) ============ */
+async function loadSchoolSettings(){
   try{
-    var r = await api({ action: 'getClassLinks', school: getActiveSchool() });
+    var r = await api({ action:'getSchoolSettings', school: getActiveSchool() });
+    if(r && r.success && r.data && r.data.settings){
+      schoolSettings = r.data.settings;
+    }
+  } catch(e){ console.warn('School settings load failed', e); }
+
+  var schoolName = schoolSettings['School Name'] || getActiveSchool() || 'EduTrack Teacher';
+  var badgeUrl   = schoolSettings['School Badge URL'] || '';
+
+  document.getElementById('navSchoolName').textContent = schoolName;
+  document.title = '👩‍🏫 Teacher — ' + schoolName;
+
+  var badgeEl = document.getElementById('navBadge');
+  if(badgeUrl){
+    badgeEl.innerHTML = '<img src="' + escapeHtml(badgeUrl) + '" alt="badge" onerror="this.parentElement.innerHTML=\'<span class=&quot;placeholder&quot;>🏫</span>\'" />';
+  } else {
+    badgeEl.innerHTML = '<span class="placeholder">🏫</span>';
+  }
+}
+
+/* ============ CLASS LINKS — scoped to the teacher's school ============ */
+async function syncClassLinks(){
+  classLinksMap = {};
+  try{
+    var r = await api({ action:'getClassLinks', school: getActiveSchool() });
     if(r && r.success && r.data && r.data.links){
-      classLinksMap = {};
       r.data.links.forEach(function(l){
         if(l.className && l.sheetId){
           classLinksMap[l.className] = l.sheetId;
         }
       });
-      console.log("Class links loaded:", classLinksMap);
+      console.log("Class links (school-scoped):", classLinksMap);
     }
   } catch(e){ console.warn('Class link sync failed:', e); }
 }
@@ -817,6 +877,7 @@ function switchTab(tab){
   if(tab === 'program'){ loadTeacherProgram(); }
   if(tab === 'notices'){ loadTeacherNotices(); }
   if(tab === 'chat'){ loadChatUsers(); }
+  if(tab === 'dashboard'){ loadPerformanceData(); }
 }
 
 /* ============ ATTENDANCE MODE ============ */
@@ -893,14 +954,8 @@ function toggleManualStudent(id, val){
   var s = manualAttStudents.find(function(x){ return x.studentId === id; });
   if(s) s.status = val;
 }
-function markAllManual(st){
-  manualAttStudents.forEach(function(s){ s.status = st; });
-  renderManualAttGrid();
-}
-function resetManualAttendance(){
-  manualAttStudents.forEach(function(s){ s.status = 'present'; });
-  renderManualAttGrid();
-}
+function markAllManual(st){ manualAttStudents.forEach(function(s){ s.status = st; }); renderManualAttGrid(); }
+function resetManualAttendance(){ manualAttStudents.forEach(function(s){ s.status = 'present'; }); renderManualAttGrid(); }
 function filterManualAttendance(){
   var q = (document.getElementById('manualAttSearch')?.value || '').toLowerCase().trim();
   manualAttFiltered = q ? manualAttStudents.filter(function(s){
@@ -910,9 +965,7 @@ function filterManualAttendance(){
 }
 
 async function saveManualAttendance(){
-  if(!manualAttClass || manualAttStudents.length === 0){
-    showToast('Load students first.', 'warning'); return;
-  }
+  if(!manualAttClass || manualAttStudents.length === 0){ showToast('Load students first.', 'warning'); return; }
   var school = getActiveSchool();
   var sheetId = getClassSheetId(manualAttClass);
   var records = manualAttStudents.map(function(s){
@@ -923,9 +976,7 @@ async function saveManualAttendance(){
   try{
     var res = await api({
       action: 'saveManualAttendance',
-      sheetId: sheetId,
-      school: school,
-      className: manualAttClass,
+      sheetId: sheetId, school: school, className: manualAttClass,
       date: document.getElementById('manualAttDate')?.value || getTodayDate(),
       term: document.getElementById('manualAttTerm')?.value || 'III',
       year: document.getElementById('manualAttYear')?.value || '2026',
@@ -935,12 +986,8 @@ async function saveManualAttendance(){
       gps: gpsCoords ? JSON.stringify(gpsCoords) : ''
     });
     if(btn){ btn.disabled = false; btn.textContent = '💾 Save Attendance'; }
-    if(res.success){
-      showToast('Attendance saved!', 'success');
-      loadAttendanceSummary();
-    } else {
-      showToast(res.message || 'Save failed', 'error');
-    }
+    if(res.success){ showToast('Attendance saved!', 'success'); loadAttendanceSummary(); }
+    else showToast(res.message || 'Save failed', 'error');
   } catch(e){
     if(btn){ btn.disabled = false; btn.textContent = '💾 Save Attendance'; }
     showToast(e.message, 'error');
@@ -985,10 +1032,7 @@ function stopQRScanner(){
   var r = document.getElementById('qrResult'); if(r) r.classList.remove('active');
 }
 
-function switchQRCamera(){
-  stopQRScanner();
-  setTimeout(startQRScanner, 500);
-}
+function switchQRCamera(){ stopQRScanner(); setTimeout(startQRScanner, 500); }
 
 function scanQRCode(){
   var v = document.getElementById('qrVideo');
@@ -1011,21 +1055,16 @@ function handleQRCode(data){
     var parsed = JSON.parse(data);
     if(parsed.id) studentId = parsed.id;
   } catch(e) { studentId = data.trim(); }
-
   if (!studentId) return;
 
   var student = qrAttStudents.find(function(s){ return String(s.studentId) === String(studentId); });
-  if (!student) {
-    showToast('Student ID ' + studentId + ' not found in class', 'warning');
-    return;
-  }
+  if (!student) { showToast('Student ID ' + studentId + ' not found in class', 'warning'); return; }
 
   document.getElementById('qrStudentName').textContent = student.studentName;
   document.getElementById('qrStudentId').textContent = 'ID: ' + studentId;
   document.getElementById('qrResult').classList.add('active');
   document.getElementById('qrResult').dataset.studentId = studentId;
   document.getElementById('qrResult').dataset.studentName = student.studentName;
-
   setTimeout(function(){
     if(document.getElementById('qrResult').classList.contains('active')) markQRAttendance();
   }, 2000);
@@ -1062,8 +1101,7 @@ async function saveQRAttendance(){
   var scannedIds = qrScanHistory.map(function(r){ return r.id; });
   var records = qrAttStudents.map(function(s){
     return {
-      studentId: s.studentId,
-      studentName: s.studentName,
+      studentId: s.studentId, studentName: s.studentName,
       status: scannedIds.indexOf(s.studentId) !== -1 ? 'present' : 'absent',
       class: qrAttClass
     };
@@ -1073,24 +1111,17 @@ async function saveQRAttendance(){
   try{
     var res = await api({
       action: 'saveManualAttendance',
-      sheetId: sheetId,
-      school: school,
-      className: qrAttClass,
-      date: getTodayDate(),
-      term: 'III',
-      year: '2026',
+      sheetId: sheetId, school: school, className: qrAttClass,
+      date: getTodayDate(), term: 'III', year: '2026',
       records: JSON.stringify(records),
       markedBy: authSession.name || authSession.username,
-      markedByRole: 'teacher',
-      method: 'QR',
+      markedByRole: 'teacher', method: 'QR',
       gps: gpsCoords ? JSON.stringify(gpsCoords) : ''
     });
     if(btn){ btn.disabled = false; btn.textContent = '💾 Save QR Attendance'; }
     if(res.success){
       showToast('QR attendance saved!', 'success');
-      qrScanHistory = [];
-      renderQRScanHistory();
-      loadAttendanceSummary();
+      qrScanHistory = []; renderQRScanHistory(); loadAttendanceSummary();
     } else showToast(res.message || 'Save failed', 'error');
   } catch(e){
     if(btn){ btn.disabled = false; btn.textContent = '💾 Save QR Attendance'; }
@@ -1099,13 +1130,35 @@ async function saveQRAttendance(){
 }
 
 /* ============================================================
-   PERFORMANCE DATA — Weak/Strong Learners & Chart
-   Uses all AOI1-4 (with legacy `aoi` fallback) and EOT for O-Level.
+   PERFORMANCE DATA — Comparison + Weak/Strong
+   Strictly scoped to a SINGLE class sheet + subject tab
    ============================================================ */
-function calcOLvlPctFromScores(sv){
-  // Legacy fallback: if only `aoi` exists, treat as AOI 1
-  if(sv.aoi1 === undefined && sv.aoi !== undefined && sv.aoi !== '') sv.aoi1 = sv.aoi;
+function populatePerformanceSelectors(){
+  var classSel = document.getElementById('perfClassSelect');
+  var subjSel  = document.getElementById('perfSubjectSelect');
+  if(!classSel || !subjSel) return;
 
+  // Classes the teacher is assigned to
+  classSel.innerHTML = '';
+  teacherInfo.classes.forEach(function(c){
+    var o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    classSel.appendChild(o);
+  });
+
+  // Subjects the teacher teaches (for the primary-subject highlight)
+  subjSel.innerHTML = '';
+  teacherInfo.subjects.forEach(function(s){
+    var o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    subjSel.appendChild(o);
+  });
+}
+
+/* Compute a percentage from a single O-Level score row {aoi1..4, eot} */
+function calcOLvlPctFromScores(sv){
+  // Legacy fallback
+  if(sv.aoi1 === undefined && sv.aoi !== undefined && sv.aoi !== '') sv.aoi1 = sv.aoi;
   var aoiVals = [];
   ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
     var v = parseFloat(sv[k]);
@@ -1113,61 +1166,74 @@ function calcOLvlPctFromScores(sv){
   });
   var aoiAvg20 = aoiVals.length ? (aoiVals.reduce(function(a,b){return a+b;},0)/aoiVals.length) : 0;
   var aoiPct = (aoiAvg20/20)*100;
-
   var eot = parseFloat(sv.eot);
   var hasEot = (sv.eot !== undefined && sv.eot !== '' && !isNaN(eot));
-
   var pcts = [];
   if(aoiVals.length>0) pcts.push(aoiPct);
   if(hasEot) pcts.push((eot/80)*100);
-
-  if(pcts.length === 0) return 0;
+  if(pcts.length === 0) return null;
   return pcts.reduce(function(a,b){return a+b;},0)/pcts.length;
 }
 
 async function loadPerformanceData(){
-  var teacherSubjects = teacherInfo.subjects;
-  var teacherClasses = teacherInfo.classes;
-  if(teacherClasses.length === 0) return;
-
-  var subjectScores = {};
-
-  for(var i=0; i<teacherClasses.length; i++){
-    var cls = teacherClasses[i];
-    var sheetId = getClassSheetId(cls);
-    if(!sheetId) continue;
-
-    try{
-      var r = await api({action:'getAllData', sheetId: sheetId, className: cls});
-      var students = r?.data?.sheetData?.students || [];
-
-      students.forEach(function(s){
-        var scores = s.scores || {};
-        Object.keys(scores).forEach(function(subj){
-          var sv = scores[subj] || {};
-          var pct = 0;
-          if(isOLevelClass(cls)){
-            pct = calcOLvlPctFromScores(sv);
-          } else {
-            var p1 = parseFloat(sv.paper1) || 0;
-            var p2 = parseFloat(sv.paper2) || 0;
-            pct = (p1 + p2) / 2;
-          }
-          if(!subjectScores[subj]) subjectScores[subj] = [];
-          subjectScores[subj].push({name: s.studentName, class: cls, pct: pct});
-        });
-      });
-    } catch(e){}
+  var cls = document.getElementById('perfClassSelect')?.value;
+  var primarySubj = document.getElementById('perfSubjectSelect')?.value;
+  if(!cls){
+    document.getElementById('weakLearnersList').innerHTML = '<div style="color:#999">No class selected.</div>';
+    document.getElementById('strongLearnersList').innerHTML = '<div style="color:#999">No class selected.</div>';
+    return;
+  }
+  var sheetId = getClassSheetId(cls);
+  if(!sheetId){
+    document.getElementById('weakLearnersList').innerHTML = '<div style="color:#999">Class sheet not configured.</div>';
+    document.getElementById('strongLearnersList').innerHTML = '<div style="color:#999">Class sheet not configured.</div>';
+    return;
   }
 
+  document.getElementById('perfChartTitle').textContent =
+    '📈 Subject Performance in ' + cls + ' (highlight: ' + (primarySubj || '—') + ')';
+  document.getElementById('weakSource').textContent = '— ' + (primarySubj || '') + ' / ' + cls;
+  document.getElementById('strongSource').textContent = '— ' + (primarySubj || '') + ' / ' + cls;
+
+  // Pull ALL data for THIS class from THIS sheet only
+  var data;
+  try{
+    var r = await api({action:'getAllData', sheetId: sheetId, className: cls});
+    data = r?.data?.sheetData?.students || [];
+  } catch(e){
+    data = [];
+  }
+
+  // Build per-subject percentage arrays (subject name → list of pcts)
+  var subjectScores = {};
+  data.forEach(function(s){
+    var scores = s.scores || {};
+    Object.keys(scores).forEach(function(subj){
+      var sv = scores[subj] || {};
+      var pct;
+      if(isOLevelClass(cls)){
+        pct = calcOLvlPctFromScores(sv);
+      } else {
+        var p1 = parseFloat(sv.paper1) || 0;
+        var p2 = parseFloat(sv.paper2) || 0;
+        if(!p1 && !p2) pct = null;
+        else pct = (p1 + p2) / 2;
+      }
+      if(pct === null || pct === undefined || isNaN(pct)) return;
+      if(!subjectScores[subj]) subjectScores[subj] = [];
+      subjectScores[subj].push({name: s.studentName, studentId: s.studentId, pct: pct});
+    });
+  });
+
+  // ---- Chart: compare subjects in this class only ----
   var chartLabels = [], chartData = [], chartColors = [];
   Object.keys(subjectScores).forEach(function(subj){
     var scores = subjectScores[subj];
-    var sum = scores.reduce(function(acc, curr){ return acc + curr.pct; }, 0);
-    var avg = scores.length > 0 ? (sum / scores.length) : 0;
+    var sum = scores.reduce(function(a,c){ return a + c.pct; }, 0);
+    var avg = scores.length ? sum / scores.length : 0;
     chartLabels.push(subj);
     chartData.push(Math.round(avg));
-    chartColors.push(teacherSubjects.indexOf(subj) !== -1 ? '#004085' : '#adb5bd');
+    chartColors.push(subj === primarySubj ? '#004085' : '#adb5bd');
   });
 
   var ctx = document.getElementById('performanceChart')?.getContext('2d');
@@ -1183,24 +1249,24 @@ async function loadPerformanceData(){
     });
   }
 
-  var primarySubject = teacherSubjects[0];
-  var primaryScores = subjectScores[primarySubject] || [];
+  // ---- Weak/Strong from the specific subject tab ----
+  var primaryScores = primarySubj ? (subjectScores[primarySubj] || []) : [];
   primaryScores.sort(function(a, b){ return a.pct - b.pct; });
 
-  var weak = primaryScores.slice(0, 3);
+  var weak   = primaryScores.slice(0, 3);
   var strong = primaryScores.slice(-3).reverse();
 
   document.getElementById('weakLearnersList').innerHTML = weak.length
     ? weak.map(function(s){
-        return '<div style="padding:4px 0; border-bottom:1px dashed #eee;">🔻 ' + escapeHtml(s.name) + ' <span style="color:#c1121f">(' + Math.round(s.pct) + '%)</span></div>';
+        return '<div style="padding:4px 0;border-bottom:1px dashed #eee;">🔻 ' + escapeHtml(s.name) + ' <span style="color:#c1121f">(' + Math.round(s.pct) + '%)</span></div>';
       }).join('')
-    : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubject) + '</div>';
+    : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubj || '') + '</div>';
 
   document.getElementById('strongLearnersList').innerHTML = strong.length
     ? strong.map(function(s){
-        return '<div style="padding:4px 0; border-bottom:1px dashed #eee;">🏆 ' + escapeHtml(s.name) + ' <span style="color:#1a8a4a">(' + Math.round(s.pct) + '%)</span></div>';
+        return '<div style="padding:4px 0;border-bottom:1px dashed #eee;">🏆 ' + escapeHtml(s.name) + ' <span style="color:#1a8a4a">(' + Math.round(s.pct) + '%)</span></div>';
       }).join('')
-    : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubject) + '</div>';
+    : '<div style="color:#999">No scores posted yet for ' + escapeHtml(primarySubj || '') + '</div>';
 }
 
 /* ============ STUDENTS TAB ============ */
@@ -1227,7 +1293,7 @@ async function loadStudentsForTab(){
 }
 
 /* ============================================================
-   SCORE SUBMISSION — Multi-AOI
+   SCORE SUBMISSION — AOI-driven form
    ============================================================ */
 function trEnforceMax(inputEl, maxVal){
   var v = parseFloat(inputEl.value);
@@ -1302,7 +1368,7 @@ function trUpdateScoreEntryMode(){
   trSetScoreLevel(trCurrentScoreLevel);
 }
 
-/* === NEW: Sync enabled AOIs from checkboxes === */
+/* Read checkbox state → trEnabledAOIs[] and trEnabledEOT */
 function trSyncAoiTogglesFromCheckboxes(){
   var c1 = document.getElementById('trChkAOI1');
   var c2 = document.getElementById('trChkAOI2');
@@ -1318,10 +1384,10 @@ function trSyncAoiTogglesFromCheckboxes(){
   trEnabledEOT = !!(ce && ce.checked);
 }
 
+/* Show/hide max fields + rebuild score table whenever a tick changes */
 function trUpdateOLevelExamDisplay(){
   trSyncAoiTogglesFromCheckboxes();
 
-  // Show/hide max fields
   var map = {
     aoi1:'trAoi1MaxContainer',
     aoi2:'trAoi2MaxContainer',
@@ -1368,10 +1434,7 @@ async function trLoadStudents(){
     if(r && r.success && r.data){
       trStudentList = r.data.students || [];
       trScoreRows = trStudentList.map(function(s){
-        return Object.assign({}, s, {
-          aoi1:'',aoi2:'',aoi3:'',aoi4:'',eot:'',
-          paper1:'',paper2:''
-        });
+        return Object.assign({}, s, {aoi1:'',aoi2:'',aoi3:'',aoi4:'',eot:'',paper1:'',paper2:''});
       });
       trRenderScoreTable();
     } else {
@@ -1382,13 +1445,13 @@ async function trLoadStudents(){
   }
 }
 
-/* Build dynamic header + rows */
+/* Rebuild header + rows based on current tick state */
 function trRenderScoreTable(){
   var tbody = document.getElementById('trScoreTableBody');
   var thead = document.getElementById('trScoreTableHead');
   if(!tbody || !thead) return;
 
-  // Build header
+  // Header
   var hh = '<th>ID</th><th>Name</th>';
   if(trCurrentScoreLevel === 'olevel'){
     if(trEnabledAOIs.indexOf('aoi1') !== -1) hh += '<th>AOI 1</th>';
@@ -1410,11 +1473,10 @@ function trRenderScoreTable(){
   }) : trScoreRows;
 
   if(filtered.length === 0){
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:30px">No students.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:30px">No students loaded.</td></tr>';
     return;
   }
 
-  // Max values
   var aoiMaxes = {
     aoi1: parseFloat(document.getElementById('trAoi1Max')?.value) || 20,
     aoi2: parseFloat(document.getElementById('trAoi2Max')?.value) || 20,
@@ -1424,7 +1486,7 @@ function trRenderScoreTable(){
   var eotMax = parseFloat(document.getElementById('trEotMax')?.value) || 80;
   var p1Max = parseFloat(document.getElementById('trPaper1Max')?.value) || 100;
   var p2Max = parseFloat(document.getElementById('trPaper2Max')?.value) || 100;
-  var ps = document.getElementById('trPaperSelectionALevel')?.value || 'both';
+  var paperSel = document.getElementById('trPaperSelectionALevel')?.value || 'both';
 
   var h = '';
   filtered.forEach(function(s){
@@ -1443,10 +1505,10 @@ function trRenderScoreTable(){
         h += '<td><input type="number" id="trScore_eot_'+idx+'" value="'+(s.eot||'')+'" min="0" max="'+eotMax+'" step="0.5" oninput="trEnforceMax(this,'+eotMax+')" onchange="trUpdateScore('+idx+')" /></td>';
       }
     } else {
-      if(ps === 'both' || ps === 'paper1'){
+      if(paperSel === 'both' || paperSel === 'paper1'){
         h += '<td><input type="number" id="trScore_paper1_'+idx+'" value="'+(s.paper1||'')+'" min="0" max="'+p1Max+'" step="0.5" oninput="trEnforceMax(this,'+p1Max+')" onchange="trUpdateScore('+idx+')" /></td>';
       }
-      if(ps === 'both' || ps === 'paper2'){
+      if(paperSel === 'both' || paperSel === 'paper2'){
         h += '<td><input type="number" id="trScore_paper2_'+idx+'" value="'+(s.paper2||'')+'" min="0" max="'+p2Max+'" step="0.5" oninput="trEnforceMax(this,'+p2Max+')" onchange="trUpdateScore('+idx+')" /></td>';
       }
     }
@@ -1455,8 +1517,8 @@ function trRenderScoreTable(){
   });
   tbody.innerHTML = h;
 
-  // Fill initial averages
-  trScoreRows.forEach(function(_, i){ trUpdateScore(i, true); });
+  // fill initial averages
+  trScoreRows.forEach(function(_, i){ trUpdateScore(i); });
 }
 
 function trComputeAverageDisplay(row){
@@ -1468,17 +1530,14 @@ function trComputeAverageDisplay(row){
       aoi4: parseFloat(document.getElementById('trAoi4Max')?.value) || 20
     };
     var eotMax = parseFloat(document.getElementById('trEotMax')?.value) || 80;
-
     var aoiVals = [];
     ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
       if(trEnabledAOIs.indexOf(k) === -1) return;
       var v = parseFloat(row[k]);
       if(!isNaN(v)) aoiVals.push((v/aoiMaxes[k])*100);
     });
-    var aoiPct = aoiVals.length ? (aoiVals.reduce(function(a,b){return a+b;},0)/aoiVals.length) : 0;
-
     var pcts = [];
-    if(aoiVals.length>0) pcts.push(aoiPct);
+    if(aoiVals.length>0) pcts.push(aoiVals.reduce(function(a,b){return a+b;},0)/aoiVals.length);
     if(trEnabledEOT){
       var eot = parseFloat(row.eot);
       if(!isNaN(eot)) pcts.push((eot/eotMax)*100);
@@ -1503,7 +1562,7 @@ function trComputeAverageDisplay(row){
   }
 }
 
-function trUpdateScore(i, silent){
+function trUpdateScore(i){
   var row = trScoreRows[i];
   if(!row) return;
 
@@ -1511,19 +1570,18 @@ function trUpdateScore(i, silent){
     ['aoi1','aoi2','aoi3','aoi4'].forEach(function(k){
       if(trEnabledAOIs.indexOf(k) === -1) return;
       var el = document.getElementById('trScore_'+k+'_'+i);
-      if(el) row[k] = parseFloat(el.value) || '';
+      if(el) row[k] = el.value === '' ? '' : parseFloat(el.value);
     });
     if(trEnabledEOT){
       var elE = document.getElementById('trScore_eot_'+i);
-      if(elE) row.eot = parseFloat(elE.value) || '';
+      if(elE) row.eot = elE.value === '' ? '' : parseFloat(elE.value);
     }
   } else {
     var elP1 = document.getElementById('trScore_paper1_'+i);
-    if(elP1) row.paper1 = parseFloat(elP1.value) || '';
+    if(elP1) row.paper1 = elP1.value === '' ? '' : parseFloat(elP1.value);
     var elP2 = document.getElementById('trScore_paper2_'+i);
-    if(elP2) row.paper2 = parseFloat(elP2.value) || '';
+    if(elP2) row.paper2 = elP2.value === '' ? '' : parseFloat(elP2.value);
   }
-
   var e = document.getElementById('trAvg_'+i);
   if(e) e.textContent = trComputeAverageDisplay(row);
 }
@@ -1534,7 +1592,7 @@ function trResetScoresForm(){
   document.getElementById('trScoresForm').style.display = 'block';
   document.getElementById('trScoreSuccess').style.display = 'none';
   document.getElementById('trScoreClassSelect').value = '';
-  document.getElementById('trScoreTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px">⏳ Select a class.</td></tr>';
+  document.getElementById('trScoreTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center;color:#999;padding:30px">⏳ Select a class + tick assessments.</td></tr>';
   document.getElementById('trScoreClassInfo').textContent = 'Select a class';
   document.getElementById('trLevelDisplay').textContent = '';
   trScoreRows = [];
@@ -1569,6 +1627,10 @@ async function trPostScores(e){
   var scores = [], has = false;
 
   if(trCurrentScoreLevel === 'olevel'){
+    if(trEnabledAOIs.length === 0 && !trEnabledEOT){
+      showToast('❌ Tick at least one assessment (AOI 1–4 or EOT).', 'error');
+      return;
+    }
     var aoiMaxes = {
       aoi1: parseFloat(document.getElementById('trAoi1Max')?.value) || 20,
       aoi2: parseFloat(document.getElementById('trAoi2Max')?.value) || 20,
@@ -1577,15 +1639,9 @@ async function trPostScores(e){
     };
     var eotMax = parseFloat(document.getElementById('trEotMax')?.value) || 80;
 
-    if(trEnabledAOIs.length === 0 && !trEnabledEOT){
-      showToast('❌ Tick at least one assessment (AOI 1–4 or EOT).', 'error');
-      return;
-    }
-
     trScoreRows.forEach(function(s){
       var entry = {studentId: s.studentId, studentName: s.studentName, teacherInitials: initials, postedBy: authSession.username, postedByName: authSession.name};
       var any = false;
-
       trEnabledAOIs.forEach(function(k){
         var v = parseFloat(s[k]);
         if(!isNaN(v)){
@@ -1593,27 +1649,18 @@ async function trPostScores(e){
           any = true;
         }
       });
-      // legacy mirror for backward-compatible sheets
-      if(entry.aoi1 !== undefined) entry.aoi = entry.aoi1;
-
+      if(entry.aoi1 !== undefined) entry.aoi = entry.aoi1;  // legacy mirror
       if(trEnabledEOT){
         var eot = parseFloat(s.eot);
-        if(!isNaN(eot)){
-          entry.eot = Math.round((eot/eotMax)*80*10)/10;
-          any = true;
-        }
+        if(!isNaN(eot)){ entry.eot = Math.round((eot/eotMax)*80*10)/10; any = true; }
       }
-
       if(!any) return;
       has = true;
-
-      // total = sum of *scaled* values (each already /20 or /80)
       var total = 0;
       trEnabledAOIs.forEach(function(k){ if(entry[k]) total += entry[k]; });
       if(trEnabledEOT && entry.eot) total += entry.eot;
       entry.total = total;
       entry.scoreValue = total;
-
       scores.push(entry);
     });
   } else {
@@ -1647,11 +1694,8 @@ async function trPostScores(e){
   try{
     var r = await api({
       action: 'postScoresOnly',
-      sheetId: sheetId,
-      subject: subj,
-      level: trCurrentScoreLevel,
+      sheetId: sheetId, subject: subj, level: trCurrentScoreLevel,
       scores: JSON.stringify(scores),
-      // Inform the backend which AOIs are being submitted (for O-Level)
       scoreType: trCurrentScoreLevel === 'olevel'
         ? 'CUSTOM:' + trEnabledAOIs.join(',') + (trEnabledEOT ? ',eot' : '')
         : (document.getElementById('trPaperSelectionALevel')?.value || 'both'),
@@ -1669,7 +1713,7 @@ async function trPostScores(e){
         '📄 Tab: <strong>' + escapeHtml(r.data?.tabName || subj) + '</strong><br>' +
         '➕ Added: ' + (r.data?.added || 0) + ' | 🔄 Updated: ' + (r.data?.updated || 0) +
         '<br><span style="font-size:12px;color:#555">Submitted: ' +
-          (trEnabledAOIs.map(function(k){return k.toUpperCase().replace('AOI','AOI ');}).join(', ') +
+          (trEnabledAOIs.map(function(k){ return k.toUpperCase().replace('AOI','AOI '); }).join(', ') +
           (trEnabledEOT ? ', EOT' : '')) +
         '</span>';
       showToast('✅ Posted!', 'success');
@@ -1781,10 +1825,7 @@ async function loadChatMessages(){
     if(r && r.success && r.data && r.data.messages) {
       var msgs = r.data.messages;
       var area = document.getElementById('messagesArea');
-      if(msgs.length === 0) {
-        area.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No messages yet. Say hi!</p>';
-        return;
-      }
+      if(msgs.length === 0) { area.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No messages yet. Say hi!</p>'; return; }
       var h = '';
       msgs.forEach(function(m){
         var sent = m.from === authSession.username;
@@ -1800,10 +1841,8 @@ async function sendMessage(){
   var input = document.getElementById('chatInput');
   var msg = input.value.trim();
   if(!msg || !currentChatUser) return;
-
   input.value = '';
   document.getElementById('messagesArea').innerHTML += '<div class="message sent" style="opacity:0.7">'+escapeHtml(msg)+'</div>';
-
   try {
     await api({
       action: 'saveChatMessage',
@@ -1814,9 +1853,7 @@ async function sendMessage(){
       time: getCurrentTime()
     });
     loadChatMessages();
-  } catch(e) {
-    showToast('Failed to send message', 'error');
-  }
+  } catch(e) { showToast('Failed to send message', 'error'); }
 }
 
 /* ============ PROFILE ============ */
